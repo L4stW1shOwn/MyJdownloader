@@ -45,3 +45,6 @@ MyJdownloader.MyJdRateLimitException.MyJdRateLimitException(string! message) -> 
 MyJdownloader.MyJdRateLimitException.MyJdRateLimitException(string! message, MyJdownloader.MyJdErrorSource errorSource, string! errorType, System.Net.HttpStatusCode statusCode, System.TimeSpan? retryAfter) -> void
 MyJdownloader.MyJdRateLimitException.MyJdRateLimitException(string! message, System.Exception! innerException) -> void
 MyJdownloader.MyJdRateLimitException.RetryAfter.get -> System.TimeSpan?
+MyJdownloader.MyJdSession
+MyJdownloader.MyJdSession.Email.get -> string!
+override MyJdownloader.MyJdSession.ToString() -> string!
