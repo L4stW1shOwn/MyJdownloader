@@ -31,6 +31,20 @@ public sealed class MyJdExceptionTests
             .SetArgDisplayNames(nameof(MyJdApiException));
     }
 
+    private static IEnumerable<TestCaseData> MessageFactories()
+    {
+        yield return new TestCaseData((Func<MyJdException>)(() => new MyJdAuthenticationException(Message)))
+            .SetArgDisplayNames(nameof(MyJdAuthenticationException));
+        yield return new TestCaseData((Func<MyJdException>)(() => new MyJdDeviceOfflineException(Message)))
+            .SetArgDisplayNames(nameof(MyJdDeviceOfflineException));
+        yield return new TestCaseData((Func<MyJdException>)(() => new MyJdApiException(Message)))
+            .SetArgDisplayNames(nameof(MyJdApiException));
+        yield return new TestCaseData((Func<MyJdException>)(() => new MyJdRateLimitException(Message)))
+            .SetArgDisplayNames(nameof(MyJdRateLimitException));
+        yield return new TestCaseData((Func<MyJdException>)(() => new MyJdProtocolException(Message)))
+            .SetArgDisplayNames(nameof(MyJdProtocolException));
+    }
+
     private static IEnumerable<TestCaseData> InnerFactories()
     {
         var inner = new InvalidOperationException("inner");
@@ -73,6 +87,19 @@ public sealed class MyJdExceptionTests
         Assert.That(exception.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
     }
 
+    [TestCaseSource(nameof(MessageFactories))]
+    public void Ctor_Message_SetsMessageOnly(Func<MyJdException> create)
+    {
+        ArgumentNullException.ThrowIfNull(create);
+
+        var exception = create();
+
+        Assert.That(exception.Message, Is.EqualTo(Message));
+        Assert.That(exception.ErrorSource, Is.Null);
+        Assert.That(exception.ErrorType, Is.Null);
+        Assert.That(exception.StatusCode, Is.Null);
+    }
+
     [TestCaseSource(nameof(DefaultFactories))]
     public void Ctor_Default_LeavesErrorPropertiesNull(Func<MyJdException> create)
     {
@@ -80,6 +107,7 @@ public sealed class MyJdExceptionTests
 
         var exception = create();
 
+        Assert.That(exception.Message, Is.Not.Empty);
         Assert.That(exception.ErrorSource, Is.Null);
         Assert.That(exception.ErrorType, Is.Null);
         Assert.That(exception.StatusCode, Is.Null);
@@ -117,13 +145,14 @@ public sealed class MyJdExceptionTests
         Assert.That(exception.RetryAfter, Is.Null);
     }
 
-    [Test]
-    public void MyJdProtocolException_Ctor_MessageAndSource_SetsSourceOnly()
+    [TestCase(MyJdErrorSource.Server)]
+    [TestCase(MyJdErrorSource.Device)]
+    public void MyJdProtocolException_Ctor_MessageAndSource_SetsSourceOnly(MyJdErrorSource source)
     {
-        var exception = new MyJdProtocolException(Message, MyJdErrorSource.Server);
+        var exception = new MyJdProtocolException(Message, source);
 
         Assert.That(exception.Message, Is.EqualTo(Message));
-        Assert.That(exception.ErrorSource, Is.EqualTo(MyJdErrorSource.Server));
+        Assert.That(exception.ErrorSource, Is.EqualTo(source));
         Assert.That(exception.ErrorType, Is.Null);
         Assert.That(exception.StatusCode, Is.Null);
         Assert.That(exception.InnerException, Is.Null);
