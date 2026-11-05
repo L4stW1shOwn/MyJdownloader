@@ -4,8 +4,8 @@ namespace MyJdownloader;
 /// Raised when a response violates the MyJDownloader protocol (malformed payload, bad signature, and so on).
 /// </summary>
 /// <remarks>
-/// The inner detail of protocol failures is deliberately not attached, to avoid leaking
-/// cryptographic or payload material through the exception chain.
+/// The library itself never attaches the inner detail of a decryption or protocol failure, to avoid
+/// exposing a padding oracle. The standard constructors exist for callers (for example tests).
 /// </remarks>
 public sealed class MyJdProtocolException : MyJdException
 {

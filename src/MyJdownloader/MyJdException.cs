@@ -36,13 +36,27 @@ public abstract class MyJdException : Exception
     /// <param name="errorSource">The side that reported the error.</param>
     /// <param name="errorType">The error type reported by the service, if any.</param>
     /// <param name="statusCode">The HTTP status code of the response, if any.</param>
+    protected MyJdException(
+        string message,
+        MyJdErrorSource errorSource,
+        string? errorType,
+        HttpStatusCode? statusCode)
+        : this(message, errorSource, errorType, statusCode, null)
+    {
+    }
+
+    /// <summary>Initializes a new instance of the <see cref="MyJdException"/> class with the error details reported by the service and an inner exception.</summary>
+    /// <param name="message">The error message.</param>
+    /// <param name="errorSource">The side that reported the error.</param>
+    /// <param name="errorType">The error type reported by the service, if any.</param>
+    /// <param name="statusCode">The HTTP status code of the response, if any.</param>
     /// <param name="innerException">The exception that caused this error, if any.</param>
     protected MyJdException(
         string message,
         MyJdErrorSource errorSource,
         string? errorType,
         HttpStatusCode? statusCode,
-        Exception? innerException = null)
+        Exception? innerException)
         : base(message, innerException)
     {
         this.ErrorSource = errorSource;
@@ -54,6 +68,10 @@ public abstract class MyJdException : Exception
     public MyJdErrorSource? ErrorSource { get; }
 
     /// <summary>Gets the error type reported by the service, or <see langword="null"/> when unknown.</summary>
+    /// <remarks>
+    /// The value comes from the remote service (normalized to upper case), is untrusted, may be of
+    /// unbounded length and may contain control characters. Do not log or display it unfiltered.
+    /// </remarks>
     public string? ErrorType { get; }
 
     /// <summary>Gets the HTTP status code of the response, or <see langword="null"/> when unknown.</summary>

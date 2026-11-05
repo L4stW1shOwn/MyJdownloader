@@ -30,7 +30,8 @@ MyJdownloader.MyJdException.ErrorSource.get -> MyJdownloader.MyJdErrorSource?
 MyJdownloader.MyJdException.ErrorType.get -> string?
 MyJdownloader.MyJdException.MyJdException() -> void
 MyJdownloader.MyJdException.MyJdException(string! message) -> void
-MyJdownloader.MyJdException.MyJdException(string! message, MyJdownloader.MyJdErrorSource errorSource, string? errorType, System.Net.HttpStatusCode? statusCode, System.Exception? innerException = null) -> void
+MyJdownloader.MyJdException.MyJdException(string! message, MyJdownloader.MyJdErrorSource errorSource, string? errorType, System.Net.HttpStatusCode? statusCode) -> void
+MyJdownloader.MyJdException.MyJdException(string! message, MyJdownloader.MyJdErrorSource errorSource, string? errorType, System.Net.HttpStatusCode? statusCode, System.Exception? innerException) -> void
 MyJdownloader.MyJdException.MyJdException(string! message, System.Exception! innerException) -> void
 MyJdownloader.MyJdException.StatusCode.get -> System.Net.HttpStatusCode?
 MyJdownloader.MyJdProtocolException
