@@ -3,6 +3,7 @@
 - **Status**: Accepted
 - **Date**: 2026-11-02
 - **Amended**: 2026-11-05 (T-003)
+- **Amended**: 2026-11-05 (T-005)
 - **Reference**: `docs/superpowers/specs/2026-11-02-myjdownloader-client-design.md` (§1, §3, §5, §6)
 
 ## Context
@@ -32,8 +33,13 @@ singleton, several concurrent calls may fail at the same time.
 - The client atomically replaces the current reference.
 - `ExportSession()` returns the current instance (or `null`); `RestoreSession()`
   replaces the state without any network call.
-- `SessionChanged` is raised after each successful connection/reconnection so
-  that the caller can persist the new state.
+- `SessionChanged` (`EventHandler<MyJdSessionChangedEventArgs>`, nullable
+  `Session`) is raised after connect, reconnect and disconnect (with `null`),
+  outside the lock; a version counter drops notifications of superseded
+  changes, so callers persist `ExportSession()`; every handler is invoked even
+  if one throws (one failure rethrown, several as `AggregateException`).
+- Session changes are serialized by a `SemaphoreSlim(1,1)` that T-006's
+  single-flight reconnection reuses; reads are lock-free.
 - No built-in store: persistence is left to the caller.
 - `ConnectAsync` does not keep the password after derivation; only the derived
   keys are kept. The doc states that the session contains keys derived from the
