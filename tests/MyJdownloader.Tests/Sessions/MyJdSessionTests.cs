@@ -7,6 +7,44 @@ public sealed class MyJdSessionTests
     private const string SessionToken = "0011aabb";
     private const string RegainToken = "ccdd2233";
 
+    private const string FixedMessage = "The session data is not a valid MyJdownloader session.";
+    private const string ShortLoginSecretBase64 = "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ==";
+
+#pragma warning disable JSON002 // Probable JSON string: intentional session payloads used as plain string vectors
+    private const string ReferenceJson =
+        """{"version":1,"email":"user@example.com","loginSecret":"AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=","deviceSecret":"AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI=","sessionToken":"0011aabb","regainToken":"ccdd2233","serverEncryptionToken":"AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM=","deviceEncryptionToken":"BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ="}""";
+
+    private const string UnknownPropertyJson =
+        """{"version":1,"extra":1,"email":"user@example.com","loginSecret":"AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=","deviceSecret":"AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI=","sessionToken":"0011aabb","regainToken":"ccdd2233","serverEncryptionToken":"AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM=","deviceEncryptionToken":"BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ="}""";
+
+    private const string DuplicatePropertyJson =
+        """{"version":1,"email":"user@example.com","email":"other@example.com","loginSecret":"AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=","deviceSecret":"AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI=","sessionToken":"0011aabb","regainToken":"ccdd2233","serverEncryptionToken":"AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM=","deviceEncryptionToken":"BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ="}""";
+
+    private const string MissingRegainTokenJson =
+        """{"version":1,"email":"user@example.com","loginSecret":"AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=","deviceSecret":"AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI=","sessionToken":"0011aabb","serverEncryptionToken":"AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM=","deviceEncryptionToken":"BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ="}""";
+
+    private const string VersionTwoJson =
+        """{"version":2,"email":"user@example.com","loginSecret":"AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=","deviceSecret":"AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI=","sessionToken":"0011aabb","regainToken":"ccdd2233","serverEncryptionToken":"AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM=","deviceEncryptionToken":"BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ="}""";
+
+    private const string ShortLoginSecretJson =
+        """{"version":1,"email":"user@example.com","loginSecret":"AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ==","deviceSecret":"AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI=","sessionToken":"0011aabb","regainToken":"ccdd2233","serverEncryptionToken":"AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM=","deviceEncryptionToken":"BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ="}""";
+
+    private const string InvalidBase64DeviceSecretJson =
+        """{"version":1,"email":"user@example.com","loginSecret":"AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=","deviceSecret":"%%%","sessionToken":"0011aabb","regainToken":"ccdd2233","serverEncryptionToken":"AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM=","deviceEncryptionToken":"BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ="}""";
+
+    private const string EmptySessionTokenJson =
+        """{"version":1,"email":"user@example.com","loginSecret":"AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=","deviceSecret":"AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI=","sessionToken":"","regainToken":"ccdd2233","serverEncryptionToken":"AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM=","deviceEncryptionToken":"BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ="}""";
+
+    private const string NonHexTokenJson =
+        """{"version":1,"email":"user@example.com","loginSecret":"AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=","deviceSecret":"AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI=","sessionToken":"ab?cd","regainToken":"ccdd2233","serverEncryptionToken":"AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM=","deviceEncryptionToken":"BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ="}""";
+
+    private const string PascalCaseJson =
+        """{"Version":1,"Email":"user@example.com","LoginSecret":"AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=","DeviceSecret":"AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI=","SessionToken":"0011aabb","RegainToken":"ccdd2233","ServerEncryptionToken":"AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM=","DeviceEncryptionToken":"BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ="}""";
+
+    private const string VersionAsStringJson =
+        """{"version":"1","email":"user@example.com","loginSecret":"AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=","deviceSecret":"AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI=","sessionToken":"0011aabb","regainToken":"ccdd2233","serverEncryptionToken":"AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM=","deviceEncryptionToken":"BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ="}""";
+#pragma warning restore JSON002
+
     private static byte[] Key(byte value, int length = 32) => [.. Enumerable.Repeat(value, length)];
 
     private static MyJdSession CreateFixtureSession() =>
@@ -185,4 +223,101 @@ public sealed class MyJdSessionTests
     [TestCase("@example.com", "MyJdSession { Email = ***@example.com }", TestName = "ToString_EmptyLocalPart_MasksAsStars")]
     public void ToString_UnusualEmail_ReturnsExpectedMask(string email, string expected) =>
         Assert.That(CreateSession(email: email).ToString(), Is.EqualTo(expected));
+
+    private static void AssertEveryFixtureField(MyJdSession session) =>
+        Assert.Multiple(() =>
+        {
+            Assert.That(session.Email, Is.EqualTo(Email));
+            Assert.That(session.SessionToken, Is.EqualTo(SessionToken));
+            Assert.That(session.RegainToken, Is.EqualTo(RegainToken));
+            Assert.That(session.LoginSecret.ToArray(), Is.EqualTo(Key(1)));
+            Assert.That(session.DeviceSecret.ToArray(), Is.EqualTo(Key(2)));
+            Assert.That(session.ServerEncryptionToken.ToArray(), Is.EqualTo(Key(3)));
+            Assert.That(session.DeviceEncryptionToken.ToArray(), Is.EqualTo(Key(4)));
+        });
+
+    [Test]
+    public void ToJson_FixtureSession_EqualsReferenceJson() =>
+        Assert.That(CreateFixtureSession().ToJson(), Is.EqualTo(ReferenceJson));
+
+    [Test]
+    public void FromJson_ReferenceJson_RestoresEveryField() =>
+        AssertEveryFixtureField(MyJdSession.FromJson(ReferenceJson));
+
+    [Test]
+    public void FromJson_RoundTrip_RestoresEveryField() =>
+        AssertEveryFixtureField(MyJdSession.FromJson(CreateFixtureSession().ToJson()));
+
+    [Test]
+    public void FromJson_Null_ThrowsArgumentNullException()
+    {
+        var ex = Assert.Throws<ArgumentNullException>(() => MyJdSession.FromJson(null!));
+
+        Assert.That(ex, Is.Not.Null);
+        ArgumentNullException.ThrowIfNull(ex);
+        Assert.That(ex.ParamName, Is.EqualTo("json"));
+    }
+
+    [TestCase("not json", TestName = "FromJson_NotJson_ThrowsFormatException")]
+    [TestCase("null", TestName = "FromJson_JsonNull_ThrowsFormatException")]
+    [TestCase("", TestName = "FromJson_EmptyString_ThrowsFormatException")]
+    [TestCase("{}", TestName = "FromJson_EmptyObject_ThrowsFormatException")]
+    [TestCase(MissingRegainTokenJson, TestName = "FromJson_MissingRegainToken_ThrowsFormatException")]
+    [TestCase(VersionTwoJson, TestName = "FromJson_UnsupportedVersion_ThrowsFormatException")]
+    [TestCase(ShortLoginSecretJson, TestName = "FromJson_LoginSecretOf31Bytes_ThrowsFormatException")]
+    [TestCase(InvalidBase64DeviceSecretJson, TestName = "FromJson_InvalidBase64DeviceSecret_ThrowsFormatException")]
+    [TestCase(EmptySessionTokenJson, TestName = "FromJson_EmptySessionToken_ThrowsFormatException")]
+    public void FromJson_InvalidInput_ThrowsFormatException(string json)
+    {
+        var ex = Assert.Throws<FormatException>(() => MyJdSession.FromJson(json));
+
+        Assert.That(ex, Is.Not.Null);
+        ArgumentNullException.ThrowIfNull(ex);
+        Assert.That(ex.Message, Is.EqualTo(FixedMessage));
+        Assert.That(ex.InnerException, Is.Null);
+    }
+
+    [Test]
+    public void FromJson_InvalidInput_MessageContainsNoValue()
+    {
+        var ex = Assert.Throws<FormatException>(() => MyJdSession.FromJson(ShortLoginSecretJson));
+
+        Assert.That(ex, Is.Not.Null);
+        ArgumentNullException.ThrowIfNull(ex);
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex.Message, Does.Not.Contain(ShortLoginSecretBase64));
+            Assert.That(ex.Message, Does.Not.Contain(Email));
+        });
+    }
+
+    [Test]
+    public void FromJson_PascalCaseNames_ThrowsFormatException() =>
+        AssertFixedFormatException(PascalCaseJson);
+
+    [Test]
+    public void FromJson_VersionAsString_ThrowsFormatException() =>
+        AssertFixedFormatException(VersionAsStringJson);
+
+    [Test]
+    public void FromJson_UnknownProperty_ThrowsFormatException() =>
+        AssertFixedFormatException(UnknownPropertyJson);
+
+    [Test]
+    public void FromJson_DuplicateProperty_ThrowsFormatException() =>
+        AssertFixedFormatException(DuplicatePropertyJson);
+
+    [Test]
+    public void FromJson_NonHexToken_ThrowsFormatException() =>
+        AssertFixedFormatException(NonHexTokenJson);
+
+    private static void AssertFixedFormatException(string json)
+    {
+        var ex = Assert.Throws<FormatException>(() => MyJdSession.FromJson(json));
+
+        Assert.That(ex, Is.Not.Null);
+        ArgumentNullException.ThrowIfNull(ex);
+        Assert.That(ex.Message, Is.EqualTo(FixedMessage));
+        Assert.That(ex.InnerException, Is.Null);
+    }
 }

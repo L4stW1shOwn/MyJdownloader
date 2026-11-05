@@ -47,4 +47,6 @@ MyJdownloader.MyJdRateLimitException.MyJdRateLimitException(string! message, Sys
 MyJdownloader.MyJdRateLimitException.RetryAfter.get -> System.TimeSpan?
 MyJdownloader.MyJdSession
 MyJdownloader.MyJdSession.Email.get -> string!
+MyJdownloader.MyJdSession.ToJson() -> string!
+static MyJdownloader.MyJdSession.FromJson(string! json) -> MyJdownloader.MyJdSession!
 override MyJdownloader.MyJdSession.ToString() -> string!
