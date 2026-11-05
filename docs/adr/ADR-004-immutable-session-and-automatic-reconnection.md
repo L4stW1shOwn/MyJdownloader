@@ -2,6 +2,7 @@
 
 - **Status**: Accepted
 - **Date**: 2026-11-02
+- **Amended**: 2026-11-05 (T-003)
 - **Reference**: `docs/superpowers/specs/2026-11-02-myjdownloader-client-design.md` (§1, §3, §5, §6)
 
 ## Context
@@ -17,9 +18,17 @@ singleton, several concurrent calls may fail at the same time.
 
 **Session**:
 
-- `MyJdSession` is a public, immutable and serializable `record`: email,
-  loginSecret, deviceSecret, sessionToken, regainToken, serverEncryptionToken,
-  deviceEncryptionToken.
+- `MyJdSession` is a public, immutable `sealed class` (not a `record`: a record
+  would expose its members through the generated `ToString()`, `Deconstruct` and
+  `with`, and compare `byte[]` by reference). It holds the email, loginSecret,
+  deviceSecret, sessionToken, regainToken, serverEncryptionToken and
+  deviceEncryptionToken; only `Email` is public, secrets and tokens are internal
+  and hidden from the debugger.
+- Serialization goes through `ToJson()` / `FromJson()` with a versioned
+  (`version: 1`), library-owned JSON format produced by the internal
+  source-generated `MyJdJsonContext` (AOT). `FromJson` rejects any invalid,
+  unknown or duplicate content with a single data-free `FormatException`;
+  `ToString()` masks the email and exposes no secret.
 - The client atomically replaces the current reference.
 - `ExportSession()` returns the current instance (or `null`); `RestoreSession()`
   replaces the state without any network call.
@@ -48,6 +57,7 @@ singleton, several concurrent calls may fail at the same time.
 | Mutable session | Risk of inconsistent reads under concurrency; immutability + atomic replacement is simpler to reason about. |
 | Reconnection without coordination | Multiple concurrent reconnections, cross-invalidation of tokens. |
 | Multiple replays | Risk of loops; a single replay is enough, beyond that the failure is surfaced. |
+| Public serializable record (caller serializes) | Not AOT-safe for the caller (reflection), format not versioned, secrets exposed as public members. |
 
 ## Consequences
 
