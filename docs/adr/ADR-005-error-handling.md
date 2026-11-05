@@ -2,6 +2,7 @@
 
 - **Status**: Accepted
 - **Date**: 2026-11-02
+- Amended 2026-11-05 (T-002)
 - **Reference**: `docs/superpowers/specs/2026-11-02-myjdownloader-client-design.md` (§1, §6, §8)
 
 ## Context
@@ -18,12 +19,14 @@ Public exception hierarchy, fed by a single internal mapper
 
 | Exception | Cases |
 |---|---|
-| `MyJdException` (base, abstract) | `Source` (`Server`/`Device`), `ErrorType` (raw API string), `StatusCode` |
-| `MyJdAuthenticationException` | `AUTH_FAILED`, `EMAIL_INVALID`, `EMAIL_FORBIDDEN`, reconnect failure |
+| `MyJdException` (base, abstract) | `ErrorSource` (`Server`/`Device`), `ErrorType` (normalized, upper-case API code), `StatusCode` |
+| `MyJdAuthenticationException` | `AUTH_FAILED`, `EMAIL_INVALID`, `EMAIL_FORBIDDEN`, `TOKEN_INVALID`, `ERROR_EMAIL_NOT_CONFIRMED`, reconnect failure |
 | `MyJdDeviceOfflineException` | `OFFLINE` |
 | `MyJdRateLimitException` | `TOO_MANY_REQUESTS`, `OVERLOAD`, `MAINTENANCE` (+ `RetryAfter?`) |
 | `MyJdApiException` | Other structured error (server or device action) |
 | `MyJdProtocolException` | Decryption, invalid JSON, inconsistent `rid` |
+
+`ErrorSource` is named so rather than `Source` to avoid hiding `Exception.Source`.
 
 Rules:
 
