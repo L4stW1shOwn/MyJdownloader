@@ -65,3 +65,12 @@ override MyJdownloader.DeviceInfo.GetHashCode() -> int
 override MyJdownloader.DeviceInfo.ToString() -> string!
 static MyJdownloader.DeviceInfo.operator !=(MyJdownloader.DeviceInfo? left, MyJdownloader.DeviceInfo? right) -> bool
 static MyJdownloader.DeviceInfo.operator ==(MyJdownloader.DeviceInfo? left, MyJdownloader.DeviceInfo? right) -> bool
+MyJdownloader.MyJDownloaderClient
+MyJdownloader.MyJDownloaderClient.ExportSession() -> MyJdownloader.MyJdSession?
+MyJdownloader.MyJDownloaderClient.IsConnected.get -> bool
+MyJdownloader.MyJDownloaderClient.MyJDownloaderClient(System.Net.Http.HttpClient! httpClient, MyJdownloader.MyJDownloaderOptions? options = null, System.TimeProvider? timeProvider = null) -> void
+MyJdownloader.MyJDownloaderClient.RestoreSession(MyJdownloader.MyJdSession! session) -> void
+MyJdownloader.MyJDownloaderClient.SessionChanged -> System.EventHandler<MyJdownloader.MyJdSessionChangedEventArgs!>?
+MyJdownloader.MyJdSessionChangedEventArgs
+MyJdownloader.MyJdSessionChangedEventArgs.MyJdSessionChangedEventArgs(MyJdownloader.MyJdSession? session) -> void
+MyJdownloader.MyJdSessionChangedEventArgs.Session.get -> MyJdownloader.MyJdSession?
