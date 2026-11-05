@@ -66,6 +66,10 @@ override MyJdownloader.DeviceInfo.ToString() -> string!
 static MyJdownloader.DeviceInfo.operator !=(MyJdownloader.DeviceInfo? left, MyJdownloader.DeviceInfo? right) -> bool
 static MyJdownloader.DeviceInfo.operator ==(MyJdownloader.DeviceInfo? left, MyJdownloader.DeviceInfo? right) -> bool
 MyJdownloader.MyJDownloaderClient
+MyJdownloader.MyJDownloaderClient.ConnectAsync(string! email, string! password, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.MyJdSession!>!
+MyJdownloader.MyJDownloaderClient.DisconnectAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.MyJDownloaderClient.GetDevicesAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.DeviceInfo!>!>!
+MyJdownloader.MyJDownloaderClient.ReconnectAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.MyJdSession!>!
 MyJdownloader.MyJDownloaderClient.ExportSession() -> MyJdownloader.MyJdSession?
 MyJdownloader.MyJDownloaderClient.IsConnected.get -> bool
 MyJdownloader.MyJDownloaderClient.MyJDownloaderClient(System.Net.Http.HttpClient! httpClient, MyJdownloader.MyJDownloaderOptions? options = null, System.TimeProvider? timeProvider = null) -> void

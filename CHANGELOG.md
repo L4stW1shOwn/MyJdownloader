@@ -6,6 +6,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 
 ### Added
 
+- MyJDownloaderClient: connect, reconnect, disconnect, device listing, session export/restore and SessionChanged notifications.
 - DeviceInfo: device identifier, name and type returned by the MyJD server.
 - Solution skeleton.
 - `MyJDownloaderOptions`.

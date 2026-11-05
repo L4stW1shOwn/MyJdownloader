@@ -14,20 +14,22 @@ using MyJdownloader.Transport;
 /// Handlers should persist <see cref="ExportSession"/> (the latest state) rather than
 /// <see cref="MyJdSessionChangedEventArgs.Session"/>.
 /// </para>
+/// <para>
+/// Disconnecting raises <see cref="SessionChanged"/> with a <see langword="null"/> session after the server call,
+/// even if that call fails. If both the server call and a handler throw, the handler's exception replaces the server error.
+/// </para>
 /// </remarks>
 [SuppressMessage("Design", "CA1001", Justification = "AvailableWaitHandle is never used, the semaphore holds no unmanaged resource")]
 public sealed class MyJDownloaderClient
 {
     private const int MaxAppKeyLength = 256;
+    private const string NotConnectedMessage = "The client is not connected.";
 
     private readonly MyJDownloaderOptions options;
     private readonly RequestIdGenerator requestIds;
 
-    [SuppressMessage("Style", "IDE0052", Justification = "Used by the connect/call methods added in T-005 task 3; remove then")]
     private readonly ServerChannel serverChannel;
 
-    [SuppressMessage("Performance", "CA1823", Justification = "Used by the connect/call methods added in T-005 task 3; remove then")]
-    [SuppressMessage("Style", "IDE0052", Justification = "Used by the connect/call methods added in T-005 task 3; remove then")]
     private readonly SemaphoreSlim gate = new(1, 1);
     private MyJdSession? session;
     private long version;
@@ -69,6 +71,86 @@ public sealed class MyJDownloaderClient
         Interlocked.Increment(ref this.version);
     }
 
+    /// <summary>Connects to the MyJDownloader server and replaces any current session.</summary>
+    /// <param name="email">The account email.</param>
+    /// <param name="password">The account password; it is never stored.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>The new session.</returns>
+    /// <exception cref="ArgumentException">The email or password is invalid (thrown synchronously).</exception>
+    public Task<MyJdSession> ConnectAsync(string email, string password, CancellationToken cancellationToken = default)
+    {
+        var request = this.serverChannel.CreateConnectRequest(email, password);
+        return this.ConnectCoreAsync(request, cancellationToken);
+    }
+
+    /// <summary>Refreshes the current session using its regain token.</summary>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>The new session.</returns>
+    /// <exception cref="InvalidOperationException">The client is not connected.</exception>
+    public async Task<MyJdSession> ReconnectAsync(CancellationToken cancellationToken = default)
+    {
+        MyJdSession newSession;
+        long v;
+        await this.gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var current = Volatile.Read(ref this.session) ?? throw new InvalidOperationException(NotConnectedMessage);
+            newSession = await this.serverChannel.ReconnectAsync(current, cancellationToken).ConfigureAwait(false);
+            Volatile.Write(ref this.session, newSession);
+            v = Interlocked.Increment(ref this.version);
+        }
+        finally
+        {
+            this.gate.Release();
+        }
+
+        this.OnSessionChanged(newSession, v);
+        return newSession;
+    }
+
+    /// <summary>Disconnects from the server; the client is disconnected even if the server call fails.</summary>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>A task representing the operation.</returns>
+    public async Task DisconnectAsync(CancellationToken cancellationToken = default)
+    {
+        MyJdSession? old;
+        long v;
+        await this.gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            old = Interlocked.Exchange(ref this.session, null);
+            if (old is null)
+            {
+                return;
+            }
+
+            v = Interlocked.Increment(ref this.version);
+        }
+        finally
+        {
+            this.gate.Release();
+        }
+
+        try
+        {
+            await this.serverChannel.DisconnectAsync(old, cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            this.OnSessionChanged(null, v);
+        }
+    }
+
+    /// <summary>Lists the devices attached to the account.</summary>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>The devices.</returns>
+    /// <exception cref="InvalidOperationException">The client is not connected.</exception>
+    public async Task<IReadOnlyList<DeviceInfo>> GetDevicesAsync(CancellationToken cancellationToken = default)
+    {
+        var current = Volatile.Read(ref this.session) ?? throw new InvalidOperationException(NotConnectedMessage);
+        return await this.serverChannel.ListDevicesAsync(current, cancellationToken).ConfigureAwait(false);
+    }
+
     private static MyJDownloaderOptions CopyAndValidate(MyJDownloaderOptions options)
     {
         var address = options.BaseAddress;
@@ -98,7 +180,33 @@ public sealed class MyJDownloaderClient
         return new MyJDownloaderOptions { AppKey = appKey, BaseAddress = address, ApiVersion = options.ApiVersion };
     }
 
-    [SuppressMessage("Style", "IDE0051", Justification = "Called by the connect/call methods added in T-005 task 3; remove then")]
+    private async Task<MyJdSession> ConnectCoreAsync(ConnectRequest request, CancellationToken cancellationToken)
+    {
+        MyJdSession newSession;
+        long v;
+        try
+        {
+            await this.gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+            try
+            {
+                newSession = await this.serverChannel.ConnectAsync(request, cancellationToken).ConfigureAwait(false);
+                Volatile.Write(ref this.session, newSession);
+                v = Interlocked.Increment(ref this.version);
+            }
+            finally
+            {
+                this.gate.Release();
+            }
+        }
+        finally
+        {
+            request.Dispose();
+        }
+
+        this.OnSessionChanged(newSession, v);
+        return newSession;
+    }
+
     private void OnSessionChanged(MyJdSession? changed, long expectedVersion)
     {
         if (Volatile.Read(ref this.version) == expectedVersion)
