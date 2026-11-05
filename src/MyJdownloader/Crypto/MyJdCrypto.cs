@@ -12,11 +12,18 @@ using System.Text;
 /// <remarks>
 /// Intermediate buffers holding secret material are cleared as soon as they are hashed.
 /// The caller's <c>password</c> string is immutable and therefore cannot be cleared.
+/// Likewise, the string returned by <c>Decrypt</c> and the lowercased email string are managed strings and cannot be cleared.
 /// </remarks>
 internal static class MyJdCrypto
 {
     /// <summary>Length in bytes of every secret, token and key (SHA-256 output).</summary>
     public const int KeyLength = 32;
+
+    // Each half of a key: the IV (first) and the AES-128 key (second).
+    private const int HalfKeyLength = KeyLength / 2;
+
+    // AES block size in bytes: also the CBC IV length and the ciphertext length granularity.
+    private const int AesBlockSize = 16;
 
     /// <summary>Derives the login secret: <c>SHA256(lower(email) + password + "server")</c>.</summary>
     /// <param name="email">Account email; lowercased before hashing.</param>
@@ -98,8 +105,8 @@ internal static class MyJdCrypto
         try
         {
             using var aes = Aes.Create();
-            aes.SetKey(key.AsSpan(KeyLength / 2, KeyLength / 2));
-            return Convert.ToBase64String(aes.EncryptCbc(plainBytes, key.AsSpan(0, KeyLength / 2), PaddingMode.PKCS7));
+            aes.SetKey(key.AsSpan(HalfKeyLength, HalfKeyLength));
+            return Convert.ToBase64String(aes.EncryptCbc(plainBytes, key.AsSpan(0, AesBlockSize), PaddingMode.PKCS7));
         }
         finally
         {
@@ -122,7 +129,7 @@ internal static class MyJdCrypto
         EnsureKeyLength(key);
 
         var cipherBytes = Convert.FromBase64String(ciphertext);
-        if (cipherBytes.Length == 0 || cipherBytes.Length % (KeyLength / 2) != 0)
+        if (cipherBytes.Length == 0 || cipherBytes.Length % AesBlockSize != 0)
         {
             throw new CryptographicException("The ciphertext length is invalid.");
         }
@@ -131,8 +138,8 @@ internal static class MyJdCrypto
         try
         {
             using var aes = Aes.Create();
-            aes.SetKey(key.AsSpan(KeyLength / 2, KeyLength / 2));
-            plainBytes = aes.DecryptCbc(cipherBytes, key.AsSpan(0, KeyLength / 2), PaddingMode.PKCS7);
+            aes.SetKey(key.AsSpan(HalfKeyLength, HalfKeyLength));
+            plainBytes = aes.DecryptCbc(cipherBytes, key.AsSpan(0, AesBlockSize), PaddingMode.PKCS7);
             return Encoding.UTF8.GetString(plainBytes);
         }
         finally
