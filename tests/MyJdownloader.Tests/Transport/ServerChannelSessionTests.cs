@@ -155,7 +155,7 @@ public sealed class ServerChannelSessionTests
         var expectedSigned = $"/my/listdevices?sessiontoken={SessionToken}&rid={rid}";
         Assert.That(FakeMyJdServer.SignedStringOf(request), Is.EqualTo(expectedSigned));
         Assert.That(FakeMyJdServer.HasValidSignature(request, session.ServerEncryptionToken.ToArray()), Is.True);
-        DeviceInfo[] expected = [new DeviceInfo("d1", "Home", "jd"), new DeviceInfo("d2", "NAS", "jd")];
+        DeviceInfo[] expected = [new DeviceInfo { Id = "d1", Name = "Home", Type = "jd" }, new DeviceInfo { Id = "d2", Name = "NAS", Type = "jd" }];
         Assert.That(devices, Is.EqualTo(expected));
     }
 
@@ -183,28 +183,88 @@ public sealed class ServerChannelSessionTests
         Assert.That(ex!.Message, Is.EqualTo(UnreadableMessage));
     }
 
-    [TestCase("reconnect", TestName = "ReconnectAsync_NullSession_ThrowsArgumentNullException")]
-    [TestCase("disconnect", TestName = "DisconnectAsync_NullSession_ThrowsArgumentNullException")]
-    [TestCase("listdevices", TestName = "ListDevicesAsync_NullSession_ThrowsArgumentNullException")]
-    public async Task Methods_NullSession_ThrowArgumentNullException(string method)
+    [Test]
+    public async Task ReconnectAsync_NullSession_ThrowsArgumentNullException()
     {
         using var server = new FakeMyJdServer(_ => FakeMyJdServer.Raw(string.Empty));
         var channel = CreateChannel(server);
 
-        await Assert.ThrowsAsync<ArgumentNullException>(() => method switch
-        {
-            "reconnect" => channel.ReconnectAsync(null!, CancellationToken.None),
-            "disconnect" => channel.DisconnectAsync(null!, CancellationToken.None),
-            _ => channel.ListDevicesAsync(null!, CancellationToken.None),
-        });
+        await Assert.ThrowsAsync<ArgumentNullException>(() => channel.ReconnectAsync(null!, CancellationToken.None));
         Assert.That(server.Requests, Is.Empty);
+    }
+
+    [Test]
+    public async Task DisconnectAsync_NullSession_ThrowsArgumentNullException()
+    {
+        using var server = new FakeMyJdServer(_ => FakeMyJdServer.Raw(string.Empty));
+        var channel = CreateChannel(server);
+
+        await Assert.ThrowsAsync<ArgumentNullException>(() => channel.DisconnectAsync(null!, CancellationToken.None));
+        Assert.That(server.Requests, Is.Empty);
+    }
+
+    [Test]
+    public async Task ListDevicesAsync_NullSession_ThrowsArgumentNullException()
+    {
+        using var server = new FakeMyJdServer(_ => FakeMyJdServer.Raw(string.Empty));
+        var channel = CreateChannel(server);
+
+        await Assert.ThrowsAsync<ArgumentNullException>(() => channel.ListDevicesAsync(null!, CancellationToken.None));
+        Assert.That(server.Requests, Is.Empty);
+    }
+
+    [Test]
+    public async Task ReconnectAsync_ResponseMissingRegainToken_ThrowsUnreadable()
+    {
+        var session = CreateSession();
+        using var server = ServerReturning(
+            session,
+            rid => string.Create(CultureInfo.InvariantCulture, $$"""{"sessiontoken":"{{NewSessionToken}}","rid":{{rid}}}"""));
+        var channel = CreateChannel(server);
+
+        var ex = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ReconnectAsync(session, CancellationToken.None));
+
+        Assert.That(ex!.Message, Is.EqualTo(UnreadableMessage));
+    }
+
+    [Test]
+    public Task ListDevicesAsync_DeviceNullName_ThrowsUnreadable()
+        => AssertListUnreadableAsync(rid => ListBody(/*lang=json,strict*/ """{"id":"d1","type":"jd"}""", rid));
+
+    [Test]
+    public Task ListDevicesAsync_DeviceNullType_ThrowsUnreadable()
+        => AssertListUnreadableAsync(rid => ListBody(/*lang=json,strict*/ """{"id":"d1","name":"Home"}""", rid));
+
+    [Test]
+    public async Task ListDevicesAsync_DeviceIdTooLong_ThrowsUnreadable()
+    {
+        var id = new string('a', 257);
+        await AssertListUnreadableAsync(rid => ListBody($$"""{"id":"{{id}}","name":"Home","type":"jd"}""", rid));
+    }
+
+    [Test]
+    public Task ListDevicesAsync_DeviceIdWithControlChar_ThrowsUnreadable()
+        => AssertListUnreadableAsync(rid => ListBody(/*lang=json,strict*/ """{"id":"d\u000a1","name":"Home","type":"jd"}""", rid));
+
+    private static string ListBody(string device, long rid) =>
+        string.Create(CultureInfo.InvariantCulture, $$"""{"list":[{{device}}],"rid":{{rid}}}""");
+
+    private static async Task AssertListUnreadableAsync(Func<long, string> body)
+    {
+        var session = CreateSession();
+        using var server = ServerReturning(session, body);
+        var channel = CreateChannel(server);
+
+        var ex = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ListDevicesAsync(session, CancellationToken.None));
+
+        Assert.That(ex!.Message, Is.EqualTo(UnreadableMessage));
     }
 
     [Test]
     public void DeviceInfo_SameValues_AreEqual()
     {
-        var first = new DeviceInfo("d1", "Home", "jd");
-        var second = new DeviceInfo("d1", "Home", "jd");
+        var first = new DeviceInfo { Id = "d1", Name = "Home", Type = "jd" };
+        var second = new DeviceInfo { Id = "d1", Name = "Home", Type = "jd" };
 
         Assert.That(first, Is.EqualTo(second));
         Assert.That(first.GetHashCode(), Is.EqualTo(second.GetHashCode()));

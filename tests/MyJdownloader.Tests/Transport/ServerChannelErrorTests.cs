@@ -20,10 +20,15 @@ public sealed class ServerChannelErrorTests
     private static readonly DateTimeOffset Now = new(2026, 11, 5, 0, 0, 0, TimeSpan.Zero);
 
     [SuppressMessage("Reliability", "CA2000", Justification = "The HttpClient lives as long as the test and wraps a disposed fake handler")]
-    private static ServerChannel CreateChannel(FakeMyJdServer server)
+    private static ServerChannel CreateChannel(FakeMyJdServer server, TimeSpan? timeout = null)
     {
         var clock = new FakeTimeProvider { UtcNow = Now };
         var httpClient = new HttpClient(server);
+        if (timeout is not null)
+        {
+            httpClient.Timeout = timeout.Value;
+        }
+
         return new ServerChannel(httpClient, new MyJDownloaderOptions(), new RequestIdGenerator(clock), clock);
     }
 
@@ -183,6 +188,123 @@ public sealed class ServerChannelErrorTests
 
         Assert.That(exception!.Message, Is.EqualTo(UnreadableMessage));
         Assert.That(exception.InnerException, Is.Null);
+    }
+
+    [Test]
+    public async Task ConnectAsync_ErrorBodyEmptyObject_ThrowsApiUnknown()
+    {
+        using var server = new FakeMyJdServer(_ => FakeMyJdServer.Raw("{}", HttpStatusCode.Forbidden));
+        var channel = CreateChannel(server);
+
+        var exception = await Assert.ThrowsAsync<MyJdApiException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+
+        Assert.That(exception!.ErrorType, Is.EqualTo("UNKNOWN"));
+        Assert.That(exception.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
+    }
+
+    [Test]
+    public async Task ConnectAsync_ErrorBodyReadFails_StatusStillMapped()
+    {
+        using var server = new FakeMyJdServer(_ => new HttpResponseMessage(HttpStatusCode.Forbidden)
+        {
+            Content = new StreamContent(new ScriptedStream(_ => throw new IOException("connection reset"))),
+        });
+        var channel = CreateChannel(server);
+
+        var exception = await Assert.ThrowsAsync<MyJdApiException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+
+        Assert.That(exception!.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
+    }
+
+    [Test]
+    public async Task ConnectAsync_SlowBody_ThrowsTimeoutException()
+    {
+        using var server = new FakeMyJdServer(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StreamContent(new ScriptedStream(token => Task.Delay(Timeout.Infinite, token))),
+        });
+        var channel = CreateChannel(server, TimeSpan.FromMilliseconds(200));
+
+        var exception = await Assert.ThrowsAsync<TimeoutException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+
+        Assert.That(exception!.Message, Is.EqualTo("The MyJD server did not answer in time."));
+    }
+
+    [Test]
+    public async Task ConnectAsync_SlowHeaders_ThrowsTimeoutException()
+    {
+        using var server = new SlowHandler();
+        var clock = new FakeTimeProvider { UtcNow = Now };
+        using var httpClient = new HttpClient(server) { Timeout = TimeSpan.FromMilliseconds(200) };
+        var channel = new ServerChannel(httpClient, new MyJDownloaderOptions(), new RequestIdGenerator(clock), clock);
+
+        var exception = await Assert.ThrowsAsync<TimeoutException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+
+        Assert.That(exception!.Message, Is.EqualTo("The MyJD server did not answer in time."));
+        Assert.That(exception.InnerException, Is.Null);
+    }
+
+    [Test]
+    public async Task ConnectAsync_CallerCancelsDuringBody_ThrowsOperationCanceled()
+    {
+        using var cts = new CancellationTokenSource();
+        using var server = new FakeMyJdServer(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StreamContent(new ScriptedStream(async token =>
+            {
+                await cts.CancelAsync();
+                await Task.Delay(Timeout.Infinite, token);
+            })),
+        });
+        var channel = CreateChannel(server);
+
+        var exception = await Assert.CatchAsync<OperationCanceledException>(() => channel.ConnectAsync(Email, Password, cts.Token));
+
+        Assert.That(exception, Is.Not.InstanceOf<MyJdException>());
+    }
+
+    private sealed class SlowHandler : HttpMessageHandler
+    {
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            await Task.Delay(Timeout.Infinite, cancellationToken);
+            return new HttpResponseMessage(HttpStatusCode.OK);
+        }
+    }
+
+    private sealed class ScriptedStream(Func<CancellationToken, Task> onRead) : Stream
+    {
+        public override bool CanRead => true;
+
+        public override bool CanSeek => false;
+
+        public override bool CanWrite => false;
+
+        public override long Length => throw new NotSupportedException();
+
+        public override long Position
+        {
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
+        }
+
+        public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            await onRead(cancellationToken);
+            return 0;
+        }
+
+        public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+
+        public override void Flush()
+        {
+        }
+
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+
+        public override void SetLength(long value) => throw new NotSupportedException();
+
+        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
     }
 
     private sealed class UnknownLengthContent(int size) : HttpContent

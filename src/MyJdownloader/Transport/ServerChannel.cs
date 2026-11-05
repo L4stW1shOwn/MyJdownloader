@@ -17,11 +17,15 @@ using MyJdownloader.Json;
 /// The protocol puts the email and the session token in the query string. .NET 9+ redacts query strings in
 /// <see cref="HttpClient"/> logs and traces: <c>DisableUriRedaction</c> must never be enabled.
 /// No exception raised here carries the request, the response or the URI.
+/// Propagated unchanged: <see cref="HttpRequestException"/>, <see cref="IOException"/> (body read failure on a
+/// successful response), <see cref="OperationCanceledException"/> (caller cancellation) and
+/// <see cref="TimeoutException"/> (no complete answer within <see cref="HttpClient.Timeout"/>).
 /// </remarks>
 internal sealed class ServerChannel
 {
     private const int MaxBodyLength = 1_048_576;
     private const int MaxEmailLength = 254;
+    private const int MaxDeviceIdLength = 256;
     private static readonly TimeSpan MaxRetryAfter = TimeSpan.FromMinutes(10);
     private const string UnreadableMessage = "The MyJD server returned a response that could not be read.";
     private const string MismatchMessage = "The MyJD server response does not match the request.";
@@ -59,7 +63,17 @@ internal sealed class ServerChannel
         }
 
         var loginSecret = MyJdCrypto.DeriveLoginSecret(email, password);
-        var deviceSecret = MyJdCrypto.DeriveDeviceSecret(email, password);
+        byte[] deviceSecret;
+        try
+        {
+            deviceSecret = MyJdCrypto.DeriveDeviceSecret(email, password);
+        }
+        catch
+        {
+            CryptographicOperations.ZeroMemory(loginSecret);
+            throw;
+        }
+
         return this.ConnectCoreAsync(email, loginSecret, deviceSecret, cancellationToken);
     }
 
@@ -74,8 +88,7 @@ internal sealed class ServerChannel
 
         var key = session.ServerEncryptionToken.ToArray();
         var deviceSecret = session.DeviceSecret.ToArray();
-        byte[]? serverToken = null;
-        byte[]? deviceToken = null;
+        var loginSecret = session.LoginSecret.ToArray();
         try
         {
             var response = await this.SendAsync(
@@ -85,43 +98,13 @@ internal sealed class ServerChannel
                 MyJdJsonContext.Default.ConnectResponse,
                 cancellationToken).ConfigureAwait(false);
 
-            try
-            {
-                if (response.SessionToken is null || response.RegainToken is null)
-                {
-                    throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
-                }
-
-                serverToken = MyJdCrypto.DeriveToken(key, response.SessionToken);
-                deviceToken = MyJdCrypto.DeriveToken(deviceSecret, response.SessionToken);
-                var loginSecret = session.LoginSecret.ToArray();
-                try
-                {
-                    return new MyJdSession(session.Email, loginSecret, deviceSecret, response.SessionToken, response.RegainToken, serverToken, deviceToken);
-                }
-                finally
-                {
-                    CryptographicOperations.ZeroMemory(loginSecret);
-                }
-            }
-            catch (Exception ex) when (ex is FormatException or ArgumentException)
-            {
-                throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
-            }
+            return BuildSession(session.Email, loginSecret, deviceSecret, key, response);
         }
         finally
         {
             CryptographicOperations.ZeroMemory(key);
             CryptographicOperations.ZeroMemory(deviceSecret);
-            if (serverToken is not null)
-            {
-                CryptographicOperations.ZeroMemory(serverToken);
-            }
-
-            if (deviceToken is not null)
-            {
-                CryptographicOperations.ZeroMemory(deviceToken);
-            }
+            CryptographicOperations.ZeroMemory(loginSecret);
         }
     }
 
@@ -183,12 +166,13 @@ internal sealed class ServerChannel
         var devices = new List<DeviceInfo>(response.List.Length);
         foreach (var device in response.List)
         {
-            if (device?.Id is null || device.Name is null || device.Type is null)
+            if (device?.Id is null || device.Name is null || device.Type is null
+                || device.Id.Length > MaxDeviceIdLength || device.Id.Any(char.IsControl))
             {
                 throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
             }
 
-            devices.Add(new DeviceInfo(device.Id, device.Name, device.Type));
+            devices.Add(new DeviceInfo { Id = device.Id, Name = device.Name, Type = device.Type });
         }
 
         return devices;
@@ -241,21 +225,12 @@ internal sealed class ServerChannel
         {
             body = await ReadBodyAsync(content, cancellationToken).ConfigureAwait(false);
         }
-        catch (MyJdProtocolException)
+        catch (Exception ex) when (ex is MyJdProtocolException or IOException)
         {
             return null;
         }
 
-        string text;
-        try
-        {
-            text = Encoding.UTF8.GetString(body);
-        }
-        catch (ArgumentException)
-        {
-            return null;
-        }
-
+        var text = Encoding.UTF8.GetString(body);
         try
         {
             return JsonSerializer.Deserialize(text, MyJdJsonContext.Default.ErrorResponse);
@@ -269,7 +244,7 @@ internal sealed class ServerChannel
         {
             return JsonSerializer.Deserialize(MyJdCrypto.Decrypt(key, text), MyJdJsonContext.Default.ErrorResponse);
         }
-        catch (Exception ex) when (ex is JsonException or FormatException or CryptographicException or ArgumentException)
+        catch (Exception ex) when (ex is JsonException or FormatException or CryptographicException)
         {
             return null;
         }
@@ -300,8 +275,6 @@ internal sealed class ServerChannel
 
     private async Task<MyJdSession> ConnectCoreAsync(string email, byte[] loginSecret, byte[] deviceSecret, CancellationToken cancellationToken)
     {
-        byte[]? serverToken = null;
-        byte[]? deviceToken = null;
         try
         {
             var response = await this.SendAsync(
@@ -311,26 +284,38 @@ internal sealed class ServerChannel
                 MyJdJsonContext.Default.ConnectResponse,
                 cancellationToken).ConfigureAwait(false);
 
-            try
-            {
-                if (response.SessionToken is null || response.RegainToken is null)
-                {
-                    throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
-                }
-
-                serverToken = MyJdCrypto.DeriveToken(loginSecret, response.SessionToken);
-                deviceToken = MyJdCrypto.DeriveToken(deviceSecret, response.SessionToken);
-                return new MyJdSession(email, loginSecret, deviceSecret, response.SessionToken, response.RegainToken, serverToken, deviceToken);
-            }
-            catch (Exception ex) when (ex is FormatException or ArgumentException)
-            {
-                throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
-            }
+            return BuildSession(email, loginSecret, deviceSecret, loginSecret, response);
         }
         finally
         {
             CryptographicOperations.ZeroMemory(loginSecret);
             CryptographicOperations.ZeroMemory(deviceSecret);
+        }
+    }
+
+    // Derives the per-session tokens from the new session token; the ctor copies its inputs, temporaries are zeroed here.
+    private static MyJdSession BuildSession(string email, byte[] loginSecret, byte[] deviceSecret, byte[] baseKey, ConnectResponse response)
+    {
+        if (response.SessionToken is null || response.RegainToken is null)
+        {
+            throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
+        }
+
+        byte[]? serverToken = null;
+        byte[]? deviceToken = null;
+        try
+        {
+            serverToken = MyJdCrypto.DeriveToken(baseKey, response.SessionToken);
+            deviceToken = MyJdCrypto.DeriveToken(deviceSecret, response.SessionToken);
+            return new MyJdSession(email, loginSecret, deviceSecret, response.SessionToken, response.RegainToken, serverToken, deviceToken);
+        }
+        catch (Exception ex) when (ex is FormatException or ArgumentException)
+        {
+            // FormatException: non-hexadecimal token; ArgumentException: rejected by the MyJdSession constructor.
+            throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
+        }
+        finally
+        {
             if (serverToken is not null)
             {
                 CryptographicOperations.ZeroMemory(serverToken);
@@ -343,6 +328,16 @@ internal sealed class ServerChannel
         }
     }
 
+    private static TimeSpan ClampRetryAfter(TimeSpan delay)
+    {
+        if (delay < TimeSpan.Zero)
+        {
+            return TimeSpan.Zero;
+        }
+
+        return delay > MaxRetryAfter ? MaxRetryAfter : delay;
+    }
+
     private TimeSpan? ParseRetryAfter(HttpResponseMessage response)
     {
         var header = response.Headers.RetryAfter;
@@ -352,11 +347,36 @@ internal sealed class ServerChannel
             return null;
         }
 
-        return delay.Value < TimeSpan.Zero ? TimeSpan.Zero : delay.Value > MaxRetryAfter ? MaxRetryAfter : delay.Value;
+        return ClampRetryAfter(delay.Value);
     }
 
     // The single request pipeline: sign, send, bounded read, decrypt, rid check, typed deserialization.
     private async Task<T> SendAsync<T>(
+        string path,
+        IReadOnlyList<(string Name, string Value)> parameters,
+        byte[] key,
+        JsonTypeInfo<T> responseType,
+        CancellationToken cancellationToken)
+        where T : class
+    {
+        // HttpClient.Timeout stops applying once the headers are read: bound the whole exchange, body included.
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        if (this.httpClient.Timeout != Timeout.InfiniteTimeSpan)
+        {
+            linked.CancelAfter(this.httpClient.Timeout);
+        }
+
+        try
+        {
+            return await this.SendCoreAsync(path, parameters, key, responseType, linked.Token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            throw new TimeoutException("The MyJD server did not answer in time.");
+        }
+    }
+
+    private async Task<T> SendCoreAsync<T>(
         string path,
         IReadOnlyList<(string Name, string Value)> parameters,
         byte[] key,
@@ -383,7 +403,7 @@ internal sealed class ServerChannel
         {
             json = MyJdCrypto.Decrypt(key, Encoding.UTF8.GetString(body));
         }
-        catch (Exception ex) when (ex is FormatException or CryptographicException or ArgumentException)
+        catch (Exception ex) when (ex is FormatException or CryptographicException)
         {
             throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
         }
@@ -395,7 +415,7 @@ internal sealed class ServerChannel
             ridMatches = RidMatches(json, rid);
             result = ridMatches ? JsonSerializer.Deserialize(json, responseType) : null;
         }
-        catch (Exception ex) when (ex is JsonException or ArgumentException)
+        catch (JsonException)
         {
             throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
         }

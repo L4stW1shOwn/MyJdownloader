@@ -52,8 +52,7 @@ static MyJdownloader.MyJdSession.FromJson(string! json) -> MyJdownloader.MyJdSes
 override MyJdownloader.MyJdSession.ToString() -> string!
 MyJdownloader.DeviceInfo
 MyJdownloader.DeviceInfo.<Clone>$() -> MyJdownloader.DeviceInfo!
-MyJdownloader.DeviceInfo.Deconstruct(out string! Id, out string! Name, out string! Type) -> void
-MyJdownloader.DeviceInfo.DeviceInfo(string! Id, string! Name, string! Type) -> void
+MyJdownloader.DeviceInfo.DeviceInfo() -> void
 MyJdownloader.DeviceInfo.Equals(MyJdownloader.DeviceInfo? other) -> bool
 MyJdownloader.DeviceInfo.Id.get -> string!
 MyJdownloader.DeviceInfo.Id.init -> void
