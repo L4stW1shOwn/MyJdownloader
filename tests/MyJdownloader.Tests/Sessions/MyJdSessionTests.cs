@@ -107,35 +107,110 @@ public sealed class MyJdSessionTests
         });
     }
 
-    [TestCase("loginSecret")]
-    [TestCase("deviceSecret")]
-    [TestCase("serverEncryptionToken")]
-    [TestCase("deviceEncryptionToken")]
-    public void Ctor_KeyOf31Bytes_ThrowsArgumentException(string parameterName)
+    private static IEnumerable<TestCaseData> KeyFactories()
     {
-        var shortKey = Key(9, 31);
+        yield return new TestCaseData("loginSecret", (Func<byte[], MyJdSession>)(k => new MyJdSession(Email, k!, Key(2), SessionToken, RegainToken, Key(3), Key(4))));
+        yield return new TestCaseData("deviceSecret", (Func<byte[], MyJdSession>)(k => new MyJdSession(Email, Key(1), k!, SessionToken, RegainToken, Key(3), Key(4))));
+        yield return new TestCaseData("serverEncryptionToken", (Func<byte[], MyJdSession>)(k => new MyJdSession(Email, Key(1), Key(2), SessionToken, RegainToken, k!, Key(4))));
+        yield return new TestCaseData("deviceEncryptionToken", (Func<byte[], MyJdSession>)(k => new MyJdSession(Email, Key(1), Key(2), SessionToken, RegainToken, Key(3), k)));
+    }
 
-        var ex = Assert.Throws<ArgumentException>(() => _ = parameterName switch
-        {
-            "loginSecret" => CreateSession(loginSecret: shortKey),
-            "deviceSecret" => CreateSession(deviceSecret: shortKey),
-            "serverEncryptionToken" => CreateSession(serverEncryptionToken: shortKey),
-            _ => CreateSession(deviceEncryptionToken: shortKey),
-        });
+    [TestCaseSource(nameof(KeyFactories))]
+    public void Ctor_KeyOf31Bytes_ThrowsArgumentException(string parameterName, Func<byte[], MyJdSession> create)
+    {
+        var ex = Assert.Throws<ArgumentException>(() => create(Key(9, 31)))!;
 
-        Assert.That(ex, Is.Not.Null);
-        ArgumentNullException.ThrowIfNull(ex);
         Assert.That(ex.ParamName, Is.EqualTo(parameterName));
+    }
+
+    [TestCaseSource(nameof(KeyFactories))]
+    public void Ctor_KeyOf33Bytes_ThrowsArgumentException(string parameterName, Func<byte[], MyJdSession> create)
+    {
+        var ex = Assert.Throws<ArgumentException>(() => create(Key(9, 33)))!;
+
+        Assert.That(ex.ParamName, Is.EqualTo(parameterName));
+    }
+
+    [TestCaseSource(nameof(KeyFactories))]
+    public void Ctor_NullKey_ThrowsArgumentNullException(string parameterName, Func<byte[], MyJdSession> create)
+    {
+        var ex = Assert.Throws<ArgumentNullException>(() => create(null!))!;
+
+        Assert.That(ex.ParamName, Is.EqualTo(parameterName));
+    }
+
+    [Test]
+    public void Ctor_NullEmail_ThrowsArgumentNullException()
+    {
+        var ex = Assert.Throws<ArgumentNullException>(() => CreateSession(email: null!))!;
+
+        Assert.That(ex.ParamName, Is.EqualTo("email"));
+    }
+
+    [Test]
+    public void Ctor_NullSessionToken_ThrowsArgumentNullException()
+    {
+        var ex = Assert.Throws<ArgumentNullException>(() => CreateSession(sessionToken: null!))!;
+
+        Assert.That(ex.ParamName, Is.EqualTo("sessionToken"));
+    }
+
+    [Test]
+    public void Ctor_NullRegainToken_ThrowsArgumentNullException()
+    {
+        var ex = Assert.Throws<ArgumentNullException>(() => CreateSession(regainToken: null!))!;
+
+        Assert.That(ex.ParamName, Is.EqualTo("regainToken"));
+    }
+
+    [Test]
+    public void Ctor_Token128HexChars_Accepted()
+    {
+        var token = new string('a', 128);
+
+        var session = CreateSession(sessionToken: token, regainToken: token);
+
+        Assert.That(session.SessionToken, Is.EqualTo(token));
+    }
+
+    [Test]
+    public void Ctor_UppercaseHexToken_Accepted()
+    {
+        var session = CreateSession(sessionToken: "0011AABB");
+
+        Assert.That(session.SessionToken, Is.EqualTo("0011AABB"));
+    }
+
+    [Test]
+    public void Ctor_Email254Chars_Accepted()
+    {
+        var email = new string('a', 254);
+
+        Assert.That(CreateSession(email: email).Email, Is.EqualTo(email));
+    }
+
+    [Test]
+    public void Ctor_Email255Chars_ThrowsArgumentException()
+    {
+        var ex = Assert.Throws<ArgumentException>(() => CreateSession(email: new string('a', 255)))!;
+
+        Assert.That(ex.ParamName, Is.EqualTo("email"));
+    }
+
+    [Test]
+    public void Ctor_EmailWithControlChar_ThrowsArgumentException()
+    {
+        var ex = Assert.Throws<ArgumentException>(() => CreateSession(email: "user\n@example.com"))!;
+
+        Assert.That(ex.ParamName, Is.EqualTo("email"));
     }
 
     [TestCase("")]
     [TestCase("  ")]
     public void Ctor_EmptyEmail_ThrowsArgumentException(string email)
     {
-        var ex = Assert.Throws<ArgumentException>(() => CreateSession(email: email));
+        var ex = Assert.Throws<ArgumentException>(() => CreateSession(email: email))!;
 
-        Assert.That(ex, Is.Not.Null);
-        ArgumentNullException.ThrowIfNull(ex);
         Assert.That(ex.ParamName, Is.EqualTo("email"));
     }
 
@@ -143,10 +218,8 @@ public sealed class MyJdSessionTests
     [TestCase("  ")]
     public void Ctor_EmptySessionToken_ThrowsArgumentException(string token)
     {
-        var ex = Assert.Throws<ArgumentException>(() => CreateSession(sessionToken: token));
+        var ex = Assert.Throws<ArgumentException>(() => CreateSession(sessionToken: token))!;
 
-        Assert.That(ex, Is.Not.Null);
-        ArgumentNullException.ThrowIfNull(ex);
         Assert.That(ex.ParamName, Is.EqualTo("sessionToken"));
     }
 
@@ -154,20 +227,16 @@ public sealed class MyJdSessionTests
     [TestCase("  ")]
     public void Ctor_EmptyRegainToken_ThrowsArgumentException(string token)
     {
-        var ex = Assert.Throws<ArgumentException>(() => CreateSession(regainToken: token));
+        var ex = Assert.Throws<ArgumentException>(() => CreateSession(regainToken: token))!;
 
-        Assert.That(ex, Is.Not.Null);
-        ArgumentNullException.ThrowIfNull(ex);
         Assert.That(ex.ParamName, Is.EqualTo("regainToken"));
     }
 
     [Test]
     public void Ctor_NonHexSessionToken_ThrowsArgumentException()
     {
-        var ex = Assert.Throws<ArgumentException>(() => CreateSession(sessionToken: "ab?cd"));
+        var ex = Assert.Throws<ArgumentException>(() => CreateSession(sessionToken: "ab?cd"))!;
 
-        Assert.That(ex, Is.Not.Null);
-        ArgumentNullException.ThrowIfNull(ex);
         Assert.That(ex.GetType(), Is.EqualTo(typeof(ArgumentException)));
         Assert.That(ex.ParamName, Is.EqualTo("sessionToken"));
     }
@@ -175,23 +244,10 @@ public sealed class MyJdSessionTests
     [Test]
     public void Ctor_SessionTokenLongerThan128_ThrowsArgumentException()
     {
-        var ex = Assert.Throws<ArgumentException>(() => CreateSession(sessionToken: new string('a', 129)));
+        var ex = Assert.Throws<ArgumentException>(() => CreateSession(sessionToken: new string('a', 129)))!;
 
-        Assert.That(ex, Is.Not.Null);
-        ArgumentNullException.ThrowIfNull(ex);
         Assert.That(ex.GetType(), Is.EqualTo(typeof(ArgumentException)));
         Assert.That(ex.ParamName, Is.EqualTo("sessionToken"));
-    }
-
-    [Test]
-    public void Ctor_NullKey_ThrowsArgumentNullException()
-    {
-        var ex = Assert.Throws<ArgumentNullException>(() =>
-            new MyJdSession(Email, null!, Key(2), SessionToken, RegainToken, Key(3), Key(4)));
-
-        Assert.That(ex, Is.Not.Null);
-        ArgumentNullException.ThrowIfNull(ex);
-        Assert.That(ex.ParamName, Is.EqualTo("loginSecret"));
     }
 
     [Test]
@@ -251,10 +307,8 @@ public sealed class MyJdSessionTests
     [Test]
     public void FromJson_Null_ThrowsArgumentNullException()
     {
-        var ex = Assert.Throws<ArgumentNullException>(() => MyJdSession.FromJson(null!));
+        var ex = Assert.Throws<ArgumentNullException>(() => MyJdSession.FromJson(null!))!;
 
-        Assert.That(ex, Is.Not.Null);
-        ArgumentNullException.ThrowIfNull(ex);
         Assert.That(ex.ParamName, Is.EqualTo("json"));
     }
 
@@ -269,10 +323,8 @@ public sealed class MyJdSessionTests
     [TestCase(EmptySessionTokenJson, TestName = "FromJson_EmptySessionToken_ThrowsFormatException")]
     public void FromJson_InvalidInput_ThrowsFormatException(string json)
     {
-        var ex = Assert.Throws<FormatException>(() => MyJdSession.FromJson(json));
+        var ex = Assert.Throws<FormatException>(() => MyJdSession.FromJson(json))!;
 
-        Assert.That(ex, Is.Not.Null);
-        ArgumentNullException.ThrowIfNull(ex);
         Assert.That(ex.Message, Is.EqualTo(FixedMessage));
         Assert.That(ex.InnerException, Is.Null);
     }
@@ -280,16 +332,22 @@ public sealed class MyJdSessionTests
     [Test]
     public void FromJson_InvalidInput_MessageContainsNoValue()
     {
-        var ex = Assert.Throws<FormatException>(() => MyJdSession.FromJson(ShortLoginSecretJson));
+        var ex = Assert.Throws<FormatException>(() => MyJdSession.FromJson(ShortLoginSecretJson))!;
 
-        Assert.That(ex, Is.Not.Null);
-        ArgumentNullException.ThrowIfNull(ex);
         Assert.Multiple(() =>
         {
             Assert.That(ex.Message, Does.Not.Contain(ShortLoginSecretBase64));
             Assert.That(ex.Message, Does.Not.Contain(Email));
         });
     }
+
+    [Test]
+    public void FromJson_NonHexRegainToken_ThrowsFormatException() =>
+        AssertFixedFormatException(ReferenceJson.Replace("ccdd2233", "zz?", StringComparison.Ordinal));
+
+    [Test]
+    public void FromJson_Input4097Chars_ThrowsFormatException() =>
+        AssertFixedFormatException(new string(' ', 4097));
 
     [Test]
     public void FromJson_PascalCaseNames_ThrowsFormatException() =>
@@ -313,10 +371,8 @@ public sealed class MyJdSessionTests
 
     private static void AssertFixedFormatException(string json)
     {
-        var ex = Assert.Throws<FormatException>(() => MyJdSession.FromJson(json));
+        var ex = Assert.Throws<FormatException>(() => MyJdSession.FromJson(json))!;
 
-        Assert.That(ex, Is.Not.Null);
-        ArgumentNullException.ThrowIfNull(ex);
         Assert.That(ex.Message, Is.EqualTo(FixedMessage));
         Assert.That(ex.InnerException, Is.Null);
     }
