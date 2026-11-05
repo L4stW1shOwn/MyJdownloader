@@ -50,3 +50,19 @@ MyJdownloader.MyJdSession.Email.get -> string!
 MyJdownloader.MyJdSession.ToJson() -> string!
 static MyJdownloader.MyJdSession.FromJson(string! json) -> MyJdownloader.MyJdSession!
 override MyJdownloader.MyJdSession.ToString() -> string!
+MyJdownloader.DeviceInfo
+MyJdownloader.DeviceInfo.<Clone>$() -> MyJdownloader.DeviceInfo!
+MyJdownloader.DeviceInfo.Deconstruct(out string! Id, out string! Name, out string! Type) -> void
+MyJdownloader.DeviceInfo.DeviceInfo(string! Id, string! Name, string! Type) -> void
+MyJdownloader.DeviceInfo.Equals(MyJdownloader.DeviceInfo? other) -> bool
+MyJdownloader.DeviceInfo.Id.get -> string!
+MyJdownloader.DeviceInfo.Id.init -> void
+MyJdownloader.DeviceInfo.Name.get -> string!
+MyJdownloader.DeviceInfo.Name.init -> void
+MyJdownloader.DeviceInfo.Type.get -> string!
+MyJdownloader.DeviceInfo.Type.init -> void
+override MyJdownloader.DeviceInfo.Equals(object? obj) -> bool
+override MyJdownloader.DeviceInfo.GetHashCode() -> int
+override MyJdownloader.DeviceInfo.ToString() -> string!
+static MyJdownloader.DeviceInfo.operator !=(MyJdownloader.DeviceInfo? left, MyJdownloader.DeviceInfo? right) -> bool
+static MyJdownloader.DeviceInfo.operator ==(MyJdownloader.DeviceInfo? left, MyJdownloader.DeviceInfo? right) -> bool

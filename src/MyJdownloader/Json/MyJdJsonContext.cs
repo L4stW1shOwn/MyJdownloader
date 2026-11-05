@@ -12,6 +12,8 @@ using MyJdownloader.Transport;
 [JsonSerializable(typeof(MyJdSessionDocument))]
 [JsonSerializable(typeof(ConnectResponse))]
 [JsonSerializable(typeof(ErrorResponse))]
+[JsonSerializable(typeof(RidResponse))]
+[JsonSerializable(typeof(ListDevicesResponse))]
 internal sealed partial class MyJdJsonContext : JsonSerializerContext
 {
 }

@@ -63,6 +63,137 @@ internal sealed class ServerChannel
         return this.ConnectCoreAsync(email, loginSecret, deviceSecret, cancellationToken);
     }
 
+    /// <summary>Renews the session with <c>/my/reconnect</c>.</summary>
+    /// <param name="session">The session to renew; left unchanged.</param>
+    /// <param name="cancellationToken">A token to cancel the call.</param>
+    /// <returns>A new session with fresh tokens.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="session"/> is <see langword="null"/>.</exception>
+    public async Task<MyJdSession> ReconnectAsync(MyJdSession session, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+
+        var key = session.ServerEncryptionToken.ToArray();
+        var deviceSecret = session.DeviceSecret.ToArray();
+        byte[]? serverToken = null;
+        byte[]? deviceToken = null;
+        try
+        {
+            var response = await this.SendAsync(
+                "/my/reconnect",
+                [("sessiontoken", session.SessionToken), ("regaintoken", session.RegainToken)],
+                key,
+                MyJdJsonContext.Default.ConnectResponse,
+                cancellationToken).ConfigureAwait(false);
+
+            try
+            {
+                if (response.SessionToken is null || response.RegainToken is null)
+                {
+                    throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
+                }
+
+                serverToken = MyJdCrypto.DeriveToken(key, response.SessionToken);
+                deviceToken = MyJdCrypto.DeriveToken(deviceSecret, response.SessionToken);
+                var loginSecret = session.LoginSecret.ToArray();
+                try
+                {
+                    return new MyJdSession(session.Email, loginSecret, deviceSecret, response.SessionToken, response.RegainToken, serverToken, deviceToken);
+                }
+                finally
+                {
+                    CryptographicOperations.ZeroMemory(loginSecret);
+                }
+            }
+            catch (Exception ex) when (ex is FormatException or ArgumentException)
+            {
+                throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
+            }
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(key);
+            CryptographicOperations.ZeroMemory(deviceSecret);
+            if (serverToken is not null)
+            {
+                CryptographicOperations.ZeroMemory(serverToken);
+            }
+
+            if (deviceToken is not null)
+            {
+                CryptographicOperations.ZeroMemory(deviceToken);
+            }
+        }
+    }
+
+    /// <summary>Closes the session with <c>/my/disconnect</c>.</summary>
+    /// <param name="session">The session to close.</param>
+    /// <param name="cancellationToken">A token to cancel the call.</param>
+    /// <returns>A task that completes when the server has acknowledged the request.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="session"/> is <see langword="null"/>.</exception>
+    public async Task DisconnectAsync(MyJdSession session, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+
+        var key = session.ServerEncryptionToken.ToArray();
+        try
+        {
+            await this.SendAsync(
+                "/my/disconnect",
+                [("sessiontoken", session.SessionToken)],
+                key,
+                MyJdJsonContext.Default.RidResponse,
+                cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(key);
+        }
+    }
+
+    /// <summary>Lists the devices of the account with <c>/my/listdevices</c>.</summary>
+    /// <param name="session">The session to use.</param>
+    /// <param name="cancellationToken">A token to cancel the call.</param>
+    /// <returns>The devices registered on the account.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="session"/> is <see langword="null"/>.</exception>
+    public async Task<IReadOnlyList<DeviceInfo>> ListDevicesAsync(MyJdSession session, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(session);
+
+        var key = session.ServerEncryptionToken.ToArray();
+        ListDevicesResponse response;
+        try
+        {
+            response = await this.SendAsync(
+                "/my/listdevices",
+                [("sessiontoken", session.SessionToken)],
+                key,
+                MyJdJsonContext.Default.ListDevicesResponse,
+                cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(key);
+        }
+
+        if (response.List is null)
+        {
+            throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
+        }
+
+        var devices = new List<DeviceInfo>(response.List.Length);
+        foreach (var device in response.List)
+        {
+            if (device?.Id is null || device.Name is null || device.Type is null)
+            {
+                throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
+            }
+
+            devices.Add(new DeviceInfo(device.Id, device.Name, device.Type));
+        }
+
+        return devices;
+    }
+
     private static string BuildQuery(string path, IReadOnlyList<(string Name, string Value)> parameters, long rid)
     {
         var builder = new StringBuilder(path);
