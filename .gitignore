@@ -1,0 +1,51 @@
+## Build outputs
+bin/
+artifacts/
+obj/
+out/
+publish/
+
+## IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userprefs
+*.csproj.user
+*.sln.docstates
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Test & coverage
+TestResults/
+*.coverage
+*.coveragexml
+
+## NuGet
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+
+## Logs & crash dumps
+*.log
+mono_crash.*.json
+
+
+## Secrets & config locale
+appsettings.Local.json
+appsettings.Development.json
+*.pfx
+*.p12
+
+## Claude Code / suivi local
+.ai/
+.claude/.workflow-active
+.claude/settings.local.json
+
+## Docker
+.env
+!.env.example

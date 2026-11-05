@@ -1,0 +1,9 @@
+#nullable enable
+MyJdownloader.MyJDownloaderOptions
+MyJdownloader.MyJDownloaderOptions.ApiVersion.get -> int
+MyJdownloader.MyJDownloaderOptions.ApiVersion.set -> void
+MyJdownloader.MyJDownloaderOptions.AppKey.get -> string!
+MyJdownloader.MyJDownloaderOptions.AppKey.set -> void
+MyJdownloader.MyJDownloaderOptions.BaseAddress.get -> System.Uri!
+MyJdownloader.MyJDownloaderOptions.BaseAddress.set -> void
+MyJdownloader.MyJDownloaderOptions.MyJDownloaderOptions() -> void

@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MyJdownloader.Extensions.DependencyInjection/MyJdownloader.Extensions.DependencyInjection.csproj" />
+    <Project Path="src/MyJdownloader/MyJdownloader.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MyJdownloader.Extensions.DependencyInjection.Tests/MyJdownloader.Extensions.DependencyInjection.Tests.csproj" />
+    <Project Path="tests/MyJdownloader.Tests/MyJdownloader.Tests.csproj" />
+  </Folder>
+</Solution>

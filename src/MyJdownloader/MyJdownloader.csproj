@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Core .NET client library for the MyJDownloader API. Work in progress: no protocol features yet.</Description>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../../src/MyJdownloader.Extensions.DependencyInjection/MyJdownloader.Extensions.DependencyInjection.csproj" />
+  </ItemGroup>
+</Project>
