@@ -9,3 +9,4 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 - Solution skeleton.
 - `MyJDownloaderOptions`.
 - `AddMyJDownloader` named HTTP client registration.
+- Exception hierarchy: MyJdException, MyJdAuthenticationException, MyJdDeviceOfflineException, MyJdRateLimitException, MyJdApiException, MyJdProtocolException, MyJdErrorSource.
