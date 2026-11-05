@@ -182,11 +182,33 @@ public sealed class MyJdCryptoTests
         => Assert.Throws<CryptographicException>(() => MyJdCrypto.Decrypt(FromHex(DeviceToken), CipherBadPadding));
 
     [Test]
-    public void Decrypt_InvalidPadding_MessageDoesNotContainCiphertext()
+    public void Decrypt_InvalidPadding_MessageDoesNotContainInputs()
     {
         var ex = Assert.Throws<CryptographicException>(() => MyJdCrypto.Decrypt(FromHex(DeviceToken), CipherBadPadding));
 
-        Assert.That(ex!.Message, Does.Not.Contain(CipherBadPadding));
+        Assert.That(ex!.Message, Does.Not.Contain(CipherBadPadding).And.Not.Contain(DeviceToken));
+    }
+
+    [Test]
+    public void Decrypt_MalformedUtf8_ReplacesWithReplacementChar()
+    {
+        var key = FromHex(DeviceToken);
+        using var aes = Aes.Create();
+        aes.SetKey(key.AsSpan(16, 16));
+        var ciphertext = Convert.ToBase64String(aes.EncryptCbc([0xFF, 0xFE], key.AsSpan(0, 16), PaddingMode.PKCS7));
+
+        Assert.That(MyJdCrypto.Decrypt(key, ciphertext), Is.EqualTo("\uFFFD\uFFFD"));
+    }
+
+    [Test]
+    public void Decrypt_Always_LeavesKeyUnchanged()
+    {
+        var key = FromHex(DeviceToken);
+        var copy = (byte[])key.Clone();
+
+        MyJdCrypto.Decrypt(key, CipherJson);
+
+        Assert.That(key, Is.EqualTo(copy));
     }
 
     [Test]
