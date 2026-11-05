@@ -1,6 +1,7 @@
 namespace MyJdownloader.Transport;
 
 using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
@@ -47,13 +48,13 @@ internal sealed class ServerChannel
         this.timeProvider = timeProvider;
     }
 
-    /// <summary>Opens a session with <c>/my/connect</c>.</summary>
+    /// <summary>Validates the credentials and derives the secrets of a <c>/my/connect</c> call.</summary>
     /// <param name="email">The account email.</param>
     /// <param name="password">The account password; never kept.</param>
-    /// <param name="cancellationToken">A token to cancel the call.</param>
-    /// <returns>The new session.</returns>
+    /// <returns>A single-use request to pass to <see cref="ConnectAsync"/>.</returns>
     /// <exception cref="ArgumentException">The email or the password is not valid; no request is sent.</exception>
-    public Task<MyJdSession> ConnectAsync(string email, string password, CancellationToken cancellationToken)
+    [SuppressMessage("Performance", "CA1822", Justification = "Instance member by contract: the client reaches it through its channel")]
+    public ConnectRequest CreateConnectRequest(string email, string password)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(email);
         ArgumentException.ThrowIfNullOrEmpty(password);
@@ -74,7 +75,42 @@ internal sealed class ServerChannel
             throw;
         }
 
-        return this.ConnectCoreAsync(email, loginSecret, deviceSecret, cancellationToken);
+        try
+        {
+            return new ConnectRequest(email, loginSecret, deviceSecret);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(loginSecret);
+            CryptographicOperations.ZeroMemory(deviceSecret);
+        }
+    }
+
+    /// <summary>Opens a session with <c>/my/connect</c>.</summary>
+    /// <param name="request">The single-use request; its secrets are cleared once the call ends.</param>
+    /// <param name="cancellationToken">A token to cancel the call.</param>
+    /// <returns>The new session.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="request"/> is <see langword="null"/>.</exception>
+    /// <exception cref="InvalidOperationException">The request has already been used.</exception>
+    public async Task<MyJdSession> ConnectAsync(ConnectRequest request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        request.MarkUsed();
+        try
+        {
+            var response = await this.SendAsync(
+                "/my/connect",
+                [("email", request.Email), ("appkey", this.options.AppKey)],
+                request.LoginSecret,
+                MyJdJsonContext.Default.ConnectResponse,
+                cancellationToken).ConfigureAwait(false);
+
+            return BuildSession(request.Email, request.LoginSecret, request.DeviceSecret, request.LoginSecret, response);
+        }
+        finally
+        {
+            request.Dispose();
+        }
     }
 
     /// <summary>Renews the session with <c>/my/reconnect</c>.</summary>
@@ -271,26 +307,6 @@ internal sealed class ServerChannel
         }
 
         return false;
-    }
-
-    private async Task<MyJdSession> ConnectCoreAsync(string email, byte[] loginSecret, byte[] deviceSecret, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var response = await this.SendAsync(
-                "/my/connect",
-                [("email", email), ("appkey", this.options.AppKey)],
-                loginSecret,
-                MyJdJsonContext.Default.ConnectResponse,
-                cancellationToken).ConfigureAwait(false);
-
-            return BuildSession(email, loginSecret, deviceSecret, loginSecret, response);
-        }
-        finally
-        {
-            CryptographicOperations.ZeroMemory(loginSecret);
-            CryptographicOperations.ZeroMemory(deviceSecret);
-        }
     }
 
     // Derives the per-session tokens from the new session token; the ctor copies its inputs, temporaries are zeroed here.

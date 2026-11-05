@@ -48,7 +48,7 @@ public sealed class ServerChannelErrorTests
         using var server = new FakeMyJdServer(_ => TooManyRequests(retryAfter));
         var channel = CreateChannel(server);
 
-        var exception = await Assert.ThrowsAsync<MyJdRateLimitException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<MyJdRateLimitException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
         return exception!;
     }
@@ -59,7 +59,7 @@ public sealed class ServerChannelErrorTests
         using var server = new FakeMyJdServer(_ => FakeMyJdServer.Raw(AuthFailedBody, HttpStatusCode.Forbidden));
         var channel = CreateChannel(server);
 
-        var exception = await Assert.ThrowsAsync<MyJdAuthenticationException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<MyJdAuthenticationException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
         Assert.That(exception!.ErrorType, Is.EqualTo("AUTH_FAILED"));
         Assert.That(exception.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
@@ -73,7 +73,7 @@ public sealed class ServerChannelErrorTests
         using var server = new FakeMyJdServer(_ => FakeMyJdServer.EncryptedJson(loginSecret, AuthFailedBody, HttpStatusCode.Forbidden));
         var channel = CreateChannel(server);
 
-        var exception = await Assert.ThrowsAsync<MyJdAuthenticationException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<MyJdAuthenticationException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
         Assert.That(exception!.ErrorType, Is.EqualTo("AUTH_FAILED"));
         Assert.That(exception.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
@@ -85,7 +85,7 @@ public sealed class ServerChannelErrorTests
         using var server = new FakeMyJdServer(_ => FakeMyJdServer.Raw("<html><body>Service Unavailable</body></html>", HttpStatusCode.ServiceUnavailable));
         var channel = CreateChannel(server);
 
-        var exception = await Assert.ThrowsAsync<MyJdApiException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<MyJdApiException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
         Assert.That(exception!.ErrorType, Is.EqualTo("UNKNOWN"));
         Assert.That(exception.StatusCode, Is.EqualTo(HttpStatusCode.ServiceUnavailable));
@@ -149,7 +149,7 @@ public sealed class ServerChannelErrorTests
         using var cts = new CancellationTokenSource();
         await cts.CancelAsync();
 
-        var exception = await Assert.CatchAsync<OperationCanceledException>(() => channel.ConnectAsync(Email, Password, cts.Token));
+        var exception = await Assert.CatchAsync<OperationCanceledException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), cts.Token));
 
         Assert.That(exception, Is.Not.InstanceOf<MyJdException>());
     }
@@ -161,7 +161,7 @@ public sealed class ServerChannelErrorTests
         using var server = new FakeMyJdServer(_ => throw failure);
         var channel = CreateChannel(server);
 
-        var exception = await Assert.ThrowsAsync<HttpRequestException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<HttpRequestException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
         Assert.That(exception, Is.SameAs(failure));
     }
@@ -172,7 +172,7 @@ public sealed class ServerChannelErrorTests
         using var server = new FakeMyJdServer(_ => FakeMyJdServer.Raw(AuthFailedBody, HttpStatusCode.Forbidden));
         var channel = CreateChannel(server);
 
-        var exception = await Assert.ThrowsAsync<MyJdAuthenticationException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<MyJdAuthenticationException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
         Assert.That(exception!.Message, Does.Not.Contain(Email));
         Assert.That(exception.Message, Does.Not.Contain(Password));
@@ -184,7 +184,7 @@ public sealed class ServerChannelErrorTests
         using var server = new FakeMyJdServer(_ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new UnknownLengthContent(1_048_577) });
         var channel = CreateChannel(server);
 
-        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
         Assert.That(exception!.Message, Is.EqualTo(UnreadableMessage));
         Assert.That(exception.InnerException, Is.Null);
@@ -196,7 +196,7 @@ public sealed class ServerChannelErrorTests
         using var server = new FakeMyJdServer(_ => FakeMyJdServer.Raw("{}", HttpStatusCode.Forbidden));
         var channel = CreateChannel(server);
 
-        var exception = await Assert.ThrowsAsync<MyJdApiException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<MyJdApiException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
         Assert.That(exception!.ErrorType, Is.EqualTo("UNKNOWN"));
         Assert.That(exception.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
@@ -211,7 +211,7 @@ public sealed class ServerChannelErrorTests
         });
         var channel = CreateChannel(server);
 
-        var exception = await Assert.ThrowsAsync<MyJdApiException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<MyJdApiException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
         Assert.That(exception!.StatusCode, Is.EqualTo(HttpStatusCode.Forbidden));
     }
@@ -225,7 +225,7 @@ public sealed class ServerChannelErrorTests
         });
         var channel = CreateChannel(server, TimeSpan.FromMilliseconds(200));
 
-        var exception = await Assert.ThrowsAsync<TimeoutException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<TimeoutException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
         Assert.That(exception!.Message, Is.EqualTo("The MyJD server did not answer in time."));
     }
@@ -238,7 +238,7 @@ public sealed class ServerChannelErrorTests
         using var httpClient = new HttpClient(server) { Timeout = TimeSpan.FromMilliseconds(200) };
         var channel = new ServerChannel(httpClient, new MyJDownloaderOptions(), new RequestIdGenerator(clock), clock);
 
-        var exception = await Assert.ThrowsAsync<TimeoutException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<TimeoutException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
         Assert.That(exception!.Message, Is.EqualTo("The MyJD server did not answer in time."));
         Assert.That(exception.InnerException, Is.Null);
@@ -258,7 +258,7 @@ public sealed class ServerChannelErrorTests
         });
         var channel = CreateChannel(server);
 
-        var exception = await Assert.CatchAsync<OperationCanceledException>(() => channel.ConnectAsync(Email, Password, cts.Token));
+        var exception = await Assert.CatchAsync<OperationCanceledException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), cts.Token));
 
         Assert.That(exception, Is.Not.InstanceOf<MyJdException>());
     }

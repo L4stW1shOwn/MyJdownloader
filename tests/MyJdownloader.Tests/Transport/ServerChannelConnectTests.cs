@@ -32,13 +32,16 @@ public sealed class ServerChannelConnectTests
     private static FakeMyJdServer ServerReturning(Func<long, string> body, string email = Email) =>
         new(request => FakeMyJdServer.EncryptedJson(MyJdCrypto.DeriveLoginSecret(email, Password), body(FakeMyJdServer.RidOf(request))));
 
+    private static Task<MyJdSession> ConnectWith(ServerChannel channel) =>
+        channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None);
+
     [Test]
     public async Task ConnectAsync_ValidCredentials_SendsSignedConnectRequest()
     {
         using var server = ServerReturningValid();
         var channel = CreateChannel(server);
 
-        await channel.ConnectAsync(Email, Password, CancellationToken.None);
+        await channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None);
 
         var request = server.Requests.Single();
         var rid = FakeMyJdServer.RidOf(request);
@@ -59,7 +62,7 @@ public sealed class ServerChannelConnectTests
         var loginSecret = MyJdCrypto.DeriveLoginSecret(Email, Password);
         var deviceSecret = MyJdCrypto.DeriveDeviceSecret(Email, Password);
 
-        var session = await channel.ConnectAsync(Email, Password, CancellationToken.None);
+        var session = await channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None);
 
         Assert.That(session.Email, Is.EqualTo(Email));
         Assert.That(session.SessionToken, Is.EqualTo(SessionToken));
@@ -77,7 +80,7 @@ public sealed class ServerChannelConnectTests
         using var server = ServerReturningValid(email);
         var channel = CreateChannel(server);
 
-        await channel.ConnectAsync(email, Password, CancellationToken.None);
+        await channel.ConnectAsync(channel.CreateConnectRequest(email, Password), CancellationToken.None);
 
         var request = server.Requests.Single();
         Assert.That(request.RequestUri!.Query, Does.Contain("email=user%2Btag%40example.com&"));
@@ -91,7 +94,7 @@ public sealed class ServerChannelConnectTests
         var options = new MyJDownloaderOptions { AppKey = "My App&Co" };
         var channel = CreateChannel(server, options);
 
-        await channel.ConnectAsync(Email, Password, CancellationToken.None);
+        await channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None);
 
         var request = server.Requests.Single();
         Assert.That(request.RequestUri!.Query, Does.Contain("appkey=My%20App%26Co&"));
@@ -105,7 +108,7 @@ public sealed class ServerChannelConnectTests
         var options = new MyJDownloaderOptions { BaseAddress = new Uri("https://relay.test/api/") };
         var channel = CreateChannel(server, options);
 
-        await channel.ConnectAsync(Email, Password, CancellationToken.None);
+        await channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None);
 
         var request = server.Requests.Single();
         Assert.That(request.RequestUri!.AbsolutePath, Is.EqualTo("/api/my/connect"));
@@ -116,34 +119,34 @@ public sealed class ServerChannelConnectTests
     [TestCase("")]
     [TestCase("  ")]
     [TestCase("user\n@example.com")]
-    public async Task ConnectAsync_InvalidEmail_ThrowsWithoutRequest(string email)
+    public void CreateConnectRequest_InvalidEmail_ThrowsWithoutRequest(string email)
     {
         using var server = ServerReturningValid();
         var channel = CreateChannel(server);
 
-        await Assert.CatchAsync<ArgumentException>(() => channel.ConnectAsync(email, Password, CancellationToken.None));
+        Assert.Catch<ArgumentException>(() => channel.CreateConnectRequest(email, Password));
         Assert.That(server.Requests, Is.Empty);
     }
 
     [Test]
-    public async Task ConnectAsync_EmailOver254Chars_ThrowsWithoutRequest()
+    public void CreateConnectRequest_EmailOver254Chars_ThrowsWithoutRequest()
     {
         using var server = ServerReturningValid();
         var channel = CreateChannel(server);
         var email = new string('a', 243) + "@example.com";
 
         Assert.That(email, Has.Length.EqualTo(255));
-        await Assert.CatchAsync<ArgumentException>(() => channel.ConnectAsync(email, Password, CancellationToken.None));
+        Assert.Catch<ArgumentException>(() => channel.CreateConnectRequest(email, Password));
         Assert.That(server.Requests, Is.Empty);
     }
 
     [Test]
-    public async Task ConnectAsync_EmptyPassword_ThrowsWithoutRequest()
+    public void CreateConnectRequest_EmptyPassword_ThrowsWithoutRequest()
     {
         using var server = ServerReturningValid();
         var channel = CreateChannel(server);
 
-        await Assert.CatchAsync<ArgumentException>(() => channel.ConnectAsync(Email, string.Empty, CancellationToken.None));
+        Assert.Catch<ArgumentException>(() => channel.CreateConnectRequest(Email, string.Empty));
         Assert.That(server.Requests, Is.Empty);
     }
 
@@ -153,7 +156,7 @@ public sealed class ServerChannelConnectTests
         using var server = ServerReturning(rid => ValidBody(rid + 1));
         var channel = CreateChannel(server);
 
-        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
         Assert.That(exception!.Message, Is.EqualTo(MismatchMessage));
         Assert.That(exception.ErrorSource, Is.EqualTo(MyJdErrorSource.Server));
@@ -165,7 +168,7 @@ public sealed class ServerChannelConnectTests
         using var server = ServerReturning(_ => $$"""{"sessiontoken":"{{SessionToken}}","regaintoken":"{{RegainToken}}"}""");
         var channel = CreateChannel(server);
 
-        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
         Assert.That(exception!.Message, Is.EqualTo(MismatchMessage));
     }
@@ -177,7 +180,7 @@ public sealed class ServerChannelConnectTests
             string.Create(CultureInfo.InvariantCulture, $$"""{"x":{"rid":{{rid}}},"sessiontoken":"{{SessionToken}}","regaintoken":"{{RegainToken}}"}"""));
         var channel = CreateChannel(server);
 
-        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
         Assert.That(exception!.Message, Is.EqualTo(MismatchMessage));
     }
@@ -189,7 +192,7 @@ public sealed class ServerChannelConnectTests
             string.Create(CultureInfo.InvariantCulture, $$"""{"sessiontoken":"{{SessionToken}}","regaintoken":"{{RegainToken}}","rid":"{{rid}}"}"""));
         var channel = CreateChannel(server);
 
-        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
         Assert.That(exception!.Message, Is.EqualTo(MismatchMessage));
     }
@@ -221,7 +224,7 @@ public sealed class ServerChannelConnectTests
         });
         var channel = CreateChannel(server);
 
-        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
         Assert.That(exception!.Message, Is.EqualTo(UnreadableMessage));
         Assert.That(exception.InnerException, Is.Null);
@@ -234,7 +237,7 @@ public sealed class ServerChannelConnectTests
         using var server = new FakeMyJdServer(_ => FakeMyJdServer.Raw(string.Empty));
         var channel = CreateChannel(server);
 
-        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
         Assert.That(exception!.Message, Is.EqualTo(UnreadableMessage));
         Assert.That(exception.InnerException, Is.Null);
@@ -246,7 +249,7 @@ public sealed class ServerChannelConnectTests
         using var server = new FakeMyJdServer(_ => FakeMyJdServer.Raw(new string('A', 1_048_577)));
         var channel = CreateChannel(server);
 
-        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(Email, Password, CancellationToken.None));
+        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
         Assert.That(exception!.Message, Is.EqualTo(UnreadableMessage));
         Assert.That(exception.ErrorSource, Is.EqualTo(MyJdErrorSource.Server));
@@ -258,8 +261,8 @@ public sealed class ServerChannelConnectTests
         using var mismatch = ServerReturning(rid => ValidBody(rid + 1));
         using var unreadable = ServerReturning(_ => "not json");
 
-        var mismatchException = await Assert.ThrowsAsync<MyJdProtocolException>(() => CreateChannel(mismatch).ConnectAsync(Email, Password, CancellationToken.None));
-        var unreadableException = await Assert.ThrowsAsync<MyJdProtocolException>(() => CreateChannel(unreadable).ConnectAsync(Email, Password, CancellationToken.None));
+        var mismatchException = await Assert.ThrowsAsync<MyJdProtocolException>(() => ConnectWith(CreateChannel(mismatch)));
+        var unreadableException = await Assert.ThrowsAsync<MyJdProtocolException>(() => ConnectWith(CreateChannel(unreadable)));
 
         foreach (var exception in new[] { mismatchException!, unreadableException! })
         {
@@ -270,13 +273,52 @@ public sealed class ServerChannelConnectTests
     }
 
     [Test]
+    public async Task ConnectAsync_RequestReused_ThrowsInvalidOperationException()
+    {
+        using var server = ServerReturningValid();
+        var channel = CreateChannel(server);
+        var request = channel.CreateConnectRequest(Email, Password);
+
+        await channel.ConnectAsync(request, CancellationToken.None);
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => channel.ConnectAsync(request, CancellationToken.None));
+
+        Assert.That(exception!.Message, Is.EqualTo("The connect request has already been used."));
+        Assert.That(server.Requests, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public async Task ConnectAsync_DisposedRequest_ThrowsInvalidOperationException()
+    {
+        using var server = ServerReturningValid();
+        var channel = CreateChannel(server);
+        var request = channel.CreateConnectRequest(Email, Password);
+
+        request.Dispose();
+        request.Dispose();
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => channel.ConnectAsync(request, CancellationToken.None));
+
+        Assert.That(exception!.Message, Is.EqualTo("The connect request has already been used."));
+        Assert.That(server.Requests, Is.Empty);
+    }
+
+    [Test]
+    public async Task ConnectAsync_NullRequest_ThrowsArgumentNullException()
+    {
+        using var server = ServerReturningValid();
+        var channel = CreateChannel(server);
+
+        await Assert.ThrowsAsync<ArgumentNullException>(() => channel.ConnectAsync(null!, CancellationToken.None));
+        Assert.That(server.Requests, Is.Empty);
+    }
+
+    [Test]
     public async Task ConnectAsync_ExtraResponseField_IsIgnored()
     {
         using var server = ServerReturning(rid =>
             string.Create(CultureInfo.InvariantCulture, $$"""{"sessiontoken":"{{SessionToken}}","regaintoken":"{{RegainToken}}","rid":{{rid}},"future":1}"""));
         var channel = CreateChannel(server);
 
-        var session = await channel.ConnectAsync(Email, Password, CancellationToken.None);
+        var session = await channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None);
 
         Assert.That(session.SessionToken, Is.EqualTo(SessionToken));
         Assert.That(session.RegainToken, Is.EqualTo(RegainToken));
