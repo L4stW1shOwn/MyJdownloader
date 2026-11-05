@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Crypto;
+using MyJdownloader.Errors;
 using MyJdownloader.Json;
 
 /// <summary>
@@ -21,12 +22,14 @@ internal sealed class ServerChannel
 {
     private const int MaxBodyLength = 1_048_576;
     private const int MaxEmailLength = 254;
+    private static readonly TimeSpan MaxRetryAfter = TimeSpan.FromMinutes(10);
     private const string UnreadableMessage = "The MyJD server returned a response that could not be read.";
     private const string MismatchMessage = "The MyJD server response does not match the request.";
 
     private readonly HttpClient httpClient;
     private readonly MyJDownloaderOptions options;
     private readonly RequestIdGenerator requestIds;
+    private readonly TimeProvider timeProvider;
 
     public ServerChannel(HttpClient httpClient, MyJDownloaderOptions options, RequestIdGenerator requestIds, TimeProvider timeProvider)
     {
@@ -37,6 +40,7 @@ internal sealed class ServerChannel
         this.httpClient = httpClient;
         this.options = options;
         this.requestIds = requestIds;
+        this.timeProvider = timeProvider;
     }
 
     /// <summary>Opens a session with <c>/my/connect</c>.</summary>
@@ -96,6 +100,47 @@ internal sealed class ServerChannel
             }
 
             return buffer.WrittenSpan.ToArray();
+        }
+    }
+
+    private static async Task<ErrorResponse?> ReadErrorAsync(HttpContent content, byte[] key, CancellationToken cancellationToken)
+    {
+        byte[] body;
+        try
+        {
+            body = await ReadBodyAsync(content, cancellationToken).ConfigureAwait(false);
+        }
+        catch (MyJdProtocolException)
+        {
+            return null;
+        }
+
+        string text;
+        try
+        {
+            text = Encoding.UTF8.GetString(body);
+        }
+        catch (ArgumentException)
+        {
+            return null;
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize(text, MyJdJsonContext.Default.ErrorResponse);
+        }
+        catch (JsonException)
+        {
+            // Not a plain error body: try the encrypted form below.
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize(MyJdCrypto.Decrypt(key, text), MyJdJsonContext.Default.ErrorResponse);
+        }
+        catch (Exception ex) when (ex is JsonException or FormatException or CryptographicException or ArgumentException)
+        {
+            return null;
         }
     }
 
@@ -167,6 +212,18 @@ internal sealed class ServerChannel
         }
     }
 
+    private TimeSpan? ParseRetryAfter(HttpResponseMessage response)
+    {
+        var header = response.Headers.RetryAfter;
+        var delay = header?.Delta ?? (header?.Date - this.timeProvider.GetUtcNow());
+        if (delay is null)
+        {
+            return null;
+        }
+
+        return delay.Value < TimeSpan.Zero ? TimeSpan.Zero : delay.Value > MaxRetryAfter ? MaxRetryAfter : delay.Value;
+    }
+
     // The single request pipeline: sign, send, bounded read, decrypt, rid check, typed deserialization.
     private async Task<T> SendAsync<T>(
         string path,
@@ -184,7 +241,8 @@ internal sealed class ServerChannel
         using var response = await this.httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
         if (response.StatusCode != HttpStatusCode.OK)
         {
-            throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
+            var error = await ReadErrorAsync(response.Content, key, cancellationToken).ConfigureAwait(false);
+            throw MyJdErrorMapper.Map(MyJdErrorSource.Server, error?.Src, error?.Type, response.StatusCode, this.ParseRetryAfter(response));
         }
 
         var body = await ReadBodyAsync(response.Content, cancellationToken).ConfigureAwait(false);

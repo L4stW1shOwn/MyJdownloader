@@ -11,6 +11,7 @@ using MyJdownloader.Transport;
     AllowDuplicateProperties = false)]
 [JsonSerializable(typeof(MyJdSessionDocument))]
 [JsonSerializable(typeof(ConnectResponse))]
+[JsonSerializable(typeof(ErrorResponse))]
 internal sealed partial class MyJdJsonContext : JsonSerializerContext
 {
 }

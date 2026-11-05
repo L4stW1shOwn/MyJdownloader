@@ -72,6 +72,7 @@ internal sealed class FakeMyJdServer : HttpMessageHandler
 
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         this.requests.Add(request);
         return Task.FromResult(this.responder(request));
     }
