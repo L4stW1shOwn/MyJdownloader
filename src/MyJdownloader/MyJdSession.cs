@@ -19,6 +19,8 @@ using MyJdownloader.Sessions;
 public sealed class MyJdSession
 {
     private const int MaxTokenLength = 128;
+    private const int MaxEmailLength = 254;
+    private const int MaxJsonLength = 4096;
     private const int CurrentVersion = 1;
     private const string InvalidSessionMessage = "The session data is not a valid MyJdownloader session.";
 
@@ -44,6 +46,7 @@ public sealed class MyJdSession
         byte[] deviceEncryptionToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(email);
+        ValidateEmail(email);
         ArgumentException.ThrowIfNullOrWhiteSpace(sessionToken);
         ArgumentException.ThrowIfNullOrWhiteSpace(regainToken);
         ValidateToken(sessionToken, nameof(sessionToken));
@@ -59,6 +62,8 @@ public sealed class MyJdSession
     }
 
     /// <summary>Gets the account e-mail address.</summary>
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    [field: DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string Email { get; }
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -116,6 +121,10 @@ public sealed class MyJdSession
     public static MyJdSession FromJson(string json)
     {
         ArgumentNullException.ThrowIfNull(json);
+        if (json.Length > MaxJsonLength)
+        {
+            throw new FormatException(InvalidSessionMessage);
+        }
 
         MyJdSessionDocument? document = null;
         try
@@ -126,6 +135,7 @@ public sealed class MyJdSession
                 throw new FormatException(InvalidSessionMessage);
             }
 
+            // Missing fields are rejected by the ctor (ArgumentNullException is an ArgumentException), mapped below.
             return new MyJdSession(
                 document.Email!,
                 document.LoginSecret!,
@@ -165,6 +175,14 @@ public sealed class MyJdSession
         }
 
         return (byte[])key.Clone();
+    }
+
+    private static void ValidateEmail(string email)
+    {
+        if (email.Length > MaxEmailLength || email.Any(char.IsControl))
+        {
+            throw new ArgumentException("The e-mail address is not valid.", nameof(email));
+        }
     }
 
     private static void ValidateToken(string token, string parameterName)
