@@ -1,6 +1,7 @@
 namespace MyJdownloader;
 
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.ExceptionServices;
 using MyJdownloader.Transport;
 
 /// <summary>Client for the MyJDownloader relay server.</summary>
@@ -17,6 +18,12 @@ using MyJdownloader.Transport;
 /// <para>
 /// Disconnecting raises <see cref="SessionChanged"/> with a <see langword="null"/> session after the server call,
 /// even if that call fails. If both the server call and a handler throw, the handler's exception replaces the server error.
+/// </para>
+/// <para>
+/// All <see cref="SessionChanged"/> handlers are invoked even if one throws. Handler exceptions propagate to the caller
+/// of the operation after the session was updated (check <see cref="IsConnected"/> or <see cref="ExportSession"/>):
+/// a single failure is rethrown as is, several failures are wrapped in an <see cref="AggregateException"/>.
+/// <see cref="MyJdSessionChangedEventArgs.Session"/> may already be outdated when a handler runs; persist <see cref="ExportSession"/>.
 /// </para>
 /// </remarks>
 [SuppressMessage("Design", "CA1001", Justification = "AvailableWaitHandle is never used, the semaphore holds no unmanaged resource")]
@@ -50,7 +57,11 @@ public sealed class MyJDownloaderClient
     }
 
     /// <summary>Occurs when the session is established, refreshed or cleared by the client.</summary>
-    /// <remarks><see cref="RestoreSession"/> does not raise this event.</remarks>
+    /// <remarks>
+    /// <see cref="RestoreSession"/> does not raise this event. All handlers are invoked even if one throws; their exceptions
+    /// propagate to the caller of the operation after the session was updated. <see cref="MyJdSessionChangedEventArgs.Session"/>
+    /// may already be outdated: persist <see cref="ExportSession"/>.
+    /// </remarks>
     public event EventHandler<MyJdSessionChangedEventArgs>? SessionChanged;
 
     /// <summary>Gets a value indicating whether the client currently holds a session.</summary>
@@ -67,8 +78,8 @@ public sealed class MyJDownloaderClient
     public void RestoreSession(MyJdSession session)
     {
         ArgumentNullException.ThrowIfNull(session);
-        Volatile.Write(ref this.session, session);
         Interlocked.Increment(ref this.version);
+        Volatile.Write(ref this.session, session);
     }
 
     /// <summary>Connects to the MyJDownloader server and replaces any current session.</summary>
@@ -76,7 +87,17 @@ public sealed class MyJDownloaderClient
     /// <param name="password">The account password; it is never stored.</param>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>The new session.</returns>
+    /// <remarks>
+    /// Argument validation exceptions (<see cref="ArgumentException"/>, <see cref="ArgumentNullException"/>) are thrown synchronously,
+    /// before the returned <see cref="Task{TResult}"/>; this is deliberate so that the password is never captured by asynchronous code.
+    /// </remarks>
     /// <exception cref="ArgumentException">The email or password is invalid (thrown synchronously).</exception>
+    /// <exception cref="ArgumentNullException">The email or password is <see langword="null"/> (thrown synchronously).</exception>
+    /// <exception cref="MyJdException">The server rejected the request or the response is invalid.</exception>
+    /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
+    /// <exception cref="TimeoutException">The request timed out.</exception>
+    /// <exception cref="HttpRequestException">A network error occurred.</exception>
+    /// <exception cref="AggregateException">Several <see cref="SessionChanged"/> handlers threw.</exception>
     public Task<MyJdSession> ConnectAsync(string email, string password, CancellationToken cancellationToken = default)
     {
         var request = this.serverChannel.CreateConnectRequest(email, password);
@@ -87,6 +108,11 @@ public sealed class MyJDownloaderClient
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>The new session.</returns>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
+    /// <exception cref="MyJdException">The server rejected the request or the response is invalid.</exception>
+    /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
+    /// <exception cref="TimeoutException">The request timed out.</exception>
+    /// <exception cref="HttpRequestException">A network error occurred.</exception>
+    /// <exception cref="AggregateException">Several <see cref="SessionChanged"/> handlers threw.</exception>
     public async Task<MyJdSession> ReconnectAsync(CancellationToken cancellationToken = default)
     {
         MyJdSession newSession;
@@ -111,6 +137,15 @@ public sealed class MyJDownloaderClient
     /// <summary>Disconnects from the server; the client is disconnected even if the server call fails.</summary>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>A task representing the operation.</returns>
+    /// <remarks>
+    /// The local session is cleared before the server call. If <c>/my/disconnect</c> fails or is cancelled,
+    /// the tokens stay valid on the server until they expire.
+    /// </remarks>
+    /// <exception cref="MyJdException">The server rejected the request or the response is invalid.</exception>
+    /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
+    /// <exception cref="TimeoutException">The request timed out.</exception>
+    /// <exception cref="HttpRequestException">A network error occurred.</exception>
+    /// <exception cref="AggregateException">Several <see cref="SessionChanged"/> handlers threw.</exception>
     public async Task DisconnectAsync(CancellationToken cancellationToken = default)
     {
         MyJdSession? old;
@@ -144,7 +179,15 @@ public sealed class MyJDownloaderClient
     /// <summary>Lists the devices attached to the account.</summary>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>The devices.</returns>
+    /// <remarks>
+    /// Uses a lock-free snapshot of the current session. There is no automatic reconnection yet
+    /// (a later version adds a single reconnect-and-replay on <c>TOKEN_INVALID</c>).
+    /// </remarks>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
+    /// <exception cref="MyJdException">The server rejected the request or the response is invalid.</exception>
+    /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
+    /// <exception cref="TimeoutException">The request timed out.</exception>
+    /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public async Task<IReadOnlyList<DeviceInfo>> GetDevicesAsync(CancellationToken cancellationToken = default)
     {
         var current = Volatile.Read(ref this.session) ?? throw new InvalidOperationException(NotConnectedMessage);
@@ -207,11 +250,44 @@ public sealed class MyJDownloaderClient
         return newSession;
     }
 
+    [SuppressMessage("Design", "CA1031", Justification = "Handler exceptions are collected so every handler runs, then rethrown")]
     private void OnSessionChanged(MyJdSession? changed, long expectedVersion)
     {
-        if (Volatile.Read(ref this.version) == expectedVersion)
+        if (Volatile.Read(ref this.version) != expectedVersion)
         {
-            this.SessionChanged?.Invoke(this, new MyJdSessionChangedEventArgs(changed));
+            return;
         }
+
+        var handlers = this.SessionChanged;
+        if (handlers is null)
+        {
+            return;
+        }
+
+        var args = new MyJdSessionChangedEventArgs(changed);
+        List<Exception>? failures = null;
+        foreach (var handler in handlers.GetInvocationList())
+        {
+            try
+            {
+                ((EventHandler<MyJdSessionChangedEventArgs>)handler)(this, args);
+            }
+            catch (Exception ex)
+            {
+                (failures ??= []).Add(ex);
+            }
+        }
+
+        if (failures is null)
+        {
+            return;
+        }
+
+        if (failures.Count == 1)
+        {
+            ExceptionDispatchInfo.Capture(failures[0]).Throw();
+        }
+
+        throw new AggregateException(failures);
     }
 }

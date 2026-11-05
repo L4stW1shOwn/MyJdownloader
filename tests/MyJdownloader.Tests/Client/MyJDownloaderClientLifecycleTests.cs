@@ -420,6 +420,125 @@ public sealed class MyJDownloaderClientLifecycleTests
         });
     }
 
+    [Test]
+    public async Task SessionChanged_FirstHandlerThrows_SecondHandlerStillInvoked()
+    {
+        using var server = new ScriptedServer().On(ConnectPath, ConnectOk());
+        var client = CreateClient(server);
+        client.SessionChanged += (_, _) => throw new InvalidOperationException("handler failure");
+        var events = Collect(client);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => client.ConnectAsync(Email, Password).WaitAsync(WaitTimeout));
+
+        Assert.That(events, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public async Task SessionChanged_TwoHandlersThrow_ThrowsAggregateException()
+    {
+        using var server = new ScriptedServer().On(ConnectPath, ConnectOk());
+        var client = CreateClient(server);
+        client.SessionChanged += (_, _) => throw new InvalidOperationException("first");
+        client.SessionChanged += (_, _) => throw new ArgumentException("second");
+
+        var ex = await Assert.ThrowsAsync<AggregateException>(() => client.ConnectAsync(Email, Password).WaitAsync(WaitTimeout));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.InnerExceptions, Has.Count.EqualTo(2));
+            Assert.That(ex.InnerExceptions[0], Is.TypeOf<InvalidOperationException>());
+            Assert.That(ex.InnerExceptions[1], Is.TypeOf<ArgumentException>());
+            Assert.That(client.IsConnected, Is.True);
+        });
+    }
+
+    [Test]
+    public async Task ReconnectAsync_TwoConcurrentCalls_AreSerialized()
+    {
+        var entered = NewSignal();
+        var gate = NewSignal();
+        var inFlight = 0;
+        var maxInFlight = 0;
+        var secondKey = MyJdCrypto.DeriveToken(Key(3), NewSessionToken);
+        Route Tracked(Route inner) => async (request, cancellationToken) =>
+        {
+            var now = Interlocked.Increment(ref inFlight);
+            InterlockedMax(ref maxInFlight, now);
+            try
+            {
+                return await inner(request, cancellationToken);
+            }
+            finally
+            {
+                Interlocked.Decrement(ref inFlight);
+            }
+        };
+
+        var count = 0;
+        Task<HttpResponseMessage> Reconnect(HttpRequestMessage request, CancellationToken cancellationToken) =>
+            Interlocked.Increment(ref count) == 1
+                ? Tracked(Gated(ReconnectOk(Key(3)), entered, gate))(request, cancellationToken)
+                : Tracked(ReconnectOk(secondKey))(request, cancellationToken);
+        using var server = new ScriptedServer().On(ReconnectPath, Reconnect);
+        var client = CreateClient(server);
+        client.RestoreSession(CreateSession());
+        var first = client.ReconnectAsync();
+        await entered.Task.WaitAsync(WaitTimeout);
+        var second = client.ReconnectAsync();
+
+        Assert.That(second.IsCompleted, Is.False);
+        gate.SetResult();
+        await Task.WhenAll(first, second).WaitAsync(WaitTimeout);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(maxInFlight, Is.EqualTo(1));
+            Assert.That(count, Is.EqualTo(2));
+        });
+    }
+
+    [Test]
+    public async Task ConnectAsync_CancelledWhileWaitingForGate_SendsNoConnectAndLeavesStateUnchanged()
+    {
+        var entered = NewSignal();
+        var gate = NewSignal();
+        using var server = new ScriptedServer()
+            .On(ReconnectPath, Gated(ReconnectOk(Key(3)), entered, gate))
+            .On(ConnectPath, ConnectOk());
+        var client = CreateClient(server);
+        var restored = CreateSession();
+        client.RestoreSession(restored);
+        var reconnect = client.ReconnectAsync();
+        await entered.Task.WaitAsync(WaitTimeout);
+        using var cts = new CancellationTokenSource();
+        var connect = client.ConnectAsync(Email, Password, cts.Token);
+        await cts.CancelAsync();
+
+        await Assert.CatchAsync<OperationCanceledException>(() => connect.WaitAsync(WaitTimeout));
+        gate.SetResult();
+        await reconnect.WaitAsync(WaitTimeout);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(server.Calls.Any(call => call.StartsWith(ConnectPath, StringComparison.Ordinal)), Is.False);
+            Assert.That(client.ExportSession()!.SessionToken, Is.EqualTo(NewSessionToken));
+        });
+    }
+
+    private static void InterlockedMax(ref int target, int value)
+    {
+        int current;
+        do
+        {
+            current = Volatile.Read(ref target);
+            if (value <= current)
+            {
+                return;
+            }
+        }
+        while (Interlocked.CompareExchange(ref target, value, current) != current);
+    }
+
     /// <summary>Routes requests by path to async responders and records the path and query of each call.</summary>
     private sealed class ScriptedServer : HttpMessageHandler
     {
