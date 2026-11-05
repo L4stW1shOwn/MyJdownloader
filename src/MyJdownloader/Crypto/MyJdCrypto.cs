@@ -82,6 +82,68 @@ internal static class MyJdCrypto
         return Convert.ToHexStringLower(HMACSHA256.HashData(key, Encoding.UTF8.GetBytes(data)));
     }
 
+    /// <summary>Encrypts <paramref name="plaintext"/> with AES-128-CBC (PKCS7).</summary>
+    /// <param name="key">The 32-byte key: first half is the IV, second half the AES key; left unchanged.</param>
+    /// <param name="plaintext">The text to encrypt, encoded as UTF-8.</param>
+    /// <returns>The ciphertext as Base64.</returns>
+    /// <exception cref="ArgumentNullException">An argument is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">The key is not <see cref="KeyLength"/> bytes long.</exception>
+    public static string Encrypt(byte[] key, string plaintext)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        ArgumentNullException.ThrowIfNull(plaintext);
+        EnsureKeyLength(key);
+
+        var plainBytes = Encoding.UTF8.GetBytes(plaintext);
+        try
+        {
+            using var aes = Aes.Create();
+            aes.SetKey(key.AsSpan(KeyLength / 2, KeyLength / 2));
+            return Convert.ToBase64String(aes.EncryptCbc(plainBytes, key.AsSpan(0, KeyLength / 2), PaddingMode.PKCS7));
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(plainBytes);
+        }
+    }
+
+    /// <summary>Decrypts a Base64 AES-128-CBC (PKCS7) ciphertext.</summary>
+    /// <param name="key">The 32-byte key: first half is the IV, second half the AES key; left unchanged.</param>
+    /// <param name="ciphertext">The Base64 ciphertext.</param>
+    /// <returns>The UTF-8 decoded plaintext.</returns>
+    /// <exception cref="ArgumentNullException">An argument is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">The key is not <see cref="KeyLength"/> bytes long.</exception>
+    /// <exception cref="FormatException">The ciphertext is not valid Base64.</exception>
+    /// <exception cref="CryptographicException">The ciphertext length or padding is invalid.</exception>
+    public static string Decrypt(byte[] key, string ciphertext)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        ArgumentNullException.ThrowIfNull(ciphertext);
+        EnsureKeyLength(key);
+
+        var cipherBytes = Convert.FromBase64String(ciphertext);
+        if (cipherBytes.Length == 0 || cipherBytes.Length % (KeyLength / 2) != 0)
+        {
+            throw new CryptographicException("The ciphertext length is invalid.");
+        }
+
+        byte[]? plainBytes = null;
+        try
+        {
+            using var aes = Aes.Create();
+            aes.SetKey(key.AsSpan(KeyLength / 2, KeyLength / 2));
+            plainBytes = aes.DecryptCbc(cipherBytes, key.AsSpan(0, KeyLength / 2), PaddingMode.PKCS7);
+            return Encoding.UTF8.GetString(plainBytes);
+        }
+        finally
+        {
+            if (plainBytes is not null)
+            {
+                CryptographicOperations.ZeroMemory(plainBytes);
+            }
+        }
+    }
+
     // Shared with Encrypt/Decrypt. Never includes the key value in the message.
     private static void EnsureKeyLength(byte[] key, [CallerArgumentExpression(nameof(key))] string? paramName = null)
     {
