@@ -45,4 +45,12 @@ public sealed class SecondsDurationConverterTests
 
         Assert.That(json, Is.EqualTo("90"));
     }
+
+    [Test]
+    public void SecondsDurationConverter_OutOfRange_ThrowsJsonException()
+        => Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<TimeSpan?>(/*lang=json,strict*/ "9223372036854775807", _options));
+
+    [Test]
+    public void SecondsDurationConverter_Fractional_ThrowsJsonException()
+        => Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<TimeSpan?>(/*lang=json,strict*/ "1.5", _options));
 }

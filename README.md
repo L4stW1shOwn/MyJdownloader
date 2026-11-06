@@ -5,7 +5,7 @@ A .NET client library for the [MyJDownloader](https://my.jdownloader.org) API.
 > **Status: pre-1.0.** The library can connect, reconnect and disconnect,
 > export and restore the session (with automatic renewal), list devices and
 > make generic encrypted device calls via `GetDevice(id).Channel`. The typed
-> `device.LinkGrabber` facade is available; other namespaces come in later versions. The API may still change before 1.0.
+> `device.LinkGrabber` and `device.Downloads` facades are available; other namespaces come in later versions. The API may still change before 1.0.
 
 ## Packages
 
@@ -96,6 +96,25 @@ await device.LinkGrabber.MoveToDownloadListAsync([], [.. packages.Select(p => p.
 - The library does not filter URL schemes nor destination paths. The device
   fetches the links from its own network and `DestinationFolder` is a path on
   the device: callers handling untrusted input must allow-list both.
+
+## Downloads
+
+`device.Downloads` is the typed facade over `/downloadsV2` (the download list):
+
+```csharp
+var packages = await device.Downloads.QueryPackagesAsync(new DownloadPackageQuery { MaxResults = 100 });
+var ids = packages.Select(p => p.Uuid).ToList();
+
+await device.Downloads.SetPriorityAsync(Priority.High, [], ids);
+
+// Removes the list entries only; CleanupMode.RemoveLinksAndDeleteFiles would delete files on the device.
+await device.Downloads.CleanupAsync([], ids, CleanupAction.DeleteFinished, CleanupMode.RemoveLinksOnly, SelectionType.All);
+```
+
+- Same 1 MiB response limit as above: page with `StartAt` / `MaxResults`.
+- `DownloadPackage.DownloadPassword` is returned by the device without an
+  opt-out: never log whole records.
+- `CleanupAsync` has no confirmation step; destination paths are not filtered.
 
 ## Logging and tracing
 

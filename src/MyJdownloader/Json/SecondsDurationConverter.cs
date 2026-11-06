@@ -5,7 +5,8 @@ using System.Text.Json.Serialization;
 
 /// <summary>
 /// Reads and writes a duration as a JSON number of whole seconds. A negative value or <c>null</c> means
-/// "unknown" and is read as <see langword="null"/>.
+/// "unknown" and is read as <see langword="null"/>. A non-integer or out-of-range value throws a
+/// <see cref="JsonException"/>. Writing truncates to whole seconds.
 /// </summary>
 internal sealed class SecondsDurationConverter : JsonConverter<TimeSpan?>
 {
@@ -20,7 +21,16 @@ internal sealed class SecondsDurationConverter : JsonConverter<TimeSpan?>
             return null;
         }
 
-        var seconds = reader.GetInt64();
+        if (reader.TokenType != JsonTokenType.Number || !reader.TryGetInt64(out var seconds))
+        {
+            throw new JsonException("A duration must be an integer number of seconds.");
+        }
+
+        if (seconds > TimeSpan.MaxValue.TotalSeconds)
+        {
+            throw new JsonException("The duration is out of the representable range.");
+        }
+
         return seconds < 0 ? null : TimeSpan.FromSeconds(seconds);
     }
 

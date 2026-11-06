@@ -46,4 +46,12 @@ public sealed class UnixMillisecondsConverterTests
 
         Assert.That(json, Is.EqualTo("null"));
     }
+
+    [Test]
+    public void UnixMillisecondsConverter_OutOfRange_ThrowsJsonException()
+        => Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<DateTimeOffset?>(/*lang=json,strict*/ "253402300800000", _options));
+
+    [Test]
+    public void UnixMillisecondsConverter_Fractional_ThrowsJsonException()
+        => Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<DateTimeOffset?>(/*lang=json,strict*/ "1.5", _options));
 }

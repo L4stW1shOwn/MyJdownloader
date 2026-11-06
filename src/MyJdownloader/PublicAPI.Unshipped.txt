@@ -20,6 +20,7 @@ MyJdownloader.IDeviceChannel.CallAsync<T>(string! path, System.Text.Json.Seriali
 MyJdownloader.JDownloaderDevice
 MyJdownloader.JDownloaderDevice.Channel.get -> MyJdownloader.IDeviceChannel!
 MyJdownloader.JDownloaderDevice.Id.get -> string!
+MyJdownloader.JDownloaderDevice.Downloads.get -> MyJdownloader.Downloads.DownloadsApi!
 MyJdownloader.JDownloaderDevice.LinkGrabber.get -> MyJdownloader.LinkGrabber.LinkGrabberApi!
 MyJdownloader.LinkGrabber.AddLinksRequest
 MyJdownloader.LinkGrabber.AddLinksRequest.<Clone>$() -> MyJdownloader.LinkGrabber.AddLinksRequest!
@@ -516,6 +517,21 @@ MyJdownloader.Downloads.DownloadPackageQuery.StartAt.get -> int
 MyJdownloader.Downloads.DownloadPackageQuery.StartAt.init -> void
 MyJdownloader.Downloads.DownloadPackageQuery.Status.get -> bool
 MyJdownloader.Downloads.DownloadPackageQuery.Status.init -> void
+MyJdownloader.Downloads.DownloadsApi
+MyJdownloader.Downloads.DownloadsApi.CleanupAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, MyJdownloader.CleanupAction action, MyJdownloader.CleanupMode mode, MyJdownloader.SelectionType selectionType, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Downloads.DownloadsApi.ForceDownloadAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.Downloads.DownloadsApi.GetPackageCountAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<int>!
+MyJdownloader.Downloads.DownloadsApi.MoveToNewPackageAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, string! newPackageName, string! downloadPath, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Downloads.DownloadsApi.QueryLinksAsync(MyJdownloader.Downloads.DownloadLinkQuery? query = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Downloads.DownloadLink!>!>!
+MyJdownloader.Downloads.DownloadsApi.QueryPackagesAsync(MyJdownloader.Downloads.DownloadPackageQuery? query = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Downloads.DownloadPackage!>!>!
+MyJdownloader.Downloads.DownloadsApi.RemoveLinksAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Downloads.DownloadsApi.RenameLinkAsync(long linkId, string! newName, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Downloads.DownloadsApi.RenamePackageAsync(long packageId, string! newName, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Downloads.DownloadsApi.ResetLinksAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Downloads.DownloadsApi.ResumeLinksAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Downloads.DownloadsApi.SetDownloadDirectoryAsync(string! directory, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Downloads.DownloadsApi.SetEnabledAsync(bool enabled, System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Downloads.DownloadsApi.SetPriorityAsync(MyJdownloader.Priority priority, System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.SelectionType
 MyJdownloader.SelectionType.All = 3 -> MyJdownloader.SelectionType
 MyJdownloader.SelectionType.None = 4 -> MyJdownloader.SelectionType
