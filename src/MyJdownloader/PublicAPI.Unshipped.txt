@@ -14,6 +14,13 @@ MyJdownloader.DeviceInfo.Name.get -> string!
 MyJdownloader.DeviceInfo.Name.init -> void
 MyJdownloader.DeviceInfo.Type.get -> string!
 MyJdownloader.DeviceInfo.Type.init -> void
+MyJdownloader.DownloadController.DownloadState
+MyJdownloader.DownloadController.DownloadState.Idle = 1 -> MyJdownloader.DownloadController.DownloadState
+MyJdownloader.DownloadController.DownloadState.Pause = 3 -> MyJdownloader.DownloadController.DownloadState
+MyJdownloader.DownloadController.DownloadState.Running = 2 -> MyJdownloader.DownloadController.DownloadState
+MyJdownloader.DownloadController.DownloadState.Stopped = 5 -> MyJdownloader.DownloadController.DownloadState
+MyJdownloader.DownloadController.DownloadState.Stopping = 4 -> MyJdownloader.DownloadController.DownloadState
+MyJdownloader.DownloadController.DownloadState.Unknown = 0 -> MyJdownloader.DownloadController.DownloadState
 MyJdownloader.IDeviceChannel
 MyJdownloader.IDeviceChannel.CallAsync(string! path, System.Collections.Generic.IReadOnlyList<System.Text.Json.JsonElement>! args, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.IDeviceChannel.CallAsync<T>(string! path, System.Text.Json.Serialization.Metadata.JsonTypeInfo<T>! responseType, System.Collections.Generic.IReadOnlyList<System.Text.Json.JsonElement>! args, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
