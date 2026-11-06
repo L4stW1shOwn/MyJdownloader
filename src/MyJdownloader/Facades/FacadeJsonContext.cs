@@ -13,6 +13,7 @@ using System.Text.Json.Serialization;
 [JsonSerializable(typeof(bool))]
 [JsonSerializable(typeof(bool?))]
 [JsonSerializable(typeof(int?))]
+[JsonSerializable(typeof(long?))]
 internal sealed partial class FacadeJsonContext : JsonSerializerContext
 {
 }

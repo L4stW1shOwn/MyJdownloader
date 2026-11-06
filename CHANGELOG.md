@@ -6,6 +6,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 
 ### Added
 
+- `device.Jd`: typed `/jd` facade (uptime, version, core revision, plugin refresh).
 - `device.DownloadController`: typed `/downloadcontroller` facade (start, stop, pause, current state, download speed).
 - `device.Downloads`: typed `/downloadsV2` facade (query links and packages, remove, cleanup, enable, priority, rename, force/reset/resume, download directory, move to new package).
 - `device.LinkGrabber`: typed `/linkgrabberv2` facade (add links, query links and packages, move to download list, remove, rename, enable, priority).

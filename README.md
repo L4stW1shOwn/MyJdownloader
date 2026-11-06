@@ -5,7 +5,7 @@ A .NET client library for the [MyJDownloader](https://my.jdownloader.org) API.
 > **Status: pre-1.0.** The library can connect, reconnect and disconnect,
 > export and restore the session (with automatic renewal), list devices and
 > make generic encrypted device calls via `GetDevice(id).Channel`. The typed
-> `device.LinkGrabber`, `device.Downloads` and `device.DownloadController` facades are available; other namespaces come in later versions. The API may still change before 1.0.
+> `device.LinkGrabber`, `device.Downloads`, `device.DownloadController` and `device.Jd` facades are available; other namespaces come in later versions. The API may still change before 1.0.
 
 ## Packages
 
@@ -124,6 +124,15 @@ await device.Downloads.CleanupAsync([], ids, CleanupAction.DeleteFinished, Clean
 await device.DownloadController.StartAsync();
 var state = await device.DownloadController.GetCurrentStateAsync(); // DownloadState.Running, ...
 await device.DownloadController.PauseAsync(true);
+```
+
+## Jd
+
+`device.Jd` is the typed facade over `/jd` (uptime, version, core revision, plugin refresh):
+
+```csharp
+TimeSpan uptime = await device.Jd.GetUptimeAsync();
+int revision = await device.Jd.GetCoreRevisionAsync();
 ```
 
 ## Logging and tracing
