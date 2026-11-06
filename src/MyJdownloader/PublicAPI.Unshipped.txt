@@ -578,3 +578,10 @@ MyJdownloader.Jd.JdApi.GetUptimeAsync(System.Threading.CancellationToken cancell
 MyJdownloader.Jd.JdApi.GetVersionAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<long>!
 MyJdownloader.Jd.JdApi.RefreshPluginsAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.JDownloaderDevice.Jd.get -> MyJdownloader.Jd.JdApi!
+MyJdownloader.JDownloaderDevice.System.get -> MyJdownloader.SystemControl.SystemApi!
+MyJdownloader.SystemControl.SystemApi
+MyJdownloader.SystemControl.SystemApi.ExitAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.SystemControl.SystemApi.HibernateOsAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.SystemControl.SystemApi.RestartAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.SystemControl.SystemApi.ShutdownOsAsync(bool force, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.SystemControl.SystemApi.StandbyOsAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
