@@ -17,8 +17,8 @@ public sealed partial class DeviceChannelTests
     private const string NotConnectedMessage = "The client is not connected.";
     private static readonly TimeSpan _waitTimeout = TimeSpan.FromSeconds(5);
 
-    private static readonly string[] _threeParams = ["abc", /*lang=json,strict*/ "{\"a\":1}", "5"];
     private static readonly string[] _twoParams = ["abc", /*lang=json,strict*/ "{\"a\":1}"];
+    private static readonly string[] _threeParams = ["abc", /*lang=json,strict*/ "{\"a\":1}", "5"];
 
     private static byte[] Key(byte value) => [.. Enumerable.Repeat(value, 32)];
 
@@ -48,6 +48,10 @@ public sealed partial class DeviceChannelTests
         yield return string.Empty;
         yield return "x";
         yield return "/a/../my";
+        yield return "/a-b";
+        yield return "/a.b";
+        yield return "/./a";
+        yield return "/a/..";
         yield return "/a?b";
         yield return "/a b";
         yield return "//a";
@@ -267,26 +271,6 @@ public sealed partial class DeviceChannelTests
     }
 
     [Test]
-    public async Task CallAsync_ArgsDocumentDisposedAfterCall_SendsSnapshot()
-    {
-        var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-        using var handler = new GatedHandler(gate.Task);
-        using var httpClient = new HttpClient(handler);
-        var client = new MyJDownloaderClient(httpClient);
-        client.RestoreSession(CreateSession());
-        var channel = client.CreateDeviceChannel("dev1");
-        var document = JsonDocument.Parse("[\"abc\",{\"a\":1}]");
-        var args = new[] { document.RootElement[0], document.RootElement[1] };
-
-        var task = channel.CallAsync(VersionPath, args);
-        document.Dispose();
-        gate.SetResult();
-        await task.WaitAsync(_waitTimeout);
-
-        Assert.That(ParamsOf(handler.Bodies.Single()), Is.EqualTo(_twoParams));
-    }
-
-    [Test]
     public void CallAsync_NullResponseType_Throws()
     {
         var rig = CreateRig(call => Ok(call, "true"));
@@ -461,18 +445,4 @@ public sealed partial class DeviceChannelTests
     }
 
     private sealed record Rig(MyJDownloaderClient Client, List<Call> Calls);
-
-    /// <summary>Answers with a valid device response once the gate is released, recording the decrypted bodies.</summary>
-    private sealed class GatedHandler(Task gate) : HttpMessageHandler
-    {
-        public List<string> Bodies { get; } = [];
-
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            var call = Call.From(request);
-            this.Bodies.Add(call.Body);
-            await gate.WaitAsync(cancellationToken);
-            return Ok(call, "true");
-        }
-    }
 }

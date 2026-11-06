@@ -59,7 +59,7 @@ internal sealed partial class DeviceChannel : IDeviceChannel
         return this.CallCoreAsync<object>(path, snapshot, null, cancellationToken);
     }
 
-    [GeneratedRegex(@"\A(?:/(?!\.{1,2}(?:/|\z))[A-Za-z0-9._-]+)+\z", RegexOptions.CultureInvariant)]
+    [GeneratedRegex(@"\A(?:/[A-Za-z0-9_]+)+\z", RegexOptions.CultureInvariant)]
     private static partial Regex PathPattern();
 
     private static bool IsValidUtf16(string text)

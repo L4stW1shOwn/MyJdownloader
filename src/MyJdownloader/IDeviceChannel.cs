@@ -27,7 +27,7 @@ public interface IDeviceChannel
 {
     /// <summary>Calls a device action and deserializes its <c>data</c> payload.</summary>
     /// <typeparam name="T">The result type.</typeparam>
-    /// <param name="path">The action path, for example <c>/jd/version</c>: segments of ASCII letters, digits, <c>.</c>, <c>_</c> and <c>-</c>, at most 256 characters.</param>
+    /// <param name="path">The action path, for example <c>/jd/version</c>: each segment made of ASCII letters, digits and underscore, at most 256 characters.</param>
     /// <param name="responseType">The metadata used to deserialize <c>data</c>.</param>
     /// <param name="args">The action arguments.</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -39,12 +39,13 @@ public interface IDeviceChannel
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
+    /// <exception cref="IOException">The response body could not be read; the action may have been executed.</exception>
     /// <remarks>An <see cref="InvalidOperationException"/> raised by a misconfigured <paramref name="responseType"/> is reported as a <see cref="MyJdProtocolException"/> (device unreadable).</remarks>
     [SuppressMessage("ApiDesign", "RS0026", Justification = "The overloads cannot be ambiguous: they differ by the mandatory responseType parameter")]
     public Task<T?> CallAsync<T>(string path, JsonTypeInfo<T> responseType, IReadOnlyList<JsonElement> args, CancellationToken cancellationToken = default);
 
     /// <summary>Calls a device action and ignores its <c>data</c> payload.</summary>
-    /// <param name="path">The action path, for example <c>/jd/version</c>: segments of ASCII letters, digits, <c>.</c>, <c>_</c> and <c>-</c>, at most 256 characters.</param>
+    /// <param name="path">The action path, for example <c>/jd/version</c>: each segment made of ASCII letters, digits and underscore, at most 256 characters.</param>
     /// <param name="args">The action arguments.</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>A task that completes when the device has answered.</returns>
@@ -55,6 +56,7 @@ public interface IDeviceChannel
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
+    /// <exception cref="IOException">The response body could not be read; the action may have been executed.</exception>
     [SuppressMessage("ApiDesign", "RS0026", Justification = "The overloads cannot be ambiguous: they differ by the mandatory responseType parameter")]
     public Task CallAsync(string path, IReadOnlyList<JsonElement> args, CancellationToken cancellationToken = default);
 }
