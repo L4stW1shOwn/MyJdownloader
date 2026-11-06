@@ -334,3 +334,211 @@ MyJdownloader.LinkGrabber.CrawledPackage.Status.get -> string?
 MyJdownloader.LinkGrabber.CrawledPackage.Status.init -> void
 MyJdownloader.LinkGrabber.CrawledPackage.StatusIconKey.get -> string?
 MyJdownloader.LinkGrabber.CrawledPackage.StatusIconKey.init -> void
+MyJdownloader.CleanupAction
+MyJdownloader.CleanupAction.DeleteAll = 1 -> MyJdownloader.CleanupAction
+MyJdownloader.CleanupAction.DeleteDisabled = 2 -> MyJdownloader.CleanupAction
+MyJdownloader.CleanupAction.DeleteDupe = 6 -> MyJdownloader.CleanupAction
+MyJdownloader.CleanupAction.DeleteFailed = 3 -> MyJdownloader.CleanupAction
+MyJdownloader.CleanupAction.DeleteFinished = 4 -> MyJdownloader.CleanupAction
+MyJdownloader.CleanupAction.DeleteMode = 7 -> MyJdownloader.CleanupAction
+MyJdownloader.CleanupAction.DeleteOffline = 5 -> MyJdownloader.CleanupAction
+MyJdownloader.CleanupAction.Unknown = 0 -> MyJdownloader.CleanupAction
+MyJdownloader.CleanupMode
+MyJdownloader.CleanupMode.RemoveLinksAndDeleteFiles = 1 -> MyJdownloader.CleanupMode
+MyJdownloader.CleanupMode.RemoveLinksAndRecycleFiles = 2 -> MyJdownloader.CleanupMode
+MyJdownloader.CleanupMode.RemoveLinksOnly = 3 -> MyJdownloader.CleanupMode
+MyJdownloader.CleanupMode.Unknown = 0 -> MyJdownloader.CleanupMode
+MyJdownloader.Downloads.DownloadLink
+MyJdownloader.Downloads.DownloadLink.<Clone>$() -> MyJdownloader.Downloads.DownloadLink!
+MyJdownloader.Downloads.DownloadLink.AddedDate.get -> System.DateTimeOffset?
+MyJdownloader.Downloads.DownloadLink.AddedDate.init -> void
+MyJdownloader.Downloads.DownloadLink.BytesLoaded.get -> long?
+MyJdownloader.Downloads.DownloadLink.BytesLoaded.init -> void
+MyJdownloader.Downloads.DownloadLink.BytesTotal.get -> long?
+MyJdownloader.Downloads.DownloadLink.BytesTotal.init -> void
+MyJdownloader.Downloads.DownloadLink.Comment.get -> string?
+MyJdownloader.Downloads.DownloadLink.Comment.init -> void
+MyJdownloader.Downloads.DownloadLink.DownloadLink() -> void
+MyJdownloader.Downloads.DownloadLink.DownloadPassword.get -> string?
+MyJdownloader.Downloads.DownloadLink.DownloadPassword.init -> void
+MyJdownloader.Downloads.DownloadLink.Enabled.get -> bool?
+MyJdownloader.Downloads.DownloadLink.Enabled.init -> void
+MyJdownloader.Downloads.DownloadLink.Equals(MyJdownloader.Downloads.DownloadLink? other) -> bool
+MyJdownloader.Downloads.DownloadLink.Eta.get -> System.TimeSpan?
+MyJdownloader.Downloads.DownloadLink.Eta.init -> void
+MyJdownloader.Downloads.DownloadLink.ExtractionStatus.get -> string?
+MyJdownloader.Downloads.DownloadLink.ExtractionStatus.init -> void
+MyJdownloader.Downloads.DownloadLink.Finished.get -> bool?
+MyJdownloader.Downloads.DownloadLink.Finished.init -> void
+MyJdownloader.Downloads.DownloadLink.FinishedDate.get -> System.DateTimeOffset?
+MyJdownloader.Downloads.DownloadLink.FinishedDate.init -> void
+MyJdownloader.Downloads.DownloadLink.Host.get -> string?
+MyJdownloader.Downloads.DownloadLink.Host.init -> void
+MyJdownloader.Downloads.DownloadLink.Name.get -> string?
+MyJdownloader.Downloads.DownloadLink.Name.init -> void
+MyJdownloader.Downloads.DownloadLink.PackageUuid.get -> long
+MyJdownloader.Downloads.DownloadLink.PackageUuid.init -> void
+MyJdownloader.Downloads.DownloadLink.Priority.get -> MyJdownloader.Priority?
+MyJdownloader.Downloads.DownloadLink.Priority.init -> void
+MyJdownloader.Downloads.DownloadLink.Running.get -> bool?
+MyJdownloader.Downloads.DownloadLink.Running.init -> void
+MyJdownloader.Downloads.DownloadLink.Skipped.get -> bool?
+MyJdownloader.Downloads.DownloadLink.Skipped.init -> void
+MyJdownloader.Downloads.DownloadLink.Speed.get -> long?
+MyJdownloader.Downloads.DownloadLink.Speed.init -> void
+MyJdownloader.Downloads.DownloadLink.Status.get -> string?
+MyJdownloader.Downloads.DownloadLink.Status.init -> void
+MyJdownloader.Downloads.DownloadLink.StatusIconKey.get -> string?
+MyJdownloader.Downloads.DownloadLink.StatusIconKey.init -> void
+MyJdownloader.Downloads.DownloadLink.Url.get -> string?
+MyJdownloader.Downloads.DownloadLink.Url.init -> void
+MyJdownloader.Downloads.DownloadLink.Uuid.get -> long
+MyJdownloader.Downloads.DownloadLink.Uuid.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery
+MyJdownloader.Downloads.DownloadLinkQuery.<Clone>$() -> MyJdownloader.Downloads.DownloadLinkQuery!
+MyJdownloader.Downloads.DownloadLinkQuery.AddedDate.get -> bool
+MyJdownloader.Downloads.DownloadLinkQuery.AddedDate.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.BytesLoaded.get -> bool
+MyJdownloader.Downloads.DownloadLinkQuery.BytesLoaded.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.BytesTotal.get -> bool
+MyJdownloader.Downloads.DownloadLinkQuery.BytesTotal.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.Comment.get -> bool
+MyJdownloader.Downloads.DownloadLinkQuery.Comment.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.DownloadLinkQuery() -> void
+MyJdownloader.Downloads.DownloadLinkQuery.Enabled.get -> bool
+MyJdownloader.Downloads.DownloadLinkQuery.Enabled.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.Equals(MyJdownloader.Downloads.DownloadLinkQuery? other) -> bool
+MyJdownloader.Downloads.DownloadLinkQuery.Eta.get -> bool
+MyJdownloader.Downloads.DownloadLinkQuery.Eta.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.ExtractionStatus.get -> bool
+MyJdownloader.Downloads.DownloadLinkQuery.ExtractionStatus.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.Finished.get -> bool
+MyJdownloader.Downloads.DownloadLinkQuery.Finished.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.FinishedDate.get -> bool
+MyJdownloader.Downloads.DownloadLinkQuery.FinishedDate.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.Host.get -> bool
+MyJdownloader.Downloads.DownloadLinkQuery.Host.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.JobUuids.get -> System.Collections.Generic.IReadOnlyList<long>?
+MyJdownloader.Downloads.DownloadLinkQuery.JobUuids.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.MaxResults.get -> int
+MyJdownloader.Downloads.DownloadLinkQuery.MaxResults.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.PackageUuids.get -> System.Collections.Generic.IReadOnlyList<long>?
+MyJdownloader.Downloads.DownloadLinkQuery.PackageUuids.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.Password.get -> bool
+MyJdownloader.Downloads.DownloadLinkQuery.Password.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.Priority.get -> bool
+MyJdownloader.Downloads.DownloadLinkQuery.Priority.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.Running.get -> bool
+MyJdownloader.Downloads.DownloadLinkQuery.Running.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.Skipped.get -> bool
+MyJdownloader.Downloads.DownloadLinkQuery.Skipped.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.Speed.get -> bool
+MyJdownloader.Downloads.DownloadLinkQuery.Speed.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.StartAt.get -> int
+MyJdownloader.Downloads.DownloadLinkQuery.StartAt.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.Status.get -> bool
+MyJdownloader.Downloads.DownloadLinkQuery.Status.init -> void
+MyJdownloader.Downloads.DownloadLinkQuery.Url.get -> bool
+MyJdownloader.Downloads.DownloadLinkQuery.Url.init -> void
+MyJdownloader.Downloads.DownloadPackage
+MyJdownloader.Downloads.DownloadPackage.<Clone>$() -> MyJdownloader.Downloads.DownloadPackage!
+MyJdownloader.Downloads.DownloadPackage.ActiveTask.get -> string?
+MyJdownloader.Downloads.DownloadPackage.ActiveTask.init -> void
+MyJdownloader.Downloads.DownloadPackage.BytesLoaded.get -> long?
+MyJdownloader.Downloads.DownloadPackage.BytesLoaded.init -> void
+MyJdownloader.Downloads.DownloadPackage.BytesTotal.get -> long?
+MyJdownloader.Downloads.DownloadPackage.BytesTotal.init -> void
+MyJdownloader.Downloads.DownloadPackage.ChildCount.get -> int?
+MyJdownloader.Downloads.DownloadPackage.ChildCount.init -> void
+MyJdownloader.Downloads.DownloadPackage.Comment.get -> string?
+MyJdownloader.Downloads.DownloadPackage.Comment.init -> void
+MyJdownloader.Downloads.DownloadPackage.DownloadPackage() -> void
+MyJdownloader.Downloads.DownloadPackage.DownloadPassword.get -> string?
+MyJdownloader.Downloads.DownloadPackage.DownloadPassword.init -> void
+MyJdownloader.Downloads.DownloadPackage.Enabled.get -> bool?
+MyJdownloader.Downloads.DownloadPackage.Enabled.init -> void
+MyJdownloader.Downloads.DownloadPackage.Equals(MyJdownloader.Downloads.DownloadPackage? other) -> bool
+MyJdownloader.Downloads.DownloadPackage.Eta.get -> System.TimeSpan?
+MyJdownloader.Downloads.DownloadPackage.Eta.init -> void
+MyJdownloader.Downloads.DownloadPackage.Finished.get -> bool?
+MyJdownloader.Downloads.DownloadPackage.Finished.init -> void
+MyJdownloader.Downloads.DownloadPackage.Hosts.get -> System.Collections.Generic.IReadOnlyList<string!>?
+MyJdownloader.Downloads.DownloadPackage.Hosts.init -> void
+MyJdownloader.Downloads.DownloadPackage.Name.get -> string?
+MyJdownloader.Downloads.DownloadPackage.Name.init -> void
+MyJdownloader.Downloads.DownloadPackage.Priority.get -> MyJdownloader.Priority?
+MyJdownloader.Downloads.DownloadPackage.Priority.init -> void
+MyJdownloader.Downloads.DownloadPackage.Running.get -> bool?
+MyJdownloader.Downloads.DownloadPackage.Running.init -> void
+MyJdownloader.Downloads.DownloadPackage.SaveTo.get -> string?
+MyJdownloader.Downloads.DownloadPackage.SaveTo.init -> void
+MyJdownloader.Downloads.DownloadPackage.Speed.get -> long?
+MyJdownloader.Downloads.DownloadPackage.Speed.init -> void
+MyJdownloader.Downloads.DownloadPackage.Status.get -> string?
+MyJdownloader.Downloads.DownloadPackage.Status.init -> void
+MyJdownloader.Downloads.DownloadPackage.StatusIconKey.get -> string?
+MyJdownloader.Downloads.DownloadPackage.StatusIconKey.init -> void
+MyJdownloader.Downloads.DownloadPackage.Uuid.get -> long
+MyJdownloader.Downloads.DownloadPackage.Uuid.init -> void
+MyJdownloader.Downloads.DownloadPackageQuery
+MyJdownloader.Downloads.DownloadPackageQuery.<Clone>$() -> MyJdownloader.Downloads.DownloadPackageQuery!
+MyJdownloader.Downloads.DownloadPackageQuery.BytesLoaded.get -> bool
+MyJdownloader.Downloads.DownloadPackageQuery.BytesLoaded.init -> void
+MyJdownloader.Downloads.DownloadPackageQuery.BytesTotal.get -> bool
+MyJdownloader.Downloads.DownloadPackageQuery.BytesTotal.init -> void
+MyJdownloader.Downloads.DownloadPackageQuery.ChildCount.get -> bool
+MyJdownloader.Downloads.DownloadPackageQuery.ChildCount.init -> void
+MyJdownloader.Downloads.DownloadPackageQuery.Comment.get -> bool
+MyJdownloader.Downloads.DownloadPackageQuery.Comment.init -> void
+MyJdownloader.Downloads.DownloadPackageQuery.DownloadPackageQuery() -> void
+MyJdownloader.Downloads.DownloadPackageQuery.Enabled.get -> bool
+MyJdownloader.Downloads.DownloadPackageQuery.Enabled.init -> void
+MyJdownloader.Downloads.DownloadPackageQuery.Equals(MyJdownloader.Downloads.DownloadPackageQuery? other) -> bool
+MyJdownloader.Downloads.DownloadPackageQuery.Eta.get -> bool
+MyJdownloader.Downloads.DownloadPackageQuery.Eta.init -> void
+MyJdownloader.Downloads.DownloadPackageQuery.Finished.get -> bool
+MyJdownloader.Downloads.DownloadPackageQuery.Finished.init -> void
+MyJdownloader.Downloads.DownloadPackageQuery.Hosts.get -> bool
+MyJdownloader.Downloads.DownloadPackageQuery.Hosts.init -> void
+MyJdownloader.Downloads.DownloadPackageQuery.MaxResults.get -> int
+MyJdownloader.Downloads.DownloadPackageQuery.MaxResults.init -> void
+MyJdownloader.Downloads.DownloadPackageQuery.PackageUuids.get -> System.Collections.Generic.IReadOnlyList<long>?
+MyJdownloader.Downloads.DownloadPackageQuery.PackageUuids.init -> void
+MyJdownloader.Downloads.DownloadPackageQuery.Priority.get -> bool
+MyJdownloader.Downloads.DownloadPackageQuery.Priority.init -> void
+MyJdownloader.Downloads.DownloadPackageQuery.Running.get -> bool
+MyJdownloader.Downloads.DownloadPackageQuery.Running.init -> void
+MyJdownloader.Downloads.DownloadPackageQuery.SaveTo.get -> bool
+MyJdownloader.Downloads.DownloadPackageQuery.SaveTo.init -> void
+MyJdownloader.Downloads.DownloadPackageQuery.Speed.get -> bool
+MyJdownloader.Downloads.DownloadPackageQuery.Speed.init -> void
+MyJdownloader.Downloads.DownloadPackageQuery.StartAt.get -> int
+MyJdownloader.Downloads.DownloadPackageQuery.StartAt.init -> void
+MyJdownloader.Downloads.DownloadPackageQuery.Status.get -> bool
+MyJdownloader.Downloads.DownloadPackageQuery.Status.init -> void
+MyJdownloader.SelectionType
+MyJdownloader.SelectionType.All = 3 -> MyJdownloader.SelectionType
+MyJdownloader.SelectionType.None = 4 -> MyJdownloader.SelectionType
+MyJdownloader.SelectionType.Selected = 1 -> MyJdownloader.SelectionType
+MyJdownloader.SelectionType.Unknown = 0 -> MyJdownloader.SelectionType
+MyJdownloader.SelectionType.Unselected = 2 -> MyJdownloader.SelectionType
+override MyJdownloader.Downloads.DownloadLink.Equals(object? obj) -> bool
+override MyJdownloader.Downloads.DownloadLink.GetHashCode() -> int
+override MyJdownloader.Downloads.DownloadLink.ToString() -> string!
+override MyJdownloader.Downloads.DownloadLinkQuery.Equals(object? obj) -> bool
+override MyJdownloader.Downloads.DownloadLinkQuery.GetHashCode() -> int
+override MyJdownloader.Downloads.DownloadLinkQuery.ToString() -> string!
+override MyJdownloader.Downloads.DownloadPackage.Equals(object? obj) -> bool
+override MyJdownloader.Downloads.DownloadPackage.GetHashCode() -> int
+override MyJdownloader.Downloads.DownloadPackage.ToString() -> string!
+override MyJdownloader.Downloads.DownloadPackageQuery.Equals(object? obj) -> bool
+override MyJdownloader.Downloads.DownloadPackageQuery.GetHashCode() -> int
+override MyJdownloader.Downloads.DownloadPackageQuery.ToString() -> string!
+static MyJdownloader.Downloads.DownloadLink.operator !=(MyJdownloader.Downloads.DownloadLink? left, MyJdownloader.Downloads.DownloadLink? right) -> bool
+static MyJdownloader.Downloads.DownloadLink.operator ==(MyJdownloader.Downloads.DownloadLink? left, MyJdownloader.Downloads.DownloadLink? right) -> bool
+static MyJdownloader.Downloads.DownloadLinkQuery.operator !=(MyJdownloader.Downloads.DownloadLinkQuery? left, MyJdownloader.Downloads.DownloadLinkQuery? right) -> bool
+static MyJdownloader.Downloads.DownloadLinkQuery.operator ==(MyJdownloader.Downloads.DownloadLinkQuery? left, MyJdownloader.Downloads.DownloadLinkQuery? right) -> bool
+static MyJdownloader.Downloads.DownloadPackage.operator !=(MyJdownloader.Downloads.DownloadPackage? left, MyJdownloader.Downloads.DownloadPackage? right) -> bool
+static MyJdownloader.Downloads.DownloadPackage.operator ==(MyJdownloader.Downloads.DownloadPackage? left, MyJdownloader.Downloads.DownloadPackage? right) -> bool
+static MyJdownloader.Downloads.DownloadPackageQuery.operator !=(MyJdownloader.Downloads.DownloadPackageQuery? left, MyJdownloader.Downloads.DownloadPackageQuery? right) -> bool
+static MyJdownloader.Downloads.DownloadPackageQuery.operator ==(MyJdownloader.Downloads.DownloadPackageQuery? left, MyJdownloader.Downloads.DownloadPackageQuery? right) -> bool
