@@ -44,6 +44,11 @@ public sealed class MyJDownloaderClient
     private long _version;
 
     /// <summary>Initializes a new instance of the <see cref="MyJDownloaderClient"/> class.</summary>
+    /// <remarks>
+    /// For a caller-built <see cref="HttpClient"/>, use a long-lived <see cref="SocketsHttpHandler"/> with
+    /// <see cref="SocketsHttpHandler.PooledConnectionLifetime"/> set, <see cref="SocketsHttpHandler.AllowAutoRedirect"/>
+    /// set to <see langword="false"/>, and no HTTP logging: device-call URL paths carry the session token.
+    /// </remarks>
     /// <param name="httpClient">The HTTP client used for every request; it is not disposed by the client.</param>
     /// <param name="options">The client options, or <see langword="null"/> for the defaults. The values are copied.</param>
     /// <param name="timeProvider">The time provider, or <see langword="null"/> for <see cref="TimeProvider.System"/>.</param>
