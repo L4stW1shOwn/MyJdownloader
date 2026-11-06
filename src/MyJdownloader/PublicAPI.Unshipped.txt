@@ -1,4 +1,214 @@
 #nullable enable
+MyJdownloader.AvailableLinkState
+MyJdownloader.AvailableLinkState.Offline = 2 -> MyJdownloader.AvailableLinkState
+MyJdownloader.AvailableLinkState.Online = 1 -> MyJdownloader.AvailableLinkState
+MyJdownloader.AvailableLinkState.TempUnknown = 3 -> MyJdownloader.AvailableLinkState
+MyJdownloader.AvailableLinkState.Unknown = 0 -> MyJdownloader.AvailableLinkState
+MyJdownloader.DeviceInfo
+MyJdownloader.DeviceInfo.<Clone>$() -> MyJdownloader.DeviceInfo!
+MyJdownloader.DeviceInfo.DeviceInfo() -> void
+MyJdownloader.DeviceInfo.Equals(MyJdownloader.DeviceInfo? other) -> bool
+MyJdownloader.DeviceInfo.Id.get -> string!
+MyJdownloader.DeviceInfo.Id.init -> void
+MyJdownloader.DeviceInfo.Name.get -> string!
+MyJdownloader.DeviceInfo.Name.init -> void
+MyJdownloader.DeviceInfo.Type.get -> string!
+MyJdownloader.DeviceInfo.Type.init -> void
+MyJdownloader.IDeviceChannel
+MyJdownloader.IDeviceChannel.CallAsync(string! path, System.Collections.Generic.IReadOnlyList<System.Text.Json.JsonElement>! args, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.IDeviceChannel.CallAsync<T>(string! path, System.Text.Json.Serialization.Metadata.JsonTypeInfo<T>! responseType, System.Collections.Generic.IReadOnlyList<System.Text.Json.JsonElement>! args, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
+MyJdownloader.JDownloaderDevice
+MyJdownloader.JDownloaderDevice.Channel.get -> MyJdownloader.IDeviceChannel!
+MyJdownloader.JDownloaderDevice.Id.get -> string!
+MyJdownloader.LinkGrabber.AddLinksRequest
+MyJdownloader.LinkGrabber.AddLinksRequest.<Clone>$() -> MyJdownloader.LinkGrabber.AddLinksRequest!
+MyJdownloader.LinkGrabber.AddLinksRequest.AddLinksRequest() -> void
+MyJdownloader.LinkGrabber.AddLinksRequest.AssignJobId.get -> bool?
+MyJdownloader.LinkGrabber.AddLinksRequest.AssignJobId.init -> void
+MyJdownloader.LinkGrabber.AddLinksRequest.AutoExtract.get -> bool?
+MyJdownloader.LinkGrabber.AddLinksRequest.AutoExtract.init -> void
+MyJdownloader.LinkGrabber.AddLinksRequest.Autostart.get -> bool?
+MyJdownloader.LinkGrabber.AddLinksRequest.Autostart.init -> void
+MyJdownloader.LinkGrabber.AddLinksRequest.DeepDecrypt.get -> bool?
+MyJdownloader.LinkGrabber.AddLinksRequest.DeepDecrypt.init -> void
+MyJdownloader.LinkGrabber.AddLinksRequest.DestinationFolder.get -> string?
+MyJdownloader.LinkGrabber.AddLinksRequest.DestinationFolder.init -> void
+MyJdownloader.LinkGrabber.AddLinksRequest.DownloadPassword.get -> string?
+MyJdownloader.LinkGrabber.AddLinksRequest.DownloadPassword.init -> void
+MyJdownloader.LinkGrabber.AddLinksRequest.Equals(MyJdownloader.LinkGrabber.AddLinksRequest? other) -> bool
+MyJdownloader.LinkGrabber.AddLinksRequest.ExtractPassword.get -> string?
+MyJdownloader.LinkGrabber.AddLinksRequest.ExtractPassword.init -> void
+MyJdownloader.LinkGrabber.AddLinksRequest.Links.get -> System.Collections.Generic.IReadOnlyList<string!>!
+MyJdownloader.LinkGrabber.AddLinksRequest.Links.init -> void
+MyJdownloader.LinkGrabber.AddLinksRequest.OverwritePackagizerRules.get -> bool?
+MyJdownloader.LinkGrabber.AddLinksRequest.OverwritePackagizerRules.init -> void
+MyJdownloader.LinkGrabber.AddLinksRequest.PackageName.get -> string?
+MyJdownloader.LinkGrabber.AddLinksRequest.PackageName.init -> void
+MyJdownloader.LinkGrabber.AddLinksRequest.Priority.get -> MyJdownloader.Priority?
+MyJdownloader.LinkGrabber.AddLinksRequest.Priority.init -> void
+MyJdownloader.LinkGrabber.AddLinksRequest.SourceUrl.get -> string?
+MyJdownloader.LinkGrabber.AddLinksRequest.SourceUrl.init -> void
+MyJdownloader.LinkGrabber.CrawledLink
+MyJdownloader.LinkGrabber.CrawledLink.<Clone>$() -> MyJdownloader.LinkGrabber.CrawledLink!
+MyJdownloader.LinkGrabber.CrawledLink.Availability.get -> MyJdownloader.AvailableLinkState?
+MyJdownloader.LinkGrabber.CrawledLink.Availability.init -> void
+MyJdownloader.LinkGrabber.CrawledLink.BytesTotal.get -> long?
+MyJdownloader.LinkGrabber.CrawledLink.BytesTotal.init -> void
+MyJdownloader.LinkGrabber.CrawledLink.Comment.get -> string?
+MyJdownloader.LinkGrabber.CrawledLink.Comment.init -> void
+MyJdownloader.LinkGrabber.CrawledLink.CrawledLink() -> void
+MyJdownloader.LinkGrabber.CrawledLink.DownloadPassword.get -> string?
+MyJdownloader.LinkGrabber.CrawledLink.DownloadPassword.init -> void
+MyJdownloader.LinkGrabber.CrawledLink.Enabled.get -> bool?
+MyJdownloader.LinkGrabber.CrawledLink.Enabled.init -> void
+MyJdownloader.LinkGrabber.CrawledLink.Equals(MyJdownloader.LinkGrabber.CrawledLink? other) -> bool
+MyJdownloader.LinkGrabber.CrawledLink.Host.get -> string?
+MyJdownloader.LinkGrabber.CrawledLink.Host.init -> void
+MyJdownloader.LinkGrabber.CrawledLink.Name.get -> string?
+MyJdownloader.LinkGrabber.CrawledLink.Name.init -> void
+MyJdownloader.LinkGrabber.CrawledLink.PackageUuid.get -> long
+MyJdownloader.LinkGrabber.CrawledLink.PackageUuid.init -> void
+MyJdownloader.LinkGrabber.CrawledLink.Priority.get -> MyJdownloader.Priority?
+MyJdownloader.LinkGrabber.CrawledLink.Priority.init -> void
+MyJdownloader.LinkGrabber.CrawledLink.Url.get -> string?
+MyJdownloader.LinkGrabber.CrawledLink.Url.init -> void
+MyJdownloader.LinkGrabber.CrawledLink.Uuid.get -> long
+MyJdownloader.LinkGrabber.CrawledLink.Uuid.init -> void
+MyJdownloader.LinkGrabber.CrawledLink.Variant.get -> MyJdownloader.LinkGrabber.LinkVariant?
+MyJdownloader.LinkGrabber.CrawledLink.Variant.init -> void
+MyJdownloader.LinkGrabber.CrawledLink.Variants.get -> bool?
+MyJdownloader.LinkGrabber.CrawledLink.Variants.init -> void
+MyJdownloader.LinkGrabber.CrawledPackage
+MyJdownloader.LinkGrabber.CrawledPackage.<Clone>$() -> MyJdownloader.LinkGrabber.CrawledPackage!
+MyJdownloader.LinkGrabber.CrawledPackage.BytesTotal.get -> long?
+MyJdownloader.LinkGrabber.CrawledPackage.BytesTotal.init -> void
+MyJdownloader.LinkGrabber.CrawledPackage.ChildCount.get -> int?
+MyJdownloader.LinkGrabber.CrawledPackage.ChildCount.init -> void
+MyJdownloader.LinkGrabber.CrawledPackage.Comment.get -> string?
+MyJdownloader.LinkGrabber.CrawledPackage.Comment.init -> void
+MyJdownloader.LinkGrabber.CrawledPackage.CrawledPackage() -> void
+MyJdownloader.LinkGrabber.CrawledPackage.DownloadPassword.get -> string?
+MyJdownloader.LinkGrabber.CrawledPackage.DownloadPassword.init -> void
+MyJdownloader.LinkGrabber.CrawledPackage.Enabled.get -> bool?
+MyJdownloader.LinkGrabber.CrawledPackage.Enabled.init -> void
+MyJdownloader.LinkGrabber.CrawledPackage.Equals(MyJdownloader.LinkGrabber.CrawledPackage? other) -> bool
+MyJdownloader.LinkGrabber.CrawledPackage.Hosts.get -> System.Collections.Generic.IReadOnlyList<string!>?
+MyJdownloader.LinkGrabber.CrawledPackage.Hosts.init -> void
+MyJdownloader.LinkGrabber.CrawledPackage.Name.get -> string?
+MyJdownloader.LinkGrabber.CrawledPackage.Name.init -> void
+MyJdownloader.LinkGrabber.CrawledPackage.OfflineCount.get -> int?
+MyJdownloader.LinkGrabber.CrawledPackage.OfflineCount.init -> void
+MyJdownloader.LinkGrabber.CrawledPackage.OnlineCount.get -> int?
+MyJdownloader.LinkGrabber.CrawledPackage.OnlineCount.init -> void
+MyJdownloader.LinkGrabber.CrawledPackage.Priority.get -> MyJdownloader.Priority?
+MyJdownloader.LinkGrabber.CrawledPackage.Priority.init -> void
+MyJdownloader.LinkGrabber.CrawledPackage.SaveTo.get -> string?
+MyJdownloader.LinkGrabber.CrawledPackage.SaveTo.init -> void
+MyJdownloader.LinkGrabber.CrawledPackage.TempUnknownCount.get -> int?
+MyJdownloader.LinkGrabber.CrawledPackage.TempUnknownCount.init -> void
+MyJdownloader.LinkGrabber.CrawledPackage.UnknownCount.get -> int?
+MyJdownloader.LinkGrabber.CrawledPackage.UnknownCount.init -> void
+MyJdownloader.LinkGrabber.CrawledPackage.Uuid.get -> long
+MyJdownloader.LinkGrabber.CrawledPackage.Uuid.init -> void
+MyJdownloader.LinkGrabber.LinkCollectingJob
+MyJdownloader.LinkGrabber.LinkCollectingJob.<Clone>$() -> MyJdownloader.LinkGrabber.LinkCollectingJob!
+MyJdownloader.LinkGrabber.LinkCollectingJob.Equals(MyJdownloader.LinkGrabber.LinkCollectingJob? other) -> bool
+MyJdownloader.LinkGrabber.LinkCollectingJob.Id.get -> long
+MyJdownloader.LinkGrabber.LinkCollectingJob.Id.init -> void
+MyJdownloader.LinkGrabber.LinkCollectingJob.LinkCollectingJob() -> void
+MyJdownloader.LinkGrabber.LinkQuery
+MyJdownloader.LinkGrabber.LinkQuery.<Clone>$() -> MyJdownloader.LinkGrabber.LinkQuery!
+MyJdownloader.LinkGrabber.LinkQuery.Availability.get -> bool
+MyJdownloader.LinkGrabber.LinkQuery.Availability.init -> void
+MyJdownloader.LinkGrabber.LinkQuery.BytesTotal.get -> bool
+MyJdownloader.LinkGrabber.LinkQuery.BytesTotal.init -> void
+MyJdownloader.LinkGrabber.LinkQuery.Comment.get -> bool
+MyJdownloader.LinkGrabber.LinkQuery.Comment.init -> void
+MyJdownloader.LinkGrabber.LinkQuery.Enabled.get -> bool
+MyJdownloader.LinkGrabber.LinkQuery.Enabled.init -> void
+MyJdownloader.LinkGrabber.LinkQuery.Equals(MyJdownloader.LinkGrabber.LinkQuery? other) -> bool
+MyJdownloader.LinkGrabber.LinkQuery.Host.get -> bool
+MyJdownloader.LinkGrabber.LinkQuery.Host.init -> void
+MyJdownloader.LinkGrabber.LinkQuery.JobUuids.get -> System.Collections.Generic.IReadOnlyList<long>?
+MyJdownloader.LinkGrabber.LinkQuery.JobUuids.init -> void
+MyJdownloader.LinkGrabber.LinkQuery.LinkQuery() -> void
+MyJdownloader.LinkGrabber.LinkQuery.MaxResults.get -> int
+MyJdownloader.LinkGrabber.LinkQuery.MaxResults.init -> void
+MyJdownloader.LinkGrabber.LinkQuery.PackageUuids.get -> System.Collections.Generic.IReadOnlyList<long>?
+MyJdownloader.LinkGrabber.LinkQuery.PackageUuids.init -> void
+MyJdownloader.LinkGrabber.LinkQuery.Password.get -> bool
+MyJdownloader.LinkGrabber.LinkQuery.Password.init -> void
+MyJdownloader.LinkGrabber.LinkQuery.Priority.get -> bool
+MyJdownloader.LinkGrabber.LinkQuery.Priority.init -> void
+MyJdownloader.LinkGrabber.LinkQuery.StartAt.get -> int
+MyJdownloader.LinkGrabber.LinkQuery.StartAt.init -> void
+MyJdownloader.LinkGrabber.LinkQuery.Status.get -> bool
+MyJdownloader.LinkGrabber.LinkQuery.Status.init -> void
+MyJdownloader.LinkGrabber.LinkQuery.Url.get -> bool
+MyJdownloader.LinkGrabber.LinkQuery.Url.init -> void
+MyJdownloader.LinkGrabber.LinkQuery.VariantIcon.get -> bool
+MyJdownloader.LinkGrabber.LinkQuery.VariantIcon.init -> void
+MyJdownloader.LinkGrabber.LinkQuery.VariantId.get -> bool
+MyJdownloader.LinkGrabber.LinkQuery.VariantId.init -> void
+MyJdownloader.LinkGrabber.LinkQuery.VariantName.get -> bool
+MyJdownloader.LinkGrabber.LinkQuery.VariantName.init -> void
+MyJdownloader.LinkGrabber.LinkQuery.Variants.get -> bool
+MyJdownloader.LinkGrabber.LinkQuery.Variants.init -> void
+MyJdownloader.LinkGrabber.LinkVariant
+MyJdownloader.LinkGrabber.LinkVariant.<Clone>$() -> MyJdownloader.LinkGrabber.LinkVariant!
+MyJdownloader.LinkGrabber.LinkVariant.Equals(MyJdownloader.LinkGrabber.LinkVariant? other) -> bool
+MyJdownloader.LinkGrabber.LinkVariant.IconKey.get -> string?
+MyJdownloader.LinkGrabber.LinkVariant.IconKey.init -> void
+MyJdownloader.LinkGrabber.LinkVariant.Id.get -> string?
+MyJdownloader.LinkGrabber.LinkVariant.Id.init -> void
+MyJdownloader.LinkGrabber.LinkVariant.LinkVariant() -> void
+MyJdownloader.LinkGrabber.LinkVariant.Name.get -> string?
+MyJdownloader.LinkGrabber.LinkVariant.Name.init -> void
+MyJdownloader.LinkGrabber.PackageQuery
+MyJdownloader.LinkGrabber.PackageQuery.<Clone>$() -> MyJdownloader.LinkGrabber.PackageQuery!
+MyJdownloader.LinkGrabber.PackageQuery.AvailableOfflineCount.get -> bool
+MyJdownloader.LinkGrabber.PackageQuery.AvailableOfflineCount.init -> void
+MyJdownloader.LinkGrabber.PackageQuery.AvailableOnlineCount.get -> bool
+MyJdownloader.LinkGrabber.PackageQuery.AvailableOnlineCount.init -> void
+MyJdownloader.LinkGrabber.PackageQuery.AvailableTempUnknownCount.get -> bool
+MyJdownloader.LinkGrabber.PackageQuery.AvailableTempUnknownCount.init -> void
+MyJdownloader.LinkGrabber.PackageQuery.AvailableUnknownCount.get -> bool
+MyJdownloader.LinkGrabber.PackageQuery.AvailableUnknownCount.init -> void
+MyJdownloader.LinkGrabber.PackageQuery.BytesTotal.get -> bool
+MyJdownloader.LinkGrabber.PackageQuery.BytesTotal.init -> void
+MyJdownloader.LinkGrabber.PackageQuery.ChildCount.get -> bool
+MyJdownloader.LinkGrabber.PackageQuery.ChildCount.init -> void
+MyJdownloader.LinkGrabber.PackageQuery.Comment.get -> bool
+MyJdownloader.LinkGrabber.PackageQuery.Comment.init -> void
+MyJdownloader.LinkGrabber.PackageQuery.Enabled.get -> bool
+MyJdownloader.LinkGrabber.PackageQuery.Enabled.init -> void
+MyJdownloader.LinkGrabber.PackageQuery.Equals(MyJdownloader.LinkGrabber.PackageQuery? other) -> bool
+MyJdownloader.LinkGrabber.PackageQuery.Hosts.get -> bool
+MyJdownloader.LinkGrabber.PackageQuery.Hosts.init -> void
+MyJdownloader.LinkGrabber.PackageQuery.MaxResults.get -> int
+MyJdownloader.LinkGrabber.PackageQuery.MaxResults.init -> void
+MyJdownloader.LinkGrabber.PackageQuery.PackageQuery() -> void
+MyJdownloader.LinkGrabber.PackageQuery.PackageUuids.get -> System.Collections.Generic.IReadOnlyList<long>?
+MyJdownloader.LinkGrabber.PackageQuery.PackageUuids.init -> void
+MyJdownloader.LinkGrabber.PackageQuery.Priority.get -> bool
+MyJdownloader.LinkGrabber.PackageQuery.Priority.init -> void
+MyJdownloader.LinkGrabber.PackageQuery.SaveTo.get -> bool
+MyJdownloader.LinkGrabber.PackageQuery.SaveTo.init -> void
+MyJdownloader.LinkGrabber.PackageQuery.StartAt.get -> int
+MyJdownloader.LinkGrabber.PackageQuery.StartAt.init -> void
+MyJdownloader.LinkGrabber.PackageQuery.Status.get -> bool
+MyJdownloader.LinkGrabber.PackageQuery.Status.init -> void
+MyJdownloader.MyJDownloaderClient
+MyJdownloader.MyJDownloaderClient.ConnectAsync(string! email, string! password, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.MyJdSession!>!
+MyJdownloader.MyJDownloaderClient.DisconnectAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.MyJDownloaderClient.ExportSession() -> MyJdownloader.MyJdSession?
+MyJdownloader.MyJDownloaderClient.GetDevice(string! deviceId) -> MyJdownloader.JDownloaderDevice!
+MyJdownloader.MyJDownloaderClient.GetDevicesAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.DeviceInfo!>!>!
+MyJdownloader.MyJDownloaderClient.IsConnected.get -> bool
+MyJdownloader.MyJDownloaderClient.MyJDownloaderClient(System.Net.Http.HttpClient! httpClient, MyJdownloader.MyJDownloaderOptions? options = null, System.TimeProvider? timeProvider = null) -> void
+MyJdownloader.MyJDownloaderClient.ReconnectAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.MyJdSession!>!
+MyJdownloader.MyJDownloaderClient.RestoreSession(MyJdownloader.MyJdSession! session) -> void
+MyJdownloader.MyJDownloaderClient.SessionChanged -> System.EventHandler<MyJdownloader.MyJdSessionChangedEventArgs!>?
 MyJdownloader.MyJDownloaderOptions
 MyJdownloader.MyJDownloaderOptions.ApiVersion.get -> int
 MyJdownloader.MyJDownloaderOptions.ApiVersion.set -> void
@@ -48,40 +258,57 @@ MyJdownloader.MyJdRateLimitException.RetryAfter.get -> System.TimeSpan?
 MyJdownloader.MyJdSession
 MyJdownloader.MyJdSession.Email.get -> string!
 MyJdownloader.MyJdSession.ToJson() -> string!
-static MyJdownloader.MyJdSession.FromJson(string! json) -> MyJdownloader.MyJdSession!
-override MyJdownloader.MyJdSession.ToString() -> string!
-MyJdownloader.DeviceInfo
-MyJdownloader.DeviceInfo.<Clone>$() -> MyJdownloader.DeviceInfo!
-MyJdownloader.DeviceInfo.DeviceInfo() -> void
-MyJdownloader.DeviceInfo.Equals(MyJdownloader.DeviceInfo? other) -> bool
-MyJdownloader.DeviceInfo.Id.get -> string!
-MyJdownloader.DeviceInfo.Id.init -> void
-MyJdownloader.DeviceInfo.Name.get -> string!
-MyJdownloader.DeviceInfo.Name.init -> void
-MyJdownloader.DeviceInfo.Type.get -> string!
-MyJdownloader.DeviceInfo.Type.init -> void
-MyJdownloader.IDeviceChannel
-MyJdownloader.IDeviceChannel.CallAsync(string! path, System.Collections.Generic.IReadOnlyList<System.Text.Json.JsonElement>! args, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
-MyJdownloader.IDeviceChannel.CallAsync<T>(string! path, System.Text.Json.Serialization.Metadata.JsonTypeInfo<T>! responseType, System.Collections.Generic.IReadOnlyList<System.Text.Json.JsonElement>! args, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
-override MyJdownloader.DeviceInfo.Equals(object? obj) -> bool
-override MyJdownloader.DeviceInfo.GetHashCode() -> int
-override MyJdownloader.DeviceInfo.ToString() -> string!
-static MyJdownloader.DeviceInfo.operator !=(MyJdownloader.DeviceInfo? left, MyJdownloader.DeviceInfo? right) -> bool
-static MyJdownloader.DeviceInfo.operator ==(MyJdownloader.DeviceInfo? left, MyJdownloader.DeviceInfo? right) -> bool
-MyJdownloader.MyJDownloaderClient
-MyJdownloader.MyJDownloaderClient.ConnectAsync(string! email, string! password, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.MyJdSession!>!
-MyJdownloader.MyJDownloaderClient.DisconnectAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
-MyJdownloader.MyJDownloaderClient.GetDevicesAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.DeviceInfo!>!>!
-MyJdownloader.MyJDownloaderClient.ReconnectAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.MyJdSession!>!
-MyJdownloader.MyJDownloaderClient.ExportSession() -> MyJdownloader.MyJdSession?
-MyJdownloader.MyJDownloaderClient.IsConnected.get -> bool
-MyJdownloader.MyJDownloaderClient.MyJDownloaderClient(System.Net.Http.HttpClient! httpClient, MyJdownloader.MyJDownloaderOptions? options = null, System.TimeProvider? timeProvider = null) -> void
-MyJdownloader.MyJDownloaderClient.RestoreSession(MyJdownloader.MyJdSession! session) -> void
-MyJdownloader.MyJDownloaderClient.SessionChanged -> System.EventHandler<MyJdownloader.MyJdSessionChangedEventArgs!>?
 MyJdownloader.MyJdSessionChangedEventArgs
 MyJdownloader.MyJdSessionChangedEventArgs.MyJdSessionChangedEventArgs(MyJdownloader.MyJdSession? session) -> void
 MyJdownloader.MyJdSessionChangedEventArgs.Session.get -> MyJdownloader.MyJdSession?
-MyJdownloader.JDownloaderDevice
-MyJdownloader.JDownloaderDevice.Channel.get -> MyJdownloader.IDeviceChannel!
-MyJdownloader.JDownloaderDevice.Id.get -> string!
-MyJdownloader.MyJDownloaderClient.GetDevice(string! deviceId) -> MyJdownloader.JDownloaderDevice!
+MyJdownloader.Priority
+MyJdownloader.Priority.Default = 4 -> MyJdownloader.Priority
+MyJdownloader.Priority.High = 3 -> MyJdownloader.Priority
+MyJdownloader.Priority.Higher = 2 -> MyJdownloader.Priority
+MyJdownloader.Priority.Highest = 1 -> MyJdownloader.Priority
+MyJdownloader.Priority.Low = 5 -> MyJdownloader.Priority
+MyJdownloader.Priority.Lower = 6 -> MyJdownloader.Priority
+MyJdownloader.Priority.Lowest = 7 -> MyJdownloader.Priority
+MyJdownloader.Priority.Unknown = 0 -> MyJdownloader.Priority
+override MyJdownloader.DeviceInfo.Equals(object? obj) -> bool
+override MyJdownloader.DeviceInfo.GetHashCode() -> int
+override MyJdownloader.DeviceInfo.ToString() -> string!
+override MyJdownloader.LinkGrabber.AddLinksRequest.Equals(object? obj) -> bool
+override MyJdownloader.LinkGrabber.AddLinksRequest.GetHashCode() -> int
+override MyJdownloader.LinkGrabber.AddLinksRequest.ToString() -> string!
+override MyJdownloader.LinkGrabber.CrawledLink.Equals(object? obj) -> bool
+override MyJdownloader.LinkGrabber.CrawledLink.GetHashCode() -> int
+override MyJdownloader.LinkGrabber.CrawledLink.ToString() -> string!
+override MyJdownloader.LinkGrabber.CrawledPackage.Equals(object? obj) -> bool
+override MyJdownloader.LinkGrabber.CrawledPackage.GetHashCode() -> int
+override MyJdownloader.LinkGrabber.CrawledPackage.ToString() -> string!
+override MyJdownloader.LinkGrabber.LinkCollectingJob.Equals(object? obj) -> bool
+override MyJdownloader.LinkGrabber.LinkCollectingJob.GetHashCode() -> int
+override MyJdownloader.LinkGrabber.LinkCollectingJob.ToString() -> string!
+override MyJdownloader.LinkGrabber.LinkQuery.Equals(object? obj) -> bool
+override MyJdownloader.LinkGrabber.LinkQuery.GetHashCode() -> int
+override MyJdownloader.LinkGrabber.LinkQuery.ToString() -> string!
+override MyJdownloader.LinkGrabber.LinkVariant.Equals(object? obj) -> bool
+override MyJdownloader.LinkGrabber.LinkVariant.GetHashCode() -> int
+override MyJdownloader.LinkGrabber.LinkVariant.ToString() -> string!
+override MyJdownloader.LinkGrabber.PackageQuery.Equals(object? obj) -> bool
+override MyJdownloader.LinkGrabber.PackageQuery.GetHashCode() -> int
+override MyJdownloader.LinkGrabber.PackageQuery.ToString() -> string!
+override MyJdownloader.MyJdSession.ToString() -> string!
+static MyJdownloader.DeviceInfo.operator !=(MyJdownloader.DeviceInfo? left, MyJdownloader.DeviceInfo? right) -> bool
+static MyJdownloader.DeviceInfo.operator ==(MyJdownloader.DeviceInfo? left, MyJdownloader.DeviceInfo? right) -> bool
+static MyJdownloader.LinkGrabber.AddLinksRequest.operator !=(MyJdownloader.LinkGrabber.AddLinksRequest? left, MyJdownloader.LinkGrabber.AddLinksRequest? right) -> bool
+static MyJdownloader.LinkGrabber.AddLinksRequest.operator ==(MyJdownloader.LinkGrabber.AddLinksRequest? left, MyJdownloader.LinkGrabber.AddLinksRequest? right) -> bool
+static MyJdownloader.LinkGrabber.CrawledLink.operator !=(MyJdownloader.LinkGrabber.CrawledLink? left, MyJdownloader.LinkGrabber.CrawledLink? right) -> bool
+static MyJdownloader.LinkGrabber.CrawledLink.operator ==(MyJdownloader.LinkGrabber.CrawledLink? left, MyJdownloader.LinkGrabber.CrawledLink? right) -> bool
+static MyJdownloader.LinkGrabber.CrawledPackage.operator !=(MyJdownloader.LinkGrabber.CrawledPackage? left, MyJdownloader.LinkGrabber.CrawledPackage? right) -> bool
+static MyJdownloader.LinkGrabber.CrawledPackage.operator ==(MyJdownloader.LinkGrabber.CrawledPackage? left, MyJdownloader.LinkGrabber.CrawledPackage? right) -> bool
+static MyJdownloader.LinkGrabber.LinkCollectingJob.operator !=(MyJdownloader.LinkGrabber.LinkCollectingJob? left, MyJdownloader.LinkGrabber.LinkCollectingJob? right) -> bool
+static MyJdownloader.LinkGrabber.LinkCollectingJob.operator ==(MyJdownloader.LinkGrabber.LinkCollectingJob? left, MyJdownloader.LinkGrabber.LinkCollectingJob? right) -> bool
+static MyJdownloader.LinkGrabber.LinkQuery.operator !=(MyJdownloader.LinkGrabber.LinkQuery? left, MyJdownloader.LinkGrabber.LinkQuery? right) -> bool
+static MyJdownloader.LinkGrabber.LinkQuery.operator ==(MyJdownloader.LinkGrabber.LinkQuery? left, MyJdownloader.LinkGrabber.LinkQuery? right) -> bool
+static MyJdownloader.LinkGrabber.LinkVariant.operator !=(MyJdownloader.LinkGrabber.LinkVariant? left, MyJdownloader.LinkGrabber.LinkVariant? right) -> bool
+static MyJdownloader.LinkGrabber.LinkVariant.operator ==(MyJdownloader.LinkGrabber.LinkVariant? left, MyJdownloader.LinkGrabber.LinkVariant? right) -> bool
+static MyJdownloader.LinkGrabber.PackageQuery.operator !=(MyJdownloader.LinkGrabber.PackageQuery? left, MyJdownloader.LinkGrabber.PackageQuery? right) -> bool
+static MyJdownloader.LinkGrabber.PackageQuery.operator ==(MyJdownloader.LinkGrabber.PackageQuery? left, MyJdownloader.LinkGrabber.PackageQuery? right) -> bool
+static MyJdownloader.MyJdSession.FromJson(string! json) -> MyJdownloader.MyJdSession!
