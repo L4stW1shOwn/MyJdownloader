@@ -8,7 +8,7 @@ using MyJdownloader.Crypto;
 using MyJdownloader.Tests.Transport;
 
 [TestFixture]
-public sealed class MyJDownloaderClientLifecycleTests
+public sealed partial class MyJDownloaderClientLifecycleTests
 {
     private const string Email = "user@example.com";
     private const string Password = "password";

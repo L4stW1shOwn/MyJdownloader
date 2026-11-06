@@ -31,6 +31,7 @@ public sealed class MyJDownloaderClient
 {
     private const int MaxAppKeyLength = 256;
     private const string NotConnectedMessage = "The client is not connected.";
+    private const string TokenInvalidType = "TOKEN_INVALID";
 
     private readonly MyJDownloaderOptions _options;
     private readonly RequestIdGenerator _requestIds;
@@ -180,18 +181,51 @@ public sealed class MyJDownloaderClient
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>The devices.</returns>
     /// <remarks>
-    /// Uses a lock-free snapshot of the current session. There is no automatic reconnection yet
-    /// (a later version adds a single reconnect-and-replay on <c>TOKEN_INVALID</c>).
+    /// Uses a lock-free snapshot of the current session. On a <c>TOKEN_INVALID</c> server error the session is renewed
+    /// once (single-flight across concurrent callers) and the call is replayed once.
     /// </remarks>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The server rejected the request or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
-    public async Task<IReadOnlyList<DeviceInfo>> GetDevicesAsync(CancellationToken cancellationToken = default)
+    /// <exception cref="AggregateException">Several <see cref="SessionChanged"/> handlers threw.</exception>
+    public Task<IReadOnlyList<DeviceInfo>> GetDevicesAsync(CancellationToken cancellationToken = default)
+        => this.ExecuteAsync(this._serverChannel.ListDevicesAsync, cancellationToken);
+
+    /// <summary>Runs a session-bound call, renewing the session once and replaying the call once on <c>TOKEN_INVALID</c>.</summary>
+    /// <typeparam name="T">The result type.</typeparam>
+    /// <param name="call">The call; it must be safe to replay once, because <c>TOKEN_INVALID</c> means the request was rejected before execution.</param>
+    /// <param name="cancellationToken">A token to cancel the operation.</param>
+    /// <returns>The result of the call.</returns>
+    internal async Task<T> ExecuteAsync<T>(Func<MyJdSession, CancellationToken, Task<T>> call, CancellationToken cancellationToken)
     {
-        var current = Volatile.Read(ref this._session) ?? throw new InvalidOperationException(NotConnectedMessage);
-        return await this._serverChannel.ListDevicesAsync(current, cancellationToken).ConfigureAwait(false);
+        var snapshot = Volatile.Read(ref this._session) ?? throw new InvalidOperationException(NotConnectedMessage);
+        ExceptionDispatchInfo original;
+        try
+        {
+            return await call(snapshot, cancellationToken).ConfigureAwait(false);
+        }
+        catch (MyJdException ex) when (ex.ErrorSource == MyJdErrorSource.Server
+            && string.Equals(ex.ErrorType, TokenInvalidType, StringComparison.Ordinal))
+        {
+            original = ExceptionDispatchInfo.Capture(ex);
+        }
+
+        var (renewed, handlerFailure) = await this.RenewAsync(snapshot, cancellationToken).ConfigureAwait(false);
+        if (renewed is null)
+        {
+            original.Throw();
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        var result = await call(renewed, cancellationToken).ConfigureAwait(false);
+        if (handlerFailure is not null)
+        {
+            ExceptionDispatchInfo.Capture(handlerFailure).Throw();
+        }
+
+        return result;
     }
 
     private static MyJDownloaderOptions CopyAndValidate(MyJDownloaderOptions options)
@@ -250,18 +284,55 @@ public sealed class MyJDownloaderClient
         return newSession;
     }
 
-    [SuppressMessage("Design", "CA1031", Justification = "Handler exceptions are collected so every handler runs, then rethrown")]
     private void OnSessionChanged(MyJdSession? changed, long expectedVersion)
+    {
+        var failure = this.CollectSessionChanged(changed, expectedVersion);
+        if (failure is not null)
+        {
+            ExceptionDispatchInfo.Capture(failure).Throw();
+        }
+    }
+
+    private async Task<(MyJdSession? Session, Exception? HandlerFailure)> RenewAsync(MyJdSession failed, CancellationToken cancellationToken)
+    {
+        MyJdSession renewed;
+        long v;
+        await this._gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var current = Volatile.Read(ref this._session) ?? throw new InvalidOperationException(NotConnectedMessage);
+            if (!ReferenceEquals(current, failed))
+            {
+                var sameAccount = string.Equals(current.Email, failed.Email, StringComparison.OrdinalIgnoreCase);
+                return (sameAccount ? current : null, null);
+            }
+
+            // Bounded by HttpClient.Timeout: a cancelled caller must not abort a renewal other callers may rely on.
+            renewed = await this._serverChannel.ReconnectAsync(failed, CancellationToken.None).ConfigureAwait(false);
+            Volatile.Write(ref this._session, renewed);
+            v = Interlocked.Increment(ref this._version);
+        }
+        finally
+        {
+            this._gate.Release();
+        }
+
+        var handlerFailure = this.CollectSessionChanged(renewed, v);
+        return (renewed, handlerFailure);
+    }
+
+    [SuppressMessage("Design", "CA1031", Justification = "Handler exceptions are collected so every handler runs, then rethrown")]
+    private Exception? CollectSessionChanged(MyJdSession? changed, long expectedVersion)
     {
         if (Volatile.Read(ref this._version) != expectedVersion)
         {
-            return;
+            return null;
         }
 
         var handlers = this.SessionChanged;
         if (handlers is null)
         {
-            return;
+            return null;
         }
 
         var args = new MyJdSessionChangedEventArgs(changed);
@@ -280,14 +351,9 @@ public sealed class MyJDownloaderClient
 
         if (failures is null)
         {
-            return;
+            return null;
         }
 
-        if (failures.Count == 1)
-        {
-            ExceptionDispatchInfo.Capture(failures[0]).Throw();
-        }
-
-        throw new AggregateException(failures);
+        return failures.Count == 1 ? failures[0] : new AggregateException(failures);
     }
 }
