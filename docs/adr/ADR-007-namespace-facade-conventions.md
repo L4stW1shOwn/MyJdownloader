@@ -75,6 +75,8 @@ Serialization:
   defaults follow the API (`MaxResults = -1`, `StartAt = 0`). Other request
   records keep nullable members (`bool?`, `string?`), omitted from the JSON
   when null.
+- **API values typed `Object`** (untyped) follow ADR-008: exposed as
+  `JsonElement`, written as their JSON text, never printed by `ToString()`.
 
 Dates and durations (amendment, T-011):
 

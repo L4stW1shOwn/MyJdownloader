@@ -12,5 +12,6 @@ Structural decisions of MyJdownloader. Source of truth:
 | 005 | Error handling through a `MyJdException` hierarchy, without built-in retry | Accepted | [ADR-005](ADR-005-error-handling.md) |
 | 006 | Relay-only transport and the protocol's cryptographic constraints | Accepted | [ADR-006](ADR-006-relay-transport-and-cryptographic-constraints.md) |
 | 007 | Namespace facade conventions | Accepted | [ADR-007](ADR-007-namespace-facade-conventions.md) |
+| 008 | Untyped API values as `JsonElement` | Accepted | [ADR-008](ADR-008-untyped-values-as-jsonelement.md) |
 
 Format: `ADR-NNN-title-in-kebab-case.md` (NNN on 3 digits).
