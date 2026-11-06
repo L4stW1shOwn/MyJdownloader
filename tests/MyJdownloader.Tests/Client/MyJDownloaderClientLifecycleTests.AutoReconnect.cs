@@ -447,19 +447,23 @@ public sealed partial class MyJDownloaderClientLifecycleTests
         using var server = RejectedRenewalServer().On(ConnectPath, ConnectOk());
         var client = CreateClient(server);
         client.RestoreSession(CreateSession());
-        var connectTask = Task.CompletedTask;
+        var gateFree = false;
         client.SessionChanged += (_, args) =>
         {
             if (args.Session is null)
             {
-                connectTask = client.ConnectAsync(Email, Password);
+                // Bounded blocking wait: it only completes if the gate is free while the handler runs.
+                gateFree = Task.Run(() => client.ConnectAsync(Email, Password)).Wait(_waitTimeout);
             }
         };
 
         await Assert.ThrowsAsync<MyJdAuthenticationException>(() => client.GetDevicesAsync().WaitAsync(_waitTimeout));
-        await connectTask.WaitAsync(_waitTimeout);
 
-        Assert.That(client.IsConnected, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(gateFree, Is.True);
+            Assert.That(client.IsConnected, Is.True);
+        });
     }
 
     [Test]
@@ -531,7 +535,7 @@ public sealed partial class MyJDownloaderClientLifecycleTests
     }
 
     [Test]
-    public async Task GetDevicesAsync_CancelledWhileWaitingForGate_LeavesSessionUnchanged()
+    public async Task GetDevicesAsync_CancelledWhileWaitingForGate_ThrowsWithoutRenewalOrReplay()
     {
         var entered = NewSignal();
         var gate = NewSignal();
@@ -558,7 +562,11 @@ public sealed partial class MyJDownloaderClientLifecycleTests
         await Assert.CatchAsync<OperationCanceledException>(() => call.WaitAsync(_waitTimeout));
         await publicReconnect.WaitAsync(_waitTimeout);
 
-        Assert.That(CountCalls(server, ReconnectPath), Is.EqualTo(1));
+        Assert.Multiple(() =>
+        {
+            Assert.That(CountCalls(server, ReconnectPath), Is.EqualTo(1));
+            Assert.That(CountCalls(server, ListDevicesPath), Is.EqualTo(1));
+        });
     }
 
     [Test]
@@ -590,19 +598,23 @@ public sealed partial class MyJDownloaderClientLifecycleTests
             .On(ListDevicesPath, Sequence(TokenInvalid(), DevicesOk(RenewedServerKey())));
         var client = CreateClient(server);
         client.RestoreSession(CreateSession());
-        var disconnectTask = Task.CompletedTask;
+        var gateFree = false;
         client.SessionChanged += (_, args) =>
         {
             if (args.Session is not null)
             {
-                disconnectTask = client.DisconnectAsync();
+                // Bounded blocking wait: it only completes if the gate is free while the handler runs.
+                gateFree = Task.Run(() => client.DisconnectAsync()).Wait(_waitTimeout);
             }
         };
 
         // The replay outcome is irrelevant here: only completion (no deadlock) matters.
         await Task.WhenAny(client.GetDevicesAsync()).WaitAsync(_waitTimeout);
-        await disconnectTask.WaitAsync(_waitTimeout);
 
-        Assert.That(CountCalls(server, DisconnectPath), Is.EqualTo(1));
+        Assert.Multiple(() =>
+        {
+            Assert.That(gateFree, Is.True);
+            Assert.That(CountCalls(server, DisconnectPath), Is.EqualTo(1));
+        });
     }
 }
