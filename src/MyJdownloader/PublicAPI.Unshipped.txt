@@ -60,6 +60,9 @@ MyJdownloader.DeviceInfo.Name.get -> string!
 MyJdownloader.DeviceInfo.Name.init -> void
 MyJdownloader.DeviceInfo.Type.get -> string!
 MyJdownloader.DeviceInfo.Type.init -> void
+MyJdownloader.IDeviceChannel
+MyJdownloader.IDeviceChannel.CallAsync(string! path, System.Collections.Generic.IReadOnlyList<System.Text.Json.JsonElement>! args, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.IDeviceChannel.CallAsync<T>(string! path, System.Text.Json.Serialization.Metadata.JsonTypeInfo<T>! responseType, System.Collections.Generic.IReadOnlyList<System.Text.Json.JsonElement>! args, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
 override MyJdownloader.DeviceInfo.Equals(object? obj) -> bool
 override MyJdownloader.DeviceInfo.GetHashCode() -> int
 override MyJdownloader.DeviceInfo.ToString() -> string!

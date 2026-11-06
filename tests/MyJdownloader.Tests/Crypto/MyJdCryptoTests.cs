@@ -242,7 +242,7 @@ public sealed class MyJdCryptoTests
 
     [Test]
     public void Encrypt_NullPlaintext_ThrowsArgumentNullException()
-        => Assert.Throws<ArgumentNullException>(() => MyJdCrypto.Encrypt(FromHex(DeviceToken), null!));
+        => Assert.Throws<ArgumentNullException>(() => MyJdCrypto.Encrypt(FromHex(DeviceToken), (string)null!));
 
     [Test]
     public void Encrypt_NullKey_ThrowsArgumentNullException()

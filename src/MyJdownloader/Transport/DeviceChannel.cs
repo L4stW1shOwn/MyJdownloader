@@ -1,0 +1,248 @@
+namespace MyJdownloader.Transport;
+
+using System.Buffers;
+using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
+using System.Text.RegularExpressions;
+using MyJdownloader.Crypto;
+
+/// <summary>Encrypted channel to one device through the relay; see <see cref="IDeviceChannel"/>.</summary>
+/// <remarks>No exception raised here carries the path, the device id, the session token or the arguments.</remarks>
+internal sealed partial class DeviceChannel : IDeviceChannel
+{
+    private const int MaxPathLength = 256;
+    private const int MaxDeviceIdLength = 256;
+    private const int MaxResponseDepth = 64;
+    private static readonly string _unreadableMessage = RelayTransport.UnreadableMessageFor(MyJdErrorSource.Device);
+    private static readonly string _mismatchMessage = RelayTransport.MismatchMessageFor(MyJdErrorSource.Device);
+
+    private readonly MyJDownloaderClient _client;
+    private readonly RelayTransport _transport;
+    private readonly MyJDownloaderOptions _options;
+    private readonly RequestIdGenerator _requestIds;
+    private readonly string _escapedDeviceId;
+
+    public DeviceChannel(MyJDownloaderClient client, RelayTransport transport, MyJDownloaderOptions options, RequestIdGenerator requestIds, string deviceId)
+    {
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(transport);
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(requestIds);
+        ArgumentException.ThrowIfNullOrWhiteSpace(deviceId);
+        if (deviceId.Length > MaxDeviceIdLength || deviceId.Any(char.IsControl) || !IsValidUtf16(deviceId))
+        {
+            throw new ArgumentException("The device id is not valid.", nameof(deviceId));
+        }
+
+        this._client = client;
+        this._transport = transport;
+        this._options = options;
+        this._requestIds = requestIds;
+        this._escapedDeviceId = Uri.EscapeDataString(deviceId);
+    }
+
+    public Task<T?> CallAsync<T>(string path, JsonTypeInfo<T> responseType, IReadOnlyList<JsonElement> args, CancellationToken cancellationToken = default)
+    {
+        ValidatePath(path);
+        ArgumentNullException.ThrowIfNull(responseType);
+        var snapshot = SnapshotArgs(args);
+        return this.CallCoreAsync(path, snapshot, responseType, cancellationToken);
+    }
+
+    public Task CallAsync(string path, IReadOnlyList<JsonElement> args, CancellationToken cancellationToken = default)
+    {
+        ValidatePath(path);
+        var snapshot = SnapshotArgs(args);
+        return this.CallCoreAsync<object>(path, snapshot, null, cancellationToken);
+    }
+
+    [GeneratedRegex(@"\A(?:/(?!\.{1,2}(?:/|\z))[A-Za-z0-9._-]+)+\z", RegexOptions.CultureInvariant)]
+    private static partial Regex PathPattern();
+
+    private static bool IsValidUtf16(string text)
+    {
+        for (var i = 0; i < text.Length; i++)
+        {
+            if (char.IsHighSurrogate(text[i]) && i + 1 < text.Length && char.IsLowSurrogate(text[i + 1]))
+            {
+                i++;
+            }
+            else if (char.IsSurrogate(text[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static void ValidatePath(string path)
+    {
+        ArgumentNullException.ThrowIfNull(path);
+        if (path.Length > MaxPathLength || !PathPattern().IsMatch(path))
+        {
+            throw new ArgumentException("The path is not valid.", nameof(path));
+        }
+    }
+
+    private static string[] SnapshotArgs(IReadOnlyList<JsonElement> args)
+    {
+        ArgumentNullException.ThrowIfNull(args);
+        var snapshot = new string[args.Count];
+        try
+        {
+            for (var i = 0; i < snapshot.Length; i++)
+            {
+                var element = args[i];
+                if (element.ValueKind == JsonValueKind.Undefined)
+                {
+                    throw new ArgumentException("An argument is undefined.", nameof(args));
+                }
+
+                snapshot[i] = element.ValueKind == JsonValueKind.String ? element.GetString()! : element.GetRawText();
+            }
+        }
+        catch (InvalidOperationException)
+        {
+            // Includes ObjectDisposedException: the document of an argument was disposed, or its text is not valid.
+            throw new ArgumentException("An argument is not valid.", nameof(args));
+        }
+
+        foreach (var value in snapshot)
+        {
+            if (!IsValidUtf16(value))
+            {
+                throw new ArgumentException("An argument is not valid UTF-16 text.", nameof(args));
+            }
+        }
+
+        return snapshot;
+    }
+
+    // Writes the JSON body into a pooled buffer, encrypts it, then clears every buffer that held the plaintext.
+    private static string EncryptBody(byte[] key, string path, string[] args, long rid, int apiVersion)
+    {
+        using var buffer = new PooledBufferWriter();
+        using (var writer = new Utf8JsonWriter(buffer))
+        {
+            writer.WriteStartObject();
+            writer.WriteString("url", path);
+            writer.WriteStartArray("params");
+            foreach (var arg in args)
+            {
+                writer.WriteStringValue(arg);
+            }
+
+            writer.WriteEndArray();
+            writer.WriteNumber("rid", rid);
+            writer.WriteNumber("apiVer", apiVersion);
+            writer.WriteEndObject();
+        }
+
+        return MyJdCrypto.Encrypt(key, buffer.WrittenSpan);
+    }
+
+    private Task<T?> CallCoreAsync<T>(string path, string[] args, JsonTypeInfo<T>? responseType, CancellationToken cancellationToken) =>
+        this._client.ExecuteAsync((session, ct) => this.SendAsync(session, path, args, responseType, ct), cancellationToken);
+
+    private async Task<T?> SendAsync<T>(MyJdSession session, string path, string[] args, JsonTypeInfo<T>? responseType, CancellationToken cancellationToken)
+    {
+        var rid = this._requestIds.Next();
+        var url = this._options.BaseAddress.AbsoluteUri.TrimEnd('/') + "/t_" + session.SessionToken + "_" + this._escapedDeviceId + path;
+        string json;
+        var key = session.DeviceEncryptionToken.ToArray();
+        try
+        {
+            using var content = new StringContent(EncryptBody(key, path, args, rid, this._options.ApiVersion), Encoding.UTF8);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/aesjson-jd") { CharSet = "utf-8" };
+            using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(url, UriKind.Absolute)) { Content = content };
+            json = await this._transport.ExchangeAsync(request, key, MyJdErrorSource.Device, cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(key);
+        }
+
+        return ReadResponse(json, rid, responseType);
+    }
+
+    private static T? ReadResponse<T>(string json, long rid, JsonTypeInfo<T>? responseType)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(json, new JsonDocumentOptions { MaxDepth = MaxResponseDepth, AllowDuplicateProperties = false });
+            var root = document.RootElement;
+            if (root.ValueKind != JsonValueKind.Object)
+            {
+                throw new MyJdProtocolException(_unreadableMessage, MyJdErrorSource.Device);
+            }
+
+            if (!root.TryGetProperty("rid", out var ridElement)
+                || ridElement.ValueKind != JsonValueKind.Number
+                || !ridElement.TryGetInt64(out var actual)
+                || actual != rid)
+            {
+                throw new MyJdProtocolException(_mismatchMessage, MyJdErrorSource.Device);
+            }
+
+            if (responseType is null || !root.TryGetProperty("data", out var data) || data.ValueKind == JsonValueKind.Null)
+            {
+                return default;
+            }
+
+            return data.Deserialize(responseType);
+        }
+        catch (Exception ex) when (ex is JsonException or InvalidOperationException)
+        {
+            throw new MyJdProtocolException(_unreadableMessage, MyJdErrorSource.Device);
+        }
+    }
+
+    /// <summary>Growable pooled buffer that clears every array it held when it grows or is disposed.</summary>
+    private sealed class PooledBufferWriter : IBufferWriter<byte>, IDisposable
+    {
+        private byte[] _buffer = ArrayPool<byte>.Shared.Rent(512);
+        private int _written;
+
+        public ReadOnlySpan<byte> WrittenSpan => this._buffer.AsSpan(0, this._written);
+
+        public void Advance(int count) => this._written += count;
+
+        public Memory<byte> GetMemory(int sizeHint = 0)
+        {
+            this.Ensure(sizeHint);
+            return this._buffer.AsMemory(this._written);
+        }
+
+        public Span<byte> GetSpan(int sizeHint = 0)
+        {
+            this.Ensure(sizeHint);
+            return this._buffer.AsSpan(this._written);
+        }
+
+        public void Dispose()
+        {
+            CryptographicOperations.ZeroMemory(this._buffer);
+            ArrayPool<byte>.Shared.Return(this._buffer);
+            this._buffer = [];
+        }
+
+        private void Ensure(int sizeHint)
+        {
+            var needed = Math.Max(sizeHint, 1);
+            if (this._buffer.Length - this._written >= needed)
+            {
+                return;
+            }
+
+            var bigger = ArrayPool<byte>.Shared.Rent(Math.Max(this._buffer.Length * 2, this._written + needed));
+            this._buffer.AsSpan(0, this._written).CopyTo(bigger);
+            CryptographicOperations.ZeroMemory(this._buffer);
+            ArrayPool<byte>.Shared.Return(this._buffer);
+            this._buffer = bigger;
+        }
+    }
+}

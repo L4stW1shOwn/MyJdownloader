@@ -104,14 +104,28 @@ internal static class MyJdCrypto
         var plainBytes = Encoding.UTF8.GetBytes(plaintext);
         try
         {
-            using var aes = Aes.Create();
-            aes.SetKey(key.AsSpan(HalfKeyLength, HalfKeyLength));
-            return Convert.ToBase64String(aes.EncryptCbc(plainBytes, key.AsSpan(0, AesBlockSize), PaddingMode.PKCS7));
+            return Encrypt(key, plainBytes);
         }
         finally
         {
             CryptographicOperations.ZeroMemory(plainBytes);
         }
+    }
+
+    /// <summary>Encrypts UTF-8 <paramref name="plaintext"/> bytes with AES-128-CBC (PKCS7).</summary>
+    /// <param name="key">The 32-byte key: first half is the IV, second half the AES key; left unchanged.</param>
+    /// <param name="plaintext">The UTF-8 bytes to encrypt; left unchanged, the caller clears them.</param>
+    /// <returns>The ciphertext as Base64.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">The key is not <see cref="KeyLength"/> bytes long.</exception>
+    public static string Encrypt(byte[] key, ReadOnlySpan<byte> plaintext)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        EnsureKeyLength(key);
+
+        using var aes = Aes.Create();
+        aes.SetKey(key.AsSpan(HalfKeyLength, HalfKeyLength));
+        return Convert.ToBase64String(aes.EncryptCbc(plaintext, key.AsSpan(0, AesBlockSize), PaddingMode.PKCS7));
     }
 
     /// <summary>Decrypts a Base64 AES-128-CBC (PKCS7) ciphertext.</summary>

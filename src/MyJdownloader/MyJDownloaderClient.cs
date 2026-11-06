@@ -37,6 +37,7 @@ public sealed class MyJDownloaderClient
     private readonly RequestIdGenerator _requestIds;
 
     private readonly ServerChannel _serverChannel;
+    private readonly RelayTransport _transport;
 
     private readonly SemaphoreSlim _gate = new(1, 1);
     private MyJdSession? _session;
@@ -54,7 +55,8 @@ public sealed class MyJDownloaderClient
         this._options = CopyAndValidate(options ?? new MyJDownloaderOptions());
         var time = timeProvider ?? TimeProvider.System;
         this._requestIds = new RequestIdGenerator(time);
-        this._serverChannel = new ServerChannel(new RelayTransport(httpClient, time), this._options, this._requestIds);
+        this._transport = new RelayTransport(httpClient, time);
+        this._serverChannel = new ServerChannel(this._transport, this._options, this._requestIds);
     }
 
     /// <summary>Occurs when the session is established, refreshed or cleared by the client.</summary>
@@ -201,6 +203,13 @@ public sealed class MyJDownloaderClient
     /// <exception cref="AggregateException">Several <see cref="SessionChanged"/> handlers threw.</exception>
     public Task<IReadOnlyList<DeviceInfo>> GetDevicesAsync(CancellationToken cancellationToken = default)
         => this.ExecuteAsync(this._serverChannel.ListDevicesAsync, cancellationToken);
+
+    /// <summary>Creates the channel to one device of the account.</summary>
+    /// <param name="deviceId">The device id, as returned by <see cref="GetDevicesAsync"/>.</param>
+    /// <returns>The device channel.</returns>
+    /// <exception cref="ArgumentException"><paramref name="deviceId"/> is blank, too long or contains invalid characters.</exception>
+    internal IDeviceChannel CreateDeviceChannel(string deviceId)
+        => new DeviceChannel(this, this._transport, this._options, this._requestIds, deviceId);
 
     /// <summary>Runs a session-bound call, renewing the session once and replaying the call once on <c>TOKEN_INVALID</c>.</summary>
     /// <typeparam name="T">The result type.</typeparam>

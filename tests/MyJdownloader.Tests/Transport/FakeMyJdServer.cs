@@ -2,6 +2,7 @@ namespace MyJdownloader.Tests.Transport;
 
 using System.Net;
 using System.Text;
+using System.Text.Json;
 using MyJdownloader.Crypto;
 
 internal sealed class FakeMyJdServer : HttpMessageHandler
@@ -41,6 +42,30 @@ internal sealed class FakeMyJdServer : HttpMessageHandler
         }
 
         throw new InvalidOperationException("No rid parameter in the request.");
+    }
+
+    /// <summary>Returns the request body decrypted with <paramref name="key"/>; call it while the request is still alive.</summary>
+    public static string DecryptedBodyOf(HttpRequestMessage request, byte[] key)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(key);
+        if (request.Content is null)
+        {
+            throw new InvalidOperationException("The request has no body.");
+        }
+
+        // The stream is cached by the content: keep it open and rewind so the body can be read again.
+        var stream = request.Content.ReadAsStream();
+        stream.Position = 0;
+        using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: 1024, leaveOpen: true);
+        return MyJdCrypto.Decrypt(key, reader.ReadToEnd());
+    }
+
+    /// <summary>Returns the <c>rid</c> member of the decrypted JSON request body.</summary>
+    public static long BodyRidOf(HttpRequestMessage request, byte[] key)
+    {
+        using var document = JsonDocument.Parse(DecryptedBodyOf(request, key));
+        return document.RootElement.GetProperty("rid").GetInt64();
     }
 
     /// <summary>

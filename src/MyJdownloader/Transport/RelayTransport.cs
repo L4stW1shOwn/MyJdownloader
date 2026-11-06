@@ -107,7 +107,8 @@ internal sealed class RelayTransport
         }
     }
 
-    private static async Task<ErrorResponse?> ReadErrorAsync(HttpContent content, byte[] key, MyJdErrorSource source, CancellationToken cancellationToken)
+    // Decrypted is true when the body could only be read after decryption (its src claim is then not trustworthy for a device call).
+    private static async Task<(ErrorResponse? Error, bool Decrypted)> ReadErrorAsync(HttpContent content, byte[] key, MyJdErrorSource source, CancellationToken cancellationToken)
     {
         byte[] body;
         try
@@ -116,13 +117,13 @@ internal sealed class RelayTransport
         }
         catch (Exception ex) when (ex is MyJdProtocolException or IOException)
         {
-            return null;
+            return (null, false);
         }
 
         var text = Encoding.UTF8.GetString(body);
         try
         {
-            return JsonSerializer.Deserialize(text, MyJdJsonContext.Default.ErrorResponse);
+            return (JsonSerializer.Deserialize(text, MyJdJsonContext.Default.ErrorResponse), false);
         }
         catch (JsonException)
         {
@@ -131,11 +132,11 @@ internal sealed class RelayTransport
 
         try
         {
-            return JsonSerializer.Deserialize(MyJdCrypto.Decrypt(key, text), MyJdJsonContext.Default.ErrorResponse);
+            return (JsonSerializer.Deserialize(MyJdCrypto.Decrypt(key, text), MyJdJsonContext.Default.ErrorResponse), true);
         }
         catch (Exception ex) when (ex is JsonException or FormatException or CryptographicException)
         {
-            return null;
+            return (null, false);
         }
     }
 
@@ -156,8 +157,11 @@ internal sealed class RelayTransport
         using var response = await this._httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
         if (response.StatusCode != HttpStatusCode.OK)
         {
-            var error = await ReadErrorAsync(response.Content, key, source, cancellationToken).ConfigureAwait(false);
-            throw MyJdErrorMapper.Map(source, error?.Src, error?.Type, response.StatusCode, this.ParseRetryAfter(response));
+            var (error, decrypted) = await ReadErrorAsync(response.Content, key, source, cancellationToken).ConfigureAwait(false);
+
+            // Only the relay can answer in plain text: an encrypted device error cannot claim to come from the server.
+            var src = decrypted && source == MyJdErrorSource.Device ? "DEVICE" : error?.Src;
+            throw MyJdErrorMapper.Map(source, src, error?.Type, response.StatusCode, this.ParseRetryAfter(response));
         }
 
         var body = await ReadBodyAsync(response.Content, source, cancellationToken).ConfigureAwait(false);
