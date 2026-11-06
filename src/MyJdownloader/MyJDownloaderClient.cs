@@ -59,7 +59,8 @@ public sealed class MyJDownloaderClient
 
     /// <summary>Occurs when the session is established, refreshed or cleared by the client.</summary>
     /// <remarks>
-    /// <see cref="RestoreSession"/> does not raise this event. All handlers are invoked even if one throws; their exceptions
+    /// <see cref="RestoreSession"/> does not raise this event. When an automatic renewal is rejected, handler exceptions are
+    /// not propagated (the authentication exception prevails). All handlers are invoked even if one throws; their exceptions
     /// propagate to the caller of the operation after the session was updated. <see cref="MyJdSessionChangedEventArgs.Session"/>
     /// may already be outdated: persist <see cref="ExportSession"/>.
     /// </remarks>
@@ -185,7 +186,9 @@ public sealed class MyJDownloaderClient
     /// the session is renewed once (single-flight across concurrent callers) and the call is replayed once.
     /// A rejected renewal disconnects the client (if the failed session is still the current one) and raises
     /// <see cref="SessionChanged"/> with a <see langword="null"/> session; the authentication error is rethrown.
-    /// Other renewal failures keep the session. A session restored for another account in the meantime is not replayed:
+    /// Exceptions thrown by <see cref="SessionChanged"/> handlers in that case are not propagated: the authentication exception prevails.
+    /// Other renewal failures keep the session. A session restored during the renewal is kept (the renewed one is discarded) and,
+    /// if it belongs to the same account, used for the replay; for another account it is not replayed and
     /// the original <c>TOKEN_INVALID</c> error is rethrown. The renewal request is not cancellable by the caller
     /// (it is bounded by <see cref="HttpClient.Timeout"/>).
     /// </remarks>
@@ -299,40 +302,55 @@ public sealed class MyJDownloaderClient
         }
     }
 
+    private static (MyJdSession? Session, Exception? HandlerFailure) ReplayTarget(MyJdSession? current, MyJdSession failed)
+    {
+        if (current is null)
+        {
+            throw new InvalidOperationException(NotConnectedMessage);
+        }
+
+        var sameAccount = string.Equals(current.Email, failed.Email, StringComparison.OrdinalIgnoreCase);
+        return (sameAccount ? current : null, null);
+    }
+
     private async Task<(MyJdSession? Session, Exception? HandlerFailure)> RenewAsync(MyJdSession failed, CancellationToken cancellationToken)
     {
         MyJdSession renewed;
-        long v;
+        long v = 0;
         ExceptionDispatchInfo? rejected = null;
         var cleared = false;
         await this._gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            var current = Volatile.Read(ref this._session) ?? throw new InvalidOperationException(NotConnectedMessage);
+            var current = Volatile.Read(ref this._session);
             if (!ReferenceEquals(current, failed))
             {
-                var sameAccount = string.Equals(current.Email, failed.Email, StringComparison.OrdinalIgnoreCase);
-                return (sameAccount ? current : null, null);
+                return ReplayTarget(current, failed);
             }
 
             try
             {
                 // Bounded by HttpClient.Timeout: a cancelled caller must not abort a renewal other callers may rely on.
                 renewed = await this._serverChannel.ReconnectAsync(failed, CancellationToken.None).ConfigureAwait(false);
-                Volatile.Write(ref this._session, renewed);
-                v = Interlocked.Increment(ref this._version);
             }
             catch (MyJdAuthenticationException ex)
             {
                 // Clear only if the failed session is still current: a concurrent RestoreSession must survive.
                 rejected = ExceptionDispatchInfo.Capture(ex);
+                cleared = ReferenceEquals(Interlocked.CompareExchange(ref this._session, null, failed), failed);
+                v = cleared ? Interlocked.Increment(ref this._version) : 0;
                 renewed = failed;
-                v = 0;
-                if (ReferenceEquals(Interlocked.CompareExchange(ref this._session, null, failed), failed))
+            }
+
+            if (rejected is null)
+            {
+                // A concurrent RestoreSession wins: the renewed tokens are discarded (valid server-side until they expire).
+                if (!ReferenceEquals(Interlocked.CompareExchange(ref this._session, renewed, failed), failed))
                 {
-                    v = Interlocked.Increment(ref this._version);
-                    cleared = true;
+                    return ReplayTarget(Volatile.Read(ref this._session), failed);
                 }
+
+                v = Interlocked.Increment(ref this._version);
             }
         }
         finally

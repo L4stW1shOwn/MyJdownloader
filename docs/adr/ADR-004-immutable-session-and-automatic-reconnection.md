@@ -58,6 +58,9 @@ singleton, several concurrent calls may fail at the same time.
   if it is still the failed one (compare-and-exchange), `SessionChanged(null)` is
   raised and the error is rethrown; the caller must call `ConnectAsync` again.
   Other renewal failures (server error, rate limit, network) keep the session.
+- A successful renewal never overwrites a concurrently restored session
+  (compare-and-exchange against the failed session); the renewed session is
+  discarded, its tokens staying valid server-side until they expire.
 - Handler failures do not prevent the replay; they are rethrown after a
   successful replay.
 - Single-flight: `SemaphoreSlim(1,1)`; under the gate, "session already

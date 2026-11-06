@@ -617,4 +617,60 @@ public sealed partial class MyJDownloaderClientLifecycleTests
             Assert.That(CountCalls(server, DisconnectPath), Is.EqualTo(1));
         });
     }
+
+    private static MyJdSession CreateOtherSession(string email) =>
+        new(email, Key(5), Key(6), OtherSessionToken, "bb66bb66", Key(7), Key(8));
+
+    private static Route RestoringDuringReconnect(Func<MyJDownloaderClient> client, MyJdSession other, Route inner) =>
+        (request, cancellationToken) =>
+        {
+            client().RestoreSession(other);
+            return inner(request, cancellationToken);
+        };
+
+    [Test]
+    public async Task GetDevicesAsync_RestoreDuringRenewal_KeepsRestoredSession()
+    {
+        MyJDownloaderClient? client = null;
+        var other = CreateOtherSession(OtherEmail);
+        using var server = new ScriptedServer()
+            .On(ReconnectPath, RestoringDuringReconnect(() => client!, other, ReconnectOk(Key(3))))
+            .On(ListDevicesPath, TokenInvalid());
+        client = CreateClient(server);
+        client.RestoreSession(CreateSession());
+        var events = Collect(client);
+
+        var ex = await Assert.ThrowsAsync<MyJdAuthenticationException>(() => client.GetDevicesAsync().WaitAsync(_waitTimeout));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ErrorType, Is.EqualTo(TokenInvalidType));
+            Assert.That(client.ExportSession(), Is.SameAs(other));
+            Assert.That(events, Is.Empty);
+            Assert.That(CountCalls(server, ListDevicesPath), Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public async Task GetDevicesAsync_SameAccountRestoreDuringRenewal_ReplaysWithRestoredSession()
+    {
+        MyJDownloaderClient? client = null;
+        var other = CreateOtherSession(Email);
+        using var server = new ScriptedServer()
+            .On(ReconnectPath, RestoringDuringReconnect(() => client!, other, ReconnectOk(Key(3))))
+            .On(ListDevicesPath, Sequence(TokenInvalid(), DevicesOk(Key(7))));
+        client = CreateClient(server);
+        client.RestoreSession(CreateSession());
+        var events = Collect(client);
+
+        var devices = await client.GetDevicesAsync().WaitAsync(_waitTimeout);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(devices, Has.Count.EqualTo(2));
+            Assert.That(client.ExportSession(), Is.SameAs(other));
+            Assert.That(events, Is.Empty);
+            Assert.That(LastCall(server, ListDevicesPath), Does.Contain($"sessiontoken={OtherSessionToken}"));
+        });
+    }
 }
