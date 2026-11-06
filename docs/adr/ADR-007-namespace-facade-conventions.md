@@ -86,6 +86,8 @@ Validation and secrets:
   result), so invalid input fails before any I/O.
 - **Secret masking**: records holding a secret override `PrintMembers` so that
   `ToString()` shows `***` when the secret is set. Value equality is unchanged.
+  Some API responses return secrets without an opt-out flag (for example a
+  package `downloadPassword`): the XML doc of such members and queries must say so.
 
 Documentation, tests and delivery:
 
