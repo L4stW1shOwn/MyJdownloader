@@ -145,6 +145,28 @@ await device.System.RestartAsync();
 
 Warning: these actions are destructive and the device usually goes offline before answering, so a timeout or network error does not mean the action failed.
 
+## Config
+
+`device.Config` is the typed facade over `/config` (advanced configuration entries). Values are untyped and exposed as `JsonElement`:
+
+```csharp
+using System.Text.Json;
+using MyJdownloader.Config;
+
+// Current values are returned only with Values = true; Pattern is a regular expression evaluated on the device.
+var entries = await device.Config.QueryAsync(new ConfigQuery { Pattern = "maxsimultanedownloads", Values = true });
+
+var entry = entries[0];
+JsonElement current = await device.Config.GetAsync(entry.InterfaceName!, entry.Storage, entry.Key!);
+
+// Applied immediately, without confirmation.
+await device.Config.SetAsync(entry.InterfaceName!, entry.Storage, entry.Key!, JsonSerializer.SerializeToElement(3));
+```
+
+- Values may hold secrets (passwords, tokens): never log them.
+- `SetAsync` sends the value as its JSON text (strings quoted); to be confirmed against a real device.
+- Same 1 MiB response limit as above: restrict queries with `ConfigInterface` / `Pattern`.
+
 ## Logging and tracing
 
 Device-call URL paths contain the session token and the device id. The named
@@ -169,25 +191,3 @@ repository.
 ## License
 
 MIT
-
-## Config
-
-`device.Config` is the typed facade over `/config` (advanced configuration entries). Values are untyped and exposed as `JsonElement`:
-
-```csharp
-using System.Text.Json;
-using MyJdownloader.Config;
-
-// Current values are returned only with Values = true; Pattern is a regular expression evaluated on the device.
-var entries = await device.Config.QueryAsync(new ConfigQuery { Pattern = "maxsimultanedownloads", Values = true });
-
-var entry = entries[0];
-JsonElement current = await device.Config.GetAsync(entry.InterfaceName!, entry.Storage, entry.Key!);
-
-// Applied immediately, without confirmation.
-await device.Config.SetAsync(entry.InterfaceName!, entry.Storage, entry.Key!, JsonSerializer.SerializeToElement(3));
-```
-
-- Values may hold secrets (passwords, tokens): never log them.
-- `SetAsync` sends the value as its JSON text (strings quoted); to be confirmed against a real device.
-- Same 1 MiB response limit as above: restrict queries with `ConfigInterface` / `Pattern`.
