@@ -26,6 +26,7 @@ public sealed class LinkGrabberApiTests
         yield return "a\rb";
         yield return "a\u0001b";
         yield return "a\u2028b";
+        yield return "a\uD800b";
     }
 
     private static IEnumerable<TestCaseData> InvalidCalls()
@@ -48,7 +49,7 @@ public sealed class LinkGrabberApiTests
         foreach (var text in BadTexts().Where(t => t is not null))
         {
             var bad = text!;
-            var label = bad.Length == 0 ? "empty" : bad.Replace("\n", "LF", StringComparison.Ordinal).Replace("\r", "CR", StringComparison.Ordinal).Replace("\u0001", "ctl", StringComparison.Ordinal).Replace("\u2028", "LS", StringComparison.Ordinal).Replace(" ", "blank", StringComparison.Ordinal);
+            var label = bad.Length == 0 ? "empty" : bad.Replace("\n", "LF", StringComparison.Ordinal).Replace("\r", "CR", StringComparison.Ordinal).Replace("\u0001", "ctl", StringComparison.Ordinal).Replace("\u2028", "LS", StringComparison.Ordinal).Replace("\uD800", "surrogate", StringComparison.Ordinal).Replace(" ", "blank", StringComparison.Ordinal);
             yield return Case($"AddLinksAsync_PackageName_{label}_Throws", a => a.AddLinksAsync(new AddLinksRequest { Links = valid, PackageName = bad }));
             yield return Case($"AddLinksAsync_DestinationFolder_{label}_Throws", a => a.AddLinksAsync(new AddLinksRequest { Links = valid, DestinationFolder = bad }));
             yield return Case($"AddLinksAsync_SourceUrl_{label}_Throws", a => a.AddLinksAsync(new AddLinksRequest { Links = valid, SourceUrl = bad }));
@@ -157,7 +158,7 @@ public sealed class LinkGrabberApiTests
         AssertSent(
             channel,
             "addLinks",
-            /*lang=json,strict*/ """{"links":"https://h/a\nhttps://h/b","packageName":"pkg","destinationFolder":"/dl","extractPassword":"e p","downloadPassword":"d p","sourceUrl":"https://src","priority":"HIGH","autostart":true,"autoExtract":false,"deepDecrypt":true,"overwritePackagizerRules":false,"assignJobId":true}""");
+            /*lang=json,strict*/ """{"links":"https://h/a\nhttps://h/b","packageName":"pkg","destinationFolder":"/dl","extractPassword":"e p","downloadPassword":"d p","sourceUrl":"https://src","priority":"HIGH","autostart":true,"autoExtract":false,"deepDecrypt":true,"overwritePackagizerRules":false,"assignJobID":true}""");
     }
 
     [Test]
@@ -440,8 +441,9 @@ public sealed class LinkGrabberApiTests
     {
         var (channel, api) = Create();
 
-        Assert.Catch<ArgumentException>(() => call(api));
+        var thrown = Assert.Catch<ArgumentException>(() => call(api));
 
+        Assert.That(thrown!.Message, Does.Not.Contain("https://").And.Not.Contain("a\nb").And.Not.Contain("a\u0001b").And.Not.Contain("a\uD800b"));
         Assert.That(channel.ReceivedCalls(), Is.Empty);
     }
 

@@ -1,5 +1,7 @@
 namespace MyJdownloader.LinkGrabber;
 
+using System.Text.Json.Serialization;
+
 /// <summary>Wire form of <see cref="AddLinksRequest"/>: links joined with line feeds, other members copied.</summary>
 /// <remarks>A class rather than a record so that it has no generated <c>ToString</c> exposing the passwords.</remarks>
 internal sealed class AddLinksQueryDto
@@ -26,14 +28,16 @@ internal sealed class AddLinksQueryDto
 
     public bool? OverwritePackagizerRules { get; init; }
 
+    [JsonPropertyName("assignJobID")]
     public bool? AssignJobId { get; init; }
 
-    public static AddLinksQueryDto From(AddLinksRequest request)
+    public static AddLinksQueryDto From(AddLinksRequest request, string[] links)
     {
         ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(links);
         return new AddLinksQueryDto
         {
-            Links = string.Join('\n', request.Links),
+            Links = string.Join('\n', links),
             PackageName = request.PackageName,
             DestinationFolder = request.DestinationFolder,
             ExtractPassword = request.ExtractPassword,

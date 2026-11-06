@@ -1,12 +1,14 @@
 namespace MyJdownloader.LinkGrabber;
 
 using System.Text.Json.Serialization;
+using MyJdownloader.Json;
 
 /// <summary>Source-generated, tolerant JSON metadata for the <c>/linkgrabberv2</c> namespace.</summary>
 [JsonSourceGenerationOptions(
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
-    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+    Converters = [typeof(TolerantEnumConverter<Priority>), typeof(TolerantEnumConverter<AvailableLinkState>)])]
 [JsonSerializable(typeof(AddLinksQueryDto))]
 [JsonSerializable(typeof(LinkQuery))]
 [JsonSerializable(typeof(PackageQuery))]
@@ -18,7 +20,6 @@ using System.Text.Json.Serialization;
 [JsonSerializable(typeof(bool?))]
 [JsonSerializable(typeof(long))]
 [JsonSerializable(typeof(int?))]
-[JsonSerializable(typeof(int))]
 [JsonSerializable(typeof(string))]
 [JsonSerializable(typeof(Priority))]
 internal sealed partial class LinkGrabberJsonContext : JsonSerializerContext

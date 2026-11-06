@@ -50,12 +50,18 @@ Serialization:
   `LinkGrabberJsonContext`): camelCase, `UnmappedMemberHandling.Skip`,
   `DefaultIgnoreCondition = WhenWritingNull`. Explicit `[JsonPropertyName]`
   where the API name differs from camelCase (`uuid`, `packageUUID`,
-  `packageUUIDs`, `jobUUIDs`, `variantID`, ...).
+  `packageUUIDs`, `jobUUIDs`, `variantID`, `assignJobID`, ...).
+  List members (`Links`, `Hosts`, `PackageUuids`) compare by reference, so the
+  record equality of the records holding them is reference-based for those
+  members.
 - **Tolerant enums**: every API enum has `Unknown = 0`. An internal generic
   `TolerantEnumConverter<TEnum>` (AOT-safe: `Enum.GetValues<TEnum>()` and
   `JsonNamingPolicy.SnakeCaseUpper`) reads any unrecognized string as
   `Unknown`; writing `Unknown` throws `ArgumentException` (the facade rejects it
-  earlier, see validation).
+  earlier, see validation). Converters are registered in each internal context
+  (`JsonSourceGenerationOptions.Converters`) and never attached to the public
+  enums with `[JsonConverter]`, so callers' own serialization of these enums is
+  unaffected.
 - **Arguments** are built with `JsonSerializer.SerializeToElement(value,
   context.TypeInfo)`: strings and enums become JSON strings (sent raw by the
   channel), objects and arrays their JSON text. Parameter order matches the

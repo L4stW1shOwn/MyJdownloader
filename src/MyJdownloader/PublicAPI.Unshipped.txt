@@ -326,3 +326,11 @@ static MyJdownloader.LinkGrabber.LinkVariant.operator ==(MyJdownloader.LinkGrabb
 static MyJdownloader.LinkGrabber.PackageQuery.operator !=(MyJdownloader.LinkGrabber.PackageQuery? left, MyJdownloader.LinkGrabber.PackageQuery? right) -> bool
 static MyJdownloader.LinkGrabber.PackageQuery.operator ==(MyJdownloader.LinkGrabber.PackageQuery? left, MyJdownloader.LinkGrabber.PackageQuery? right) -> bool
 static MyJdownloader.MyJdSession.FromJson(string! json) -> MyJdownloader.MyJdSession!
+MyJdownloader.LinkGrabber.CrawledLink.Status.get -> string?
+MyJdownloader.LinkGrabber.CrawledLink.Status.init -> void
+MyJdownloader.LinkGrabber.CrawledLink.StatusIconKey.get -> string?
+MyJdownloader.LinkGrabber.CrawledLink.StatusIconKey.init -> void
+MyJdownloader.LinkGrabber.CrawledPackage.Status.get -> string?
+MyJdownloader.LinkGrabber.CrawledPackage.Status.init -> void
+MyJdownloader.LinkGrabber.CrawledPackage.StatusIconKey.get -> string?
+MyJdownloader.LinkGrabber.CrawledPackage.StatusIconKey.init -> void

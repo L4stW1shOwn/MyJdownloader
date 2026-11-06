@@ -1,11 +1,7 @@
 namespace MyJdownloader;
 
-using System.Text.Json.Serialization;
-using MyJdownloader.Json;
-
 /// <summary>Download priority of a link or package, as used by the JDownloader API.</summary>
 /// <remarks>Unrecognized values returned by a device are read as <see cref="Unknown"/>; <see cref="Unknown"/> cannot be sent.</remarks>
-[JsonConverter(typeof(TolerantEnumConverter<Priority>))]
 public enum Priority
 {
     /// <summary>The value is missing or not recognized by this library.</summary>

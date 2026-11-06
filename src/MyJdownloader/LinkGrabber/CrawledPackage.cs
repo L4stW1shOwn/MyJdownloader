@@ -57,6 +57,14 @@ public sealed record CrawledPackage
     /// <summary>Gets the folder the package is saved to.</summary>
     public string? SaveTo { get; init; }
 
+    /// <summary>Gets the human-readable status text; returned when the Status flag is set.</summary>
+    /// <remarks>Not part of the published API documentation; observed in JDownloader storables.</remarks>
+    public string? Status { get; init; }
+
+    /// <summary>Gets the key of the status icon; returned when the Status flag is set.</summary>
+    /// <remarks>Not part of the published API documentation; observed in JDownloader storables.</remarks>
+    public string? StatusIconKey { get; init; }
+
     [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Invoked by the compiler-generated ToString.")]
     private bool PrintMembers(StringBuilder builder)
     {
@@ -73,7 +81,9 @@ public sealed record CrawledPackage
             .Append(", TempUnknownCount = ").Append(this.TempUnknownCount)
             .Append(", UnknownCount = ").Append(this.UnknownCount)
             .Append(", Priority = ").Append(this.Priority)
-            .Append(", SaveTo = ").Append(this.SaveTo);
+            .Append(", SaveTo = ").Append(this.SaveTo)
+            .Append(", Status = ").Append(this.Status)
+            .Append(", StatusIconKey = ").Append(this.StatusIconKey);
         return true;
     }
 }

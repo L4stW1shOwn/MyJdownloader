@@ -1,6 +1,7 @@
 namespace MyJdownloader.Tests.Json;
 
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Json;
 
 [TestFixture]
@@ -63,4 +64,12 @@ public sealed class TolerantEnumConverterTests
     [Test]
     public void TolerantEnumConverter_WriteUndefinedValue_Throws()
         => Assert.Throws<ArgumentException>(() => JsonSerializer.Serialize((Priority)42, _options));
+
+    [Test]
+    public void Priority_DefaultReflectionOptions_SerializationUnaffected()
+    {
+        var options = new JsonSerializerOptions { TypeInfoResolver = new DefaultJsonTypeInfoResolver() };
+
+        Assert.That(() => JsonSerializer.Serialize(Priority.Unknown, options), Throws.Nothing);
+    }
 }

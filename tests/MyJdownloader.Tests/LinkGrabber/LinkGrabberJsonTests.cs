@@ -17,10 +17,10 @@ public sealed class LinkGrabberJsonTests
     }
 
     [Test]
-    public void CrawledLink_OfficialSample_Deserializes()
+    public void CrawledLink_Sample_Deserializes()
     {
         const string payload = /*lang=json,strict*/ """
-            {"uuid":1,"packageUUID":2,"name":"a.zip","url":"https://h/a.zip","host":"h","bytesTotal":10,"availability":"ONLINE","enabled":true,"priority":"HIGH","comment":"c","downloadPassword":"p","variants":true,"variant":{"id":"v","name":"n","iconKey":"i"},"extraField":1}
+            {"uuid":1,"packageUUID":2,"name":"a.zip","url":"https://h/a.zip","host":"h","bytesTotal":10,"availability":"ONLINE","enabled":true,"priority":"HIGH","comment":"c","downloadPassword":"p","variants":true,"variant":{"id":"v","name":"n","iconKey":"i"},"status":"Online","statusIconKey":"ok","extraField":1}
             """;
 
         var link = JsonSerializer.Deserialize(payload, LinkGrabberJsonContext.Default.CrawledLink);
@@ -39,13 +39,15 @@ public sealed class LinkGrabberJsonTests
         Assert.That(link.DownloadPassword, Is.EqualTo("p"));
         Assert.That(link.Variants, Is.EqualTo(true));
         Assert.That(link.Variant, Is.EqualTo(new LinkVariant { Id = "v", Name = "n", IconKey = "i" }));
+        Assert.That(link.Status, Is.EqualTo("Online"));
+        Assert.That(link.StatusIconKey, Is.EqualTo("ok"));
     }
 
     [Test]
-    public void CrawledPackage_OfficialSample_Deserializes()
+    public void CrawledPackage_Sample_Deserializes()
     {
         const string payload = /*lang=json,strict*/ """
-            {"uuid":2,"name":"pkg","bytesTotal":10,"childCount":1,"hosts":["h"],"onlineCount":1,"offlineCount":0,"tempUnknownCount":0,"unknownCount":0,"priority":"DEFAULT","saveTo":"/dl","enabled":true}
+            {"uuid":2,"name":"pkg","bytesTotal":10,"childCount":1,"hosts":["h"],"onlineCount":1,"offlineCount":0,"tempUnknownCount":0,"unknownCount":0,"priority":"DEFAULT","saveTo":"/dl","enabled":true,"status":"Finished","statusIconKey":"done"}
             """;
 
         var package = JsonSerializer.Deserialize(payload, LinkGrabberJsonContext.Default.CrawledPackage);
@@ -63,6 +65,8 @@ public sealed class LinkGrabberJsonTests
         Assert.That(package.Priority, Is.EqualTo(Priority.Default));
         Assert.That(package.SaveTo, Is.EqualTo("/dl"));
         Assert.That(package.Enabled, Is.EqualTo(true));
+        Assert.That(package.Status, Is.EqualTo("Finished"));
+        Assert.That(package.StatusIconKey, Is.EqualTo("done"));
     }
 
     [Test]
@@ -138,7 +142,7 @@ public sealed class LinkGrabberJsonTests
             Autostart = true,
         };
 
-        var json = JsonSerializer.Serialize(AddLinksQueryDto.From(request), LinkGrabberJsonContext.Default.AddLinksQueryDto);
+        var json = JsonSerializer.Serialize(AddLinksQueryDto.From(request, [.. request.Links]), LinkGrabberJsonContext.Default.AddLinksQueryDto);
 
         var expected = new Dictionary<string, string>
         {

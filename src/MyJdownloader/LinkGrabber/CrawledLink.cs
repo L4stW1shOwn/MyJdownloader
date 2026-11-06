@@ -55,6 +55,14 @@ public sealed record CrawledLink
     /// <summary>Gets the selected variant.</summary>
     public LinkVariant? Variant { get; init; }
 
+    /// <summary>Gets the human-readable status text; returned when the Status flag is set.</summary>
+    /// <remarks>Not part of the published API documentation; observed in JDownloader storables.</remarks>
+    public string? Status { get; init; }
+
+    /// <summary>Gets the key of the status icon; returned when the Status flag is set.</summary>
+    /// <remarks>Not part of the published API documentation; observed in JDownloader storables.</remarks>
+    public string? StatusIconKey { get; init; }
+
     [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Invoked by the compiler-generated ToString.")]
     private bool PrintMembers(StringBuilder builder)
     {
@@ -70,7 +78,9 @@ public sealed record CrawledLink
             .Append(", Comment = ").Append(this.Comment)
             .Append(", DownloadPassword = ").Append(this.DownloadPassword is null ? null : "***")
             .Append(", Variants = ").Append(this.Variants)
-            .Append(", Variant = ").Append(this.Variant);
+            .Append(", Variant = ").Append(this.Variant)
+            .Append(", Status = ").Append(this.Status)
+            .Append(", StatusIconKey = ").Append(this.StatusIconKey);
         return true;
     }
 }

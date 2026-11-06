@@ -43,12 +43,13 @@ public sealed class LinkGrabberApi
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(request.Links, nameof(request));
-        if (request.Links.Count == 0)
+        var links = request.Links.ToArray();
+        if (links.Length == 0)
         {
             throw new ArgumentException("At least one link is required.", nameof(request));
         }
 
-        foreach (var link in request.Links)
+        foreach (var link in links)
         {
             ValidateLink(link, nameof(request));
         }
@@ -61,7 +62,7 @@ public sealed class LinkGrabberApi
             throw new ArgumentException("The priority must be a known value.", nameof(request));
         }
 
-        var args = new[] { JsonSerializer.SerializeToElement(AddLinksQueryDto.From(request), LinkGrabberJsonContext.Default.AddLinksQueryDto) };
+        var args = new[] { JsonSerializer.SerializeToElement(AddLinksQueryDto.From(request, links), LinkGrabberJsonContext.Default.AddLinksQueryDto) };
         return RequireAsync(this._channel.CallAsync(Base + "addLinks", LinkGrabberJsonContext.Default.LinkCollectingJob, args, cancellationToken));
     }
 
@@ -175,6 +176,7 @@ public sealed class LinkGrabberApi
     /// <param name="newName">The new name.</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>A task that completes when the device has answered.</returns>
+    /// <remarks>The new name becomes a file name on the device. JDownloader sanitizes it, but callers handling untrusted input should restrict it to an allow-list of characters.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="newName"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="newName"/> is blank or contains control characters.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
@@ -190,6 +192,7 @@ public sealed class LinkGrabberApi
     /// <param name="newName">The new name.</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>A task that completes when the device has answered.</returns>
+    /// <remarks>The new name becomes a package name on the device. JDownloader sanitizes it, but callers handling untrusted input should restrict it to an allow-list of characters.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="newName"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="newName"/> is blank or contains control characters.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
@@ -301,12 +304,22 @@ public sealed class LinkGrabberApi
             throw new ArgumentException("A text value must not be blank.", paramName);
         }
 
-        foreach (var c in text)
+        for (var i = 0; i < text.Length; i++)
         {
+            var c = text[i];
             var category = char.GetUnicodeCategory(c);
             if (char.IsControl(c) || category is UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator)
             {
                 throw new ArgumentException("A text value must not contain control characters.", paramName);
+            }
+
+            if (char.IsHighSurrogate(c) && i + 1 < text.Length && char.IsLowSurrogate(text[i + 1]))
+            {
+                i++;
+            }
+            else if (char.IsSurrogate(c))
+            {
+                throw new ArgumentException("A text value must not contain invalid surrogate characters.", paramName);
             }
         }
     }
