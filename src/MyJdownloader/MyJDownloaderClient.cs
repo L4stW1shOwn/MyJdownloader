@@ -204,6 +204,20 @@ public sealed class MyJDownloaderClient
     public Task<IReadOnlyList<DeviceInfo>> GetDevicesAsync(CancellationToken cancellationToken = default)
         => this.ExecuteAsync(this._serverChannel.ListDevicesAsync, cancellationToken);
 
+    /// <summary>Gets the facade root of one device of the account.</summary>
+    /// <param name="deviceId">The device id, as returned by <see cref="GetDevicesAsync"/>.</param>
+    /// <returns>A new <see cref="JDownloaderDevice"/> on every call.</returns>
+    /// <remarks>
+    /// The id is validated (and escaped in request paths) but no request is sent and the device is not checked to exist.
+    /// The session is read on every call made through the device, not when it is obtained: the device can be obtained
+    /// before <see cref="RestoreSession"/> and survives session renewals. <see cref="JDownloaderDevice.Channel"/> gives
+    /// access to any device action now; typed namespace properties come later.
+    /// </remarks>
+    /// <exception cref="ArgumentException"><paramref name="deviceId"/> is blank, too long or contains invalid characters.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="deviceId"/> is <see langword="null"/>.</exception>
+    public JDownloaderDevice GetDevice(string deviceId)
+        => new(deviceId, this.CreateDeviceChannel(deviceId));
+
     /// <summary>Creates the channel to one device of the account.</summary>
     /// <param name="deviceId">The device id, as returned by <see cref="GetDevicesAsync"/>.</param>
     /// <returns>The device channel.</returns>

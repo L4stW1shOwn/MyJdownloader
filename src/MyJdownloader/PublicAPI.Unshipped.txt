@@ -81,3 +81,7 @@ MyJdownloader.MyJDownloaderClient.SessionChanged -> System.EventHandler<MyJdownl
 MyJdownloader.MyJdSessionChangedEventArgs
 MyJdownloader.MyJdSessionChangedEventArgs.MyJdSessionChangedEventArgs(MyJdownloader.MyJdSession? session) -> void
 MyJdownloader.MyJdSessionChangedEventArgs.Session.get -> MyJdownloader.MyJdSession?
+MyJdownloader.JDownloaderDevice
+MyJdownloader.JDownloaderDevice.Channel.get -> MyJdownloader.IDeviceChannel!
+MyJdownloader.JDownloaderDevice.Id.get -> string!
+MyJdownloader.MyJDownloaderClient.GetDevice(string! deviceId) -> MyJdownloader.JDownloaderDevice!

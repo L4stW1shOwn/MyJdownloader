@@ -1,6 +1,7 @@
 namespace MyJdownloader.Transport;
 
 using System.Buffers;
+using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
@@ -19,6 +20,7 @@ internal sealed partial class DeviceChannel : IDeviceChannel
     private static readonly string _unreadableMessage = RelayTransport.UnreadableMessageFor(MyJdErrorSource.Device);
     private static readonly string _mismatchMessage = RelayTransport.MismatchMessageFor(MyJdErrorSource.Device);
 
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly MyJDownloaderClient _client;
     private readonly RelayTransport _transport;
     private readonly MyJDownloaderOptions _options;
