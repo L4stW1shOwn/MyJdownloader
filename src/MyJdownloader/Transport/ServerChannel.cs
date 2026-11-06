@@ -27,14 +27,14 @@ internal sealed class ServerChannel
     private const int MaxBodyLength = 1_048_576;
     private const int MaxEmailLength = 254;
     private const int MaxDeviceIdLength = 256;
-    private static readonly TimeSpan MaxRetryAfter = TimeSpan.FromMinutes(10);
+    private static readonly TimeSpan _maxRetryAfter = TimeSpan.FromMinutes(10);
     private const string UnreadableMessage = "The MyJD server returned a response that could not be read.";
     private const string MismatchMessage = "The MyJD server response does not match the request.";
 
-    private readonly HttpClient httpClient;
-    private readonly MyJDownloaderOptions options;
-    private readonly RequestIdGenerator requestIds;
-    private readonly TimeProvider timeProvider;
+    private readonly HttpClient _httpClient;
+    private readonly MyJDownloaderOptions _options;
+    private readonly RequestIdGenerator _requestIds;
+    private readonly TimeProvider _timeProvider;
 
     public ServerChannel(HttpClient httpClient, MyJDownloaderOptions options, RequestIdGenerator requestIds, TimeProvider timeProvider)
     {
@@ -42,10 +42,10 @@ internal sealed class ServerChannel
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(requestIds);
         ArgumentNullException.ThrowIfNull(timeProvider);
-        this.httpClient = httpClient;
-        this.options = options;
-        this.requestIds = requestIds;
-        this.timeProvider = timeProvider;
+        this._httpClient = httpClient;
+        this._options = options;
+        this._requestIds = requestIds;
+        this._timeProvider = timeProvider;
     }
 
     /// <summary>Validates the credentials and derives the secrets of a <c>/my/connect</c> call.</summary>
@@ -100,7 +100,7 @@ internal sealed class ServerChannel
         {
             var response = await this.SendAsync(
                 "/my/connect",
-                [("email", request.Email), ("appkey", this.options.AppKey)],
+                [("email", request.Email), ("appkey", this._options.AppKey)],
                 request.LoginSecret,
                 MyJdJsonContext.Default.ConnectResponse,
                 cancellationToken).ConfigureAwait(false);
@@ -351,13 +351,13 @@ internal sealed class ServerChannel
             return TimeSpan.Zero;
         }
 
-        return delay > MaxRetryAfter ? MaxRetryAfter : delay;
+        return delay > _maxRetryAfter ? _maxRetryAfter : delay;
     }
 
     private TimeSpan? ParseRetryAfter(HttpResponseMessage response)
     {
         var header = response.Headers.RetryAfter;
-        var delay = header?.Delta ?? (header?.Date - this.timeProvider.GetUtcNow());
+        var delay = header?.Delta ?? (header?.Date - this._timeProvider.GetUtcNow());
         if (delay is null)
         {
             return null;
@@ -377,9 +377,9 @@ internal sealed class ServerChannel
     {
         // HttpClient.Timeout stops applying once the headers are read: bound the whole exchange, body included.
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        if (this.httpClient.Timeout != Timeout.InfiniteTimeSpan)
+        if (this._httpClient.Timeout != Timeout.InfiniteTimeSpan)
         {
-            linked.CancelAfter(this.httpClient.Timeout);
+            linked.CancelAfter(this._httpClient.Timeout);
         }
 
         try
@@ -400,12 +400,12 @@ internal sealed class ServerChannel
         CancellationToken cancellationToken)
         where T : class
     {
-        var rid = this.requestIds.Next();
+        var rid = this._requestIds.Next();
         var signed = BuildQuery(path, parameters, rid);
-        var url = this.options.BaseAddress.AbsoluteUri.TrimEnd('/') + signed + "&signature=" + MyJdCrypto.Sign(key, signed);
+        var url = this._options.BaseAddress.AbsoluteUri.TrimEnd('/') + signed + "&signature=" + MyJdCrypto.Sign(key, signed);
 
         using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(url, UriKind.Absolute));
-        using var response = await this.httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+        using var response = await this._httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
         if (response.StatusCode != HttpStatusCode.OK)
         {
             var error = await ReadErrorAsync(response.Content, key, cancellationToken).ConfigureAwait(false);

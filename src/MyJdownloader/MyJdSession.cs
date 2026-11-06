@@ -25,16 +25,16 @@ public sealed class MyJdSession
     private const string InvalidSessionMessage = "The session data is not a valid MyJdownloader session.";
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private readonly byte[] loginSecret;
+    private readonly byte[] _loginSecret;
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private readonly byte[] deviceSecret;
+    private readonly byte[] _deviceSecret;
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private readonly byte[] serverEncryptionToken;
+    private readonly byte[] _serverEncryptionToken;
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private readonly byte[] deviceEncryptionToken;
+    private readonly byte[] _deviceEncryptionToken;
 
     internal MyJdSession(
         string email,
@@ -53,12 +53,12 @@ public sealed class MyJdSession
         ValidateToken(regainToken, nameof(regainToken));
 
         this.Email = email;
-        this.loginSecret = CopyKey(loginSecret, nameof(loginSecret));
-        this.deviceSecret = CopyKey(deviceSecret, nameof(deviceSecret));
+        this._loginSecret = CopyKey(loginSecret, nameof(loginSecret));
+        this._deviceSecret = CopyKey(deviceSecret, nameof(deviceSecret));
         this.SessionToken = sessionToken;
         this.RegainToken = regainToken;
-        this.serverEncryptionToken = CopyKey(serverEncryptionToken, nameof(serverEncryptionToken));
-        this.deviceEncryptionToken = CopyKey(deviceEncryptionToken, nameof(deviceEncryptionToken));
+        this._serverEncryptionToken = CopyKey(serverEncryptionToken, nameof(serverEncryptionToken));
+        this._deviceEncryptionToken = CopyKey(deviceEncryptionToken, nameof(deviceEncryptionToken));
     }
 
     /// <summary>Gets the account e-mail address.</summary>
@@ -67,16 +67,16 @@ public sealed class MyJdSession
     public string Email { get; }
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    internal ReadOnlySpan<byte> LoginSecret => this.loginSecret;
+    internal ReadOnlySpan<byte> LoginSecret => this._loginSecret;
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    internal ReadOnlySpan<byte> DeviceSecret => this.deviceSecret;
+    internal ReadOnlySpan<byte> DeviceSecret => this._deviceSecret;
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    internal ReadOnlySpan<byte> ServerEncryptionToken => this.serverEncryptionToken;
+    internal ReadOnlySpan<byte> ServerEncryptionToken => this._serverEncryptionToken;
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    internal ReadOnlySpan<byte> DeviceEncryptionToken => this.deviceEncryptionToken;
+    internal ReadOnlySpan<byte> DeviceEncryptionToken => this._deviceEncryptionToken;
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     [field: DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -102,12 +102,12 @@ public sealed class MyJdSession
         {
             Version = CurrentVersion,
             Email = this.Email,
-            LoginSecret = this.loginSecret,
-            DeviceSecret = this.deviceSecret,
+            LoginSecret = this._loginSecret,
+            DeviceSecret = this._deviceSecret,
             SessionToken = this.SessionToken,
             RegainToken = this.RegainToken,
-            ServerEncryptionToken = this.serverEncryptionToken,
-            DeviceEncryptionToken = this.deviceEncryptionToken,
+            ServerEncryptionToken = this._serverEncryptionToken,
+            DeviceEncryptionToken = this._deviceEncryptionToken,
         };
 
         return JsonSerializer.Serialize(document, MyJdJsonContext.Default.MyJdSessionDocument);

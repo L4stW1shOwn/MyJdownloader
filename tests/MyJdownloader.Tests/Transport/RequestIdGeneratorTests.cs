@@ -6,12 +6,12 @@ using MyJdownloader.Transport;
 [TestFixture]
 public sealed class RequestIdGeneratorTests
 {
-    private static readonly DateTimeOffset Reference = new(2026, 11, 5, 0, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset _reference = new(2026, 11, 5, 0, 0, 0, TimeSpan.Zero);
 
     [Test]
     public void Next_FirstCall_ReturnsUnixMillisecondsOfTimeProvider()
     {
-        var clock = new FakeTimeProvider { UtcNow = Reference };
+        var clock = new FakeTimeProvider { UtcNow = _reference };
         var generator = new RequestIdGenerator(clock);
 
         var id = generator.Next();
@@ -22,7 +22,7 @@ public sealed class RequestIdGeneratorTests
     [Test]
     public void Next_ConsecutiveCalls_StrictlyIncrease()
     {
-        var clock = new FakeTimeProvider { UtcNow = Reference };
+        var clock = new FakeTimeProvider { UtcNow = _reference };
         var generator = new RequestIdGenerator(clock);
 
         var first = generator.Next();
@@ -34,10 +34,10 @@ public sealed class RequestIdGeneratorTests
     [Test]
     public void Next_ClockGoesBackwards_StillIncreases()
     {
-        var clock = new FakeTimeProvider { UtcNow = Reference };
+        var clock = new FakeTimeProvider { UtcNow = _reference };
         var generator = new RequestIdGenerator(clock);
         var first = generator.Next();
-        clock.UtcNow = Reference.AddHours(-1);
+        clock.UtcNow = _reference.AddHours(-1);
 
         var second = generator.Next();
 
@@ -47,7 +47,7 @@ public sealed class RequestIdGeneratorTests
     [Test]
     public void Next_ConcurrentCalls_ReturnDistinctValues()
     {
-        var clock = new FakeTimeProvider { UtcNow = Reference };
+        var clock = new FakeTimeProvider { UtcNow = _reference };
         var generator = new RequestIdGenerator(clock);
         var ids = new ConcurrentBag<long>();
 

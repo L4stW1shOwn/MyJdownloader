@@ -7,16 +7,16 @@ using MyJdownloader.Crypto;
 internal sealed class FakeMyJdServer : HttpMessageHandler
 {
     private const string SignatureMarker = "&signature=";
-    private readonly List<HttpRequestMessage> requests = [];
-    private readonly Func<HttpRequestMessage, HttpResponseMessage> responder;
+    private readonly List<HttpRequestMessage> _requests = [];
+    private readonly Func<HttpRequestMessage, HttpResponseMessage> _responder;
 
     public FakeMyJdServer(Func<HttpRequestMessage, HttpResponseMessage> responder)
     {
         ArgumentNullException.ThrowIfNull(responder);
-        this.responder = responder;
+        this._responder = responder;
     }
 
-    public IReadOnlyList<HttpRequestMessage> Requests => this.requests;
+    public IReadOnlyList<HttpRequestMessage> Requests => this._requests;
 
     public static HttpResponseMessage EncryptedJson(byte[] key, string json, HttpStatusCode status = HttpStatusCode.OK)
     {
@@ -73,7 +73,7 @@ internal sealed class FakeMyJdServer : HttpMessageHandler
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        this.requests.Add(request);
-        return Task.FromResult(this.responder(request));
+        this._requests.Add(request);
+        return Task.FromResult(this._responder(request));
     }
 }

@@ -17,12 +17,12 @@ public sealed class ServerChannelErrorTests
     private const string TooManyRequestsBody = """{"src":"SERVER","type":"TOO_MANY_REQUESTS"}""";
 #pragma warning restore JSON002
 
-    private static readonly DateTimeOffset Now = new(2026, 11, 5, 0, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset _now = new(2026, 11, 5, 0, 0, 0, TimeSpan.Zero);
 
     [SuppressMessage("Reliability", "CA2000", Justification = "The HttpClient lives as long as the test and wraps a disposed fake handler")]
     private static ServerChannel CreateChannel(FakeMyJdServer server, TimeSpan? timeout = null)
     {
-        var clock = new FakeTimeProvider { UtcNow = Now };
+        var clock = new FakeTimeProvider { UtcNow = _now };
         var httpClient = new HttpClient(server);
         if (timeout is not null)
         {
@@ -112,7 +112,7 @@ public sealed class ServerChannelErrorTests
     [Test]
     public async Task ConnectAsync_RetryAfterPastDate_ClampedToZero()
     {
-        var exception = await ConnectExpectingRateLimitAsync(Now.AddHours(-1).ToString("R", CultureInfo.InvariantCulture));
+        var exception = await ConnectExpectingRateLimitAsync(_now.AddHours(-1).ToString("R", CultureInfo.InvariantCulture));
 
         Assert.That(exception.RetryAfter, Is.EqualTo(TimeSpan.Zero));
     }
@@ -120,7 +120,7 @@ public sealed class ServerChannelErrorTests
     [Test]
     public async Task ConnectAsync_RetryAfterFutureDate_RelativeToTimeProvider()
     {
-        var exception = await ConnectExpectingRateLimitAsync(Now.AddSeconds(120).ToString("R", CultureInfo.InvariantCulture));
+        var exception = await ConnectExpectingRateLimitAsync(_now.AddSeconds(120).ToString("R", CultureInfo.InvariantCulture));
 
         Assert.That(exception.RetryAfter, Is.EqualTo(TimeSpan.FromSeconds(120)));
     }
@@ -234,7 +234,7 @@ public sealed class ServerChannelErrorTests
     public async Task ConnectAsync_SlowHeaders_ThrowsTimeoutException()
     {
         using var server = new SlowHandler();
-        var clock = new FakeTimeProvider { UtcNow = Now };
+        var clock = new FakeTimeProvider { UtcNow = _now };
         using var httpClient = new HttpClient(server) { Timeout = TimeSpan.FromMilliseconds(200) };
         var channel = new ServerChannel(httpClient, new MyJDownloaderOptions(), new RequestIdGenerator(clock), clock);
 

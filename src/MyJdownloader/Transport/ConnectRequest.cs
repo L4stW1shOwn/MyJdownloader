@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 /// </summary>
 internal sealed class ConnectRequest : IDisposable
 {
-    private int used;
+    private int _used;
 
     public ConnectRequest(string email, byte[] loginSecret, byte[] deviceSecret)
     {
@@ -35,7 +35,7 @@ internal sealed class ConnectRequest : IDisposable
     /// <exception cref="InvalidOperationException">The request has already been used.</exception>
     public void MarkUsed()
     {
-        if (Interlocked.Exchange(ref this.used, 1) != 0)
+        if (Interlocked.Exchange(ref this._used, 1) != 0)
         {
             throw new InvalidOperationException("The connect request has already been used.");
         }
@@ -44,7 +44,7 @@ internal sealed class ConnectRequest : IDisposable
     /// <summary>Marks the request as used and zeroes the secrets; safe to call several times.</summary>
     public void Dispose()
     {
-        Interlocked.Exchange(ref this.used, 1);
+        Interlocked.Exchange(ref this._used, 1);
         CryptographicOperations.ZeroMemory(this.LoginSecret);
         CryptographicOperations.ZeroMemory(this.DeviceSecret);
     }

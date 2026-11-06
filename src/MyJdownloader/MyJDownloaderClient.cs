@@ -32,14 +32,14 @@ public sealed class MyJDownloaderClient
     private const int MaxAppKeyLength = 256;
     private const string NotConnectedMessage = "The client is not connected.";
 
-    private readonly MyJDownloaderOptions options;
-    private readonly RequestIdGenerator requestIds;
+    private readonly MyJDownloaderOptions _options;
+    private readonly RequestIdGenerator _requestIds;
 
-    private readonly ServerChannel serverChannel;
+    private readonly ServerChannel _serverChannel;
 
-    private readonly SemaphoreSlim gate = new(1, 1);
-    private MyJdSession? session;
-    private long version;
+    private readonly SemaphoreSlim _gate = new(1, 1);
+    private MyJdSession? _session;
+    private long _version;
 
     /// <summary>Initializes a new instance of the <see cref="MyJDownloaderClient"/> class.</summary>
     /// <param name="httpClient">The HTTP client used for every request; it is not disposed by the client.</param>
@@ -50,10 +50,10 @@ public sealed class MyJDownloaderClient
     public MyJDownloaderClient(HttpClient httpClient, MyJDownloaderOptions? options = null, TimeProvider? timeProvider = null)
     {
         ArgumentNullException.ThrowIfNull(httpClient);
-        this.options = CopyAndValidate(options ?? new MyJDownloaderOptions());
+        this._options = CopyAndValidate(options ?? new MyJDownloaderOptions());
         var time = timeProvider ?? TimeProvider.System;
-        this.requestIds = new RequestIdGenerator(time);
-        this.serverChannel = new ServerChannel(httpClient, this.options, this.requestIds, time);
+        this._requestIds = new RequestIdGenerator(time);
+        this._serverChannel = new ServerChannel(httpClient, this._options, this._requestIds, time);
     }
 
     /// <summary>Occurs when the session is established, refreshed or cleared by the client.</summary>
@@ -65,11 +65,11 @@ public sealed class MyJDownloaderClient
     public event EventHandler<MyJdSessionChangedEventArgs>? SessionChanged;
 
     /// <summary>Gets a value indicating whether the client currently holds a session.</summary>
-    public bool IsConnected => Volatile.Read(ref this.session) is not null;
+    public bool IsConnected => Volatile.Read(ref this._session) is not null;
 
     /// <summary>Returns the current session, or <see langword="null"/> when the client is not connected.</summary>
     /// <returns>The current session, or <see langword="null"/>.</returns>
-    public MyJdSession? ExportSession() => Volatile.Read(ref this.session);
+    public MyJdSession? ExportSession() => Volatile.Read(ref this._session);
 
     /// <summary>Restores a previously exported session without sending any request or raising <see cref="SessionChanged"/>.</summary>
     /// <param name="session">The session to restore.</param>
@@ -78,8 +78,8 @@ public sealed class MyJDownloaderClient
     public void RestoreSession(MyJdSession session)
     {
         ArgumentNullException.ThrowIfNull(session);
-        Interlocked.Increment(ref this.version);
-        Volatile.Write(ref this.session, session);
+        Interlocked.Increment(ref this._version);
+        Volatile.Write(ref this._session, session);
     }
 
     /// <summary>Connects to the MyJDownloader server and replaces any current session.</summary>
@@ -100,7 +100,7 @@ public sealed class MyJDownloaderClient
     /// <exception cref="AggregateException">Several <see cref="SessionChanged"/> handlers threw.</exception>
     public Task<MyJdSession> ConnectAsync(string email, string password, CancellationToken cancellationToken = default)
     {
-        var request = this.serverChannel.CreateConnectRequest(email, password);
+        var request = this._serverChannel.CreateConnectRequest(email, password);
         return this.ConnectCoreAsync(request, cancellationToken);
     }
 
@@ -117,17 +117,17 @@ public sealed class MyJDownloaderClient
     {
         MyJdSession newSession;
         long v;
-        await this.gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await this._gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            var current = Volatile.Read(ref this.session) ?? throw new InvalidOperationException(NotConnectedMessage);
-            newSession = await this.serverChannel.ReconnectAsync(current, cancellationToken).ConfigureAwait(false);
-            Volatile.Write(ref this.session, newSession);
-            v = Interlocked.Increment(ref this.version);
+            var current = Volatile.Read(ref this._session) ?? throw new InvalidOperationException(NotConnectedMessage);
+            newSession = await this._serverChannel.ReconnectAsync(current, cancellationToken).ConfigureAwait(false);
+            Volatile.Write(ref this._session, newSession);
+            v = Interlocked.Increment(ref this._version);
         }
         finally
         {
-            this.gate.Release();
+            this._gate.Release();
         }
 
         this.OnSessionChanged(newSession, v);
@@ -150,25 +150,25 @@ public sealed class MyJDownloaderClient
     {
         MyJdSession? old;
         long v;
-        await this.gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await this._gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            old = Interlocked.Exchange(ref this.session, null);
+            old = Interlocked.Exchange(ref this._session, null);
             if (old is null)
             {
                 return;
             }
 
-            v = Interlocked.Increment(ref this.version);
+            v = Interlocked.Increment(ref this._version);
         }
         finally
         {
-            this.gate.Release();
+            this._gate.Release();
         }
 
         try
         {
-            await this.serverChannel.DisconnectAsync(old, cancellationToken).ConfigureAwait(false);
+            await this._serverChannel.DisconnectAsync(old, cancellationToken).ConfigureAwait(false);
         }
         finally
         {
@@ -190,8 +190,8 @@ public sealed class MyJDownloaderClient
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public async Task<IReadOnlyList<DeviceInfo>> GetDevicesAsync(CancellationToken cancellationToken = default)
     {
-        var current = Volatile.Read(ref this.session) ?? throw new InvalidOperationException(NotConnectedMessage);
-        return await this.serverChannel.ListDevicesAsync(current, cancellationToken).ConfigureAwait(false);
+        var current = Volatile.Read(ref this._session) ?? throw new InvalidOperationException(NotConnectedMessage);
+        return await this._serverChannel.ListDevicesAsync(current, cancellationToken).ConfigureAwait(false);
     }
 
     private static MyJDownloaderOptions CopyAndValidate(MyJDownloaderOptions options)
@@ -229,16 +229,16 @@ public sealed class MyJDownloaderClient
         long v;
         try
         {
-            await this.gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+            await this._gate.WaitAsync(cancellationToken).ConfigureAwait(false);
             try
             {
-                newSession = await this.serverChannel.ConnectAsync(request, cancellationToken).ConfigureAwait(false);
-                Volatile.Write(ref this.session, newSession);
-                v = Interlocked.Increment(ref this.version);
+                newSession = await this._serverChannel.ConnectAsync(request, cancellationToken).ConfigureAwait(false);
+                Volatile.Write(ref this._session, newSession);
+                v = Interlocked.Increment(ref this._version);
             }
             finally
             {
-                this.gate.Release();
+                this._gate.Release();
             }
         }
         finally
@@ -253,7 +253,7 @@ public sealed class MyJDownloaderClient
     [SuppressMessage("Design", "CA1031", Justification = "Handler exceptions are collected so every handler runs, then rethrown")]
     private void OnSessionChanged(MyJdSession? changed, long expectedVersion)
     {
-        if (Volatile.Read(ref this.version) != expectedVersion)
+        if (Volatile.Read(ref this._version) != expectedVersion)
         {
             return;
         }

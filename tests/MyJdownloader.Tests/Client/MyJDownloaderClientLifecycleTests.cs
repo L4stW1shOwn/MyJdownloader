@@ -23,7 +23,7 @@ public sealed class MyJDownloaderClientLifecycleTests
     private const string NewRegainToken = "66778899";
     private const string AuthFailedBody = /*lang=json,strict*/ """{"src":"SERVER","type":"AUTH_FAILED"}""";
     private const string NotConnectedMessage = "The client is not connected.";
-    private static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan _waitTimeout = TimeSpan.FromSeconds(5);
 
     private delegate Task<HttpResponseMessage> Route(HttpRequestMessage request, CancellationToken cancellationToken);
 
@@ -92,7 +92,7 @@ public sealed class MyJDownloaderClientLifecycleTests
         using var server = new ScriptedServer().On(ConnectPath, ConnectOk());
         var client = CreateClient(server);
 
-        await client.ConnectAsync(Email, Password).WaitAsync(WaitTimeout);
+        await client.ConnectAsync(Email, Password).WaitAsync(_waitTimeout);
 
         Assert.Multiple(() =>
         {
@@ -109,7 +109,7 @@ public sealed class MyJDownloaderClientLifecycleTests
         var client = CreateClient(server);
         var events = Collect(client);
 
-        await client.ConnectAsync(Email, Password).WaitAsync(WaitTimeout);
+        await client.ConnectAsync(Email, Password).WaitAsync(_waitTimeout);
 
         Assert.Multiple(() =>
         {
@@ -127,7 +127,7 @@ public sealed class MyJDownloaderClientLifecycleTests
         var client = CreateClient(server);
         var events = Collect(client);
 
-        await Assert.ThrowsAsync<MyJdAuthenticationException>(() => client.ConnectAsync(Email, Password).WaitAsync(WaitTimeout));
+        await Assert.ThrowsAsync<MyJdAuthenticationException>(() => client.ConnectAsync(Email, Password).WaitAsync(_waitTimeout));
 
         Assert.Multiple(() =>
         {
@@ -155,7 +155,7 @@ public sealed class MyJDownloaderClientLifecycleTests
         var restored = CreateSession();
         client.RestoreSession(restored);
 
-        await client.ConnectAsync(Email, Password).WaitAsync(WaitTimeout);
+        await client.ConnectAsync(Email, Password).WaitAsync(_waitTimeout);
 
         Assert.Multiple(() =>
         {
@@ -176,11 +176,11 @@ public sealed class MyJDownloaderClientLifecycleTests
         {
             if (args.Session is not null)
             {
-                completed = client.DisconnectAsync().Wait(WaitTimeout);
+                completed = client.DisconnectAsync().Wait(_waitTimeout);
             }
         };
 
-        await client.ConnectAsync(Email, Password).WaitAsync(WaitTimeout);
+        await client.ConnectAsync(Email, Password).WaitAsync(_waitTimeout);
 
         Assert.Multiple(() =>
         {
@@ -197,7 +197,7 @@ public sealed class MyJDownloaderClientLifecycleTests
         client.RestoreSession(CreateSession());
         var events = Collect(client);
 
-        await client.ReconnectAsync().WaitAsync(WaitTimeout);
+        await client.ReconnectAsync().WaitAsync(_waitTimeout);
 
         Assert.Multiple(() =>
         {
@@ -214,7 +214,7 @@ public sealed class MyJDownloaderClientLifecycleTests
         using var server = new ScriptedServer().On(ReconnectPath, ReconnectOk(Key(3)));
         var client = CreateClient(server);
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => client.ReconnectAsync().WaitAsync(WaitTimeout));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => client.ReconnectAsync().WaitAsync(_waitTimeout));
 
         Assert.That(ex!.Message, Is.EqualTo(NotConnectedMessage));
         Assert.That(server.Calls, Is.Empty);
@@ -231,14 +231,14 @@ public sealed class MyJDownloaderClientLifecycleTests
         var client = CreateClient(server);
         client.RestoreSession(CreateSession());
         var connect = client.ConnectAsync(Email, Password);
-        await entered.Task.WaitAsync(WaitTimeout);
+        await entered.Task.WaitAsync(_waitTimeout);
         using var cts = new CancellationTokenSource();
         var reconnect = client.ReconnectAsync(cts.Token);
         await cts.CancelAsync();
 
-        await Assert.CatchAsync<OperationCanceledException>(() => reconnect.WaitAsync(WaitTimeout));
+        await Assert.CatchAsync<OperationCanceledException>(() => reconnect.WaitAsync(_waitTimeout));
         gate.SetResult();
-        await connect.WaitAsync(WaitTimeout);
+        await connect.WaitAsync(_waitTimeout);
 
         Assert.Multiple(() =>
         {
@@ -255,7 +255,7 @@ public sealed class MyJDownloaderClientLifecycleTests
         client.RestoreSession(CreateSession());
         var events = Collect(client);
 
-        await client.DisconnectAsync().WaitAsync(WaitTimeout);
+        await client.DisconnectAsync().WaitAsync(_waitTimeout);
 
         Assert.Multiple(() =>
         {
@@ -276,7 +276,7 @@ public sealed class MyJDownloaderClientLifecycleTests
         client.RestoreSession(CreateSession());
         var events = Collect(client);
 
-        await Assert.CatchAsync<MyJdApiException>(() => client.DisconnectAsync().WaitAsync(WaitTimeout));
+        await Assert.CatchAsync<MyJdApiException>(() => client.DisconnectAsync().WaitAsync(_waitTimeout));
 
         Assert.Multiple(() =>
         {
@@ -293,7 +293,7 @@ public sealed class MyJDownloaderClientLifecycleTests
         var client = CreateClient(server);
         var events = Collect(client);
 
-        await client.DisconnectAsync().WaitAsync(WaitTimeout);
+        await client.DisconnectAsync().WaitAsync(_waitTimeout);
 
         Assert.Multiple(() =>
         {
@@ -313,11 +313,11 @@ public sealed class MyJDownloaderClientLifecycleTests
         var client = CreateClient(server);
         client.RestoreSession(CreateSession());
         var connect = client.ConnectAsync(Email, Password);
-        await entered.Task.WaitAsync(WaitTimeout);
+        await entered.Task.WaitAsync(_waitTimeout);
 
         var disconnect = client.DisconnectAsync();
         gate.SetResult();
-        await Task.WhenAll(connect, disconnect).WaitAsync(WaitTimeout);
+        await Task.WhenAll(connect, disconnect).WaitAsync(_waitTimeout);
 
         Assert.That(client.IsConnected, Is.False);
     }
@@ -330,7 +330,7 @@ public sealed class MyJDownloaderClientLifecycleTests
         client.RestoreSession(CreateSession());
         client.SessionChanged += (_, _) => throw new InvalidOperationException("handler failure");
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => client.DisconnectAsync().WaitAsync(WaitTimeout));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => client.DisconnectAsync().WaitAsync(_waitTimeout));
 
         Assert.Multiple(() =>
         {
@@ -352,11 +352,11 @@ public sealed class MyJDownloaderClientLifecycleTests
         client.RestoreSession(CreateSession());
         var events = Collect(client);
         var disconnect = client.DisconnectAsync();
-        await entered.Task.WaitAsync(WaitTimeout);
+        await entered.Task.WaitAsync(_waitTimeout);
 
-        await client.ConnectAsync(Email, Password).WaitAsync(WaitTimeout);
+        await client.ConnectAsync(Email, Password).WaitAsync(_waitTimeout);
         gate.SetResult();
-        await disconnect.WaitAsync(WaitTimeout);
+        await disconnect.WaitAsync(_waitTimeout);
 
         Assert.Multiple(() =>
         {
@@ -373,7 +373,7 @@ public sealed class MyJDownloaderClientLifecycleTests
         var client = CreateClient(server);
         client.RestoreSession(CreateSession());
 
-        var devices = await client.GetDevicesAsync().WaitAsync(WaitTimeout);
+        var devices = await client.GetDevicesAsync().WaitAsync(_waitTimeout);
 
         DeviceInfo[] expected = [new DeviceInfo { Id = "d1", Name = "Home", Type = "jd" }, new DeviceInfo { Id = "d2", Name = "NAS", Type = "jd" }];
         Assert.That(devices, Is.EqualTo(expected));
@@ -385,7 +385,7 @@ public sealed class MyJDownloaderClientLifecycleTests
         using var server = new ScriptedServer().On(ListDevicesPath, DevicesOk(Key(3)));
         var client = CreateClient(server);
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => client.GetDevicesAsync().WaitAsync(WaitTimeout));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => client.GetDevicesAsync().WaitAsync(_waitTimeout));
 
         Assert.That(ex!.Message, Is.EqualTo(NotConnectedMessage));
         Assert.That(server.Calls, Is.Empty);
@@ -398,7 +398,7 @@ public sealed class MyJDownloaderClientLifecycleTests
         var client = CreateClient(server);
         client.RestoreSession(CreateSession());
 
-        await client.GetDevicesAsync().WaitAsync(WaitTimeout);
+        await client.GetDevicesAsync().WaitAsync(_waitTimeout);
 
         Assert.That(server.Calls.Single(), Does.StartWith($"{ListDevicesPath}?sessiontoken={RestoredSessionToken}&"));
     }
@@ -410,7 +410,7 @@ public sealed class MyJDownloaderClientLifecycleTests
         var client = CreateClient(server);
         client.SessionChanged += (_, _) => throw new InvalidOperationException("handler failure");
 
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => client.ConnectAsync(Email, Password).WaitAsync(WaitTimeout));
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => client.ConnectAsync(Email, Password).WaitAsync(_waitTimeout));
 
         Assert.Multiple(() =>
         {
@@ -428,7 +428,7 @@ public sealed class MyJDownloaderClientLifecycleTests
         client.SessionChanged += (_, _) => throw new InvalidOperationException("handler failure");
         var events = Collect(client);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => client.ConnectAsync(Email, Password).WaitAsync(WaitTimeout));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => client.ConnectAsync(Email, Password).WaitAsync(_waitTimeout));
 
         Assert.That(events, Has.Count.EqualTo(1));
     }
@@ -441,7 +441,7 @@ public sealed class MyJDownloaderClientLifecycleTests
         client.SessionChanged += (_, _) => throw new InvalidOperationException("first");
         client.SessionChanged += (_, _) => throw new ArgumentException("second");
 
-        var ex = await Assert.ThrowsAsync<AggregateException>(() => client.ConnectAsync(Email, Password).WaitAsync(WaitTimeout));
+        var ex = await Assert.ThrowsAsync<AggregateException>(() => client.ConnectAsync(Email, Password).WaitAsync(_waitTimeout));
 
         Assert.Multiple(() =>
         {
@@ -483,12 +483,12 @@ public sealed class MyJDownloaderClientLifecycleTests
         var client = CreateClient(server);
         client.RestoreSession(CreateSession());
         var first = client.ReconnectAsync();
-        await entered.Task.WaitAsync(WaitTimeout);
+        await entered.Task.WaitAsync(_waitTimeout);
         var second = client.ReconnectAsync();
 
         Assert.That(second.IsCompleted, Is.False);
         gate.SetResult();
-        await Task.WhenAll(first, second).WaitAsync(WaitTimeout);
+        await Task.WhenAll(first, second).WaitAsync(_waitTimeout);
 
         Assert.Multiple(() =>
         {
@@ -509,14 +509,14 @@ public sealed class MyJDownloaderClientLifecycleTests
         var restored = CreateSession();
         client.RestoreSession(restored);
         var reconnect = client.ReconnectAsync();
-        await entered.Task.WaitAsync(WaitTimeout);
+        await entered.Task.WaitAsync(_waitTimeout);
         using var cts = new CancellationTokenSource();
         var connect = client.ConnectAsync(Email, Password, cts.Token);
         await cts.CancelAsync();
 
-        await Assert.CatchAsync<OperationCanceledException>(() => connect.WaitAsync(WaitTimeout));
+        await Assert.CatchAsync<OperationCanceledException>(() => connect.WaitAsync(_waitTimeout));
         gate.SetResult();
-        await reconnect.WaitAsync(WaitTimeout);
+        await reconnect.WaitAsync(_waitTimeout);
 
         Assert.Multiple(() =>
         {
@@ -542,22 +542,22 @@ public sealed class MyJDownloaderClientLifecycleTests
     /// <summary>Routes requests by path to async responders and records the path and query of each call.</summary>
     private sealed class ScriptedServer : HttpMessageHandler
     {
-        private readonly Dictionary<string, Route> routes = [];
-        private readonly ConcurrentQueue<string> calls = new();
+        private readonly Dictionary<string, Route> _routes = [];
+        private readonly ConcurrentQueue<string> _calls = new();
 
-        public IReadOnlyCollection<string> Calls => this.calls;
+        public IReadOnlyCollection<string> Calls => this._calls;
 
         public ScriptedServer On(string path, Route route)
         {
-            this.routes[path] = route;
+            this._routes[path] = route;
             return this;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            this.calls.Enqueue(request.RequestUri!.PathAndQuery);
-            return await this.routes[request.RequestUri.AbsolutePath](request, cancellationToken);
+            this._calls.Enqueue(request.RequestUri!.PathAndQuery);
+            return await this._routes[request.RequestUri.AbsolutePath](request, cancellationToken);
         }
     }
 }
