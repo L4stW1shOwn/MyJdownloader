@@ -36,15 +36,25 @@ services.AddMyJDownloader(o => o.AppKey = "MyApp");
 Resolve the `MyJDownloaderClient` singleton, connect, and call a device:
 
 ```csharp
+// Placeholders: email, password, deviceId (from GetDevicesAsync), args, MyResult
+// (your response type) and MyContext (your source-generated JsonSerializerContext).
+var services = new ServiceCollection();
+services.AddMyJDownloader(o => o.AppKey = "MyApp");
+using var provider = services.BuildServiceProvider();
+
 var client = provider.GetRequiredService<MyJDownloaderClient>();
-await client.ConnectAsync("user@example.com", password);
+var session = await client.ConnectAsync(email, password);
 
 // Store this securely, see "Security warning" below.
-string json = client.ExportSession()!.ToJson();
+string json = session.ToJson();
 
-// Generic encrypted call; `typeInfo` comes from a source-generated JsonSerializerContext.
+// Later, restore it instead of reconnecting with the password.
+client.RestoreSession(MyJdSession.FromJson(json));
+
+// Generic encrypted call; the JsonTypeInfo comes from the source-generated context.
+IReadOnlyList<JsonElement> args = [];
 var device = client.GetDevice(deviceId);
-var result = await device.Channel.CallAsync<MyResult>("/myNamespace/myAction", MyContext.Default.MyResult, args);
+var result = await device.Channel.CallAsync("/jd/version", MyContext.Default.MyResult, args);
 ```
 
 Without dependency injection, build the `HttpClient` yourself with a
