@@ -565,3 +565,10 @@ static MyJdownloader.Downloads.DownloadPackage.operator !=(MyJdownloader.Downloa
 static MyJdownloader.Downloads.DownloadPackage.operator ==(MyJdownloader.Downloads.DownloadPackage? left, MyJdownloader.Downloads.DownloadPackage? right) -> bool
 static MyJdownloader.Downloads.DownloadPackageQuery.operator !=(MyJdownloader.Downloads.DownloadPackageQuery? left, MyJdownloader.Downloads.DownloadPackageQuery? right) -> bool
 static MyJdownloader.Downloads.DownloadPackageQuery.operator ==(MyJdownloader.Downloads.DownloadPackageQuery? left, MyJdownloader.Downloads.DownloadPackageQuery? right) -> bool
+MyJdownloader.DownloadController.DownloadControllerApi
+MyJdownloader.DownloadController.DownloadControllerApi.GetCurrentStateAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.DownloadController.DownloadState>!
+MyJdownloader.DownloadController.DownloadControllerApi.GetSpeedAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<int>!
+MyJdownloader.DownloadController.DownloadControllerApi.PauseAsync(bool paused, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.DownloadController.DownloadControllerApi.StartAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.DownloadController.DownloadControllerApi.StopAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.JDownloaderDevice.DownloadController.get -> MyJdownloader.DownloadController.DownloadControllerApi!

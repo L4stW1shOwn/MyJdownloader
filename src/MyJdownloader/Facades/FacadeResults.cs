@@ -31,6 +31,10 @@ internal static class FacadeResults
         where T : class
         => await call.ConfigureAwait(false) ?? throw Unreadable();
 
+    internal static async Task<T> RequireAsync<T>(Task<T?> call)
+        where T : struct
+        => await call.ConfigureAwait(false) ?? throw Unreadable();
+
     internal static async Task<bool> RequireAsync(Task<bool?> call)
         => await call.ConfigureAwait(false) ?? throw Unreadable();
 
