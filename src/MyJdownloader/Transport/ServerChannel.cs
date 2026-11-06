@@ -1,14 +1,11 @@
 namespace MyJdownloader.Transport;
 
-using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
-using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Crypto;
-using MyJdownloader.Errors;
 using MyJdownloader.Json;
 
 /// <summary>
@@ -24,28 +21,28 @@ using MyJdownloader.Json;
 /// </remarks>
 internal sealed class ServerChannel
 {
-    private const int MaxBodyLength = 1_048_576;
     private const int MaxEmailLength = 254;
     private const int MaxDeviceIdLength = 256;
-    private static readonly TimeSpan _maxRetryAfter = TimeSpan.FromMinutes(10);
-    private const string UnreadableMessage = "The MyJD server returned a response that could not be read.";
-    private const string MismatchMessage = "The MyJD server response does not match the request.";
+    private static readonly string _unreadableMessage = RelayTransport.UnreadableMessageFor(MyJdErrorSource.Server);
+    private static readonly string _mismatchMessage = RelayTransport.MismatchMessageFor(MyJdErrorSource.Server);
 
-    private readonly HttpClient _httpClient;
+    private readonly RelayTransport _transport;
     private readonly MyJDownloaderOptions _options;
     private readonly RequestIdGenerator _requestIds;
-    private readonly TimeProvider _timeProvider;
 
     public ServerChannel(HttpClient httpClient, MyJDownloaderOptions options, RequestIdGenerator requestIds, TimeProvider timeProvider)
+        : this(new RelayTransport(httpClient, timeProvider), options, requestIds)
     {
-        ArgumentNullException.ThrowIfNull(httpClient);
+    }
+
+    public ServerChannel(RelayTransport transport, MyJDownloaderOptions options, RequestIdGenerator requestIds)
+    {
+        ArgumentNullException.ThrowIfNull(transport);
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(requestIds);
-        ArgumentNullException.ThrowIfNull(timeProvider);
-        this._httpClient = httpClient;
+        this._transport = transport;
         this._options = options;
         this._requestIds = requestIds;
-        this._timeProvider = timeProvider;
     }
 
     /// <summary>Validates the credentials and derives the secrets of a <c>/my/connect</c> call.</summary>
@@ -196,7 +193,7 @@ internal sealed class ServerChannel
 
         if (response.List is null)
         {
-            throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
+            throw new MyJdProtocolException(_unreadableMessage, MyJdErrorSource.Server);
         }
 
         var devices = new List<DeviceInfo>(response.List.Length);
@@ -205,7 +202,7 @@ internal sealed class ServerChannel
             if (device?.Id is null || device.Name is null || device.Type is null
                 || device.Id.Length > MaxDeviceIdLength || device.Id.Any(char.IsControl))
             {
-                throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
+                throw new MyJdProtocolException(_unreadableMessage, MyJdErrorSource.Server);
             }
 
             devices.Add(new DeviceInfo { Id = device.Id, Name = device.Name, Type = device.Type });
@@ -225,65 +222,6 @@ internal sealed class ServerChannel
         }
 
         return builder.Append(separator).Append("rid=").Append(rid).ToString();
-    }
-
-    private static async Task<byte[]> ReadBodyAsync(HttpContent content, CancellationToken cancellationToken)
-    {
-        if (content.Headers.ContentLength > MaxBodyLength)
-        {
-            throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
-        }
-
-        var stream = await content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-        await using (stream.ConfigureAwait(false))
-        {
-            var buffer = new ArrayBufferWriter<byte>();
-            var chunk = new byte[8192];
-            int read;
-            while ((read = await stream.ReadAsync(chunk, cancellationToken).ConfigureAwait(false)) > 0)
-            {
-                if (buffer.WrittenCount + read > MaxBodyLength)
-                {
-                    throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
-                }
-
-                buffer.Write(chunk.AsSpan(0, read));
-            }
-
-            return buffer.WrittenSpan.ToArray();
-        }
-    }
-
-    private static async Task<ErrorResponse?> ReadErrorAsync(HttpContent content, byte[] key, CancellationToken cancellationToken)
-    {
-        byte[] body;
-        try
-        {
-            body = await ReadBodyAsync(content, cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex) when (ex is MyJdProtocolException or IOException)
-        {
-            return null;
-        }
-
-        var text = Encoding.UTF8.GetString(body);
-        try
-        {
-            return JsonSerializer.Deserialize(text, MyJdJsonContext.Default.ErrorResponse);
-        }
-        catch (JsonException)
-        {
-            // Not a plain error body: try the encrypted form below.
-        }
-
-        try
-        {
-            return JsonSerializer.Deserialize(MyJdCrypto.Decrypt(key, text), MyJdJsonContext.Default.ErrorResponse);
-        }
-        catch (Exception ex) when (ex is JsonException or FormatException or CryptographicException)
-        {
-            return null;
-        }
     }
 
     private static bool RidMatches(string json, long rid)
@@ -314,7 +252,7 @@ internal sealed class ServerChannel
     {
         if (response.SessionToken is null || response.RegainToken is null)
         {
-            throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
+            throw new MyJdProtocolException(_unreadableMessage, MyJdErrorSource.Server);
         }
 
         byte[]? serverToken = null;
@@ -328,7 +266,7 @@ internal sealed class ServerChannel
         catch (Exception ex) when (ex is FormatException or ArgumentException)
         {
             // FormatException: non-hexadecimal token; ArgumentException: rejected by the MyJdSession constructor.
-            throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
+            throw new MyJdProtocolException(_unreadableMessage, MyJdErrorSource.Server);
         }
         finally
         {
@@ -344,55 +282,8 @@ internal sealed class ServerChannel
         }
     }
 
-    private static TimeSpan ClampRetryAfter(TimeSpan delay)
-    {
-        if (delay < TimeSpan.Zero)
-        {
-            return TimeSpan.Zero;
-        }
-
-        return delay > _maxRetryAfter ? _maxRetryAfter : delay;
-    }
-
-    private TimeSpan? ParseRetryAfter(HttpResponseMessage response)
-    {
-        var header = response.Headers.RetryAfter;
-        var delay = header?.Delta ?? (header?.Date - this._timeProvider.GetUtcNow());
-        if (delay is null)
-        {
-            return null;
-        }
-
-        return ClampRetryAfter(delay.Value);
-    }
-
-    // The single request pipeline: sign, send, bounded read, decrypt, rid check, typed deserialization.
+    // The single request pipeline: sign, send through the relay transport, rid check, typed deserialization.
     private async Task<T> SendAsync<T>(
-        string path,
-        IReadOnlyList<(string Name, string Value)> parameters,
-        byte[] key,
-        JsonTypeInfo<T> responseType,
-        CancellationToken cancellationToken)
-        where T : class
-    {
-        // HttpClient.Timeout stops applying once the headers are read: bound the whole exchange, body included.
-        using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        if (this._httpClient.Timeout != Timeout.InfiniteTimeSpan)
-        {
-            linked.CancelAfter(this._httpClient.Timeout);
-        }
-
-        try
-        {
-            return await this.SendCoreAsync(path, parameters, key, responseType, linked.Token).ConfigureAwait(false);
-        }
-        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
-        {
-            throw new TimeoutException("The MyJD server did not answer in time.");
-        }
-    }
-
-    private async Task<T> SendCoreAsync<T>(
         string path,
         IReadOnlyList<(string Name, string Value)> parameters,
         byte[] key,
@@ -405,24 +296,7 @@ internal sealed class ServerChannel
         var url = this._options.BaseAddress.AbsoluteUri.TrimEnd('/') + signed + "&signature=" + MyJdCrypto.Sign(key, signed);
 
         using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(url, UriKind.Absolute));
-        using var response = await this._httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
-        if (response.StatusCode != HttpStatusCode.OK)
-        {
-            var error = await ReadErrorAsync(response.Content, key, cancellationToken).ConfigureAwait(false);
-            throw MyJdErrorMapper.Map(MyJdErrorSource.Server, error?.Src, error?.Type, response.StatusCode, this.ParseRetryAfter(response));
-        }
-
-        var body = await ReadBodyAsync(response.Content, cancellationToken).ConfigureAwait(false);
-
-        string json;
-        try
-        {
-            json = MyJdCrypto.Decrypt(key, Encoding.UTF8.GetString(body));
-        }
-        catch (Exception ex) when (ex is FormatException or CryptographicException)
-        {
-            throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
-        }
+        var json = await this._transport.ExchangeAsync(request, key, MyJdErrorSource.Server, cancellationToken).ConfigureAwait(false);
 
         bool ridMatches;
         T? result;
@@ -433,14 +307,14 @@ internal sealed class ServerChannel
         }
         catch (JsonException)
         {
-            throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
+            throw new MyJdProtocolException(_unreadableMessage, MyJdErrorSource.Server);
         }
 
         if (!ridMatches)
         {
-            throw new MyJdProtocolException(MismatchMessage, MyJdErrorSource.Server);
+            throw new MyJdProtocolException(_mismatchMessage, MyJdErrorSource.Server);
         }
 
-        return result ?? throw new MyJdProtocolException(UnreadableMessage, MyJdErrorSource.Server);
+        return result ?? throw new MyJdProtocolException(_unreadableMessage, MyJdErrorSource.Server);
     }
 }

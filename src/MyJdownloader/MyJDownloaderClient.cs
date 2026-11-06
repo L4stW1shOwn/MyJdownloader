@@ -54,7 +54,7 @@ public sealed class MyJDownloaderClient
         this._options = CopyAndValidate(options ?? new MyJDownloaderOptions());
         var time = timeProvider ?? TimeProvider.System;
         this._requestIds = new RequestIdGenerator(time);
-        this._serverChannel = new ServerChannel(httpClient, this._options, this._requestIds, time);
+        this._serverChannel = new ServerChannel(new RelayTransport(httpClient, time), this._options, this._requestIds);
     }
 
     /// <summary>Occurs when the session is established, refreshed or cleared by the client.</summary>
