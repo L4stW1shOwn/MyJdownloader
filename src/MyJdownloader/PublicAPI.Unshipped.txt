@@ -4,6 +4,83 @@ MyJdownloader.AvailableLinkState.Offline = 2 -> MyJdownloader.AvailableLinkState
 MyJdownloader.AvailableLinkState.Online = 1 -> MyJdownloader.AvailableLinkState
 MyJdownloader.AvailableLinkState.TempUnknown = 3 -> MyJdownloader.AvailableLinkState
 MyJdownloader.AvailableLinkState.Unknown = 0 -> MyJdownloader.AvailableLinkState
+MyJdownloader.Config.ConfigEntry
+MyJdownloader.Config.ConfigEntry.<Clone>$() -> MyJdownloader.Config.ConfigEntry!
+MyJdownloader.Config.ConfigEntry.AbstractType.get -> MyJdownloader.Config.ConfigValueType?
+MyJdownloader.Config.ConfigEntry.AbstractType.init -> void
+MyJdownloader.Config.ConfigEntry.ConfigEntry() -> void
+MyJdownloader.Config.ConfigEntry.DefaultValue.get -> System.Text.Json.JsonElement?
+MyJdownloader.Config.ConfigEntry.DefaultValue.init -> void
+MyJdownloader.Config.ConfigEntry.Docs.get -> string?
+MyJdownloader.Config.ConfigEntry.Docs.init -> void
+MyJdownloader.Config.ConfigEntry.EnumLabel.get -> string?
+MyJdownloader.Config.ConfigEntry.EnumLabel.init -> void
+MyJdownloader.Config.ConfigEntry.EnumOptions.get -> System.Collections.Generic.IReadOnlyList<MyJdownloader.Config.ConfigEnumOption!>?
+MyJdownloader.Config.ConfigEntry.EnumOptions.init -> void
+MyJdownloader.Config.ConfigEntry.Equals(MyJdownloader.Config.ConfigEntry? other) -> bool
+MyJdownloader.Config.ConfigEntry.InterfaceName.get -> string?
+MyJdownloader.Config.ConfigEntry.InterfaceName.init -> void
+MyJdownloader.Config.ConfigEntry.Key.get -> string?
+MyJdownloader.Config.ConfigEntry.Key.init -> void
+MyJdownloader.Config.ConfigEntry.Storage.get -> string?
+MyJdownloader.Config.ConfigEntry.Storage.init -> void
+MyJdownloader.Config.ConfigEntry.Type.get -> string?
+MyJdownloader.Config.ConfigEntry.Type.init -> void
+MyJdownloader.Config.ConfigEntry.Value.get -> System.Text.Json.JsonElement?
+MyJdownloader.Config.ConfigEntry.Value.init -> void
+MyJdownloader.Config.ConfigEnumOption
+MyJdownloader.Config.ConfigEnumOption.<Clone>$() -> MyJdownloader.Config.ConfigEnumOption!
+MyJdownloader.Config.ConfigEnumOption.ConfigEnumOption() -> void
+MyJdownloader.Config.ConfigEnumOption.Equals(MyJdownloader.Config.ConfigEnumOption? other) -> bool
+MyJdownloader.Config.ConfigEnumOption.Label.get -> string?
+MyJdownloader.Config.ConfigEnumOption.Label.init -> void
+MyJdownloader.Config.ConfigEnumOption.Name.get -> string?
+MyJdownloader.Config.ConfigEnumOption.Name.init -> void
+MyJdownloader.Config.ConfigQuery
+MyJdownloader.Config.ConfigQuery.<Clone>$() -> MyJdownloader.Config.ConfigQuery!
+MyJdownloader.Config.ConfigQuery.ConfigInterface.get -> string?
+MyJdownloader.Config.ConfigQuery.ConfigInterface.init -> void
+MyJdownloader.Config.ConfigQuery.ConfigQuery() -> void
+MyJdownloader.Config.ConfigQuery.DefaultValues.get -> bool
+MyJdownloader.Config.ConfigQuery.DefaultValues.init -> void
+MyJdownloader.Config.ConfigQuery.Description.get -> bool
+MyJdownloader.Config.ConfigQuery.Description.init -> void
+MyJdownloader.Config.ConfigQuery.EnumInfo.get -> bool
+MyJdownloader.Config.ConfigQuery.EnumInfo.init -> void
+MyJdownloader.Config.ConfigQuery.Equals(MyJdownloader.Config.ConfigQuery? other) -> bool
+MyJdownloader.Config.ConfigQuery.IncludeExtensions.get -> bool
+MyJdownloader.Config.ConfigQuery.IncludeExtensions.init -> void
+MyJdownloader.Config.ConfigQuery.Pattern.get -> string?
+MyJdownloader.Config.ConfigQuery.Pattern.init -> void
+MyJdownloader.Config.ConfigQuery.Values.get -> bool
+MyJdownloader.Config.ConfigQuery.Values.init -> void
+MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.Action = 25 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.Boolean = 1 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.BooleanList = 14 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.Byte = 9 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.ByteList = 15 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.Char = 10 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.CharList = 22 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.Double = 11 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.DoubleList = 21 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.Enum = 8 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.EnumList = 20 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.Float = 12 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.FloatList = 19 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.HexColor = 23 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.HexColorList = 24 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.Int = 2 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.IntList = 18 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.Long = 3 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.LongList = 17 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.Object = 5 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.ObjectList = 6 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.Short = 13 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.ShortList = 16 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.String = 4 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.StringList = 7 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Config.ConfigValueType.Unknown = 0 -> MyJdownloader.Config.ConfigValueType
 MyJdownloader.DeviceInfo
 MyJdownloader.DeviceInfo.<Clone>$() -> MyJdownloader.DeviceInfo!
 MyJdownloader.DeviceInfo.DeviceInfo() -> void
@@ -292,6 +369,15 @@ MyJdownloader.Priority.Low = 5 -> MyJdownloader.Priority
 MyJdownloader.Priority.Lower = 6 -> MyJdownloader.Priority
 MyJdownloader.Priority.Lowest = 7 -> MyJdownloader.Priority
 MyJdownloader.Priority.Unknown = 0 -> MyJdownloader.Priority
+override MyJdownloader.Config.ConfigEntry.Equals(object? obj) -> bool
+override MyJdownloader.Config.ConfigEntry.GetHashCode() -> int
+override MyJdownloader.Config.ConfigEntry.ToString() -> string!
+override MyJdownloader.Config.ConfigEnumOption.Equals(object? obj) -> bool
+override MyJdownloader.Config.ConfigEnumOption.GetHashCode() -> int
+override MyJdownloader.Config.ConfigEnumOption.ToString() -> string!
+override MyJdownloader.Config.ConfigQuery.Equals(object? obj) -> bool
+override MyJdownloader.Config.ConfigQuery.GetHashCode() -> int
+override MyJdownloader.Config.ConfigQuery.ToString() -> string!
 override MyJdownloader.DeviceInfo.Equals(object? obj) -> bool
 override MyJdownloader.DeviceInfo.GetHashCode() -> int
 override MyJdownloader.DeviceInfo.ToString() -> string!
@@ -317,6 +403,12 @@ override MyJdownloader.LinkGrabber.PackageQuery.Equals(object? obj) -> bool
 override MyJdownloader.LinkGrabber.PackageQuery.GetHashCode() -> int
 override MyJdownloader.LinkGrabber.PackageQuery.ToString() -> string!
 override MyJdownloader.MyJdSession.ToString() -> string!
+static MyJdownloader.Config.ConfigEntry.operator !=(MyJdownloader.Config.ConfigEntry? left, MyJdownloader.Config.ConfigEntry? right) -> bool
+static MyJdownloader.Config.ConfigEntry.operator ==(MyJdownloader.Config.ConfigEntry? left, MyJdownloader.Config.ConfigEntry? right) -> bool
+static MyJdownloader.Config.ConfigEnumOption.operator !=(MyJdownloader.Config.ConfigEnumOption? left, MyJdownloader.Config.ConfigEnumOption? right) -> bool
+static MyJdownloader.Config.ConfigEnumOption.operator ==(MyJdownloader.Config.ConfigEnumOption? left, MyJdownloader.Config.ConfigEnumOption? right) -> bool
+static MyJdownloader.Config.ConfigQuery.operator !=(MyJdownloader.Config.ConfigQuery? left, MyJdownloader.Config.ConfigQuery? right) -> bool
+static MyJdownloader.Config.ConfigQuery.operator ==(MyJdownloader.Config.ConfigQuery? left, MyJdownloader.Config.ConfigQuery? right) -> bool
 static MyJdownloader.DeviceInfo.operator !=(MyJdownloader.DeviceInfo? left, MyJdownloader.DeviceInfo? right) -> bool
 static MyJdownloader.DeviceInfo.operator ==(MyJdownloader.DeviceInfo? left, MyJdownloader.DeviceInfo? right) -> bool
 static MyJdownloader.LinkGrabber.AddLinksRequest.operator !=(MyJdownloader.LinkGrabber.AddLinksRequest? left, MyJdownloader.LinkGrabber.AddLinksRequest? right) -> bool
