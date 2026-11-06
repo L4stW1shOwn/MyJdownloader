@@ -112,6 +112,19 @@ public sealed class DownloadControllerApiTests
     }
 
     [Test]
+    public async Task PauseAsync_Token_PassesTokenToChannel()
+    {
+        using var cts = new CancellationTokenSource();
+        var (channel, api) = Create();
+        ReturnsBool(channel, "pause", true);
+
+        await api.PauseAsync(true, cts.Token);
+
+        var sentToken = channel.ReceivedCalls().Single().GetArguments().Last();
+        Assert.That(sentToken, Is.EqualTo(cts.Token));
+    }
+
+    [Test]
     public async Task GetCurrentStateAsync_NoArgs_SendsPathAndArgs()
     {
         var (channel, api) = Create();
