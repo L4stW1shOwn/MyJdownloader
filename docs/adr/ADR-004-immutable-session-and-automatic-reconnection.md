@@ -4,6 +4,7 @@
 - **Date**: 2026-11-02
 - **Amended**: 2026-11-05 (T-003)
 - **Amended**: 2026-11-05 (T-005)
+- **Amended**: 2026-11-06 (T-006)
 - **Reference**: `docs/superpowers/specs/2026-11-02-myjdownloader-client-design.md` (§1, §3, §5, §6)
 
 ## Context
@@ -47,12 +48,23 @@ singleton, several concurrent calls may fail at the same time.
 
 **Reconnection**:
 
-- On `TOKEN_INVALID`: `/my/reconnect`, token update, **a single** replay of the
-  original call. `TOKEN_INVALID` is never exposed if the reconnect succeeds.
-- Reconnect failure ⇒ `MyJdAuthenticationException`; the caller must call
-  `ConnectAsync` again.
-- Single-flight: `SemaphoreSlim(1,1)`; after acquisition, if the session token
-  has already changed since the failure, replay without reconnecting.
+- Trigger: a server-sourced `TOKEN_INVALID` only. The device-sourced case is
+  decided by T-007, with an explicit bound against forced session rotation.
+- `/my/reconnect`, token update, **a single** replay of the original call.
+  `TOKEN_INVALID` is never exposed if the reconnect succeeds. The renewal is not
+  cancellable by the caller (bounded by `HttpClient.Timeout`); cancellation is
+  checked before the replay.
+- Rejected renewal (`MyJdAuthenticationException`): the session is cleared only
+  if it is still the failed one (compare-and-exchange), `SessionChanged(null)` is
+  raised and the error is rethrown; the caller must call `ConnectAsync` again.
+  Other renewal failures (server error, rate limit, network) keep the session.
+- Handler failures do not prevent the replay; they are rethrown after a
+  successful replay.
+- Single-flight: `SemaphoreSlim(1,1)`; under the gate, "session already
+  changed" is a reference comparison with the failed session; if so, replay
+  without reconnecting.
+- No cross-account replay: if the restored session belongs to another account,
+  the original `TOKEN_INVALID` is rethrown.
 
 ## Considered alternatives
 
