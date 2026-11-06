@@ -20,6 +20,7 @@ MyJdownloader.IDeviceChannel.CallAsync<T>(string! path, System.Text.Json.Seriali
 MyJdownloader.JDownloaderDevice
 MyJdownloader.JDownloaderDevice.Channel.get -> MyJdownloader.IDeviceChannel!
 MyJdownloader.JDownloaderDevice.Id.get -> string!
+MyJdownloader.JDownloaderDevice.LinkGrabber.get -> MyJdownloader.LinkGrabber.LinkGrabberApi!
 MyJdownloader.LinkGrabber.AddLinksRequest
 MyJdownloader.LinkGrabber.AddLinksRequest.<Clone>$() -> MyJdownloader.LinkGrabber.AddLinksRequest!
 MyJdownloader.LinkGrabber.AddLinksRequest.AddLinksRequest() -> void
@@ -116,6 +117,19 @@ MyJdownloader.LinkGrabber.LinkCollectingJob.Equals(MyJdownloader.LinkGrabber.Lin
 MyJdownloader.LinkGrabber.LinkCollectingJob.Id.get -> long
 MyJdownloader.LinkGrabber.LinkCollectingJob.Id.init -> void
 MyJdownloader.LinkGrabber.LinkCollectingJob.LinkCollectingJob() -> void
+MyJdownloader.LinkGrabber.LinkGrabberApi
+MyJdownloader.LinkGrabber.LinkGrabberApi.AddLinksAsync(MyJdownloader.LinkGrabber.AddLinksRequest! request, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.LinkGrabber.LinkCollectingJob!>!
+MyJdownloader.LinkGrabber.LinkGrabberApi.ClearListAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.LinkGrabber.LinkGrabberApi.GetPackageCountAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<int>!
+MyJdownloader.LinkGrabber.LinkGrabberApi.IsCollectingAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.LinkGrabber.LinkGrabberApi.MoveToDownloadListAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.LinkGrabber.LinkGrabberApi.QueryLinksAsync(MyJdownloader.LinkGrabber.LinkQuery? query = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.LinkGrabber.CrawledLink!>!>!
+MyJdownloader.LinkGrabber.LinkGrabberApi.QueryPackagesAsync(MyJdownloader.LinkGrabber.PackageQuery? query = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.LinkGrabber.CrawledPackage!>!>!
+MyJdownloader.LinkGrabber.LinkGrabberApi.RemoveLinksAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.LinkGrabber.LinkGrabberApi.RenameLinkAsync(long linkId, string! newName, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.LinkGrabber.LinkGrabberApi.RenamePackageAsync(long packageId, string! newName, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.LinkGrabber.LinkGrabberApi.SetEnabledAsync(bool enabled, System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.LinkGrabber.LinkGrabberApi.SetPriorityAsync(MyJdownloader.Priority priority, System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.LinkGrabber.LinkQuery
 MyJdownloader.LinkGrabber.LinkQuery.<Clone>$() -> MyJdownloader.LinkGrabber.LinkQuery!
 MyJdownloader.LinkGrabber.LinkQuery.Availability.get -> bool

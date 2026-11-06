@@ -217,4 +217,28 @@ public sealed class LinkGrabberJsonTests
     [Test]
     public void AddLinksQueryDto_Type_IsNotARecord()
         => Assert.That(typeof(AddLinksQueryDto).GetMethod("<Clone>$"), Is.Null);
+
+    [Test]
+    public void CrawledLink_DifferentDownloadPassword_NotEqual()
+    {
+        var first = new CrawledLink { Uuid = 1, PackageUuid = 2, DownloadPassword = "p1" };
+        var second = new CrawledLink { Uuid = 1, PackageUuid = 2, DownloadPassword = "p2" };
+
+        Assert.That(first, Is.Not.EqualTo(second));
+    }
+
+    [Test]
+    public void AddLinksRequest_ToString_HidesSourceUrlAndShowsLinkCount()
+    {
+        var request = new AddLinksRequest
+        {
+            Links = ["https://secret-host/link-one", "https://secret-host/link-two"],
+            SourceUrl = "https://source.example/private?token=abc",
+        };
+
+        var text = request.ToString();
+
+        Assert.That(text, Does.Not.Contain("source.example").And.Not.Contain("token=abc").And.Not.Contain("secret-host"));
+        Assert.That(text, Does.Contain("Links = [2 item(s)]"));
+    }
 }

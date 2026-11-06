@@ -7,7 +7,7 @@ using System.Text;
 /// <summary>Parameters of <c>/linkgrabberv2/addLinks</c>; null members are not sent.</summary>
 /// <remarks>
 /// Do not destructure or serialize this record into logs. <see cref="object.ToString"/> masks the passwords as
-/// <c>***</c>, but <see cref="Links"/> and <see cref="SourceUrl"/> may embed credentials.
+/// <c>***</c>, hides <see cref="SourceUrl"/> and shows only the number of links, but links and URLs may embed credentials.
 /// </remarks>
 public sealed record AddLinksRequest
 {

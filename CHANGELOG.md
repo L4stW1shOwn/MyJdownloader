@@ -6,6 +6,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 
 ### Added
 
+- `device.LinkGrabber`: typed `/linkgrabberv2` facade (add links, query links and packages, move to download list, remove, rename, enable, priority).
 - `MyJDownloaderClient.GetDevice` and `JDownloaderDevice`: per-device entry point exposing the generic device channel.
 - `AddMyJDownloader` registers the `MyJDownloaderClient` singleton; the named HTTP client does not follow redirects and has no default HTTP loggers.
 - IDeviceChannel: typed, AOT-compatible encrypted calls to any device action through the relay.

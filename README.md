@@ -4,8 +4,8 @@ A .NET client library for the [MyJDownloader](https://my.jdownloader.org) API.
 
 > **Status: pre-1.0.** The library can connect, reconnect and disconnect,
 > export and restore the session (with automatic renewal), list devices and
-> make generic encrypted device calls via `GetDevice(id).Channel`. Typed
-> namespace facades come in later versions. The API may still change before 1.0.
+> make generic encrypted device calls via `GetDevice(id).Channel`. The typed
+> `device.LinkGrabber` facade is available; other namespaces come in later versions. The API may still change before 1.0.
 
 ## Packages
 
@@ -69,6 +69,33 @@ var http = new HttpClient(new SocketsHttpHandler
 });
 var client = new MyJDownloaderClient(http, new MyJDownloaderOptions { AppKey = "MyApp" });
 ```
+
+## LinkGrabber
+
+`device.LinkGrabber` is the typed facade over `/linkgrabberv2`:
+
+```csharp
+using MyJdownloader.LinkGrabber;
+
+var job = await device.LinkGrabber.AddLinksAsync(new AddLinksRequest
+{
+    Links = ["https://host.example/file1", "https://host.example/file2"],
+    PackageName = "my package",
+});
+
+// The encrypted response body is limited to 1 MiB (about 768 KiB of JSON): page large lists with StartAt / MaxResults.
+var packages = await device.LinkGrabber.QueryPackagesAsync(new PackageQuery { StartAt = 0, MaxResults = 100 });
+
+await device.LinkGrabber.MoveToDownloadListAsync([], [.. packages.Select(p => p.Uuid)]);
+```
+
+- The encrypted response body is limited to 1 MiB (about 768 KiB of JSON); a
+  larger one fails with a `MyJdProtocolException`: use paging.
+- Links and URLs may embed credentials: never log whole `AddLinksRequest`,
+  `CrawledLink` or `CrawledPackage` values.
+- The library does not filter URL schemes nor destination paths. The device
+  fetches the links from its own network and `DestinationFolder` is a path on
+  the device: callers handling untrusted input must allow-list both.
 
 ## Logging and tracing
 
