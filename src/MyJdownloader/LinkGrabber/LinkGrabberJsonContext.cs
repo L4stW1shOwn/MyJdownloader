@@ -15,12 +15,6 @@ using MyJdownloader.Json;
 [JsonSerializable(typeof(List<CrawledLink>))]
 [JsonSerializable(typeof(List<CrawledPackage>))]
 [JsonSerializable(typeof(LinkCollectingJob))]
-[JsonSerializable(typeof(long[]))]
-[JsonSerializable(typeof(bool))]
-[JsonSerializable(typeof(bool?))]
-[JsonSerializable(typeof(long))]
-[JsonSerializable(typeof(int?))]
-[JsonSerializable(typeof(string))]
 [JsonSerializable(typeof(Priority))]
 internal sealed partial class LinkGrabberJsonContext : JsonSerializerContext
 {

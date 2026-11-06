@@ -1,8 +1,7 @@
 namespace MyJdownloader.LinkGrabber;
 
-using System.Globalization;
 using System.Text.Json;
-using MyJdownloader.Transport;
+using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/linkgrabberv2</c> namespace of one device (links collected but not yet in the download list).</summary>
 /// <remarks>
@@ -54,16 +53,16 @@ public sealed class LinkGrabberApi
             ValidateLink(link, nameof(request));
         }
 
-        ValidateOptionalText(request.PackageName, nameof(request));
-        ValidateOptionalText(request.DestinationFolder, nameof(request));
-        ValidateOptionalText(request.SourceUrl, nameof(request));
-        if (request.Priority is { } requested && !IsKnownPriority(requested))
+        FacadeGuard.ValidateOptionalText(request.PackageName, nameof(request));
+        FacadeGuard.ValidateOptionalText(request.DestinationFolder, nameof(request));
+        FacadeGuard.ValidateOptionalText(request.SourceUrl, nameof(request));
+        if (request.Priority is { } requested && !FacadeGuard.IsKnown(requested))
         {
             throw new ArgumentException("The priority must be a known value.", nameof(request));
         }
 
         var args = new[] { JsonSerializer.SerializeToElement(AddLinksQueryDto.From(request, links), LinkGrabberJsonContext.Default.AddLinksQueryDto) };
-        return RequireAsync(this._channel.CallAsync(Base + "addLinks", LinkGrabberJsonContext.Default.LinkCollectingJob, args, cancellationToken));
+        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "addLinks", LinkGrabberJsonContext.Default.LinkCollectingJob, args, cancellationToken));
     }
 
     /// <summary>Lists the collected links (<c>/linkgrabberv2/queryLinks</c>).</summary>
@@ -83,9 +82,9 @@ public sealed class LinkGrabberApi
     public Task<IReadOnlyList<CrawledLink>> QueryLinksAsync(LinkQuery? query = null, CancellationToken cancellationToken = default)
     {
         query ??= new LinkQuery();
-        ValidateRange(query.MaxResults, query.StartAt, nameof(query));
+        FacadeGuard.ValidateRange(query.MaxResults, query.StartAt, nameof(query));
         var args = new[] { JsonSerializer.SerializeToElement(query, LinkGrabberJsonContext.Default.LinkQuery) };
-        return ListAsync(this._channel.CallAsync(Base + "queryLinks", LinkGrabberJsonContext.Default.ListCrawledLink, args, cancellationToken));
+        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "queryLinks", LinkGrabberJsonContext.Default.ListCrawledLink, args, cancellationToken));
     }
 
     /// <summary>Lists the collected packages (<c>/linkgrabberv2/queryPackages</c>).</summary>
@@ -105,9 +104,9 @@ public sealed class LinkGrabberApi
     public Task<IReadOnlyList<CrawledPackage>> QueryPackagesAsync(PackageQuery? query = null, CancellationToken cancellationToken = default)
     {
         query ??= new PackageQuery();
-        ValidateRange(query.MaxResults, query.StartAt, nameof(query));
+        FacadeGuard.ValidateRange(query.MaxResults, query.StartAt, nameof(query));
         var args = new[] { JsonSerializer.SerializeToElement(query, LinkGrabberJsonContext.Default.PackageQuery) };
-        return ListAsync(this._channel.CallAsync(Base + "queryPackages", LinkGrabberJsonContext.Default.ListCrawledPackage, args, cancellationToken));
+        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "queryPackages", LinkGrabberJsonContext.Default.ListCrawledPackage, args, cancellationToken));
     }
 
     /// <summary>Moves links and packages to the download list (<c>/linkgrabberv2/moveToDownloadlist</c>).</summary>
@@ -122,7 +121,7 @@ public sealed class LinkGrabberApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task MoveToDownloadListAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "moveToDownloadlist", IdArgs(linkIds, packageIds), cancellationToken);
+        => this._channel.CallAsync(Base + "moveToDownloadlist", FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken);
 
     /// <summary>Removes links and packages from the link grabber (<c>/linkgrabberv2/removeLinks</c>).</summary>
     /// <param name="linkIds">The identifiers of the links to remove.</param>
@@ -136,7 +135,7 @@ public sealed class LinkGrabberApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task RemoveLinksAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "removeLinks", IdArgs(linkIds, packageIds), cancellationToken);
+        => this._channel.CallAsync(Base + "removeLinks", FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken);
 
     /// <summary>Clears the whole link grabber list (<c>/linkgrabberv2/clearList</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -147,7 +146,7 @@ public sealed class LinkGrabberApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task<bool> ClearListAsync(CancellationToken cancellationToken = default)
-        => RequireAsync(this._channel.CallAsync(Base + "clearList", LinkGrabberJsonContext.Default.NullableBoolean, [], cancellationToken));
+        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "clearList", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
 
     /// <summary>Tells whether the link grabber is still collecting links (<c>/linkgrabberv2/isCollecting</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -158,7 +157,7 @@ public sealed class LinkGrabberApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<bool> IsCollectingAsync(CancellationToken cancellationToken = default)
-        => RequireAsync(this._channel.CallAsync(Base + "isCollecting", LinkGrabberJsonContext.Default.NullableBoolean, [], cancellationToken));
+        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "isCollecting", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
 
     /// <summary>Gets the number of packages in the link grabber (<c>/linkgrabberv2/getPackageCount</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -169,7 +168,7 @@ public sealed class LinkGrabberApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<int> GetPackageCountAsync(CancellationToken cancellationToken = default)
-        => RequireAsync(this._channel.CallAsync(Base + "getPackageCount", LinkGrabberJsonContext.Default.NullableInt32, [], cancellationToken));
+        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "getPackageCount", FacadeJsonContext.Default.NullableInt32, [], cancellationToken));
 
     /// <summary>Renames a link (<c>/linkgrabberv2/renameLink</c>).</summary>
     /// <param name="linkId">The identifier of the link.</param>
@@ -217,8 +216,8 @@ public sealed class LinkGrabberApi
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task SetEnabledAsync(bool enabled, IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)
     {
-        var ids = IdArgs(linkIds, packageIds);
-        var args = new[] { JsonSerializer.SerializeToElement(enabled, LinkGrabberJsonContext.Default.Boolean), ids[0], ids[1] };
+        var ids = FacadeGuard.IdArgs(linkIds, packageIds);
+        var args = new[] { JsonSerializer.SerializeToElement(enabled, FacadeJsonContext.Default.Boolean), ids[0], ids[1] };
         return this._channel.CallAsync(Base + "setEnabled", args, cancellationToken);
     }
 
@@ -237,25 +236,14 @@ public sealed class LinkGrabberApi
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task SetPriorityAsync(Priority priority, IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)
     {
-        if (!IsKnownPriority(priority))
+        if (!FacadeGuard.IsKnown(priority))
         {
             throw new ArgumentException("The priority must be a known value.", nameof(priority));
         }
 
-        var ids = IdArgs(linkIds, packageIds);
+        var ids = FacadeGuard.IdArgs(linkIds, packageIds);
         var args = new[] { JsonSerializer.SerializeToElement(priority, LinkGrabberJsonContext.Default.Priority), ids[0], ids[1] };
         return this._channel.CallAsync(Base + "setPriority", args, cancellationToken);
-    }
-
-    private static JsonElement[] IdArgs(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds)
-    {
-        ArgumentNullException.ThrowIfNull(linkIds);
-        ArgumentNullException.ThrowIfNull(packageIds);
-        return
-        [
-            JsonSerializer.SerializeToElement([.. linkIds], LinkGrabberJsonContext.Default.Int64Array),
-            JsonSerializer.SerializeToElement([.. packageIds], LinkGrabberJsonContext.Default.Int64Array),
-        ];
     }
 
     private static void ValidateLink(string link, string paramName)
@@ -285,81 +273,13 @@ public sealed class LinkGrabberApi
         }
     }
 
-    private static bool IsKnownPriority(Priority priority)
-        => priority != Priority.Unknown && Enum.IsDefined(priority);
-
-    private static void ValidateOptionalText(string? text, string paramName)
-    {
-        if (text is not null)
-        {
-            ValidateText(text, paramName);
-        }
-    }
-
-    private static void ValidateText(string text, string paramName)
-    {
-        ArgumentNullException.ThrowIfNull(text, paramName);
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            throw new ArgumentException("A text value must not be blank.", paramName);
-        }
-
-        for (var i = 0; i < text.Length; i++)
-        {
-            var c = text[i];
-            var category = char.GetUnicodeCategory(c);
-            if (char.IsControl(c) || category is UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator)
-            {
-                throw new ArgumentException("A text value must not contain control characters.", paramName);
-            }
-
-            if (char.IsHighSurrogate(c) && i + 1 < text.Length && char.IsLowSurrogate(text[i + 1]))
-            {
-                i++;
-            }
-            else if (char.IsSurrogate(c))
-            {
-                throw new ArgumentException("A text value must not contain invalid surrogate characters.", paramName);
-            }
-        }
-    }
-
-    private static void ValidateRange(int maxResults, int startAt, string paramName)
-    {
-        if (maxResults < -1)
-        {
-            throw new ArgumentException("MaxResults must be -1 or greater.", paramName);
-        }
-
-        if (startAt < 0)
-        {
-            throw new ArgumentException("StartAt must not be negative.", paramName);
-        }
-    }
-
-    private static async Task<IReadOnlyList<T>> ListAsync<T>(Task<List<T>?> call)
-        => await call.ConfigureAwait(false) ?? [];
-
-    private static async Task<T> RequireAsync<T>(Task<T?> call)
-        where T : class
-        => await call.ConfigureAwait(false) ?? throw Unreadable();
-
-    private static async Task<bool> RequireAsync(Task<bool?> call)
-        => await call.ConfigureAwait(false) ?? throw Unreadable();
-
-    private static async Task<int> RequireAsync(Task<int?> call)
-        => await call.ConfigureAwait(false) ?? throw Unreadable();
-
-    private static MyJdProtocolException Unreadable()
-        => new(RelayTransport.UnreadableMessageFor(MyJdErrorSource.Device), MyJdErrorSource.Device);
-
     private Task RenameAsync(string action, long id, string newName, CancellationToken cancellationToken)
     {
-        ValidateText(newName, nameof(newName));
+        FacadeGuard.ValidateText(newName, nameof(newName));
         var args = new[]
         {
-            JsonSerializer.SerializeToElement(id, LinkGrabberJsonContext.Default.Int64),
-            JsonSerializer.SerializeToElement(newName, LinkGrabberJsonContext.Default.String),
+            JsonSerializer.SerializeToElement(id, FacadeJsonContext.Default.Int64),
+            JsonSerializer.SerializeToElement(newName, FacadeJsonContext.Default.String),
         };
         return this._channel.CallAsync(Base + action, args, cancellationToken);
     }
