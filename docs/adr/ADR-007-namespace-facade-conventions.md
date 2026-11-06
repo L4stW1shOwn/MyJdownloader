@@ -2,7 +2,8 @@
 
 - **Status**: Accepted
 - **Date**: 2026-11-06
-- **Reference**: `docs/superpowers/specs/2026-11-06-t010-linkgrabber-design.md` (§2, §3, §5)
+- **Amended**: 2026-11-06 (T-011)
+- **Reference**: `docs/superpowers/specs/2026-11-06-t010-linkgrabber-design.md` (§2, §3, §5); amendment: `docs/superpowers/specs/2026-11-06-t011-downloads-design.md` (§2, §3.3, §4.1, §5)
 
 ## Context
 
@@ -43,6 +44,8 @@ Structure:
 - **Cross-facade enums** (e.g. `Priority`, `AvailableLinkState`) live in the root
   `MyJdownloader` namespace; enums specific to one facade stay in its namespace.
 - Records are `sealed record` with `init` properties.
+- **Shared validation/result helpers** live in the internal
+  `MyJdownloader.Facades` namespace, so facades do not duplicate them.
 
 Serialization:
 
@@ -72,6 +75,18 @@ Serialization:
   defaults follow the API (`MaxResults = -1`, `StartAt = 0`). Other request
   records keep nullable members (`bool?`, `string?`), omitted from the JSON
   when null.
+
+Dates and durations (amendment, T-011):
+
+- **Epoch milliseconds** returned by the API are exposed as `DateTimeOffset?`.
+- **Durations expressed in seconds** are exposed as `TimeSpan?`.
+- The conversions are done by **internal converters** in the facade's JSON
+  context; the public records never carry raw numeric timestamps or durations.
+- **Sentinel values on read**: for dates, a value `<= 0` (or JSON `null`) reads
+  as `null`; for durations, a negative value (or JSON `null`) reads as `null`,
+  while `0` is a valid `TimeSpan.Zero`.
+- **Writing uses the same units**: milliseconds since the Unix epoch for dates,
+  whole seconds for durations.
 
 Responses (`data` absent or `null`):
 
@@ -117,6 +132,7 @@ Documentation, tests and delivery:
 | Query flags as `bool?` (API-faithful, omitted when null) | The API returns only requested fields, so a default query would return near-empty records; the caller would have to know and set every flag. Non-nullable flags defaulting to `true` give complete results by default while keeping secrets opt-in. |
 | All facade types in the root `MyJdownloader` namespace | Name collisions across namespaces (`CrawledLink` vs download links, `...Query` types); flat, noisy IntelliSense; no clear ownership per feature. |
 | Source generator producing facades | Already rejected in ADR-001 (no reliable machine-readable API description, harder to stabilize the public surface). |
+| Raw `long` timestamps and durations | Loses typing; every caller must convert epoch milliseconds or seconds and handle sentinel values themselves. |
 
 ## Consequences
 
@@ -129,6 +145,8 @@ Positive:
 - Secrets are opt-in on queries and never exposed through `ToString()`.
 - Invalid input fails fast, without I/O and without leaking values.
 - Facades are testable in isolation, with one end-to-end guard per facade.
+- Dates and durations are typed consistently across facades, with sentinels
+  normalized to `null`.
 
 Negative:
 
@@ -142,3 +160,5 @@ Negative:
   to the raw `CallAsync` path).
 - Subset facades leave some actions only reachable through the generic core
   until their follow-up ticket is delivered.
+- Enums used by the `cleanup` action of several namespaces (cross-facade enums)
+  live in the root `MyJdownloader` namespace rather than with their facade.
