@@ -205,6 +205,17 @@ public sealed class JdApiTests
     }
 
     [Test]
+    public async Task GetUptimeAsync_OutOfRange_ThrowsProtocol()
+    {
+        var (channel, api) = Create();
+        ReturnsLong(channel, "uptime", long.MaxValue);
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.GetUptimeAsync());
+
+        AssertDeviceUnreadable(thrown);
+    }
+
+    [Test]
     public async Task GetCoreRevisionAsync_Token_PassesTokenToChannel()
     {
         using var cts = new CancellationTokenSource();

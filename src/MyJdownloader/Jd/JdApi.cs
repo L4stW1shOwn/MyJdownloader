@@ -8,6 +8,8 @@ public sealed class JdApi
 {
     private const string Base = "/jd/";
 
+    private const long MaxUptimeMilliseconds = long.MaxValue / TimeSpan.TicksPerMillisecond;
+
     private readonly IDeviceChannel _channel;
 
     internal JdApi(IDeviceChannel channel)
@@ -63,6 +65,11 @@ public sealed class JdApi
     private static async Task<TimeSpan> ToUptimeAsync(Task<long> call)
     {
         var milliseconds = await call.ConfigureAwait(false);
-        return milliseconds < 0 ? throw FacadeResults.Unreadable() : TimeSpan.FromMilliseconds(milliseconds);
+        if (milliseconds is < 0 or > MaxUptimeMilliseconds)
+        {
+            throw FacadeResults.Unreadable();
+        }
+
+        return TimeSpan.FromMilliseconds(milliseconds);
     }
 }
