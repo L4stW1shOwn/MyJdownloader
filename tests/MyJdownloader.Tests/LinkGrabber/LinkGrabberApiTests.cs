@@ -298,6 +298,30 @@ public sealed class LinkGrabberApiTests
     }
 
     [Test]
+    public async Task QueryLinksAsync_NullItem_ThrowsProtocol()
+    {
+        var (channel, api) = Create();
+        channel.CallAsync(Base + "queryLinks", Arg.Any<JsonTypeInfo<List<CrawledLink>>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<List<CrawledLink>?>([null!]));
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.QueryLinksAsync());
+
+        AssertDeviceUnreadable(thrown);
+    }
+
+    [Test]
+    public async Task QueryPackagesAsync_NullHost_ThrowsProtocol()
+    {
+        var (channel, api) = Create();
+        channel.CallAsync(Base + "queryPackages", Arg.Any<JsonTypeInfo<List<CrawledPackage>>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<List<CrawledPackage>?>([new CrawledPackage { Hosts = [null!] }]));
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.QueryPackagesAsync());
+
+        AssertDeviceUnreadable(thrown);
+    }
+
+    [Test]
     public async Task MoveToDownloadListAsync_Ids_SendsPathAndArgs()
     {
         var (channel, api) = Create();

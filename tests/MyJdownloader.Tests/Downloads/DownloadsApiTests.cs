@@ -183,6 +183,42 @@ public sealed class DownloadsApiTests
     }
 
     [Test]
+    public async Task QueryLinksAsync_NullItem_ThrowsProtocol()
+    {
+        var (channel, api) = Create();
+        channel.CallAsync(Base + "queryLinks", Arg.Any<JsonTypeInfo<List<DownloadLink>>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<List<DownloadLink>?>([null!]));
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.QueryLinksAsync());
+
+        AssertDeviceUnreadable(thrown);
+    }
+
+    [Test]
+    public async Task QueryPackagesAsync_NullItem_ThrowsProtocol()
+    {
+        var (channel, api) = Create();
+        channel.CallAsync(Base + "queryPackages", Arg.Any<JsonTypeInfo<List<DownloadPackage>>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<List<DownloadPackage>?>([null!]));
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.QueryPackagesAsync());
+
+        AssertDeviceUnreadable(thrown);
+    }
+
+    [Test]
+    public async Task QueryPackagesAsync_NullHost_ThrowsProtocol()
+    {
+        var (channel, api) = Create();
+        channel.CallAsync(Base + "queryPackages", Arg.Any<JsonTypeInfo<List<DownloadPackage>>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<List<DownloadPackage>?>([new DownloadPackage { Hosts = [null!] }]));
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.QueryPackagesAsync());
+
+        AssertDeviceUnreadable(thrown);
+    }
+
+    [Test]
     public async Task GetPackageCountAsync_Called_SendsPathAndArgs()
     {
         var (channel, api) = Create();

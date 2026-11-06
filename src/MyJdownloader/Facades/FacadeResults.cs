@@ -5,8 +5,27 @@ using MyJdownloader.Transport;
 /// <summary>Result adapters shared by the device namespace facades.</summary>
 internal static class FacadeResults
 {
-    internal static async Task<IReadOnlyList<T>> ListAsync<T>(Task<List<T>?> call)
-        => await call.ConfigureAwait(false) ?? [];
+    internal static Task<IReadOnlyList<T>> ListAsync<T>(Task<List<T>?> call)
+        => ListAsync(call, static _ => false);
+
+    internal static async Task<IReadOnlyList<T>> ListAsync<T>(Task<List<T>?> call, Func<T, bool> hasNullItems)
+    {
+        var list = await call.ConfigureAwait(false);
+        if (list is null)
+        {
+            return [];
+        }
+
+        foreach (var item in list)
+        {
+            if (item is null || hasNullItems(item))
+            {
+                throw Unreadable();
+            }
+        }
+
+        return list;
+    }
 
     internal static async Task<T> RequireAsync<T>(Task<T?> call)
         where T : class

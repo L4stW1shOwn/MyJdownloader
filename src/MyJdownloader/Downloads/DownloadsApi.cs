@@ -67,7 +67,7 @@ public sealed class DownloadsApi
         query ??= new DownloadPackageQuery();
         FacadeGuard.ValidateRange(query.MaxResults, query.StartAt, nameof(query));
         var args = new[] { JsonSerializer.SerializeToElement(query, DownloadsJsonContext.Default.DownloadPackageQuery) };
-        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "queryPackages", DownloadsJsonContext.Default.ListDownloadPackage, args, cancellationToken));
+        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "queryPackages", DownloadsJsonContext.Default.ListDownloadPackage, args, cancellationToken), static package => package.Hosts?.Contains(null!) == true);
     }
 
     /// <summary>Gets the number of packages in the download list (<c>/downloadsV2/packageCount</c>).</summary>
@@ -107,6 +107,7 @@ public sealed class DownloadsApi
     /// <remarks>
     /// Destructive: with <see cref="CleanupMode.RemoveLinksAndDeleteFiles"/> the files are deleted on the device, with <see cref="CleanupMode.RemoveLinksAndRecycleFiles"/> they are moved to the recycle bin.
     /// The library adds no confirmation step: callers are responsible for confirming with the user.
+    /// With <see cref="SelectionType.All"/> the identifiers are ignored, and with <see cref="SelectionType.Unselected"/> every item except the given ones is targeted: combined with <see cref="CleanupMode.RemoveLinksAndDeleteFiles"/> this can delete every downloaded file on the device.
     /// </remarks>
     /// <exception cref="ArgumentNullException">An identifier list is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="action"/>, <paramref name="mode"/> or <paramref name="selectionType"/> is <c>Unknown</c> or not a defined value.</exception>

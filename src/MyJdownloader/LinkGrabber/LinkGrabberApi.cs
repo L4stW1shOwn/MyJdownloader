@@ -106,7 +106,7 @@ public sealed class LinkGrabberApi
         query ??= new PackageQuery();
         FacadeGuard.ValidateRange(query.MaxResults, query.StartAt, nameof(query));
         var args = new[] { JsonSerializer.SerializeToElement(query, LinkGrabberJsonContext.Default.PackageQuery) };
-        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "queryPackages", LinkGrabberJsonContext.Default.ListCrawledPackage, args, cancellationToken));
+        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "queryPackages", LinkGrabberJsonContext.Default.ListCrawledPackage, args, cancellationToken), static package => package.Hosts?.Contains(null!) == true);
     }
 
     /// <summary>Moves links and packages to the download list (<c>/linkgrabberv2/moveToDownloadlist</c>).</summary>
