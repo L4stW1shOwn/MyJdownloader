@@ -26,7 +26,7 @@ public sealed class SystemApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>A task that completes when the device has answered.</returns>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
-    /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
+    /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid; a <see cref="MyJdDeviceOfflineException"/> may mean the action was executed.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
@@ -37,7 +37,7 @@ public sealed class SystemApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>A task that completes when the device has answered.</returns>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
-    /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
+    /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid; a <see cref="MyJdDeviceOfflineException"/> may mean the action was executed.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
@@ -45,11 +45,11 @@ public sealed class SystemApi
         => this._channel.CallAsync(Base + "exitJD", [], cancellationToken);
 
     /// <summary>Shuts down the operating system of the device (<c>/system/shutdownOS</c>).</summary>
-    /// <param name="force">true to force the shutdown even if applications block it</param>
+    /// <param name="force"><see langword="true"/> to force the shutdown even if applications block it; unsaved data may be lost.</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>A task that completes when the device has answered.</returns>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
-    /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
+    /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid; a <see cref="MyJdDeviceOfflineException"/> may mean the action was executed.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
@@ -60,7 +60,7 @@ public sealed class SystemApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>A task that completes when the device has answered.</returns>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
-    /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
+    /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid; a <see cref="MyJdDeviceOfflineException"/> may mean the action was executed.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
@@ -71,7 +71,7 @@ public sealed class SystemApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>A task that completes when the device has answered.</returns>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
-    /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
+    /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid; a <see cref="MyJdDeviceOfflineException"/> may mean the action was executed.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
