@@ -2,6 +2,7 @@
 
 - **Status**: Accepted
 - **Date**: 2026-11-02
+- **Amended**: 2026-11-06 (T-007)
 - **Reference**: `docs/superpowers/specs/2026-11-02-myjdownloader-client-design.md` (§5, §8)
 
 ## Context
@@ -65,3 +66,8 @@ Negative:
   responsibility (mitigated by the XML doc and the README).
 - Handler rotation of the factory is intentionally disabled for this client:
   only `PooledConnectionLifetime` ensures DNS tracking.
+- Device calls carry the session token and the device id in the URL path, which
+  `HttpClient` logging/tracing does not redact (only the query string is). The
+  named client registered by T-008 must remove the default HTTP loggers
+  (`RemoveAllLoggers`) or redact the path; the effect on tracing (no built-in
+  request logs) must be documented.

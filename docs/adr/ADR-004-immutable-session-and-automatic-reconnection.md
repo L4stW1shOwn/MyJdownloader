@@ -5,6 +5,7 @@
 - **Amended**: 2026-11-05 (T-003)
 - **Amended**: 2026-11-05 (T-005)
 - **Amended**: 2026-11-06 (T-006)
+- **Amended**: 2026-11-06 (T-007)
 - **Reference**: `docs/superpowers/specs/2026-11-02-myjdownloader-client-design.md` (§1, §3, §5, §6)
 
 ## Context
@@ -49,7 +50,10 @@ singleton, several concurrent calls may fail at the same time.
 **Reconnection**:
 
 - Trigger: a server-sourced `TOKEN_INVALID` only. The device-sourced case is
-  decided by T-007, with an explicit bound against forced session rotation.
+  decided by T-007, with an explicit bound against forced session rotation: a
+  device-sourced `TOKEN_INVALID` never renews the session. On device calls an
+  encrypted error body is always attributed to the device; only a plain relay
+  body can claim `SERVER` and trigger renewal.
 - `/my/reconnect`, token update, **a single** replay of the original call.
   `TOKEN_INVALID` is never exposed if the reconnect succeeds. The renewal is not
   cancellable by the caller (bounded by `HttpClient.Timeout`); cancellation is

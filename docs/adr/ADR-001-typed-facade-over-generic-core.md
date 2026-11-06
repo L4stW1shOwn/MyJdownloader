@@ -2,6 +2,7 @@
 
 - **Status**: Accepted
 - **Date**: 2026-11-02
+- **Amended**: 2026-11-06 (T-007)
 - **Reference**: `docs/superpowers/specs/2026-11-02-myjdownloader-client-design.md` (§1, §3, §7)
 
 ## Context
@@ -21,7 +22,11 @@ readable, and compatible with AOT/trimming.
 Two levels of public API:
 
 1. **Public generic core**: `IDeviceChannel.CallAsync<T>(string path,
-   JsonTypeInfo<T> responseType, IReadOnlyList<object?> args, CancellationToken)`.
+   JsonTypeInfo<T> responseType, IReadOnlyList<JsonElement> args, CancellationToken)`
+   (`object?` arguments would need reflection, incompatible with
+   `IsAotCompatible` / ADR-002). A result-less `CallAsync` overload (no
+   `responseType`) is added up front, because adding interface members later is
+   a breaking change.
    It allows calling any device action, with typed deserialization that is
    AOT-compatible via `JsonTypeInfo<T>`. The `DeviceChannel` implementation
    remains `internal`.

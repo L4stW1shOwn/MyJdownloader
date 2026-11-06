@@ -39,6 +39,7 @@ public interface IDeviceChannel
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
+    /// <remarks>An <see cref="InvalidOperationException"/> raised by a misconfigured <paramref name="responseType"/> is reported as a <see cref="MyJdProtocolException"/> (device unreadable).</remarks>
     [SuppressMessage("ApiDesign", "RS0026", Justification = "The overloads cannot be ambiguous: they differ by the mandatory responseType parameter")]
     public Task<T?> CallAsync<T>(string path, JsonTypeInfo<T> responseType, IReadOnlyList<JsonElement> args, CancellationToken cancellationToken = default);
 
