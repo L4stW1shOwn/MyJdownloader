@@ -3,6 +3,7 @@
 - **Status**: Accepted
 - **Date**: 2026-11-02
 - **Amended**: 2026-11-06 (T-007)
+- **Amended**: 2026-11-06 (T-010)
 - **Reference**: `docs/superpowers/specs/2026-11-02-myjdownloader-client-design.md` (§1, §3, §7)
 
 ## Context
@@ -42,6 +43,12 @@ Facade conventions:
   cited in XML doc;
 - the skeleton implements no namespace: one namespace = one backlog entry = one
   `/feature` cycle.
+
+The detailed facade conventions (C# namespaces, per-facade JSON context,
+tolerant enums, query defaults with non-nullable flags that supersede the
+`bool?` rule above for query records, null `data` handling, validation, secret
+masking, tests) are defined in ADR-007; facade arguments are always passed to
+the channel as `IReadOnlyList<JsonElement>` (T-007).
 
 ## Considered alternatives
 
