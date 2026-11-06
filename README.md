@@ -2,10 +2,10 @@
 
 A .NET client library for the [MyJDownloader](https://my.jdownloader.org) API.
 
-> **Status: work in progress.** This library is under development and does
-> not contain any protocol features yet. The current packages only provide
-> the solution skeleton: an options type and a dependency injection
-> registration. Do not use it in production.
+> **Status: pre-1.0.** The library can connect, reconnect and disconnect,
+> export and restore the session (with automatic renewal), list devices and
+> make generic encrypted device calls via `GetDevice(id).Channel`. Typed
+> namespace facades come in later versions. The API may still change before 1.0.
 
 ## Packages
 
@@ -20,8 +20,6 @@ dotnet add package MyJdownloader.Extensions.DependencyInjection
 
 ## Usage
 
-Register the named HTTP client used by the library:
-
 ```csharp
 using Microsoft.Extensions.DependencyInjection;
 using MyJdownloader;
@@ -35,13 +33,48 @@ services.AddMyJDownloader(o => o.AppKey = "MyApp");
 //     .AddStandardResilienceHandler();
 ```
 
+Resolve the `MyJDownloaderClient` singleton, connect, and call a device:
+
+```csharp
+var client = provider.GetRequiredService<MyJDownloaderClient>();
+await client.ConnectAsync("user@example.com", password);
+
+// Store this securely, see "Security warning" below.
+string json = client.ExportSession()!.ToJson();
+
+// Generic encrypted call; `typeInfo` comes from a source-generated JsonSerializerContext.
+var device = client.GetDevice(deviceId);
+var result = await device.Channel.CallAsync<MyResult>("/myNamespace/myAction", MyContext.Default.MyResult, args);
+```
+
+Without dependency injection, build the `HttpClient` yourself with a
+long-lived `SocketsHttpHandler` (`PooledConnectionLifetime` set, for example
+two minutes; `AllowAutoRedirect = false`) and no HTTP logging:
+
+```csharp
+var http = new HttpClient(new SocketsHttpHandler
+{
+    PooledConnectionLifetime = TimeSpan.FromMinutes(2),
+    AllowAutoRedirect = false,
+});
+var client = new MyJDownloaderClient(http, new MyJDownloaderOptions { AppKey = "MyApp" });
+```
+
+## Logging and tracing
+
+Device-call URL paths contain the session token and the device id. The named
+client registered by `AddMyJDownloader` removes the default HTTP loggers; do
+not re-add them (`AddLogger`, extended HTTP logging). The `System.Net.Http`
+EventSource and the `url.full` Activity tag redact only the query string, so
+exclude this client's traces or add a redacting enricher. A
+`MyJDownloaderClient` registered before `AddMyJDownloader` is kept and bypasses
+these protections.
+
 ## Security warning
 
-A later version is planned to let you export the session so it can be
-restored without logging in again. The exported session will contain keys
-derived from your password. Treat it as a secret: store it in a protected
-location (for example DPAPI or a secret vault), never in plain text, in
-source control or in logs.
+The exported session contains keys derived from your password. Treat it as a
+secret: store it in a protected location (for example DPAPI or a secret
+vault), never in plain text, in source control or in logs.
 
 ## Design decisions
 
