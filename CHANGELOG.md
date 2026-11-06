@@ -6,6 +6,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 
 ### Added
 
+- `device.Config`: typed `/config` facade (get, default, set, reset, query, enum options); untyped values as `JsonElement`.
 - `device.System`: typed `/system` facade (restart or exit JDownloader, shut down, standby or hibernate the device).
 - `device.Jd`: typed `/jd` facade (uptime, version, core revision, plugin refresh).
 - `device.DownloadController`: typed `/downloadcontroller` facade (start, stop, pause, current state, download speed).

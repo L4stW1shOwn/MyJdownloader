@@ -677,3 +677,11 @@ MyJdownloader.SystemControl.SystemApi.HibernateOsAsync(System.Threading.Cancella
 MyJdownloader.SystemControl.SystemApi.RestartAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.SystemControl.SystemApi.ShutdownOsAsync(bool force, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.SystemControl.SystemApi.StandbyOsAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Config.ConfigApi
+MyJdownloader.Config.ConfigApi.GetAsync(string! interfaceName, string? storage, string! key, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Text.Json.JsonElement>!
+MyJdownloader.Config.ConfigApi.GetDefaultAsync(string! interfaceName, string? storage, string! key, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Text.Json.JsonElement>!
+MyJdownloader.Config.ConfigApi.ResetAsync(string! interfaceName, string? storage, string! key, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.Config.ConfigApi.ListEnumAsync(string! type, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Config.ConfigEnumOption!>!>!
+MyJdownloader.Config.ConfigApi.QueryAsync(MyJdownloader.Config.ConfigQuery? query = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Config.ConfigEntry!>!>!
+MyJdownloader.Config.ConfigApi.SetAsync(string! interfaceName, string? storage, string! key, System.Text.Json.JsonElement value, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.JDownloaderDevice.Config.get -> MyJdownloader.Config.ConfigApi!

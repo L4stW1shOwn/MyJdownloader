@@ -5,7 +5,7 @@ A .NET client library for the [MyJDownloader](https://my.jdownloader.org) API.
 > **Status: pre-1.0.** The library can connect, reconnect and disconnect,
 > export and restore the session (with automatic renewal), list devices and
 > make generic encrypted device calls via `GetDevice(id).Channel`. The typed
-> `device.LinkGrabber`, `device.Downloads`, `device.DownloadController`, `device.Jd` and `device.System` facades are available; other namespaces come in later versions. The API may still change before 1.0.
+> `device.LinkGrabber`, `device.Downloads`, `device.DownloadController`, `device.Jd`, `device.System` and `device.Config` facades are available; other namespaces come in later versions. The API may still change before 1.0.
 
 ## Packages
 
@@ -169,3 +169,25 @@ repository.
 ## License
 
 MIT
+
+## Config
+
+`device.Config` is the typed facade over `/config` (advanced configuration entries). Values are untyped and exposed as `JsonElement`:
+
+```csharp
+using System.Text.Json;
+using MyJdownloader.Config;
+
+// Current values are returned only with Values = true; Pattern is a regular expression evaluated on the device.
+var entries = await device.Config.QueryAsync(new ConfigQuery { Pattern = "maxsimultanedownloads", Values = true });
+
+var entry = entries[0];
+JsonElement current = await device.Config.GetAsync(entry.InterfaceName!, entry.Storage, entry.Key!);
+
+// Applied immediately, without confirmation.
+await device.Config.SetAsync(entry.InterfaceName!, entry.Storage, entry.Key!, JsonSerializer.SerializeToElement(3));
+```
+
+- Values may hold secrets (passwords, tokens): never log them.
+- `SetAsync` sends the value as its JSON text (strings quoted); to be confirmed against a real device.
+- Same 1 MiB response limit as above: restrict queries with `ConfigInterface` / `Pattern`.
