@@ -181,10 +181,16 @@ public sealed class MyJDownloaderClient
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>The devices.</returns>
     /// <remarks>
-    /// Uses a lock-free snapshot of the current session. On a <c>TOKEN_INVALID</c> server error the session is renewed
-    /// once (single-flight across concurrent callers) and the call is replayed once.
+    /// Uses a lock-free snapshot of the current session. Only a server-sourced <c>TOKEN_INVALID</c> error triggers a renewal:
+    /// the session is renewed once (single-flight across concurrent callers) and the call is replayed once.
+    /// A rejected renewal disconnects the client (if the failed session is still the current one) and raises
+    /// <see cref="SessionChanged"/> with a <see langword="null"/> session; the authentication error is rethrown.
+    /// Other renewal failures keep the session. A session restored for another account in the meantime is not replayed:
+    /// the original <c>TOKEN_INVALID</c> error is rethrown. The renewal request is not cancellable by the caller
+    /// (it is bounded by <see cref="HttpClient.Timeout"/>).
     /// </remarks>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
+    /// <exception cref="MyJdAuthenticationException">The session renewal was rejected by the server.</exception>
     /// <exception cref="MyJdException">The server rejected the request or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
     /// <exception cref="TimeoutException">The request timed out.</exception>
@@ -297,6 +303,8 @@ public sealed class MyJDownloaderClient
     {
         MyJdSession renewed;
         long v;
+        ExceptionDispatchInfo? rejected = null;
+        var cleared = false;
         await this._gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
@@ -307,14 +315,39 @@ public sealed class MyJDownloaderClient
                 return (sameAccount ? current : null, null);
             }
 
-            // Bounded by HttpClient.Timeout: a cancelled caller must not abort a renewal other callers may rely on.
-            renewed = await this._serverChannel.ReconnectAsync(failed, CancellationToken.None).ConfigureAwait(false);
-            Volatile.Write(ref this._session, renewed);
-            v = Interlocked.Increment(ref this._version);
+            try
+            {
+                // Bounded by HttpClient.Timeout: a cancelled caller must not abort a renewal other callers may rely on.
+                renewed = await this._serverChannel.ReconnectAsync(failed, CancellationToken.None).ConfigureAwait(false);
+                Volatile.Write(ref this._session, renewed);
+                v = Interlocked.Increment(ref this._version);
+            }
+            catch (MyJdAuthenticationException ex)
+            {
+                // Clear only if the failed session is still current: a concurrent RestoreSession must survive.
+                rejected = ExceptionDispatchInfo.Capture(ex);
+                renewed = failed;
+                v = 0;
+                if (ReferenceEquals(Interlocked.CompareExchange(ref this._session, null, failed), failed))
+                {
+                    v = Interlocked.Increment(ref this._version);
+                    cleared = true;
+                }
+            }
         }
         finally
         {
             this._gate.Release();
+        }
+
+        if (rejected is not null)
+        {
+            if (cleared)
+            {
+                _ = this.CollectSessionChanged(null, v);
+            }
+
+            rejected.Throw();
         }
 
         var handlerFailure = this.CollectSessionChanged(renewed, v);
