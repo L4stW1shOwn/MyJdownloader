@@ -652,6 +652,27 @@ public sealed partial class MyJDownloaderClientLifecycleTests
     }
 
     [Test]
+    public async Task ReconnectAsync_RestoreDuringReconnect_KeepsRestoredSession()
+    {
+        MyJDownloaderClient? client = null;
+        var other = CreateOtherSession(OtherEmail);
+        using var server = new ScriptedServer()
+            .On(ReconnectPath, RestoringDuringReconnect(() => client!, other, ReconnectOk(Key(3))));
+        client = CreateClient(server);
+        client.RestoreSession(CreateSession());
+        var events = Collect(client);
+
+        var result = await client.ReconnectAsync().WaitAsync(_waitTimeout);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.SameAs(other));
+            Assert.That(client.ExportSession(), Is.SameAs(other));
+            Assert.That(events, Is.Empty);
+        });
+    }
+
+    [Test]
     public async Task GetDevicesAsync_SameAccountRestoreDuringRenewal_ReplaysWithRestoredSession()
     {
         MyJDownloaderClient? client = null;

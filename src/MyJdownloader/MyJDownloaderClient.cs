@@ -82,7 +82,7 @@ public sealed class MyJDownloaderClient
 
     /// <summary>Restores a previously exported session without sending any request or raising <see cref="SessionChanged"/>.</summary>
     /// <param name="session">The session to restore.</param>
-    /// <remarks>A restore concurrent with a connect or reconnect may be overwritten by it.</remarks>
+    /// <remarks>A restore concurrent with a connect may be overwritten by it; a restore concurrent with a reconnect or an automatic renewal wins.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="session"/> is <see langword="null"/>.</exception>
     public void RestoreSession(MyJdSession session)
     {
@@ -116,6 +116,10 @@ public sealed class MyJDownloaderClient
     /// <summary>Refreshes the current session using its regain token.</summary>
     /// <param name="cancellationToken">A token to cancel the operation.</param>
     /// <returns>The new session.</returns>
+    /// <remarks>
+    /// If <see cref="RestoreSession"/> replaces the session while the request is in flight, the restored session wins:
+    /// the renewed tokens are discarded, <see cref="SessionChanged"/> is not raised and the restored session is returned.
+    /// </remarks>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The server rejected the request or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -131,7 +135,14 @@ public sealed class MyJDownloaderClient
         {
             var current = Volatile.Read(ref this._session) ?? throw new InvalidOperationException(NotConnectedMessage);
             newSession = await this._serverChannel.ReconnectAsync(current, cancellationToken).ConfigureAwait(false);
-            Volatile.Write(ref this._session, newSession);
+
+            // A concurrent RestoreSession wins: the renewed tokens are discarded (valid server-side until they expire).
+            var replaced = Interlocked.CompareExchange(ref this._session, newSession, current);
+            if (!ReferenceEquals(replaced, current))
+            {
+                return replaced ?? throw new InvalidOperationException(NotConnectedMessage);
+            }
+
             v = Interlocked.Increment(ref this._version);
         }
         finally
