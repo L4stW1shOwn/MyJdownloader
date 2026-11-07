@@ -41,11 +41,6 @@ appsettings.Development.json
 *.pfx
 *.p12
 
-## Claude Code / suivi local
-.ai/
-.claude/.workflow-active
-.claude/settings.local.json
-
 ## Docker
 .env
 !.env.example
