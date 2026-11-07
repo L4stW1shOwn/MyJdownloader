@@ -26,7 +26,7 @@ jobs:
           global-json-file: global.json
 
       - name: Restore
-        run: dotnet restore MyJdownloader.slnx
+        run: dotnet restore MyJdownloader.slnx --locked-mode
 
       - name: Build (Release)
         run: dotnet build MyJdownloader.slnx -c Release

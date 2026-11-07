@@ -49,7 +49,7 @@ jobs:
           echo "Version : $VERSION"
 
       - name: Restore
-        run: dotnet restore MyJdownloader.slnx
+        run: dotnet restore MyJdownloader.slnx --locked-mode
 
       - name: Build (Release)
         env:
