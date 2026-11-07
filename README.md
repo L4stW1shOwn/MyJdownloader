@@ -5,7 +5,7 @@ A .NET client library for the [MyJDownloader](https://my.jdownloader.org) API.
 > **Status: pre-1.0.** The library can connect, reconnect and disconnect,
 > export and restore the session (with automatic renewal), list devices and
 > make generic encrypted device calls via `GetDevice(id).Channel`. The typed
-> `device.LinkGrabber`, `device.Downloads`, `device.DownloadController`, `device.Jd`, `device.System`, `device.Config`, `device.Accounts`, `device.Captcha`, `device.Events`, `device.Extensions` and `device.Update` facades are available; other namespaces come in later versions. The API may still change before 1.0.
+> `device.LinkGrabber`, `device.Downloads`, `device.DownloadController`, `device.Jd`, `device.System`, `device.Config`, `device.Accounts`, `device.Captcha`, `device.Events`, `device.Extensions`, `device.Extraction` and `device.Update` facades are available; other namespaces come in later versions. The API may still change before 1.0.
 
 ## Packages
 
@@ -290,6 +290,24 @@ if (await device.Update.IsUpdateAvailableAsync(ct))
     // offline before answering, so a timeout does not mean the action failed.
     await device.Update.RestartAndUpdateAsync(ct);
 }
+```
+
+## Extraction
+
+`device.Extraction` is the typed facade over `/extraction`.
+
+```csharp
+foreach (var archive in await device.Extraction.GetQueueAsync(ct))
+{
+    Console.WriteLine($"{archive.ArchiveName}: {archive.ControllerStatus}");
+}
+
+// Adds the password to the persisted password list of the device.
+await device.Extraction.AddArchivePasswordAsync(password, ct);
+
+// Applied immediately, without confirmation; a timeout does not mean the action failed.
+// Passwords in ArchiveSettings are masked in ToString() but returned in clear by the device.
+await device.Extraction.SetArchiveSettingsAsync(archiveId, new ArchiveSettings { AutoExtract = true }, ct);
 ```
 
 ## Logging and tracing

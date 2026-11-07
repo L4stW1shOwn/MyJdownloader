@@ -20,6 +20,7 @@ using MyJdownloader.Json;
 [JsonSerializable(typeof(List<ArchiveStatus>))]
 [JsonSerializable(typeof(List<ArchiveSettings>))]
 [JsonSerializable(typeof(Dictionary<string, bool?>))]
+[JsonSerializable(typeof(string[]))]
 internal sealed partial class ExtractionJsonContext : JsonSerializerContext
 {
 }
