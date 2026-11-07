@@ -1,5 +1,6 @@
 namespace MyJdownloader.LinkGrabber;
 
+using System.Diagnostics;
 using System.Text.Json.Serialization;
 
 /// <summary>Wire form of <see cref="AddLinksRequest"/>: links joined with line feeds, other members copied.</summary>
@@ -12,8 +13,10 @@ internal sealed class AddLinksQueryDto
 
     public string? DestinationFolder { get; init; }
 
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? ExtractPassword { get; init; }
 
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? DownloadPassword { get; init; }
 
     public string? SourceUrl { get; init; }

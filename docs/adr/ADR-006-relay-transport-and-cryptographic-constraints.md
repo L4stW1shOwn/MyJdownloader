@@ -36,9 +36,9 @@ The MyJD protocol is imposed by a third party. It uses:
     storage (ADR-004) and by the absence of secret logging.
 - **In-memory key material**: temporary byte copies of secrets are cleared
   after use. Declared members holding byte-typed key material (or a plaintext
-  request) are `DebuggerBrowsable(Never)`, enforced by a reflection test;
-  string secrets (tokens, passwords) are annotated manually. This is a
-  convenience against casual exposure in debugger variable
+  request), and declared text members whose name contains `Token`, `Secret` or
+  `Password`, are `DebuggerBrowsable(Never)`, enforced by reflection tests.
+  This is a convenience against casual exposure in debugger variable
   views, not a protection: raw views, compiler-generated members (backing
   fields, async state machines), locals, immutable strings and memory dumps
   still reveal the secrets.
