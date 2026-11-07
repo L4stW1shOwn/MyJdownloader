@@ -46,7 +46,10 @@ internal static class MyJdErrorMapper
         };
     }
 
-    /// <summary>Trims the raw type, caps it at <see cref="MaxErrorTypeLength"/> characters without splitting a surrogate pair, then upper-cases it.</summary>
+    /// <summary>
+    /// Trims the raw type, caps it at <see cref="MaxErrorTypeLength"/> characters without splitting a surrogate pair,
+    /// upper-cases it and replaces control characters with <c>?</c>.
+    /// </summary>
     private static string NormalizeCode(string? type)
     {
         var span = type.AsSpan().Trim();
@@ -61,7 +64,18 @@ internal static class MyJdErrorMapper
             span = span[..length];
         }
 
-        return span.ToString().ToUpperInvariant();
+        Span<char> buffer = stackalloc char[MaxErrorTypeLength];
+        var written = span.ToUpperInvariant(buffer);
+        var code = buffer[..written];
+        foreach (ref var c in code)
+        {
+            if (char.IsControl(c))
+            {
+                c = '?';
+            }
+        }
+
+        return new string(code);
     }
 
     private static bool IsSafeCode(string code)

@@ -126,12 +126,9 @@ public sealed class MyJdErrorMapperTests
     [TestCase("<script>")]
     public void Map_UnsafeType_MessageShowsUnknown(string type)
     {
-        ArgumentNullException.ThrowIfNull(type);
-
         var result = MyJdErrorMapper.Map(MyJdErrorSource.Server, null, type, HttpStatusCode.BadRequest, null);
 
         Assert.That(result.Message, Is.EqualTo("MyJD server error UNKNOWN (HTTP 400)."));
-        Assert.That(result.ErrorType, Is.EqualTo(type.Trim().ToUpperInvariant()));
     }
 
     [Test]
@@ -172,6 +169,24 @@ public sealed class MyJdErrorMapperTests
         var result = MyJdErrorMapper.Map(MyJdErrorSource.Server, null, type, HttpStatusCode.BadRequest, null);
 
         Assert.That(result.ErrorType, Is.EqualTo(new string('A', 256)));
+    }
+
+    [Test]
+    public void Map_PaddedTypeLongerThan256_TrimsBeforeCap()
+    {
+        var type = "   " + new string('a', 300) + "   ";
+
+        var result = MyJdErrorMapper.Map(MyJdErrorSource.Server, null, type, HttpStatusCode.BadRequest, null);
+
+        Assert.That(result.ErrorType, Is.EqualTo(new string('A', 256)));
+    }
+
+    [Test]
+    public void Map_ControlCharactersInType_ReplacedInErrorType()
+    {
+        var result = MyJdErrorMapper.Map(MyJdErrorSource.Server, null, "bad\r\n\u0085type\u007f", HttpStatusCode.BadRequest, null);
+
+        Assert.That(result.ErrorType, Is.EqualTo("BAD???TYPE?"));
     }
 
     [Test]
