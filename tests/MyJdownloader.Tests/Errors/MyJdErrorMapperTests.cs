@@ -155,6 +155,36 @@ public sealed class MyJdErrorMapperTests
     }
 
     [Test]
+    public void Map_TypeOf256Chars_KeepsErrorType()
+    {
+        var type = new string('A', 256);
+
+        var result = MyJdErrorMapper.Map(MyJdErrorSource.Server, null, type, HttpStatusCode.BadRequest, null);
+
+        Assert.That(result.ErrorType, Is.EqualTo(type));
+    }
+
+    [Test]
+    public void Map_TypeLongerThan256_TruncatesErrorType()
+    {
+        var type = new string('a', 10_000);
+
+        var result = MyJdErrorMapper.Map(MyJdErrorSource.Server, null, type, HttpStatusCode.BadRequest, null);
+
+        Assert.That(result.ErrorType, Is.EqualTo(new string('A', 256)));
+    }
+
+    [Test]
+    public void Map_SurrogatePairAtCap_DoesNotSplitPair()
+    {
+        var type = new string('A', 255) + "\U0001F600" + "B";
+
+        var result = MyJdErrorMapper.Map(MyJdErrorSource.Server, null, type, HttpStatusCode.BadRequest, null);
+
+        Assert.That(result.ErrorType, Is.EqualTo(new string('A', 255)));
+    }
+
+    [Test]
     public void Map_NonAsciiType_MessageShowsUnknown()
     {
         var result = MyJdErrorMapper.Map(MyJdErrorSource.Server, null, "auth_faİled", HttpStatusCode.BadRequest, null);

@@ -8,6 +8,7 @@ internal static class MyJdErrorMapper
 {
     private const string UnknownCode = "UNKNOWN";
     private const int MaxCodeLength = 64;
+    private const int MaxErrorTypeLength = 256;
 
     /// <summary>Builds the exception matching an error reported by the service.</summary>
     /// <param name="channelSource">The side the response came through, used when <paramref name="src"/> is missing or unrecognized.</param>
@@ -28,11 +29,7 @@ internal static class MyJdErrorMapper
             : string.Equals(trimmedSrc, "DEVICE", StringComparison.OrdinalIgnoreCase) ? MyJdErrorSource.Device
             : channelSource;
 
-        var code = type?.Trim().ToUpperInvariant();
-        if (string.IsNullOrEmpty(code))
-        {
-            code = UnknownCode;
-        }
+        var code = NormalizeCode(type);
 
         var shownCode = IsSafeCode(code) ? code : UnknownCode;
         var sourceText = source == MyJdErrorSource.Device ? "device" : "server";
@@ -47,6 +44,24 @@ internal static class MyJdErrorMapper
                 => new MyJdRateLimitException(message, source, code, statusCode, retryAfter),
             _ => new MyJdApiException(message, source, code, statusCode),
         };
+    }
+
+    /// <summary>Trims the raw type, caps it at <see cref="MaxErrorTypeLength"/> characters without splitting a surrogate pair, then upper-cases it.</summary>
+    private static string NormalizeCode(string? type)
+    {
+        var span = type.AsSpan().Trim();
+        if (span.IsEmpty)
+        {
+            return UnknownCode;
+        }
+
+        if (span.Length > MaxErrorTypeLength)
+        {
+            var length = char.IsHighSurrogate(span[MaxErrorTypeLength - 1]) ? MaxErrorTypeLength - 1 : MaxErrorTypeLength;
+            span = span[..length];
+        }
+
+        return span.ToString().ToUpperInvariant();
     }
 
     private static bool IsSafeCode(string code)
