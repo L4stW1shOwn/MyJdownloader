@@ -5,7 +5,7 @@ A .NET client library for the [MyJDownloader](https://my.jdownloader.org) API.
 > **Status: pre-1.0.** The library can connect, reconnect and disconnect,
 > export and restore the session (with automatic renewal), list devices and
 > make generic encrypted device calls via `GetDevice(id).Channel`. The typed
-> `device.LinkGrabber`, `device.Downloads`, `device.DownloadController`, `device.Jd`, `device.System` and `device.Config` facades are available; other namespaces come in later versions. The API may still change before 1.0.
+> `device.LinkGrabber`, `device.Downloads`, `device.DownloadController`, `device.Jd`, `device.System`, `device.Config` and `device.Accounts` facades are available; other namespaces come in later versions. The API may still change before 1.0.
 
 ## Packages
 
@@ -166,6 +166,25 @@ await device.Config.SetAsync(entry.InterfaceName!, entry.Storage, entry.Key!, Js
 - Values may hold secrets (passwords, tokens): never log them.
 - `SetAsync` sends the value as its JSON text (strings quoted); to be confirmed against a real device.
 - Same 1 MiB response limit as above: restrict queries with `ConfigInterface` / `Pattern`.
+
+## Accounts
+
+`device.Accounts` is the typed facade over `/accountsV2` (premium hoster accounts and basic authentication entries):
+
+```csharp
+using MyJdownloader.Accounts;
+
+// Credentials are sent to the device; a timeout or network error does not mean the action failed.
+await device.Accounts.AddAccountAsync("example-hoster.com", "my-user", passwordFromYourSecretStore);
+
+var accounts = await device.Accounts.ListAccountsAsync();
+await device.Accounts.RefreshAccountsAsync([accounts[0].Uuid]);
+
+long authId = await device.Accounts.AddBasicAuthAsync(BasicAuthType.Http, "*.example.com", "my-user", passwordFromYourSecretStore);
+```
+
+- Passwords are never retained or logged by the library; do not log them either.
+- `ListBasicAuthAsync` returns basic authentication passwords in clear (the device has no opt-out): never log or serialize those entries.
 
 ## Logging and tracing
 

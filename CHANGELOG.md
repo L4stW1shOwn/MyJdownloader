@@ -6,6 +6,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 
 ### Added
 
+- `device.Accounts`: typed `/accountsV2` facade (premium hoster accounts, hoster lists and URLs, basic authentication entries); passwords are never retained or logged, `BasicAuthentication.Password` is masked in `ToString()`.
 - `device.Config`: typed `/config` facade (get, default, set, reset, query, enum options); untyped values as `JsonElement`.
 - `device.System`: typed `/system` facade (restart or exit JDownloader, shut down, standby or hibernate the device).
 - `device.Jd`: typed `/jd` facade (uptime, version, core revision, plugin refresh).
