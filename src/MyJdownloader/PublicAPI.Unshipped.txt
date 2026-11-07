@@ -963,3 +963,57 @@ static MyJdownloader.DeviceExtensions.Extension.operator !=(MyJdownloader.Device
 static MyJdownloader.DeviceExtensions.Extension.operator ==(MyJdownloader.DeviceExtensions.Extension? left, MyJdownloader.DeviceExtensions.Extension? right) -> bool
 static MyJdownloader.DeviceExtensions.ExtensionQuery.operator !=(MyJdownloader.DeviceExtensions.ExtensionQuery? left, MyJdownloader.DeviceExtensions.ExtensionQuery? right) -> bool
 static MyJdownloader.DeviceExtensions.ExtensionQuery.operator ==(MyJdownloader.DeviceExtensions.ExtensionQuery? left, MyJdownloader.DeviceExtensions.ExtensionQuery? right) -> bool
+MyJdownloader.Extraction.ExtractionControllerStatus
+MyJdownloader.Extraction.ExtractionControllerStatus.Unknown = 0 -> MyJdownloader.Extraction.ExtractionControllerStatus
+MyJdownloader.Extraction.ExtractionControllerStatus.Running = 1 -> MyJdownloader.Extraction.ExtractionControllerStatus
+MyJdownloader.Extraction.ExtractionControllerStatus.Queued = 2 -> MyJdownloader.Extraction.ExtractionControllerStatus
+MyJdownloader.Extraction.ExtractionControllerStatus.Na = 3 -> MyJdownloader.Extraction.ExtractionControllerStatus
+MyJdownloader.Extraction.ArchiveFileStatus
+MyJdownloader.Extraction.ArchiveFileStatus.Unknown = 0 -> MyJdownloader.Extraction.ArchiveFileStatus
+MyJdownloader.Extraction.ArchiveFileStatus.Complete = 1 -> MyJdownloader.Extraction.ArchiveFileStatus
+MyJdownloader.Extraction.ArchiveFileStatus.Incomplete = 2 -> MyJdownloader.Extraction.ArchiveFileStatus
+MyJdownloader.Extraction.ArchiveFileStatus.Missing = 3 -> MyJdownloader.Extraction.ArchiveFileStatus
+MyJdownloader.Extraction.ArchiveStatus
+MyJdownloader.Extraction.ArchiveStatus.<Clone>$() -> MyJdownloader.Extraction.ArchiveStatus!
+MyJdownloader.Extraction.ArchiveStatus.ArchiveId.get -> string?
+MyJdownloader.Extraction.ArchiveStatus.ArchiveId.init -> void
+MyJdownloader.Extraction.ArchiveStatus.ArchiveName.get -> string?
+MyJdownloader.Extraction.ArchiveStatus.ArchiveName.init -> void
+MyJdownloader.Extraction.ArchiveStatus.ControllerId.get -> long?
+MyJdownloader.Extraction.ArchiveStatus.ControllerId.init -> void
+MyJdownloader.Extraction.ArchiveStatus.ControllerStatus.get -> MyJdownloader.Extraction.ExtractionControllerStatus
+MyJdownloader.Extraction.ArchiveStatus.ControllerStatus.init -> void
+MyJdownloader.Extraction.ArchiveStatus.States.get -> System.Collections.Generic.IReadOnlyDictionary<string!, MyJdownloader.Extraction.ArchiveFileStatus>?
+MyJdownloader.Extraction.ArchiveStatus.States.init -> void
+MyJdownloader.Extraction.ArchiveStatus.Type.get -> string?
+MyJdownloader.Extraction.ArchiveStatus.Type.init -> void
+MyJdownloader.Extraction.ArchiveStatus.Equals(MyJdownloader.Extraction.ArchiveStatus? other) -> bool
+MyJdownloader.Extraction.ArchiveStatus.ArchiveStatus() -> void
+override MyJdownloader.Extraction.ArchiveStatus.Equals(object? obj) -> bool
+override MyJdownloader.Extraction.ArchiveStatus.GetHashCode() -> int
+override MyJdownloader.Extraction.ArchiveStatus.ToString() -> string!
+static MyJdownloader.Extraction.ArchiveStatus.operator !=(MyJdownloader.Extraction.ArchiveStatus? left, MyJdownloader.Extraction.ArchiveStatus? right) -> bool
+static MyJdownloader.Extraction.ArchiveStatus.operator ==(MyJdownloader.Extraction.ArchiveStatus? left, MyJdownloader.Extraction.ArchiveStatus? right) -> bool
+MyJdownloader.Extraction.ArchiveSettings
+MyJdownloader.Extraction.ArchiveSettings.<Clone>$() -> MyJdownloader.Extraction.ArchiveSettings!
+MyJdownloader.Extraction.ArchiveSettings.ArchiveId.get -> string?
+MyJdownloader.Extraction.ArchiveSettings.ArchiveId.init -> void
+MyJdownloader.Extraction.ArchiveSettings.AutoExtract.get -> bool?
+MyJdownloader.Extraction.ArchiveSettings.AutoExtract.init -> void
+MyJdownloader.Extraction.ArchiveSettings.ExtractPath.get -> string?
+MyJdownloader.Extraction.ArchiveSettings.ExtractPath.init -> void
+MyJdownloader.Extraction.ArchiveSettings.FinalPassword.get -> string?
+MyJdownloader.Extraction.ArchiveSettings.FinalPassword.init -> void
+MyJdownloader.Extraction.ArchiveSettings.Passwords.get -> System.Collections.Generic.IReadOnlyList<string!>?
+MyJdownloader.Extraction.ArchiveSettings.Passwords.init -> void
+MyJdownloader.Extraction.ArchiveSettings.RemoveDownloadLinksAfterExtraction.get -> bool?
+MyJdownloader.Extraction.ArchiveSettings.RemoveDownloadLinksAfterExtraction.init -> void
+MyJdownloader.Extraction.ArchiveSettings.RemoveFilesAfterExtraction.get -> bool?
+MyJdownloader.Extraction.ArchiveSettings.RemoveFilesAfterExtraction.init -> void
+MyJdownloader.Extraction.ArchiveSettings.Equals(MyJdownloader.Extraction.ArchiveSettings? other) -> bool
+MyJdownloader.Extraction.ArchiveSettings.ArchiveSettings() -> void
+override MyJdownloader.Extraction.ArchiveSettings.Equals(object? obj) -> bool
+override MyJdownloader.Extraction.ArchiveSettings.GetHashCode() -> int
+override MyJdownloader.Extraction.ArchiveSettings.ToString() -> string!
+static MyJdownloader.Extraction.ArchiveSettings.operator !=(MyJdownloader.Extraction.ArchiveSettings? left, MyJdownloader.Extraction.ArchiveSettings? right) -> bool
+static MyJdownloader.Extraction.ArchiveSettings.operator ==(MyJdownloader.Extraction.ArchiveSettings? left, MyJdownloader.Extraction.ArchiveSettings? right) -> bool
