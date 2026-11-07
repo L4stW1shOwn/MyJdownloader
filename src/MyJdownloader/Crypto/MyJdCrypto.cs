@@ -86,7 +86,17 @@ internal static class MyJdCrypto
         ArgumentNullException.ThrowIfNull(data);
         EnsureKeyLength(key);
 
-        return Convert.ToHexStringLower(HMACSHA256.HashData(key, Encoding.UTF8.GetBytes(data)));
+        // The signed data may carry the session token: clear this copy. The source string and the request URL
+        // still hold the token; this removes one copy, not every copy.
+        var dataBytes = Encoding.UTF8.GetBytes(data);
+        try
+        {
+            return Convert.ToHexStringLower(HMACSHA256.HashData(key, dataBytes));
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(dataBytes);
+        }
     }
 
     /// <summary>Encrypts <paramref name="plaintext"/> with AES-128-CBC (PKCS7).</summary>
