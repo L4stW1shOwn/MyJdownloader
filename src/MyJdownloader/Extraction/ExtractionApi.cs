@@ -117,9 +117,11 @@ public sealed class ExtractionApi
     /// <remarks>
     /// The change (extraction path, passwords, delete-after-extraction flags) is applied immediately, without confirmation.
     /// <see cref="ArchiveSettings.ExtractPath"/> is a path on the device: do not pass untrusted input. A timeout does not mean the action failed.
+    /// An empty <see cref="ArchiveSettings.Passwords"/> list is sent as is and may clear the candidate passwords of the archive; leave it
+    /// <see langword="null"/> to keep them. A blank <see cref="ArchiveSettings.FinalPassword"/> is rejected, so it cannot be cleared through this method.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="archiveId"/>, <paramref name="settings"/> or a password item is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">A text value is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException">A text value is blank or contains control characters or lone surrogates, or <see cref="ArchiveSettings.ArchiveId"/> is set and differs from <paramref name="archiveId"/>.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request (for example <c>BAD_PARAMETERS</c>), or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -129,6 +131,11 @@ public sealed class ExtractionApi
     {
         FacadeGuard.ValidateText(archiveId, nameof(archiveId));
         ArgumentNullException.ThrowIfNull(settings);
+        if (settings.ArchiveId is not null && !string.Equals(settings.ArchiveId, archiveId, StringComparison.Ordinal))
+        {
+            throw new ArgumentException("The settings archive identifier must be null or equal to the archive identifier.", nameof(settings));
+        }
+
         FacadeGuard.ValidateOptionalText(settings.ExtractPath, nameof(settings));
         FacadeGuard.ValidateOptionalText(settings.FinalPassword, nameof(settings));
         if (settings.Passwords is { } passwords)

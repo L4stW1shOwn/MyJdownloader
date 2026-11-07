@@ -12,6 +12,7 @@ using System.Text;
 public sealed record ArchiveSettings
 {
     /// <summary>Gets the archive identifier.</summary>
+    /// <remarks>When sent through <see cref="ExtractionApi.SetArchiveSettingsAsync"/>, it must be <see langword="null"/> or equal to the archive identifier argument.</remarks>
     public string? ArchiveId { get; init; }
 
     /// <summary>Gets a value indicating whether the archive is extracted automatically.</summary>
@@ -25,13 +26,16 @@ public sealed record ArchiveSettings
     public string? FinalPassword { get; init; }
 
     /// <summary>Gets the candidate passwords, returned in clear by the device; never log them.</summary>
+    /// <remarks>An empty list is sent as is and may clear the candidate passwords on the device; leave <see langword="null"/> to keep them.</remarks>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public IReadOnlyList<string>? Passwords { get; init; }
 
     /// <summary>Gets a value indicating whether the download links are removed after extraction.</summary>
+    /// <remarks><see langword="true"/> removes the links from the device download list after extraction, which cannot be undone.</remarks>
     public bool? RemoveDownloadLinksAfterExtraction { get; init; }
 
     /// <summary>Gets a value indicating whether the archive files are deleted after extraction.</summary>
+    /// <remarks><see langword="true"/> deletes the archive files on the device after extraction, which cannot be undone.</remarks>
     public bool? RemoveFilesAfterExtraction { get; init; }
 
     [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Invoked by the compiler-generated ToString.")]

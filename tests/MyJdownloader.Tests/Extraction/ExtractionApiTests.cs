@@ -39,6 +39,7 @@ public sealed class ExtractionApiTests
         yield return Case("SetArchiveSettingsAsync_NullArchiveId_Throws", a => a.SetArchiveSettingsAsync(null!, new ArchiveSettings()));
         yield return Case("SetArchiveSettingsAsync_NullSettings_Throws", a => a.SetArchiveSettingsAsync("a1", null!));
         yield return Case("SetArchiveSettingsAsync_NullPasswordItem_Throws", a => a.SetArchiveSettingsAsync("a1", new ArchiveSettings { Passwords = [null!] }));
+        yield return Case("SetArchiveSettingsAsync_MismatchedSettingsArchiveId_Throws", a => a.SetArchiveSettingsAsync("a1", new ArchiveSettings { ArchiveId = "a2" }));
         yield return Case("StartExtractionNowAsync_NullLinkIds_Throws", a => a.StartExtractionNowAsync(null!, _noIds));
         yield return Case("StartExtractionNowAsync_NullPackageIds_Throws", a => a.StartExtractionNowAsync(_noIds, null!));
 
