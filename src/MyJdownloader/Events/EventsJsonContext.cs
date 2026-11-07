@@ -7,6 +7,7 @@ using MyJdownloader.Json;
 [JsonSourceGenerationOptions(
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     PropertyNameCaseInsensitive = true,
+    AllowDuplicateProperties = false,
     UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     Converters = [typeof(MillisecondsDurationConverter)])]

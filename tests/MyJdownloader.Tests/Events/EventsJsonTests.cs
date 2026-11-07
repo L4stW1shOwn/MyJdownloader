@@ -16,6 +16,12 @@ public sealed class EventsJsonTests
     }
 
     [Test]
+    public void DeviceEvent_CaseVariantDuplicateKeys_Throws()
+        => Assert.Throws<JsonException>(() => JsonSerializer.Deserialize(
+            /*lang=json,strict*/ """[{"publisher":"p","eventData":1,"EventData":2}]""",
+            EventsJsonContext.Default.ListDeviceEvent));
+
+    [Test]
     public void EventSubscription_Sample_Deserializes()
     {
         const string payload = /*lang=json,strict*/ """

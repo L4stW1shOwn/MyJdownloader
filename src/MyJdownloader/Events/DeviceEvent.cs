@@ -10,6 +10,7 @@ using System.Text.Json.Serialization;
 /// <remarks>
 /// The shape of the <c>listen</c> items is undocumented (assumption to confirm by live tests); property names are read
 /// case-insensitively. <see cref="Data"/> is untyped and may hold anything, including secrets: do not log it.
+/// <see cref="Publisher"/> and <see cref="EventId"/> are device-controlled strings: sanitize or encode them before logging or rendering.
 /// <see cref="object.ToString"/> prints only its JSON kind, never its content.
 /// </remarks>
 public sealed record DeviceEvent

@@ -220,7 +220,14 @@ try
     {
         try
         {
-            foreach (var evt in await device.Events.ListenAsync(subscription.SubscriptionId, ct))
+            var events = await device.Events.ListenAsync(subscription.SubscriptionId, ct);
+            if (events.Count == 0)
+            {
+                // Avoid a hot loop if the device answers immediately with no events.
+                await Task.Delay(TimeSpan.FromSeconds(1), ct);
+            }
+
+            foreach (var evt in events)
             {
                 Console.WriteLine($"{evt.Publisher}/{evt.EventId}");
             }
@@ -249,7 +256,7 @@ finally
 
 - Subscription and exclusion patterns are regular expressions evaluated on the device.
 - `ListenAsync` is bounded by `HttpClient.Timeout`, which the library neither raises nor bypasses: keep the poll timeout well below it (for example 25 s for the default 100 s).
-- `DeviceEvent.Data` is untyped and may hold secrets: do not log it. The event shape and the millisecond durations are assumptions to confirm against a real device.
+- `DeviceEvent.Publisher` and `EventId` are device-controlled strings: sanitize or encode them before logging or rendering. `DeviceEvent.Data` is untyped and may hold secrets: do not log it. The event shape and the millisecond durations are assumptions to confirm against a real device.
 
 ## Logging and tracing
 

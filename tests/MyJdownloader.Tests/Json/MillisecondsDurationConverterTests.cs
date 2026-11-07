@@ -53,4 +53,16 @@ public sealed class MillisecondsDurationConverterTests
 
         Assert.That(json, Is.EqualTo("null"));
     }
+
+    [Test]
+    public void MillisecondsDuration_Fractional_ThrowsJsonException()
+        => Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<TimeSpan?>(/*lang=json,strict*/ "1.5", _options));
+
+    [Test]
+    public void MillisecondsDuration_StringToken_ThrowsJsonException()
+        => Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<TimeSpan?>(/*lang=json,strict*/ "\"10\"", _options));
+
+    [Test]
+    public void MillisecondsDuration_OutOfRange_ThrowsJsonException()
+        => Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<TimeSpan?>(/*lang=json,strict*/ "9223372036854775807", _options));
 }
