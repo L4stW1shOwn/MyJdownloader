@@ -158,9 +158,9 @@ public sealed class MyJDownloaderClientTests
     }
 
     [Test]
-    public void SessionField_Declared_IsHiddenFromDebugger()
+    public void StateField_Declared_IsHiddenFromDebugger()
     {
-        var field = typeof(MyJDownloaderClient).GetField("_session", BindingFlags.NonPublic | BindingFlags.Instance);
+        var field = typeof(MyJDownloaderClient).GetField("_state", BindingFlags.NonPublic | BindingFlags.Instance);
 
         var attribute = field?.GetCustomAttribute<DebuggerBrowsableAttribute>();
 

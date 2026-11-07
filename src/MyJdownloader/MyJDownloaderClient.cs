@@ -41,9 +41,10 @@ public sealed class MyJDownloaderClient
     private readonly RelayTransport _transport;
 
     private readonly SemaphoreSlim _gate = new(1, 1);
+    // The session and its notification version are published together, so a lock-free RestoreSession can never be
+    // observed with the version of another write.
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private MyJdSession? _session;
-    private long _version;
+    private SessionState _state = new(null, 0);
 
     /// <summary>Initializes a new instance of the <see cref="MyJDownloaderClient"/> class.</summary>
     /// <remarks>
@@ -76,11 +77,11 @@ public sealed class MyJDownloaderClient
     public event EventHandler<MyJdSessionChangedEventArgs>? SessionChanged;
 
     /// <summary>Gets a value indicating whether the client currently holds a session.</summary>
-    public bool IsConnected => Volatile.Read(ref this._session) is not null;
+    public bool IsConnected => this.CurrentSession is not null;
 
     /// <summary>Returns the current session, or <see langword="null"/> when the client is not connected.</summary>
     /// <returns>The current session, or <see langword="null"/>.</returns>
-    public MyJdSession? ExportSession() => Volatile.Read(ref this._session);
+    public MyJdSession? ExportSession() => this.CurrentSession;
 
     /// <summary>Restores a previously exported session without sending any request or raising <see cref="SessionChanged"/>.</summary>
     /// <param name="session">The session to restore.</param>
@@ -89,8 +90,7 @@ public sealed class MyJDownloaderClient
     public void RestoreSession(MyJdSession session)
     {
         ArgumentNullException.ThrowIfNull(session);
-        Interlocked.Increment(ref this._version);
-        Volatile.Write(ref this._session, session);
+        this.Publish(session);
     }
 
     /// <summary>Connects to the MyJDownloader server and replaces any current session.</summary>
@@ -121,6 +121,10 @@ public sealed class MyJDownloaderClient
     /// <remarks>
     /// If <see cref="RestoreSession"/> replaces the session while the request is in flight, the restored session wins:
     /// the renewed tokens are discarded, <see cref="SessionChanged"/> is not raised and the restored session is returned.
+    /// The discarded tokens are not revoked: they stay valid on the server until they expire. Restoring a copy of the
+    /// session being renewed (for example one deserialized again from a store) also wins, but keeps tokens the server
+    /// has most likely invalidated: the next call then fails or triggers an automatic renewal. The same applies when the
+    /// very instance being renewed is restored again.
     /// </remarks>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The server rejected the request or the response is invalid.</exception>
@@ -135,17 +139,19 @@ public sealed class MyJDownloaderClient
         await this._gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            var current = Volatile.Read(ref this._session) ?? throw new InvalidOperationException(NotConnectedMessage);
+            var state = Volatile.Read(ref this._state);
+            var current = state.Session ?? throw new InvalidOperationException(NotConnectedMessage);
             newSession = await this._serverChannel.ReconnectAsync(current, cancellationToken).ConfigureAwait(false);
 
             // A concurrent RestoreSession wins: the renewed tokens are discarded (valid server-side until they expire).
-            var replaced = Interlocked.CompareExchange(ref this._session, newSession, current);
-            if (!ReferenceEquals(replaced, current))
+            var next = new SessionState(newSession, state.Version + 1);
+            var replaced = Interlocked.CompareExchange(ref this._state, next, state);
+            if (!ReferenceEquals(replaced, state))
             {
-                return replaced ?? throw new InvalidOperationException(NotConnectedMessage);
+                return replaced.Session ?? throw new InvalidOperationException(NotConnectedMessage);
             }
 
-            v = Interlocked.Increment(ref this._version);
+            v = next.Version;
         }
         finally
         {
@@ -175,13 +181,25 @@ public sealed class MyJDownloaderClient
         await this._gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            old = Interlocked.Exchange(ref this._session, null);
-            if (old is null)
+            var state = Volatile.Read(ref this._state);
+            while (true)
             {
-                return;
-            }
+                old = state.Session;
+                if (old is null)
+                {
+                    return;
+                }
 
-            v = Interlocked.Increment(ref this._version);
+                var next = new SessionState(null, state.Version + 1);
+                var seen = Interlocked.CompareExchange(ref this._state, next, state);
+                if (ReferenceEquals(seen, state))
+                {
+                    v = next.Version;
+                    break;
+                }
+
+                state = seen;
+            }
         }
         finally
         {
@@ -250,7 +268,7 @@ public sealed class MyJDownloaderClient
     /// <returns>The result of the call.</returns>
     internal async Task<T> ExecuteAsync<T>(Func<MyJdSession, CancellationToken, Task<T>> call, CancellationToken cancellationToken)
     {
-        var snapshot = Volatile.Read(ref this._session) ?? throw new InvalidOperationException(NotConnectedMessage);
+        var snapshot = this.CurrentSession ?? throw new InvalidOperationException(NotConnectedMessage);
         ExceptionDispatchInfo original;
         try
         {
@@ -317,8 +335,7 @@ public sealed class MyJDownloaderClient
             try
             {
                 newSession = await this._serverChannel.ConnectAsync(request, cancellationToken).ConfigureAwait(false);
-                Volatile.Write(ref this._session, newSession);
-                v = Interlocked.Increment(ref this._version);
+                v = this.Publish(newSession);
             }
             finally
             {
@@ -332,6 +349,26 @@ public sealed class MyJDownloaderClient
 
         this.OnSessionChanged(newSession, v);
         return newSession;
+    }
+
+    private MyJdSession? CurrentSession => Volatile.Read(ref this._state).Session;
+
+    /// <summary>Unconditionally publishes <paramref name="session"/> with the next version.</summary>
+    /// <returns>The version of the published state.</returns>
+    private long Publish(MyJdSession? session)
+    {
+        var state = Volatile.Read(ref this._state);
+        while (true)
+        {
+            var next = new SessionState(session, state.Version + 1);
+            var seen = Interlocked.CompareExchange(ref this._state, next, state);
+            if (ReferenceEquals(seen, state))
+            {
+                return next.Version;
+            }
+
+            state = seen;
+        }
     }
 
     private void OnSessionChanged(MyJdSession? changed, long expectedVersion)
@@ -363,10 +400,10 @@ public sealed class MyJDownloaderClient
         await this._gate.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            var current = Volatile.Read(ref this._session);
-            if (!ReferenceEquals(current, failed))
+            var state = Volatile.Read(ref this._state);
+            if (!ReferenceEquals(state.Session, failed))
             {
-                return ReplayTarget(current, failed);
+                return ReplayTarget(state.Session, failed);
             }
 
             try
@@ -378,20 +415,22 @@ public sealed class MyJDownloaderClient
             {
                 // Clear only if the failed session is still current: a concurrent RestoreSession must survive.
                 rejected = ExceptionDispatchInfo.Capture(ex);
-                cleared = ReferenceEquals(Interlocked.CompareExchange(ref this._session, null, failed), failed);
-                v = cleared ? Interlocked.Increment(ref this._version) : 0;
+                var next = new SessionState(null, state.Version + 1);
+                cleared = ReferenceEquals(Interlocked.CompareExchange(ref this._state, next, state), state);
+                v = cleared ? next.Version : 0;
                 renewed = failed;
             }
 
             if (rejected is null)
             {
                 // A concurrent RestoreSession wins: the renewed tokens are discarded (valid server-side until they expire).
-                if (!ReferenceEquals(Interlocked.CompareExchange(ref this._session, renewed, failed), failed))
+                var next = new SessionState(renewed, state.Version + 1);
+                if (!ReferenceEquals(Interlocked.CompareExchange(ref this._state, next, state), state))
                 {
-                    return ReplayTarget(Volatile.Read(ref this._session), failed);
+                    return ReplayTarget(this.CurrentSession, failed);
                 }
 
-                v = Interlocked.Increment(ref this._version);
+                v = next.Version;
             }
         }
         finally
@@ -416,7 +455,7 @@ public sealed class MyJDownloaderClient
     [SuppressMessage("Design", "CA1031", Justification = "Handler exceptions are collected so every handler runs, then rethrown")]
     private Exception? CollectSessionChanged(MyJdSession? changed, long expectedVersion)
     {
-        if (Volatile.Read(ref this._version) != expectedVersion)
+        if (Volatile.Read(ref this._state).Version != expectedVersion)
         {
             return null;
         }
@@ -448,4 +487,7 @@ public sealed class MyJDownloaderClient
 
         return failures.Count == 1 ? failures[0] : new AggregateException(failures);
     }
+
+    /// <summary>The current session and the version used to drop notifications of superseded changes.</summary>
+    private sealed record SessionState(MyJdSession? Session, long Version);
 }

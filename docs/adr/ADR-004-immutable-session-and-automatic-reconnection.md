@@ -37,8 +37,10 @@ singleton, several concurrent calls may fail at the same time.
   replaces the state without any network call.
 - `SessionChanged` (`EventHandler<MyJdSessionChangedEventArgs>`, nullable
   `Session`) is raised after connect, reconnect and disconnect (with `null`),
-  outside the lock; a version counter drops notifications of superseded
-  changes, so callers persist `ExportSession()`; every handler is invoked even
+  outside the lock; a version, published together with the session in one
+  immutable state by a single compare-and-swap (so a lock-free restore can
+  never be paired with another write's version), drops notifications of
+  superseded changes, so callers persist `ExportSession()`; every handler is invoked even
   if one throws (one failure rethrown, several as `AggregateException`).
 - Session changes are serialized by a `SemaphoreSlim(1,1)` that T-006's
   single-flight reconnection reuses; reads are lock-free.
