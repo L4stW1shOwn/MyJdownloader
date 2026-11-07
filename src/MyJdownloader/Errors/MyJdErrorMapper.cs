@@ -48,7 +48,7 @@ internal static class MyJdErrorMapper
 
     /// <summary>
     /// Trims the raw type, caps it at <see cref="MaxErrorTypeLength"/> characters without splitting a surrogate pair,
-    /// upper-cases it and replaces control characters with <c>?</c>.
+    /// upper-cases it and replaces unsafe characters (see <see cref="IsUnsafe"/>) with <c>?</c>.
     /// </summary>
     private static string NormalizeCode(string? type)
     {
@@ -67,16 +67,35 @@ internal static class MyJdErrorMapper
         Span<char> buffer = stackalloc char[MaxErrorTypeLength];
         var written = span.ToUpperInvariant(buffer);
         var code = buffer[..written];
-        foreach (ref var c in code)
+        for (var i = 0; i < code.Length; i++)
         {
-            if (char.IsControl(c))
+            if (char.IsHighSurrogate(code[i]) && i + 1 < code.Length && char.IsLowSurrogate(code[i + 1]))
             {
-                c = '?';
+                // A valid pair is judged on its code point: supplementary format characters (tags U+E0000-E007F) hide text.
+                if (IsUnsafe(CharUnicodeInfo.GetUnicodeCategory(char.ConvertToUtf32(code[i], code[i + 1]))))
+                {
+                    code[i] = '?';
+                    code[i + 1] = '?';
+                }
+
+                i++;
+            }
+            else if (IsUnsafe(CharUnicodeInfo.GetUnicodeCategory(code[i])))
+            {
+                code[i] = '?';
             }
         }
 
         return new string(code);
     }
+
+    // Characters that can break or disguise a log line: controls (CR, LF, NEL), format (bidi overrides,
+    // zero-width, tags), line and paragraph separators, and surrogates left without their pair.
+    private static bool IsUnsafe(UnicodeCategory category) => category is UnicodeCategory.Control
+        or UnicodeCategory.Format
+        or UnicodeCategory.LineSeparator
+        or UnicodeCategory.ParagraphSeparator
+        or UnicodeCategory.Surrogate;
 
     private static bool IsSafeCode(string code)
     {

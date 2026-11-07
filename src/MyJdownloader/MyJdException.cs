@@ -69,10 +69,10 @@ public abstract class MyJdException : Exception
 
     /// <summary>Gets the error type reported by the service, or <see langword="null"/> when unknown.</summary>
     /// <remarks>
-    /// The value comes from the remote service (trimmed, capped at 256 characters, normalized to upper
-    /// case, control characters replaced with <c>?</c>) and is untrusted: it may still contain other
-    /// unsafe characters such as bidirectional controls or line and paragraph separators (U+2028, U+2029).
-    /// Do not log or display it unfiltered.
+    /// The value comes from the remote service: it is trimmed, capped at 256 characters and normalized to
+    /// upper case; control, format (bidirectional overrides, zero-width, tags), line and paragraph separator
+    /// characters and unpaired surrogates are replaced with <c>?</c>. It is still untrusted (markup characters
+    /// such as <c>&lt;</c> are kept): encode it before displaying it.
     /// </remarks>
     public string? ErrorType { get; }
 

@@ -6,6 +6,14 @@ using MyJdownloader.Errors;
 [TestFixture]
 public sealed class MyJdErrorMapperTests
 {
+    private static readonly object[] _loneSurrogateTypes =
+    [
+        new object[] { "a\uD800b", "A?B" },
+        new object[] { "a\uDC00b", "A?B" },
+        new object[] { "a\uDC00\uD800b", "A??B" },
+        new object[] { "a\U000E0041b", "A??B" },
+    ];
+
     [TestCase("AUTH_FAILED", typeof(MyJdAuthenticationException))]
     [TestCase("EMAIL_INVALID", typeof(MyJdAuthenticationException))]
     [TestCase("EMAIL_FORBIDDEN", typeof(MyJdAuthenticationException))]
@@ -179,6 +187,35 @@ public sealed class MyJdErrorMapperTests
         var result = MyJdErrorMapper.Map(MyJdErrorSource.Server, null, type, HttpStatusCode.BadRequest, null);
 
         Assert.That(result.ErrorType, Is.EqualTo(new string('A', 256)));
+    }
+
+    [TestCase("a\u2028b", "A?B")]
+    [TestCase("a\u2029b", "A?B")]
+    [TestCase("a\u202Eb", "A?B")]
+    [TestCase("a\u200Bb", "A?B")]
+    public void Map_UnsafeUnicodeInType_ReplacedInErrorType(string type, string expected)
+    {
+        var result = MyJdErrorMapper.Map(MyJdErrorSource.Server, null, type, HttpStatusCode.BadRequest, null);
+
+        Assert.That(result.ErrorType, Is.EqualTo(expected));
+    }
+
+    // Lone surrogates cannot go through [TestCase]: attribute strings are stored as UTF-8 and become U+FFFD.
+    // The last case is a valid pair whose code point is a format character (U+E0041, TAG LATIN CAPITAL LETTER A).
+    [TestCaseSource(nameof(_loneSurrogateTypes))]
+    public void Map_LoneSurrogateInType_ReplacedInErrorType(string type, string expected)
+    {
+        var result = MyJdErrorMapper.Map(MyJdErrorSource.Server, null, type, HttpStatusCode.BadRequest, null);
+
+        Assert.That(result.ErrorType, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void Map_SurrogatePairInType_KeptInErrorType()
+    {
+        var result = MyJdErrorMapper.Map(MyJdErrorSource.Server, null, "a\U0001F600b", HttpStatusCode.BadRequest, null);
+
+        Assert.That(result.ErrorType, Is.EqualTo("A\U0001F600B"));
     }
 
     [Test]
