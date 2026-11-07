@@ -24,6 +24,8 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          # Kept: the job pushes the release tag with git push. It runs no repository code (grep, gh api, git tag only).
+          persist-credentials: true
 
       - name: Validate version (SemVer)
         env:
