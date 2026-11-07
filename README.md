@@ -5,7 +5,7 @@ A .NET client library for the [MyJDownloader](https://my.jdownloader.org) API.
 > **Status: pre-1.0.** The library can connect, reconnect and disconnect,
 > export and restore the session (with automatic renewal), list devices and
 > make generic encrypted device calls via `GetDevice(id).Channel`. The typed
-> `device.LinkGrabber`, `device.Downloads`, `device.DownloadController`, `device.Jd`, `device.System`, `device.Config` and `device.Accounts` facades are available; other namespaces come in later versions. The API may still change before 1.0.
+> `device.LinkGrabber`, `device.Downloads`, `device.DownloadController`, `device.Jd`, `device.System`, `device.Config`, `device.Accounts` and `device.Captcha` facades are available; other namespaces come in later versions. The API may still change before 1.0.
 
 ## Packages
 
@@ -185,6 +185,21 @@ long authId = await device.Accounts.AddBasicAuthAsync(BasicAuthType.Http, "*.exa
 
 - Passwords are never retained or logged by the library; do not log them either.
 - `ListBasicAuthAsync` returns basic authentication passwords in clear (the device has no opt-out): never log or serialize those entries.
+
+## Captcha
+
+`device.Captcha` is the typed facade over `/captcha` (pending captcha challenges):
+
+```csharp
+using MyJdownloader.Captcha;
+
+var jobs = await device.Captcha.ListAsync();
+string image = await device.Captcha.GetImageAsync(jobs[0].Id); // Base64 data URL
+bool solved = await device.Captcha.SolveAsync(jobs[0].Id, "answer");
+bool skipped = await device.Captcha.SkipAsync(jobs[0].Id, CaptchaSkipRequest.Single);
+```
+
+- When a captcha id no longer exists the device usually answers 404 NOT_AVAILABLE, which surfaces as a `MyJdApiException`.
 
 ## Logging and tracing
 

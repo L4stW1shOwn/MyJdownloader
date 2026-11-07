@@ -788,3 +788,44 @@ MyJdownloader.Accounts.AccountsApi.RemoveBasicAuthsAsync(System.Collections.Gene
 MyJdownloader.Accounts.AccountsApi.SetUserNameAndPasswordAsync(long accountId, string! username, string! password, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.Accounts.AccountsApi.UpdateBasicAuthAsync(MyJdownloader.Accounts.BasicAuthentication! updatedEntry, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.JDownloaderDevice.Accounts.get -> MyJdownloader.Accounts.AccountsApi!
+MyJdownloader.Captcha.CaptchaApi
+MyJdownloader.Captcha.CaptchaApi.GetImageAsync(long id, string? format = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
+MyJdownloader.Captcha.CaptchaApi.GetJobAsync(long id, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.Captcha.CaptchaJob!>!
+MyJdownloader.Captcha.CaptchaApi.ListAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Captcha.CaptchaJob!>!>!
+MyJdownloader.Captcha.CaptchaApi.SkipAsync(long id, MyJdownloader.Captcha.CaptchaSkipRequest type, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.Captcha.CaptchaApi.SolveAsync(long id, string! result, string? resultFormat = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.Captcha.CaptchaJob
+MyJdownloader.Captcha.CaptchaJob.CaptchaCategory.get -> string?
+MyJdownloader.Captcha.CaptchaJob.CaptchaCategory.init -> void
+MyJdownloader.Captcha.CaptchaJob.CaptchaJob() -> void
+MyJdownloader.Captcha.CaptchaJob.<Clone>$() -> MyJdownloader.Captcha.CaptchaJob!
+MyJdownloader.Captcha.CaptchaJob.Created.get -> System.DateTimeOffset?
+MyJdownloader.Captcha.CaptchaJob.Created.init -> void
+MyJdownloader.Captcha.CaptchaJob.Equals(MyJdownloader.Captcha.CaptchaJob? other) -> bool
+MyJdownloader.Captcha.CaptchaJob.Explain.get -> string?
+MyJdownloader.Captcha.CaptchaJob.Explain.init -> void
+MyJdownloader.Captcha.CaptchaJob.Hoster.get -> string?
+MyJdownloader.Captcha.CaptchaJob.Hoster.init -> void
+MyJdownloader.Captcha.CaptchaJob.Id.get -> long
+MyJdownloader.Captcha.CaptchaJob.Id.init -> void
+MyJdownloader.Captcha.CaptchaJob.LinkId.get -> long
+MyJdownloader.Captcha.CaptchaJob.LinkId.init -> void
+MyJdownloader.Captcha.CaptchaJob.Timeout.get -> int?
+MyJdownloader.Captcha.CaptchaJob.Timeout.init -> void
+MyJdownloader.Captcha.CaptchaJob.Type.get -> string?
+MyJdownloader.Captcha.CaptchaJob.Type.init -> void
+MyJdownloader.Captcha.CaptchaSkipRequest
+MyJdownloader.Captcha.CaptchaSkipRequest.BlockAllCaptchas = 3 -> MyJdownloader.Captcha.CaptchaSkipRequest
+MyJdownloader.Captcha.CaptchaSkipRequest.BlockHoster = 2 -> MyJdownloader.Captcha.CaptchaSkipRequest
+MyJdownloader.Captcha.CaptchaSkipRequest.BlockPackage = 4 -> MyJdownloader.Captcha.CaptchaSkipRequest
+MyJdownloader.Captcha.CaptchaSkipRequest.Refresh = 5 -> MyJdownloader.Captcha.CaptchaSkipRequest
+MyJdownloader.Captcha.CaptchaSkipRequest.Single = 1 -> MyJdownloader.Captcha.CaptchaSkipRequest
+MyJdownloader.Captcha.CaptchaSkipRequest.StopCurrentAction = 6 -> MyJdownloader.Captcha.CaptchaSkipRequest
+MyJdownloader.Captcha.CaptchaSkipRequest.Timeout = 7 -> MyJdownloader.Captcha.CaptchaSkipRequest
+MyJdownloader.Captcha.CaptchaSkipRequest.Unknown = 0 -> MyJdownloader.Captcha.CaptchaSkipRequest
+MyJdownloader.JDownloaderDevice.Captcha.get -> MyJdownloader.Captcha.CaptchaApi!
+override MyJdownloader.Captcha.CaptchaJob.Equals(object? obj) -> bool
+override MyJdownloader.Captcha.CaptchaJob.GetHashCode() -> int
+override MyJdownloader.Captcha.CaptchaJob.ToString() -> string!
+static MyJdownloader.Captcha.CaptchaJob.operator !=(MyJdownloader.Captcha.CaptchaJob? left, MyJdownloader.Captcha.CaptchaJob? right) -> bool
+static MyJdownloader.Captcha.CaptchaJob.operator ==(MyJdownloader.Captcha.CaptchaJob? left, MyJdownloader.Captcha.CaptchaJob? right) -> bool
