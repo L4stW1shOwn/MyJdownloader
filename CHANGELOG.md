@@ -6,6 +6,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 
 ### Added
 
+- `device.Update`: typed `/update` facade (is update available, run update check, restart and update); `RestartAndUpdateAsync` restarts JDownloader without confirmation.
 - `device.Extensions`: typed `/extensions` facade (list, install, is installed, is enabled, set enabled); the query pattern is a device-side regular expression.
 - `device.Events`: typed `/events` facade (subscribe, listen with long polling, get, add, remove and set subscription patterns, change timeouts, unsubscribe, list publishers); no built-in listen loop, patterns are device-side regular expressions.
 - `device.Accounts`: typed `/accountsV2` facade (premium hoster accounts, hoster lists and URLs, basic authentication entries); passwords are never retained or logged, `BasicAuthentication.Password` is masked in `ToString()`.

@@ -948,6 +948,11 @@ MyJdownloader.DeviceExtensions.ExtensionsApi.IsInstalledAsync(string! id, System
 MyJdownloader.DeviceExtensions.ExtensionsApi.ListAsync(MyJdownloader.DeviceExtensions.ExtensionQuery? query = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.DeviceExtensions.Extension!>!>!
 MyJdownloader.DeviceExtensions.ExtensionsApi.SetEnabledAsync(string! className, bool enabled, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.JDownloaderDevice.Extensions.get -> MyJdownloader.DeviceExtensions.ExtensionsApi!
+MyJdownloader.JDownloaderDevice.Update.get -> MyJdownloader.Update.UpdateApi!
+MyJdownloader.Update.UpdateApi
+MyJdownloader.Update.UpdateApi.IsUpdateAvailableAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.Update.UpdateApi.RestartAndUpdateAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Update.UpdateApi.RunUpdateCheckAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 override MyJdownloader.DeviceExtensions.Extension.Equals(object? obj) -> bool
 override MyJdownloader.DeviceExtensions.Extension.GetHashCode() -> int
 override MyJdownloader.DeviceExtensions.ExtensionQuery.Equals(object? obj) -> bool
