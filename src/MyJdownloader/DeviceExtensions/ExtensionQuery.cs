@@ -22,5 +22,6 @@ public sealed record ExtensionQuery
     public bool Name { get; init; } = true;
 
     /// <summary>Gets a regular expression, evaluated on the device, that extensions must match, or <see langword="null"/> for all.</summary>
+    /// <remarks>Do not pass untrusted input: escape literal text (for example with <c>\Q...\E</c>) to avoid costly or overly broad matching on the device.</remarks>
     public string? Pattern { get; init; }
 }

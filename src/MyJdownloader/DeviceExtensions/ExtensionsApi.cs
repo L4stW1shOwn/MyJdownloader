@@ -42,7 +42,10 @@ public sealed class ExtensionsApi
     /// <param name="id">The extension identifier (<see cref="Extension.Id"/>).</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns><see langword="true"/> when the device accepted the installation.</returns>
-    /// <remarks>The device downloads and installs the extension immediately, without confirmation. A timeout does not mean the action failed.</remarks>
+    /// <remarks>
+    /// The device downloads and installs the extension immediately, without confirmation, from its own JDownloader update source (not from the caller).
+    /// Take <paramref name="id"/> from <see cref="Extension.Id"/> or an allow-list, never from end-user input. A timeout does not mean the action failed.
+    /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="id"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="id"/> is blank or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
