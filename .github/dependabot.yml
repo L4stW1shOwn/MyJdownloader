@@ -4,6 +4,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Wait before proposing a freshly published version (compromised or yanked releases).
+    cooldown:
+      default-days: 7
     groups:
       nuget-minor-patch:
         update-types: [minor, patch]
@@ -16,9 +19,23 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
     groups:
       github-actions:
         patterns: ["*"]
     commit-message:
       prefix: ci
+      include: scope
+
+  # SDK pinned in global.json: the PR fails --locked-mode until the lock files are regenerated
+  # (implicit ILLink package follows the SDK); regenerate them on the PR branch before merging.
+  - package-ecosystem: dotnet-sdk
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: chore
       include: scope
