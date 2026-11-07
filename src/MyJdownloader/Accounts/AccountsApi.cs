@@ -227,6 +227,7 @@ public sealed class AccountsApi
     /// <returns><see langword="true"/> when the device updated the entry.</returns>
     /// <remarks>
     /// This method transmits credentials to the device. A timeout or a network error does not mean the action failed: the account may have been changed.
+    /// A <see langword="null"/> <see cref="BasicAuthentication.Password"/> is not sent. The device behaviour in that case (keep or clear the stored password) is unconfirmed until live tests: send the entry as read from <see cref="ListBasicAuthAsync"/>, password included, to keep it.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="updatedEntry"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><see cref="BasicAuthentication.Type"/> is not a known value, or <see cref="BasicAuthentication.Hostmask"/> or <see cref="BasicAuthentication.Username"/> is blank or contains control characters or lone surrogates.</exception>
@@ -262,7 +263,15 @@ public sealed class AccountsApi
         => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "removeBasicAuths", FacadeJsonContext.Default.NullableBoolean, [FacadeGuard.Ids(ids, nameof(ids))], cancellationToken));
 
     private static async Task<IReadOnlyDictionary<string, string>> ToUrlsAsync(Task<Dictionary<string, string>?> call)
-        => await call.ConfigureAwait(false) ?? [];
+    {
+        var urls = await call.ConfigureAwait(false) ?? [];
+        if (urls.Values.Any(static v => v is null))
+        {
+            throw FacadeResults.Unreadable();
+        }
+
+        return urls;
+    }
 
     private static JsonElement Str(string value)
         => JsonSerializer.SerializeToElement(value, FacadeJsonContext.Default.String);

@@ -301,6 +301,17 @@ public sealed class AccountsApiTests
     }
 
     [Test]
+    public async Task ListPremiumHosterUrlsAsync_NullValue_ThrowsProtocol()
+    {
+        var (channel, api) = Create();
+        ReturnsRef(channel, "listPremiumHosterUrls", new Dictionary<string, string> { ["a"] = null! });
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.ListPremiumHosterUrlsAsync());
+
+        AssertDeviceUnreadable(thrown);
+    }
+
+    [Test]
     public async Task GetPremiumHosterUrlAsync_NullData_ReturnsNull()
     {
         var (channel, api) = Create();

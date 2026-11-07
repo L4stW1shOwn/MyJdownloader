@@ -24,6 +24,7 @@ public sealed record BasicAuthentication
     public string? Username { get; init; }
 
     /// <summary>Gets the password, returned in clear by the device; never log or serialize it.</summary>
+    /// <remarks>A <see langword="null"/> value is not sent on update; the device behaviour in that case is unconfirmed until live tests.</remarks>
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     public string? Password { get; init; }
 
