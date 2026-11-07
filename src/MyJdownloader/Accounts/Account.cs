@@ -3,7 +3,11 @@ namespace MyJdownloader.Accounts;
 using System.Text.Json.Serialization;
 
 /// <summary>A hoster account stored on the device; fields not requested by the query are <see langword="null"/>.</summary>
-/// <remarks>The device never returns the account password, so this record holds no secret.</remarks>
+/// <remarks>
+/// The device never returns the account password, so this record holds no secret. Text fields
+/// (<see cref="Hostname"/>, <see cref="Username"/>, <see cref="ErrorType"/>, <see cref="ErrorString"/>) are raw
+/// device values, untrusted and unbounded: do not log or display them unfiltered.
+/// </remarks>
 public sealed record Account
 {
     /// <summary>Gets the account identifier.</summary>
