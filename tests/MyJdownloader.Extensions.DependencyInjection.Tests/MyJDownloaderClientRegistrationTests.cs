@@ -97,6 +97,31 @@ public sealed class MyJDownloaderClientRegistrationTests
         Assert.That(((SocketsHttpHandler)primary).AllowAutoRedirect, Is.False);
     }
 
+    [TestCase(true)]
+    // The defaultsBefore=false case relies on the framework applying ConfigureHttpClientDefaults before named-client actions regardless of registration order.
+    [TestCase(false)]
+    public void AddMyJDownloader_DefaultsSetNonSocketsPrimaryHandler_ReplacedWithRedirectDisabled(bool defaultsBefore)
+    {
+        var services = new ServiceCollection();
+        if (defaultsBefore)
+        {
+            services.ConfigureHttpClientDefaults(b => b.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = true }));
+        }
+
+        services.AddMyJDownloader(_ => { });
+        if (!defaultsBefore)
+        {
+            services.ConfigureHttpClientDefaults(b => b.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = true }));
+        }
+
+        using var provider = services.BuildServiceProvider();
+
+        var primary = PrimaryHandler(provider);
+
+        Assert.That(primary, Is.TypeOf<SocketsHttpHandler>());
+        Assert.That(((SocketsHttpHandler)primary).AllowAutoRedirect, Is.False);
+    }
+
     [Test]
     public void AddMyJDownloader_WithLogging_HasNoLoggingHandler()
     {
