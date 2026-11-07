@@ -49,12 +49,15 @@ jobs:
           echo "Version : $VERSION"
 
       - name: Restore
-        run: dotnet restore MyJdownloader.slnx --locked-mode
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        # Same Version as build and pack: pack reads project-reference versions from the restore output.
+        run: dotnet restore MyJdownloader.slnx --locked-mode "/p:Version=$VERSION"
 
       - name: Build (Release)
         env:
           VERSION: ${{ steps.version.outputs.version }}
-        run: dotnet build MyJdownloader.slnx -c Release "/p:Version=$VERSION"
+        run: dotnet build MyJdownloader.slnx -c Release --no-restore "/p:Version=$VERSION"
 
       - name: Tests
         run: dotnet test MyJdownloader.slnx -c Release --no-build --filter "TestCategory!=Live"

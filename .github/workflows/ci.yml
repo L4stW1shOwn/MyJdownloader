@@ -29,7 +29,7 @@ jobs:
         run: dotnet restore MyJdownloader.slnx --locked-mode
 
       - name: Build (Release)
-        run: dotnet build MyJdownloader.slnx -c Release
+        run: dotnet build MyJdownloader.slnx -c Release --no-restore
 
       - name: Tests
         run: dotnet test MyJdownloader.slnx -c Release --no-build --filter "TestCategory!=Live"
