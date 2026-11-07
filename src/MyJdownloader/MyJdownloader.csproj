@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Core .NET client library for the MyJDownloader API. Work in progress: no protocol features yet.</Description>
+    <Description>.NET client library for the MyJDownloader API: native authentication, encrypted relay calls, session export and restore, and typed facades for the JDownloader device namespaces.</Description>
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="MyJdownloader.Tests" />
