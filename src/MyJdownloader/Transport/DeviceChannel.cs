@@ -206,6 +206,8 @@ internal sealed partial class DeviceChannel : IDeviceChannel
     /// <summary>Growable pooled buffer that clears every array it held when it grows or is disposed.</summary>
     private sealed class PooledBufferWriter : IBufferWriter<byte>, IDisposable
     {
+        // Holds the plaintext request, which may carry passwords passed as call arguments.
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private byte[] _buffer = ArrayPool<byte>.Shared.Rent(512);
         private int _written;
 

@@ -34,6 +34,14 @@ The MyJD protocol is imposed by a third party. It uses:
   - SHA-256 without a slow KDF: the exposed derived keys (exported session) are
     vulnerable to brute force; mitigated by the recommendation to use protected
     storage (ADR-004) and by the absence of secret logging.
+- **In-memory key material**: temporary byte copies of secrets are cleared
+  after use. Declared members holding byte-typed key material (or a plaintext
+  request) are `DebuggerBrowsable(Never)`, enforced by a reflection test;
+  string secrets (tokens, passwords) are annotated manually. This is a
+  convenience against casual exposure in debugger variable
+  views, not a protection: raw views, compiler-generated members (backing
+  fields, async state machines), locals, immutable strings and memory dumps
+  still reveal the secrets.
 - Frozen cryptographic test vectors, produced by the reference client (official
   Python implementation).
 
