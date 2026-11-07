@@ -223,6 +223,30 @@ public sealed class MyJDownloaderClientRegistrationTests
         Assert.That(provider.GetRequiredService<MyJDownloaderClient>(), Is.SameAs(existing));
     }
 
+    [TestCase(true)]
+    [TestCase(false)]
+    public void AddMyJDownloader_TypedClientRegistered_TypedClientWinsInEitherOrder(bool typedClientBefore)
+    {
+        var services = new ServiceCollection();
+        if (typedClientBefore)
+        {
+            services.AddHttpClient<MyJDownloaderClient>();
+        }
+
+        services.AddMyJDownloader(_ => { });
+        if (!typedClientBefore)
+        {
+            services.AddHttpClient<MyJDownloaderClient>();
+        }
+
+        using var provider = services.BuildServiceProvider();
+
+        var first = provider.GetRequiredService<MyJDownloaderClient>();
+        var second = provider.GetRequiredService<MyJDownloaderClient>();
+
+        Assert.That(first, Is.Not.SameAs(second));
+    }
+
     private static HttpMessageHandler PrimaryHandler(IServiceProvider provider)
     {
         var handler = provider.GetRequiredService<IHttpMessageHandlerFactory>().CreateHandler(Name);

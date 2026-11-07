@@ -38,7 +38,8 @@ public static class MyJDownloaderServiceCollectionExtensions
     /// </para>
     /// <para>
     /// A <see cref="MyJDownloaderClient"/> registered before this call is kept and bypasses these protections. So does a
-    /// typed client (<c>AddHttpClient&lt;MyJDownloaderClient&gt;</c>): its <see cref="HttpClient"/> does not use the
+    /// typed client (<c>AddHttpClient&lt;MyJDownloaderClient&gt;</c>), whatever the call order: it registers a transient
+    /// <see cref="MyJDownloaderClient"/> that replaces the singleton, and its <see cref="HttpClient"/> does not use the
     /// <see cref="HttpClientName"/> configuration (redirects, loggers, pooled connection lifetime).
     /// <see cref="HttpClientName"/> is reserved for the library. Invalid options throw <see cref="ArgumentException"/>
     /// at the first resolution of the client.
