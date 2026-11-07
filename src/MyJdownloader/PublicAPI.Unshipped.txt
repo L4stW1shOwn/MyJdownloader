@@ -829,3 +829,67 @@ override MyJdownloader.Captcha.CaptchaJob.GetHashCode() -> int
 override MyJdownloader.Captcha.CaptchaJob.ToString() -> string!
 static MyJdownloader.Captcha.CaptchaJob.operator !=(MyJdownloader.Captcha.CaptchaJob? left, MyJdownloader.Captcha.CaptchaJob? right) -> bool
 static MyJdownloader.Captcha.CaptchaJob.operator ==(MyJdownloader.Captcha.CaptchaJob? left, MyJdownloader.Captcha.CaptchaJob? right) -> bool
+MyJdownloader.Events.DeviceEvent
+MyJdownloader.Events.DeviceEvent.<Clone>$() -> MyJdownloader.Events.DeviceEvent!
+MyJdownloader.Events.DeviceEvent.Data.get -> System.Text.Json.JsonElement?
+MyJdownloader.Events.DeviceEvent.Data.init -> void
+MyJdownloader.Events.DeviceEvent.DeviceEvent() -> void
+MyJdownloader.Events.DeviceEvent.Equals(MyJdownloader.Events.DeviceEvent? other) -> bool
+MyJdownloader.Events.DeviceEvent.EventId.get -> string?
+MyJdownloader.Events.DeviceEvent.EventId.init -> void
+MyJdownloader.Events.DeviceEvent.Publisher.get -> string?
+MyJdownloader.Events.DeviceEvent.Publisher.init -> void
+MyJdownloader.Events.EventPublisher
+MyJdownloader.Events.EventPublisher.<Clone>$() -> MyJdownloader.Events.EventPublisher!
+MyJdownloader.Events.EventPublisher.Equals(MyJdownloader.Events.EventPublisher? other) -> bool
+MyJdownloader.Events.EventPublisher.EventIds.get -> System.Collections.Generic.IReadOnlyList<string!>?
+MyJdownloader.Events.EventPublisher.EventIds.init -> void
+MyJdownloader.Events.EventPublisher.EventPublisher() -> void
+MyJdownloader.Events.EventPublisher.Publisher.get -> string?
+MyJdownloader.Events.EventPublisher.Publisher.init -> void
+MyJdownloader.Events.EventSubscription
+MyJdownloader.Events.EventSubscription.<Clone>$() -> MyJdownloader.Events.EventSubscription!
+MyJdownloader.Events.EventSubscription.Equals(MyJdownloader.Events.EventSubscription? other) -> bool
+MyJdownloader.Events.EventSubscription.EventSubscription() -> void
+MyJdownloader.Events.EventSubscription.Exclusions.get -> System.Collections.Generic.IReadOnlyList<string!>?
+MyJdownloader.Events.EventSubscription.Exclusions.init -> void
+MyJdownloader.Events.EventSubscription.MaxKeepalive.get -> System.TimeSpan?
+MyJdownloader.Events.EventSubscription.MaxKeepalive.init -> void
+MyJdownloader.Events.EventSubscription.MaxPollTimeout.get -> System.TimeSpan?
+MyJdownloader.Events.EventSubscription.MaxPollTimeout.init -> void
+MyJdownloader.Events.EventSubscriptionStatus
+MyJdownloader.Events.EventSubscriptionStatus.<Clone>$() -> MyJdownloader.Events.EventSubscriptionStatus!
+MyJdownloader.Events.EventSubscriptionStatus.Equals(MyJdownloader.Events.EventSubscriptionStatus? other) -> bool
+MyJdownloader.Events.EventSubscriptionStatus.EventSubscriptionStatus() -> void
+MyJdownloader.Events.EventSubscriptionStatus.QueueSize.get -> int
+MyJdownloader.Events.EventSubscriptionStatus.QueueSize.init -> void
+MyJdownloader.Events.EventSubscriptionStatus.Subscribed.get -> bool
+MyJdownloader.Events.EventSubscriptionStatus.Subscribed.init -> void
+MyJdownloader.Events.EventSubscriptionStatus.SubscriptionId.get -> long
+MyJdownloader.Events.EventSubscriptionStatus.SubscriptionId.init -> void
+MyJdownloader.Events.EventSubscription.Subscribed.get -> bool
+MyJdownloader.Events.EventSubscription.Subscribed.init -> void
+MyJdownloader.Events.EventSubscription.SubscriptionId.get -> long
+MyJdownloader.Events.EventSubscription.SubscriptionId.init -> void
+MyJdownloader.Events.EventSubscription.Subscriptions.get -> System.Collections.Generic.IReadOnlyList<string!>?
+MyJdownloader.Events.EventSubscription.Subscriptions.init -> void
+override MyJdownloader.Events.DeviceEvent.Equals(object? obj) -> bool
+override MyJdownloader.Events.DeviceEvent.GetHashCode() -> int
+override MyJdownloader.Events.DeviceEvent.ToString() -> string!
+override MyJdownloader.Events.EventPublisher.Equals(object? obj) -> bool
+override MyJdownloader.Events.EventPublisher.GetHashCode() -> int
+override MyJdownloader.Events.EventPublisher.ToString() -> string!
+override MyJdownloader.Events.EventSubscription.Equals(object? obj) -> bool
+override MyJdownloader.Events.EventSubscription.GetHashCode() -> int
+override MyJdownloader.Events.EventSubscriptionStatus.Equals(object? obj) -> bool
+override MyJdownloader.Events.EventSubscriptionStatus.GetHashCode() -> int
+override MyJdownloader.Events.EventSubscriptionStatus.ToString() -> string!
+override MyJdownloader.Events.EventSubscription.ToString() -> string!
+static MyJdownloader.Events.DeviceEvent.operator !=(MyJdownloader.Events.DeviceEvent? left, MyJdownloader.Events.DeviceEvent? right) -> bool
+static MyJdownloader.Events.DeviceEvent.operator ==(MyJdownloader.Events.DeviceEvent? left, MyJdownloader.Events.DeviceEvent? right) -> bool
+static MyJdownloader.Events.EventPublisher.operator !=(MyJdownloader.Events.EventPublisher? left, MyJdownloader.Events.EventPublisher? right) -> bool
+static MyJdownloader.Events.EventPublisher.operator ==(MyJdownloader.Events.EventPublisher? left, MyJdownloader.Events.EventPublisher? right) -> bool
+static MyJdownloader.Events.EventSubscription.operator !=(MyJdownloader.Events.EventSubscription? left, MyJdownloader.Events.EventSubscription? right) -> bool
+static MyJdownloader.Events.EventSubscription.operator ==(MyJdownloader.Events.EventSubscription? left, MyJdownloader.Events.EventSubscription? right) -> bool
+static MyJdownloader.Events.EventSubscriptionStatus.operator !=(MyJdownloader.Events.EventSubscriptionStatus? left, MyJdownloader.Events.EventSubscriptionStatus? right) -> bool
+static MyJdownloader.Events.EventSubscriptionStatus.operator ==(MyJdownloader.Events.EventSubscriptionStatus? left, MyJdownloader.Events.EventSubscriptionStatus? right) -> bool
