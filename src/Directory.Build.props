@@ -6,6 +6,9 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>jdownloader;myjdownloader;client;api</PackageTags>
+    <PackageProjectUrl>https://github.com/L4stW1shOwn/MyJdownloader</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/L4stW1shOwn/MyJdownloader</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)../README.md" Pack="true" PackagePath="/" />
