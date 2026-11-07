@@ -1,7 +1,9 @@
 namespace MyJdownloader.Tests.Client;
 
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Reflection;
 using MyJdownloader.Tests.Transport;
 
 [TestFixture]
@@ -153,6 +155,16 @@ public sealed class MyJDownloaderClientTests
             Assert.That(client.IsConnected, Is.True);
             Assert.That(client.ExportSession(), Is.SameAs(session));
         });
+    }
+
+    [Test]
+    public void SessionField_Declared_IsHiddenFromDebugger()
+    {
+        var field = typeof(MyJDownloaderClient).GetField("_session", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        var attribute = field?.GetCustomAttribute<DebuggerBrowsableAttribute>();
+
+        Assert.That(attribute?.State, Is.EqualTo(DebuggerBrowsableState.Never));
     }
 
     [Test]

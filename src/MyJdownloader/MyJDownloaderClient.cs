@@ -1,5 +1,6 @@
 namespace MyJdownloader;
 
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ExceptionServices;
 using MyJdownloader.Transport;
@@ -40,6 +41,7 @@ public sealed class MyJDownloaderClient
     private readonly RelayTransport _transport;
 
     private readonly SemaphoreSlim _gate = new(1, 1);
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private MyJdSession? _session;
     private long _version;
 
