@@ -10,6 +10,9 @@ public static class MyJDownloaderServiceCollectionExtensions
     /// <summary>The name of the <see cref="HttpClient"/> registered for MyJDownloader. Reserved for this library.</summary>
     public const string HttpClientName = "MyJdownloader";
 
+    // Recycles pooled connections so DNS changes are picked up without handler rotation (ADR-003).
+    private static readonly TimeSpan _pooledConnectionLifetime = TimeSpan.FromMinutes(2);
+
     /// <summary>Registers the MyJDownloader options, its named <see cref="HttpClient"/> and the <see cref="MyJDownloaderClient"/> singleton.</summary>
     /// <remarks>
     /// <para>
@@ -54,7 +57,7 @@ public static class MyJDownloaderServiceCollectionExtensions
         var builder = services.AddHttpClient(HttpClientName)
             .UseSocketsHttpHandler((handler, _) =>
             {
-                handler.PooledConnectionLifetime = TimeSpan.FromMinutes(2);
+                handler.PooledConnectionLifetime = _pooledConnectionLifetime;
                 handler.AllowAutoRedirect = false;
             })
             .SetHandlerLifetime(Timeout.InfiniteTimeSpan)
