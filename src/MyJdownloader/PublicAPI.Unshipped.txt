@@ -685,3 +685,90 @@ MyJdownloader.Config.ConfigApi.ListEnumAsync(string! type, System.Threading.Canc
 MyJdownloader.Config.ConfigApi.QueryAsync(MyJdownloader.Config.ConfigQuery? query = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Config.ConfigEntry!>!>!
 MyJdownloader.Config.ConfigApi.SetAsync(string! interfaceName, string? storage, string! key, System.Text.Json.JsonElement value, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.JDownloaderDevice.Config.get -> MyJdownloader.Config.ConfigApi!
+MyJdownloader.Accounts.Account
+MyJdownloader.Accounts.Account.Account() -> void
+MyJdownloader.Accounts.Account.<Clone>$() -> MyJdownloader.Accounts.Account!
+MyJdownloader.Accounts.Account.Enabled.get -> bool?
+MyJdownloader.Accounts.Account.Enabled.init -> void
+MyJdownloader.Accounts.Account.Equals(MyJdownloader.Accounts.Account? other) -> bool
+MyJdownloader.Accounts.Account.ErrorString.get -> string?
+MyJdownloader.Accounts.Account.ErrorString.init -> void
+MyJdownloader.Accounts.Account.ErrorType.get -> string?
+MyJdownloader.Accounts.Account.ErrorType.init -> void
+MyJdownloader.Accounts.Account.Hostname.get -> string?
+MyJdownloader.Accounts.Account.Hostname.init -> void
+MyJdownloader.Accounts.AccountQuery
+MyJdownloader.Accounts.AccountQuery.AccountQuery() -> void
+MyJdownloader.Accounts.AccountQuery.<Clone>$() -> MyJdownloader.Accounts.AccountQuery!
+MyJdownloader.Accounts.AccountQuery.Enabled.get -> bool
+MyJdownloader.Accounts.AccountQuery.Enabled.init -> void
+MyJdownloader.Accounts.AccountQuery.Equals(MyJdownloader.Accounts.AccountQuery? other) -> bool
+MyJdownloader.Accounts.AccountQuery.Error.get -> bool
+MyJdownloader.Accounts.AccountQuery.Error.init -> void
+MyJdownloader.Accounts.AccountQuery.MaxResults.get -> int
+MyJdownloader.Accounts.AccountQuery.MaxResults.init -> void
+MyJdownloader.Accounts.AccountQuery.StartAt.get -> int
+MyJdownloader.Accounts.AccountQuery.StartAt.init -> void
+MyJdownloader.Accounts.AccountQuery.TrafficLeft.get -> bool
+MyJdownloader.Accounts.AccountQuery.TrafficLeft.init -> void
+MyJdownloader.Accounts.AccountQuery.TrafficMax.get -> bool
+MyJdownloader.Accounts.AccountQuery.TrafficMax.init -> void
+MyJdownloader.Accounts.AccountQuery.UserName.get -> bool
+MyJdownloader.Accounts.AccountQuery.UserName.init -> void
+MyJdownloader.Accounts.AccountQuery.Uuids.get -> System.Collections.Generic.IReadOnlyList<long>?
+MyJdownloader.Accounts.AccountQuery.Uuids.init -> void
+MyJdownloader.Accounts.AccountQuery.Valid.get -> bool
+MyJdownloader.Accounts.AccountQuery.Valid.init -> void
+MyJdownloader.Accounts.AccountQuery.ValidUntil.get -> bool
+MyJdownloader.Accounts.AccountQuery.ValidUntil.init -> void
+MyJdownloader.Accounts.Account.TrafficLeft.get -> long?
+MyJdownloader.Accounts.Account.TrafficLeft.init -> void
+MyJdownloader.Accounts.Account.TrafficMax.get -> long?
+MyJdownloader.Accounts.Account.TrafficMax.init -> void
+MyJdownloader.Accounts.Account.Username.get -> string?
+MyJdownloader.Accounts.Account.Username.init -> void
+MyJdownloader.Accounts.Account.Uuid.get -> long
+MyJdownloader.Accounts.Account.Uuid.init -> void
+MyJdownloader.Accounts.Account.Valid.get -> bool?
+MyJdownloader.Accounts.Account.Valid.init -> void
+MyJdownloader.Accounts.Account.ValidUntil.get -> System.DateTimeOffset?
+MyJdownloader.Accounts.Account.ValidUntil.init -> void
+MyJdownloader.Accounts.BasicAuthentication
+MyJdownloader.Accounts.BasicAuthentication.BasicAuthentication() -> void
+MyJdownloader.Accounts.BasicAuthentication.<Clone>$() -> MyJdownloader.Accounts.BasicAuthentication!
+MyJdownloader.Accounts.BasicAuthentication.Created.get -> System.DateTimeOffset?
+MyJdownloader.Accounts.BasicAuthentication.Created.init -> void
+MyJdownloader.Accounts.BasicAuthentication.Enabled.get -> bool
+MyJdownloader.Accounts.BasicAuthentication.Enabled.init -> void
+MyJdownloader.Accounts.BasicAuthentication.Equals(MyJdownloader.Accounts.BasicAuthentication? other) -> bool
+MyJdownloader.Accounts.BasicAuthentication.Hostmask.get -> string?
+MyJdownloader.Accounts.BasicAuthentication.Hostmask.init -> void
+MyJdownloader.Accounts.BasicAuthentication.Id.get -> long
+MyJdownloader.Accounts.BasicAuthentication.Id.init -> void
+MyJdownloader.Accounts.BasicAuthentication.LastValidated.get -> System.DateTimeOffset?
+MyJdownloader.Accounts.BasicAuthentication.LastValidated.init -> void
+MyJdownloader.Accounts.BasicAuthentication.Password.get -> string?
+MyJdownloader.Accounts.BasicAuthentication.Password.init -> void
+MyJdownloader.Accounts.BasicAuthentication.Type.get -> MyJdownloader.Accounts.BasicAuthType
+MyJdownloader.Accounts.BasicAuthentication.Type.init -> void
+MyJdownloader.Accounts.BasicAuthentication.Username.get -> string?
+MyJdownloader.Accounts.BasicAuthentication.Username.init -> void
+MyJdownloader.Accounts.BasicAuthType
+MyJdownloader.Accounts.BasicAuthType.Ftp = 1 -> MyJdownloader.Accounts.BasicAuthType
+MyJdownloader.Accounts.BasicAuthType.Http = 2 -> MyJdownloader.Accounts.BasicAuthType
+MyJdownloader.Accounts.BasicAuthType.Unknown = 0 -> MyJdownloader.Accounts.BasicAuthType
+override MyJdownloader.Accounts.Account.Equals(object? obj) -> bool
+override MyJdownloader.Accounts.Account.GetHashCode() -> int
+override MyJdownloader.Accounts.AccountQuery.Equals(object? obj) -> bool
+override MyJdownloader.Accounts.AccountQuery.GetHashCode() -> int
+override MyJdownloader.Accounts.AccountQuery.ToString() -> string!
+override MyJdownloader.Accounts.Account.ToString() -> string!
+override MyJdownloader.Accounts.BasicAuthentication.Equals(object? obj) -> bool
+override MyJdownloader.Accounts.BasicAuthentication.GetHashCode() -> int
+override MyJdownloader.Accounts.BasicAuthentication.ToString() -> string!
+static MyJdownloader.Accounts.Account.operator !=(MyJdownloader.Accounts.Account? left, MyJdownloader.Accounts.Account? right) -> bool
+static MyJdownloader.Accounts.Account.operator ==(MyJdownloader.Accounts.Account? left, MyJdownloader.Accounts.Account? right) -> bool
+static MyJdownloader.Accounts.AccountQuery.operator !=(MyJdownloader.Accounts.AccountQuery? left, MyJdownloader.Accounts.AccountQuery? right) -> bool
+static MyJdownloader.Accounts.AccountQuery.operator ==(MyJdownloader.Accounts.AccountQuery? left, MyJdownloader.Accounts.AccountQuery? right) -> bool
+static MyJdownloader.Accounts.BasicAuthentication.operator !=(MyJdownloader.Accounts.BasicAuthentication? left, MyJdownloader.Accounts.BasicAuthentication? right) -> bool
+static MyJdownloader.Accounts.BasicAuthentication.operator ==(MyJdownloader.Accounts.BasicAuthentication? left, MyJdownloader.Accounts.BasicAuthentication? right) -> bool
