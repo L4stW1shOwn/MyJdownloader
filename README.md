@@ -318,7 +318,9 @@ not re-add them (`AddLogger`, extended HTTP logging). The `System.Net.Http`
 EventSource and the `url.full` Activity tag redact only the query string, so
 exclude this client's traces or add a redacting enricher. A
 `MyJDownloaderClient` registered before `AddMyJDownloader` is kept and bypasses
-these protections.
+these protections. So does a typed client (`AddHttpClient<MyJDownloaderClient>`):
+its `HttpClient` does not get the named client's configuration (redirects
+disabled, no loggers, pooled connection lifetime). Use `AddMyJDownloader`.
 
 ## Security warning
 
