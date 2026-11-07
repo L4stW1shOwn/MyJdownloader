@@ -6,6 +6,7 @@ using MyJdownloader.Captcha;
 using MyJdownloader.Config;
 using MyJdownloader.DownloadController;
 using MyJdownloader.Downloads;
+using MyJdownloader.Events;
 using MyJdownloader.Jd;
 using MyJdownloader.LinkGrabber;
 using MyJdownloader.SystemControl;
@@ -13,7 +14,7 @@ using MyJdownloader.SystemControl;
 /// <summary>Entry point of the typed facade for one JDownloader device of the account.</summary>
 /// <remarks>
 /// The instance holds no session and no secret: it only carries the device id and its <see cref="IDeviceChannel"/>,
-/// which reads the current session of the client on every call. Typed namespace facades are exposed as properties, for example <see cref="LinkGrabber"/>, <see cref="Downloads"/>, <see cref="DownloadController"/>, <see cref="Jd"/>, <see cref="System"/>, <see cref="Config"/> <see cref="Accounts"/> and <see cref="Captcha"/>.
+/// which reads the current session of the client on every call. Typed namespace facades are exposed as properties, for example <see cref="LinkGrabber"/>, <see cref="Downloads"/>, <see cref="DownloadController"/>, <see cref="Jd"/>, <see cref="System"/>, <see cref="Config"/> <see cref="Accounts"/>, <see cref="Captcha"/> and <see cref="Events"/>.
 /// </remarks>
 [DebuggerDisplay("Id = {Id}")]
 public sealed class JDownloaderDevice
@@ -63,4 +64,8 @@ public sealed class JDownloaderDevice
     /// <summary>Gets the typed facade over the <c>/captcha</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
     public CaptchaApi Captcha => field ??= new CaptchaApi(this.Channel);
+
+    /// <summary>Gets the typed facade over the <c>/events</c> namespace of this device.</summary>
+    /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
+    public EventsApi Events => field ??= new EventsApi(this.Channel);
 }

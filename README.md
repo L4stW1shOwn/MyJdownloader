@@ -5,7 +5,7 @@ A .NET client library for the [MyJDownloader](https://my.jdownloader.org) API.
 > **Status: pre-1.0.** The library can connect, reconnect and disconnect,
 > export and restore the session (with automatic renewal), list devices and
 > make generic encrypted device calls via `GetDevice(id).Channel`. The typed
-> `device.LinkGrabber`, `device.Downloads`, `device.DownloadController`, `device.Jd`, `device.System`, `device.Config`, `device.Accounts` and `device.Captcha` facades are available; other namespaces come in later versions. The API may still change before 1.0.
+> `device.LinkGrabber`, `device.Downloads`, `device.DownloadController`, `device.Jd`, `device.System`, `device.Config`, `device.Accounts`, `device.Captcha` and `device.Events` facades are available; other namespaces come in later versions. The API may still change before 1.0.
 
 ## Packages
 
@@ -201,6 +201,55 @@ bool skipped = await device.Captcha.SkipAsync(jobs[0].Id, CaptchaSkipRequest.Sin
 
 - When a captcha id no longer exists the device usually answers 404 NOT_AVAILABLE, which surfaces as a `MyJdApiException`.
 - Values returned by the device (image data URL, `Hoster`, `Explain`, `Type`, `CaptchaCategory`) are untrusted: validate the `data:image/` prefix and decode the Base64 before rendering, and HTML-encode text before embedding it in a page.
+
+## Events
+
+`device.Events` is the typed facade over `/events` (subscriptions and long polling). There is no built-in loop: call `ListenAsync` repeatedly.
+
+```csharp
+using System.Net;
+using MyJdownloader;
+using MyJdownloader.Events;
+
+var subscription = await device.Events.SubscribeAsync(["downloads.*"], cancellationToken: ct);
+// Keep the poll timeout well below HttpClient.Timeout (100 s by default).
+await device.Events.ChangeSubscriptionTimeoutsAsync(subscription.SubscriptionId, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(120), ct);
+try
+{
+    while (!ct.IsCancellationRequested)
+    {
+        try
+        {
+            foreach (var evt in await device.Events.ListenAsync(subscription.SubscriptionId, ct))
+            {
+                Console.WriteLine($"{evt.Publisher}/{evt.EventId}");
+            }
+        }
+        catch (MyJdApiException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            // Expired or unknown subscription (device 404): resubscribe. Other errors propagate.
+            await Task.Delay(TimeSpan.FromSeconds(1), ct);
+            subscription = await device.Events.SubscribeAsync(["downloads.*"], cancellationToken: ct);
+            await device.Events.ChangeSubscriptionTimeoutsAsync(subscription.SubscriptionId, TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(120), ct);
+        }
+    }
+}
+finally
+{
+    try
+    {
+        await device.Events.UnsubscribeAsync(subscription.SubscriptionId, CancellationToken.None);
+    }
+    catch (MyJdException)
+    {
+        // Best effort: the subscription may already have expired.
+    }
+}
+```
+
+- Subscription and exclusion patterns are regular expressions evaluated on the device.
+- `ListenAsync` is bounded by `HttpClient.Timeout`, which the library neither raises nor bypasses: keep the poll timeout well below it (for example 25 s for the default 100 s).
+- `DeviceEvent.Data` is untyped and may hold secrets: do not log it. The event shape and the millisecond durations are assumptions to confirm against a real device.
 
 ## Logging and tracing
 

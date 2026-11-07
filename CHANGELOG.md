@@ -6,6 +6,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 
 ### Added
 
+- `device.Events`: typed `/events` facade (subscribe, listen with long polling, get, add, remove and set subscription patterns, change timeouts, unsubscribe, list publishers); no built-in listen loop, patterns are device-side regular expressions.
 - `device.Accounts`: typed `/accountsV2` facade (premium hoster accounts, hoster lists and URLs, basic authentication entries); passwords are never retained or logged, `BasicAuthentication.Password` is masked in `ToString()`.
 - `device.Captcha`: typed `/captcha` facade (list and get pending captcha jobs, get the image as a data URL, skip, solve); the answer passed to `SolveAsync` is sent as is and never retained or logged.
 - `device.Config`: typed `/config` facade (get, default, set, reset, query, enum options); untyped values as `JsonElement`.
