@@ -224,9 +224,24 @@ internal sealed class ServerChannel
         return builder.Append(separator).Append("rid=").Append(rid).ToString();
     }
 
+    // Connect and reconnect responses carry the session and regain tokens: clear this UTF-8 copy after the scan
+    // (the decrypted string stays immutable).
     private static bool RidMatches(string json, long rid)
     {
-        var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
+        var utf8 = Encoding.UTF8.GetBytes(json);
+        try
+        {
+            return RidMatches(utf8, rid);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(utf8);
+        }
+    }
+
+    private static bool RidMatches(ReadOnlySpan<byte> utf8, long rid)
+    {
+        var reader = new Utf8JsonReader(utf8);
         var depth = 0;
         while (reader.Read())
         {
