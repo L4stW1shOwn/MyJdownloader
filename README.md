@@ -200,6 +200,7 @@ bool skipped = await device.Captcha.SkipAsync(jobs[0].Id, CaptchaSkipRequest.Sin
 ```
 
 - When a captcha id no longer exists the device usually answers 404 NOT_AVAILABLE, which surfaces as a `MyJdApiException`.
+- Values returned by the device (image data URL, `Hoster`, `Explain`, `Type`, `CaptchaCategory`) are untrusted: validate the `data:image/` prefix and decode the Base64 before rendering, and HTML-encode text before embedding it in a page.
 
 ## Logging and tracing
 

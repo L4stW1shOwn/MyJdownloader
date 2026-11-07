@@ -182,6 +182,29 @@ public sealed class CaptchaApiTests
     }
 
     [Test]
+    public void SkipAsync_UndefinedType_Throws()
+    {
+        var (channel, api) = Create();
+
+        var thrown = Assert.Catch<ArgumentException>(() => api.SkipAsync(42, (CaptchaSkipRequest)99));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.ParamName, Is.EqualTo("type"));
+            Assert.That(channel.ReceivedCalls(), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void ListAsync_NullItem_ThrowsProtocol()
+    {
+        var (channel, api) = Create();
+        ReturnsRef(channel, "list", new List<CaptchaJob> { null! });
+
+        Assert.ThrowsAsync<MyJdProtocolException>(() => api.ListAsync());
+    }
+
+    [Test]
     public async Task SolveAsync_NoFormat_SendsIdAndResult()
     {
         var (channel, api) = Create();

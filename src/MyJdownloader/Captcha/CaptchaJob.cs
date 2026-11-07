@@ -3,6 +3,7 @@ namespace MyJdownloader.Captcha;
 using System.Text.Json.Serialization;
 
 /// <summary>A captcha challenge pending on the device; fields the device does not return are <see langword="null"/>.</summary>
+/// <remarks><see cref="Hoster"/>, <see cref="Explain"/>, <see cref="Type"/> and <see cref="CaptchaCategory"/> are raw strings supplied by the device: encode them before displaying them.</remarks>
 public sealed record CaptchaJob
 {
     /// <summary>Gets the captcha job identifier.</summary>

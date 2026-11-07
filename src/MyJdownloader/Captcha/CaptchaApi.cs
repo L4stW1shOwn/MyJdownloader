@@ -43,6 +43,7 @@ public sealed class CaptchaApi
         => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "getCaptchaJob", CaptchaJsonContext.Default.CaptchaJob, [Id(id)], cancellationToken));
 
     /// <summary>Gets the image of a captcha job (<c>/captcha/get</c>).</summary>
+    /// <remarks>The returned text is supplied by the device and must be treated as untrusted: check the <c>data:image/</c> prefix and decode the Base64 before rendering, and HTML-encode it when embedding it in a page.</remarks>
     /// <param name="id">The captcha job identifier (<see cref="CaptchaJob.Id"/>).</param>
     /// <param name="format">The requested image format, or <see langword="null"/> to let the device choose; not sent when <see langword="null"/>.</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
