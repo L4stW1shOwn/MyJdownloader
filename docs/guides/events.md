@@ -35,8 +35,10 @@ yields the events in the order received. When the enumeration ends for any reaso
 (`break`, cancellation, exception, `DisposeAsync`), the stream unsubscribes with
 its own token, cancelled after 10 seconds and independent of yours, so a
 cancelled caller still releases the subscription without blocking for up to
-`HttpClient.Timeout`. If the unsubscribe is not done in 10 s it is abandoned
-and the device drops the subscription after `MaxKeepalive`.
+`HttpClient.Timeout`. The cleanup always returns within 10 s: if the
+unsubscribe is not done by then it is abandoned (a session reconnect already in
+flight may finish in the background on the client) and the device drops the
+subscription after `MaxKeepalive`.
 Nothing runs between two `MoveNextAsync` calls: no background task, no timer.
 
 ### Options

@@ -67,8 +67,11 @@ Lifecycle:
   caller still releases the subscription. The bound exists because a cancelled
   consumer (for example a hosted service shutting down) must not block for up
   to `HttpClient.Timeout` (100 s by default), or forever with an infinite
-  timeout (CWE-400). If the unsubscribe does not finish in 10 s it is
-  abandoned silently and the device drops the subscription after
+  timeout (CWE-400). The wait itself is bounded too (`WaitAsync`), because
+  a session reconnect in progress runs with `CancellationToken.None`
+  (ADR-004) and ignores the cleanup token. If the unsubscribe does not finish
+  in 10 s it is abandoned silently (the reconnect may complete in the
+  background on the client) and the device drops the subscription after
   `MaxKeepalive`.
 - The caller's token (combined with the one from `WithCancellation` through
   `[EnumeratorCancellation]`) flows into every call and delay. **Nothing runs
