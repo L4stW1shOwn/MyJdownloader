@@ -1046,3 +1046,29 @@ override MyJdownloader.Events.EventStreamOptions.GetHashCode() -> int
 override MyJdownloader.Events.EventStreamOptions.ToString() -> string!
 static MyJdownloader.Events.EventStreamOptions.operator !=(MyJdownloader.Events.EventStreamOptions? left, MyJdownloader.Events.EventStreamOptions? right) -> bool
 static MyJdownloader.Events.EventStreamOptions.operator ==(MyJdownloader.Events.EventStreamOptions? left, MyJdownloader.Events.EventStreamOptions? right) -> bool
+MyJdownloader.Dialogs.DialogInfo
+MyJdownloader.Dialogs.DialogInfo.<Clone>$() -> MyJdownloader.Dialogs.DialogInfo!
+MyJdownloader.Dialogs.DialogInfo.DialogInfo() -> void
+MyJdownloader.Dialogs.DialogInfo.Equals(MyJdownloader.Dialogs.DialogInfo? other) -> bool
+MyJdownloader.Dialogs.DialogInfo.Properties.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>?
+MyJdownloader.Dialogs.DialogInfo.Properties.init -> void
+MyJdownloader.Dialogs.DialogInfo.Type.get -> string?
+MyJdownloader.Dialogs.DialogInfo.Type.init -> void
+override MyJdownloader.Dialogs.DialogInfo.Equals(object? obj) -> bool
+override MyJdownloader.Dialogs.DialogInfo.GetHashCode() -> int
+override MyJdownloader.Dialogs.DialogInfo.ToString() -> string!
+static MyJdownloader.Dialogs.DialogInfo.operator !=(MyJdownloader.Dialogs.DialogInfo? left, MyJdownloader.Dialogs.DialogInfo? right) -> bool
+static MyJdownloader.Dialogs.DialogInfo.operator ==(MyJdownloader.Dialogs.DialogInfo? left, MyJdownloader.Dialogs.DialogInfo? right) -> bool
+MyJdownloader.Dialogs.DialogTypeInfo
+MyJdownloader.Dialogs.DialogTypeInfo.<Clone>$() -> MyJdownloader.Dialogs.DialogTypeInfo!
+MyJdownloader.Dialogs.DialogTypeInfo.DialogTypeInfo() -> void
+MyJdownloader.Dialogs.DialogTypeInfo.Equals(MyJdownloader.Dialogs.DialogTypeInfo? other) -> bool
+MyJdownloader.Dialogs.DialogTypeInfo.In.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>?
+MyJdownloader.Dialogs.DialogTypeInfo.In.init -> void
+MyJdownloader.Dialogs.DialogTypeInfo.Out.get -> System.Collections.Generic.IReadOnlyDictionary<string!, string!>?
+MyJdownloader.Dialogs.DialogTypeInfo.Out.init -> void
+override MyJdownloader.Dialogs.DialogTypeInfo.Equals(object? obj) -> bool
+override MyJdownloader.Dialogs.DialogTypeInfo.GetHashCode() -> int
+override MyJdownloader.Dialogs.DialogTypeInfo.ToString() -> string!
+static MyJdownloader.Dialogs.DialogTypeInfo.operator !=(MyJdownloader.Dialogs.DialogTypeInfo? left, MyJdownloader.Dialogs.DialogTypeInfo? right) -> bool
+static MyJdownloader.Dialogs.DialogTypeInfo.operator ==(MyJdownloader.Dialogs.DialogTypeInfo? left, MyJdownloader.Dialogs.DialogTypeInfo? right) -> bool
