@@ -168,6 +168,38 @@ public sealed class DialogsApiTests
     }
 
     [Test]
+    public async Task AnswerAsync_NestedObjectAndArray_SendsValuesUnchanged()
+    {
+        var (channel, api) = Create();
+        var data = new Dictionary<string, JsonElement>
+        {
+            ["nested"] = Json("{\"a\":{\"b\":[1,2]},\"c\":null}"),
+            ["list"] = Json("[\"x\",{\"y\":false},3]"),
+        };
+
+        await api.AnswerAsync(5, data);
+
+        var (_, args) = Sent(channel);
+        Assert.That(args[1].GetProperty("nested").GetRawText(), Is.EqualTo("{\"a\":{\"b\":[1,2]},\"c\":null}"));
+        Assert.That(args[1].GetProperty("list").GetRawText(), Is.EqualTo("[\"x\",{\"y\":false},3]"));
+    }
+
+    [Test]
+    public async Task AnswerAsync_MapMutatedAfterCall_SendsOriginalSnapshot()
+    {
+        var (channel, api) = Create();
+        var data = new Dictionary<string, JsonElement> { ["ok"] = Json("true") };
+
+        var task = api.AnswerAsync(5, data);
+        data["ok"] = Json("false");
+        data["extra"] = Json("1");
+        await task;
+
+        var (_, args) = Sent(channel);
+        Assert.That(args[1].GetRawText(), Is.EqualTo("{\"ok\":true}"));
+    }
+
+    [Test]
     public async Task AnswerAsync_EmptyMap_SendsEmptyObject()
     {
         var (channel, api) = Create();

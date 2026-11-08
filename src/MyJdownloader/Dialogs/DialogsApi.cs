@@ -72,7 +72,7 @@ public sealed class DialogsApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>A task that completes when the device has answered; the device result is ignored.</returns>
     /// <remarks>The answer is applied on the device immediately and without confirmation, and cannot be undone: the dialog closes and JDownloader continues with the supplied values.</remarks>
-    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/> or contains a <see langword="null"/> key.</exception>
     /// <exception cref="ArgumentException">A key of <paramref name="data"/> is blank or contains control characters or lone surrogates, or a value is <c>default</c>.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid. When the id is unknown the device answers 400 "Invalid ID", and when the dialog needs another answer first 400 "Answer Dialog N first"; both surface as a <see cref="MyJdApiException"/>.</exception>
