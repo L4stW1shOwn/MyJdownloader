@@ -239,7 +239,7 @@ public sealed class EventStreamTests
         var unsubscribes = Calls(channel).Where(c => c.Path == "unsubscribe").ToList();
         Assert.That(unsubscribes, Has.Count.EqualTo(1));
         Assert.That(unsubscribes[0].Args, Is.EqualTo(Seq("1")));
-        Assert.That(unsubscribes[0].Token, Is.EqualTo(CancellationToken.None));
+        Assert.That(unsubscribes[0].Token.CanBeCanceled, Is.True);
     }
 
     [Test]
@@ -254,8 +254,26 @@ public sealed class EventStreamTests
         var unsubscribes = Calls(channel).Where(c => c.Path == "unsubscribe").ToList();
         Assert.That(unsubscribes, Has.Count.EqualTo(1));
         Assert.That(unsubscribes[0].Token, Is.Not.EqualTo(cts.Token));
-        Assert.That(unsubscribes[0].Token.CanBeCanceled, Is.False);
+        Assert.That(unsubscribes[0].Token.CanBeCanceled, Is.True);
     }
+
+    [Test]
+    public async Task UnsubscribeQuietlyAsync_UnsubscribeNeverCompletes_ReturnsAfterCleanupTimeoutWithoutThrowing()
+    {
+        var (channel, api) = Create();
+        channel.CallAsync(Base + "unsubscribe", EventsJsonContext.Default.EventSubscription, Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(call => Task.Delay(Timeout.Infinite, call.ArgAt<CancellationToken>(3)).ContinueWith<EventSubscription?>(_ => null, TaskScheduler.Default));
+        var started = System.Diagnostics.Stopwatch.StartNew();
+
+        await api.UnsubscribeQuietlyAsync(1, TimeSpan.FromMilliseconds(100)).WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.That(started.Elapsed, Is.LessThan(TimeSpan.FromSeconds(5)));
+        Assert.That(Calls(channel).Count(c => c.Path == "unsubscribe"), Is.EqualTo(1));
+    }
+
+    [Test]
+    public void UnsubscribeQuietlyAsync_DefaultTimeout_IsTenSeconds() =>
+        Assert.That(EventsApi.CleanupTimeout, Is.EqualTo(TimeSpan.FromSeconds(10)));
 
     [Test]
     public async Task StreamAsync_CancelledDuringEmptyPollDelay_ThrowsAndUnsubscribes()

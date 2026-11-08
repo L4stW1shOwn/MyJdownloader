@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 /// <c>listen</c> means the device dropped the subscription (expired keepalive or device restart): the stream then
 /// subscribes again, without unsubscribing the dead id. A 404 right after a resubscription, with no successful
 /// listen in between, is not an expiry but a persistent fault and is rethrown so the loop cannot spin. Any other
-/// failure propagates. The current subscription is always removed on exit, best effort (ADR-010).
+/// failure propagates. The current subscription is always removed on exit, best effort, bounded by 10 seconds and independent of the caller's token (ADR-010).
 /// </remarks>
 internal static class EventStream
 {

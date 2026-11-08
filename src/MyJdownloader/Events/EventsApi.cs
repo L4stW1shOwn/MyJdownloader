@@ -196,8 +196,8 @@ public sealed class EventsApi
     /// </para>
     /// <para>
     /// Whatever ends the enumeration (<see langword="break"/>, cancellation, exception, <c>DisposeAsync</c>), the
-    /// subscription is removed with <see cref="UnsubscribeAsync"/> using <see cref="CancellationToken.None"/>, so a
-    /// cancelled stream still cleans up (that call stays bounded by <c>HttpClient.Timeout</c>). Failures of that cleanup
+    /// subscription is removed with <see cref="UnsubscribeAsync"/> using its own token, independent of the caller's, so a
+    /// cancelled stream still cleans up; that call is bounded by 10 seconds. Failures of that cleanup
     /// call (<see cref="MyJdException"/>, <see cref="TimeoutException"/>, <see cref="HttpRequestException"/>,
     /// <see cref="IOException"/>, <see cref="OperationCanceledException"/>, <see cref="InvalidOperationException"/>)
     /// are ignored so they never mask the exception that ended the stream; the device then drops the subscription after
@@ -235,11 +235,17 @@ public sealed class EventsApi
         return EventStream.RunAsync(this, subscriptions, exclusions, options.PollTimeout, options.MaxKeepalive, options.EmptyPollDelay, cancellationToken);
     }
 
-    internal async Task UnsubscribeQuietlyAsync(long subscriptionId)
+    internal static readonly TimeSpan CleanupTimeout = TimeSpan.FromSeconds(10);
+
+    internal Task UnsubscribeQuietlyAsync(long subscriptionId) => this.UnsubscribeQuietlyAsync(subscriptionId, CleanupTimeout);
+
+    internal async Task UnsubscribeQuietlyAsync(long subscriptionId, TimeSpan cleanupTimeout)
     {
+        // Own token, independent of the caller's (typically already cancelled): bounds the cleanup (CWE-400).
+        using var cleanup = new CancellationTokenSource(cleanupTimeout);
         try
         {
-            _ = await this.UnsubscribeAsync(subscriptionId, CancellationToken.None).ConfigureAwait(false);
+            _ = await this.UnsubscribeAsync(subscriptionId, cleanup.Token).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is MyJdException or TimeoutException or HttpRequestException or IOException or OperationCanceledException or InvalidOperationException)
         {
