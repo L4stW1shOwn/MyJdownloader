@@ -68,6 +68,27 @@ shows both setups.
 > in a protected location and never log it. See the
 > [logging and security guide](https://github.com/L4stW1shOwn/MyJdownloader/blob/main/docs/guides/logging-and-security.md).
 
+## API coverage
+
+The typed facades cover 90 of the 169 official device actions; the others stay reachable through `IDeviceChannel`.
+
+| Facade | Coverage |
+|---|---|
+| LinkGrabber | 12/29 |
+| Downloads | 14/26 |
+| DownloadController | 5/6 |
+| Jd | 4/6 |
+| System | 5/7 |
+| Config | 6/7 |
+| Accounts | ✅ 14/14 |
+| Captcha | ✅ 5/5 |
+| Events | ✅ 10/10 |
+| Extensions | ✅ 5/5 |
+| Update | ✅ 3/3 |
+| Extraction | ✅ 7/7 |
+
+Full page: [API coverage](https://github.com/L4stW1shOwn/MyJdownloader/blob/main/docs/api-coverage.md).
+
 ## Documentation
 
 - [Documentation index](https://github.com/L4stW1shOwn/MyJdownloader/blob/main/docs/index.md):

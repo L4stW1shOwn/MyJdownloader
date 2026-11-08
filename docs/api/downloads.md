@@ -2,6 +2,8 @@
 
 The downloads namespace manages the download list: the links and packages JDownloader is downloading, has finished, or is holding for later. Use it to query progress, change priorities and enable state, rename or move entries, reset or force them, and clean them up once they are done.
 
+**Coverage:** 14/26 actions of `/downloadsV2` — not yet typed: `getDownloadUrls`, `getStopMark`, `getStopMarkedLink`, `getStructureChangeCounter`, `moveLinks`, `movePackages`, `removeStopMark`, `setDownloadPassword`, `setStopMark`, `splitPackageByHoster`, `startOnlineStatusCheck`, `unskip`. See [API coverage](../api-coverage.md).
+
 Reach it as `device.Downloads`, which returns a `DownloadsApi`. The C# namespace is `MyJdownloader.Downloads`, and the device API path is `/downloadsV2`. To start or stop the download queue itself, use [DownloadController](download-controller.md).
 
 Every method also throws `InvalidOperationException` when the client is not connected, `MyJdException` for relay or device rejections, `OperationCanceledException`, `TimeoutException` and `HttpRequestException`. The error model is described in [errors.md](errors.md).

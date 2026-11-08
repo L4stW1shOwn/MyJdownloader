@@ -2,6 +2,8 @@
 
 The `jd` namespace exposes read-only information about the JDownloader application running on the device (uptime, version, core revision) and one maintenance action (refreshing the plugins). Use it to identify the build a device runs and to see how long it has been up.
 
+**Coverage:** 4/6 actions of `/jd` — not yet typed: `doSomethingCool`, `sum` (test endpoints, not planned). See [API coverage](../api-coverage.md).
+
 Reach it as `device.Jd`, which returns a `JdApi`. The C# namespace is `MyJdownloader.Jd`, and the device API path is `/jd`. Restarting JDownloader is not part of this namespace: it is `/system/restartJD`, exposed by [System](system.md).
 
 Every method also throws `InvalidOperationException` when the client is not connected, `MyJdException` for relay or device rejections, `OperationCanceledException`, `TimeoutException` and `HttpRequestException`. The error model is described in [errors.md](errors.md).

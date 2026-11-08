@@ -2,6 +2,8 @@
 
 The update namespace checks whether a JDownloader update is available on the device and installs it. Installing an update requires a restart of JDownloader, which the device performs without confirmation.
 
+**Coverage:** 3/3 actions of `/update` (complete).
+
 Reach it as `device.Update`, which returns an `UpdateApi`. The C# namespace is `MyJdownloader.Update`, and the device API path is `/update`.
 
 Every method also throws `InvalidOperationException` when the client is not connected, `MyJdException` for relay or device rejections, `OperationCanceledException`, `TimeoutException` and `HttpRequestException`. The error model is described in [errors.md](errors.md).

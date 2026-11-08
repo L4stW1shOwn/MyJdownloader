@@ -2,6 +2,8 @@
 
 The extraction namespace manages archive extraction on the device: it reports the extraction queue and the state of each archive, adjusts how archives are extracted, stores archive passwords, and starts or cancels an extraction.
 
+**Coverage:** 7/7 actions of `/extraction` (complete).
+
 Reach it as `device.Extraction`, which returns an `ExtractionApi`. The C# namespace is `MyJdownloader.Extraction`, and the device API path is `/extraction`.
 
 Every method also throws `InvalidOperationException` when the client is not connected, `MyJdException` for relay or device rejections, `OperationCanceledException`, `TimeoutException` and `HttpRequestException`. The error model is described in [errors.md](errors.md).

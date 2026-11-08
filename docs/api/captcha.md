@@ -2,6 +2,8 @@
 
 The captcha namespace handles the captcha challenges that block downloads until a human answers them. Use it to list the pending challenges, fetch the image, submit an answer, or skip the challenge when the answer is not available.
 
+**Coverage:** 5/5 actions of `/captcha` (complete).
+
 Reach it as `device.Captcha`, which returns a `CaptchaApi`. The C# namespace is `MyJdownloader.Captcha`, and the device API path is `/captcha`.
 
 Every method also throws `InvalidOperationException` when the client is not connected, `MyJdException` for relay or device rejections, `OperationCanceledException`, `TimeoutException` and `HttpRequestException`. The error model is described in [errors.md](errors.md).

@@ -2,6 +2,8 @@
 
 The link grabber is JDownloader's staging area: links that have been accepted but not yet moved to the download list. Use it to add links, review the collected links and packages, rename or prioritize them, and then move them to the download list (see [Downloads](downloads.md)).
 
+**Coverage:** 12/29 actions of `/linkgrabberv2` — not yet typed: `abort`, `addContainer`, `addVariantCopy`, `cleanup`, `getChildrenChanged`, `getDownloadFolderHistorySelectionBase`, `getDownloadUrls`, `getVariants`, `moveLinks`, `movePackages`, `movetoNewPackage`, `queryLinkCrawlerJobs`, `setDownloadDirectory`, `setDownloadPassword`, `setVariant`, `splitPackageByHoster`, `startOnlineStatusCheck`. See [API coverage](../api-coverage.md).
+
 Reach it as `device.LinkGrabber`, which returns a `LinkGrabberApi`. The C# namespace is `MyJdownloader.LinkGrabber`, and the device API path is `/linkgrabberv2`.
 
 Every method also throws `InvalidOperationException` when the client is not connected, `MyJdException` for relay or device rejections, `OperationCanceledException`, `TimeoutException` and `HttpRequestException`. The error model is described in [errors.md](errors.md).

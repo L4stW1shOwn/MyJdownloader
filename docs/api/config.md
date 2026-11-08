@@ -2,6 +2,8 @@
 
 The config namespace reads and changes JDownloader's advanced configuration entries, grouped by configuration interface. Use it to inspect and tune entries that no other typed facade covers.
 
+**Coverage:** 6/7 actions of `/config` — not yet typed: `list`. See [API coverage](../api-coverage.md).
+
 Reach it as `device.Config`, which returns a `ConfigApi`. The C# namespace is `MyJdownloader.Config`, and the device API path is `/config`.
 
 Every method also throws `InvalidOperationException` when the client is not connected, `MyJdException` for relay or device rejections, `OperationCanceledException`, `TimeoutException` and `HttpRequestException`. The error model is described in [errors.md](errors.md).

@@ -2,6 +2,8 @@
 
 The download controller is the queue-level switch of JDownloader: it starts, stops and pauses all downloads at once, and reports whether the queue is running and how fast it is moving. Use it to drive the whole queue; per-link and per-package control lives in [Downloads](downloads.md).
 
+**Coverage:** 5/6 actions of `/downloadcontroller` — not yet typed: `forceDownload`. See [API coverage](../api-coverage.md).
+
 Reach it as `device.DownloadController`, which returns a `DownloadControllerApi`. The C# namespace is `MyJdownloader.DownloadController`, and the device API path is `/downloadcontroller`.
 
 Every method also throws `InvalidOperationException` when the client is not connected, `MyJdException` for relay or device rejections, `OperationCanceledException`, `TimeoutException` and `HttpRequestException`. The error model is described in [errors.md](errors.md).

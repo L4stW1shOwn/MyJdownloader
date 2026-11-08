@@ -2,6 +2,8 @@
 
 The events namespace subscribes to JDownloader's event publishers (listed by `ListPublishersAsync`) and receives the queued events through a long poll. Use it when a service needs to react to changes on the device without polling every model.
 
+**Coverage:** 10/10 actions of `/events` (complete).
+
 Reach it as `device.Events`, which returns an `EventsApi`. The C# namespace is `MyJdownloader.Events`, and the device API path is `/events`.
 
 There is no built-in listen loop ([ADR-009](../adr/ADR-009-events-long-polling-without-built-in-loop.md)): the caller calls `ListenAsync` repeatedly, handles cancellation, and re-subscribes when the subscription expires.

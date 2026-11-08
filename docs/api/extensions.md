@@ -2,6 +2,8 @@
 
 The extensions namespace manages JDownloader extensions on the device: the add-ons that extend the JDownloader core. Use it to list the available extensions, check whether one is installed or enabled, install one, and enable or disable it.
 
+**Coverage:** 5/5 actions of `/extensions` (complete).
+
 Reach it as `device.Extensions`, which returns an `ExtensionsApi`. The C# namespace is `MyJdownloader.DeviceExtensions`, and the device API path is `/extensions`.
 
 Every method also throws `InvalidOperationException` when the client is not connected, `MyJdException` for relay or device rejections, `OperationCanceledException`, `TimeoutException` and `HttpRequestException`. The error model is described in [errors.md](errors.md).

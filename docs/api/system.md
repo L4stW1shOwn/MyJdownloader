@@ -2,6 +2,8 @@
 
 The system namespace controls the device itself: it restarts or exits JDownloader, and it shuts down, puts on standby or hibernates the operating system. These are the most disruptive actions the library exposes, so review them before calling.
 
+**Coverage:** 5/7 actions of `/system` — not yet typed: `getStorageInfos`, `getSystemInfos`. See [API coverage](../api-coverage.md).
+
 Reach it as `device.System`, which returns a `SystemApi`. The C# namespace is `MyJdownloader.SystemControl`, and the device API path is `/system`.
 
 Every method also throws `InvalidOperationException` when the client is not connected, `MyJdException` for relay or device rejections, `OperationCanceledException`, `TimeoutException` and `HttpRequestException`. The error model is described in [errors.md](errors.md).

@@ -29,6 +29,7 @@ Task-oriented guides, one per use case.
 
 Reference pages for each public type and facade.
 
+- [API coverage](api-coverage.md): which official device actions have a typed method, per namespace.
 - [Client](api/client.md): `MyJDownloaderClient`, connection, session and device access.
 - [Device channel](api/device-channel.md): `IDeviceChannel`, the generic encrypted device call.
 - [Errors](api/errors.md): the `MyJdException` hierarchy and its members.

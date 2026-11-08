@@ -2,6 +2,8 @@
 
 The accounts namespace manages two kinds of third-party credentials stored on the device: premium hoster accounts (for example a paid download service) and basic authentication entries (FTP or HTTP credentials for a host mask). Use it to add, list, enable, refresh and remove them.
 
+**Coverage:** 14/14 actions of `/accountsV2` (complete).
+
 Reach it as `device.Accounts`, which returns an `AccountsApi`. The C# namespace is `MyJdownloader.Accounts`, and the device API path is `/accountsV2`.
 
 Every method also throws `InvalidOperationException` when the client is not connected, `MyJdException` for relay or device rejections, `OperationCanceledException`, `TimeoutException` and `HttpRequestException`. The error model is described in [errors.md](errors.md).
