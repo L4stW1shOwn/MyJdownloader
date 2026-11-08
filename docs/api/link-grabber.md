@@ -19,7 +19,7 @@ Typed facade over the `/linkgrabberv2` namespace of one device (links collected 
 | `QueryPackagesAsync` | `Task<IReadOnlyList<CrawledPackage>> QueryPackagesAsync(PackageQuery? query = null, CancellationToken cancellationToken = default)` | Lists the collected packages (`/linkgrabberv2/queryPackages`). A `null` query returns all fields of all packages. The same 1 MiB limit applies: page with `PackageQuery.StartAt` and `PackageQuery.MaxResults`. |
 | `MoveToDownloadListAsync` | `Task MoveToDownloadListAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)` | Moves links and packages to the download list (`/linkgrabberv2/moveToDownloadlist`). A timeout may still have moved them. |
 | `RemoveLinksAsync` | `Task RemoveLinksAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)` | Removes links and packages from the link grabber (`/linkgrabberv2/removeLinks`). |
-| `ClearListAsync` | `Task<bool> ClearListAsync(CancellationToken cancellationToken = default)` | Clears the whole link grabber list (`/linkgrabberv2/clearList`) and returns the value reported by the device. |
+| `ClearListAsync` | `Task<bool> ClearListAsync(CancellationToken cancellationToken = default)` | Clears the whole link grabber list (`/linkgrabberv2/clearList`) and returns the success flag of the device (`true` once the list is cleared). |
 | `IsCollectingAsync` | `Task<bool> IsCollectingAsync(CancellationToken cancellationToken = default)` | Returns `true` while links are still being collected (`/linkgrabberv2/isCollecting`). |
 | `GetPackageCountAsync` | `Task<int> GetPackageCountAsync(CancellationToken cancellationToken = default)` | Returns the number of packages in the link grabber (`/linkgrabberv2/getPackageCount`). |
 | `RenameLinkAsync` | `Task RenameLinkAsync(long linkId, string newName, CancellationToken cancellationToken = default)` | Renames a link (`/linkgrabberv2/renameLink`). The name becomes a file name on the device; `ArgumentNullException` for a null name and `ArgumentException` for a blank name or one with control characters. |
@@ -116,8 +116,8 @@ Do not destructure or serialize this record into logs. `ToString()` masks `Downl
 | `DownloadPassword` | `string?` | Download password, only returned when requested by the query. |
 | `Variants` | `bool?` | Whether the link has variants. |
 | `Variant` | `LinkVariant?` | Selected variant. |
-| `Status` | `string?` | Human-readable status text, returned when the status flag is set. Not part of the published API documentation. |
-| `StatusIconKey` | `string?` | Key of the status icon. Not part of the published API documentation. |
+| `Status` | `string?` | Human-readable status text, returned when the status flag is set. Not listed in the official MyJDownloader API documentation, so the device may omit it. |
+| `StatusIconKey` | `string?` | Key of the status icon. Not listed in the official MyJDownloader API documentation, so the device may omit it. |
 
 ## CrawledPackage
 
@@ -143,8 +143,8 @@ Do not destructure or serialize this record into logs. `ToString()` masks `Downl
 | `UnknownCount` | `int?` | Number of links with an unknown state. |
 | `Priority` | `Priority?` | Priority. |
 | `SaveTo` | `string?` | Folder the package is saved to. |
-| `Status` | `string?` | Human-readable status text, returned when the status flag is set. Not part of the published API documentation. |
-| `StatusIconKey` | `string?` | Key of the status icon. Not part of the published API documentation. |
+| `Status` | `string?` | Human-readable status text, returned when the status flag is set. Not listed in the official MyJDownloader API documentation, so the device may omit it. |
+| `StatusIconKey` | `string?` | Key of the status icon. Not listed in the official MyJDownloader API documentation, so the device may omit it. |
 
 ## LinkVariant
 

@@ -139,7 +139,7 @@ public sealed class LinkGrabberApi
 
     /// <summary>Clears the whole link grabber list (<c>/linkgrabberv2/clearList</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
-    /// <returns>The value returned by the device.</returns>
+    /// <returns>The success flag returned by the device; JDownloader answers <see langword="true"/> once the list is cleared.</returns>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>

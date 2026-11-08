@@ -56,11 +56,11 @@ public sealed record CrawledLink
     public LinkVariant? Variant { get; init; }
 
     /// <summary>Gets the human-readable status text; returned when the Status flag is set.</summary>
-    /// <remarks>Not part of the published API documentation; observed in JDownloader storables.</remarks>
+    /// <remarks>Not listed in the official MyJDownloader API documentation; observed in JDownloader storables, so the device may omit it.</remarks>
     public string? Status { get; init; }
 
     /// <summary>Gets the key of the status icon; returned when the Status flag is set.</summary>
-    /// <remarks>Not part of the published API documentation; observed in JDownloader storables.</remarks>
+    /// <remarks>Not listed in the official MyJDownloader API documentation; observed in JDownloader storables, so the device may omit it.</remarks>
     public string? StatusIconKey { get; init; }
 
     [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Invoked by the compiler-generated ToString.")]

@@ -166,7 +166,7 @@ public sealed class EventsApi
     /// <summary>Cancels a subscription (<c>/events/unsubscribe</c>).</summary>
     /// <param name="subscriptionId">The subscription identifier (<see cref="EventSubscription.SubscriptionId"/>).</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
-    /// <returns>The subscription returned by the device; its content is unconfirmed until live tests (T-031).</returns>
+    /// <returns>The subscription returned by the device; JDownloader does not document its content, so some properties may be absent.</returns>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty. When the subscription is expired or unknown the device usually answers 404, which surfaces as a <see cref="MyJdApiException"/>.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>

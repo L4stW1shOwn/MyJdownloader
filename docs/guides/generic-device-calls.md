@@ -20,7 +20,7 @@ Task CallAsync(string path, IReadOnlyList<JsonElement> args, CancellationToken c
 ```
 
 - `path` is the action, for example `/jd/version`. Each segment is made of ASCII
-  letters, digits and underscores, up to 256 characters.
+  letters, digits and underscores; the whole path is limited to 256 characters.
 - `responseType` is the source-generated metadata used to deserialize the
   response. The library is AOT compatible, so the type must be declared in a
   `JsonSerializerContext` of your own (see below).

@@ -225,7 +225,7 @@ public sealed class DownloadsApi
     /// <param name="linkIds">The identifiers of the links to force.</param>
     /// <param name="packageIds">The identifiers of the packages to force.</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
-    /// <returns>The value returned by the device.</returns>
+    /// <returns>The success flag returned by the device; JDownloader answers <see langword="true"/> once the request is accepted.</returns>
     /// <exception cref="ArgumentNullException">An identifier list is <see langword="null"/>.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>

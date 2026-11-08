@@ -27,7 +27,7 @@ public interface IDeviceChannel
 {
     /// <summary>Calls a device action and deserializes its <c>data</c> payload.</summary>
     /// <typeparam name="T">The result type.</typeparam>
-    /// <param name="path">The action path, for example <c>/jd/version</c>: each segment made of ASCII letters, digits and underscore, at most 256 characters.</param>
+    /// <param name="path">The action path, for example <c>/jd/version</c>: segments made of ASCII letters, digits and underscore, at most 256 characters in total.</param>
     /// <param name="responseType">The metadata used to deserialize <c>data</c>.</param>
     /// <param name="args">The action arguments.</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -45,7 +45,7 @@ public interface IDeviceChannel
     public Task<T?> CallAsync<T>(string path, JsonTypeInfo<T> responseType, IReadOnlyList<JsonElement> args, CancellationToken cancellationToken = default);
 
     /// <summary>Calls a device action and ignores its <c>data</c> payload.</summary>
-    /// <param name="path">The action path, for example <c>/jd/version</c>: each segment made of ASCII letters, digits and underscore, at most 256 characters.</param>
+    /// <param name="path">The action path, for example <c>/jd/version</c>: segments made of ASCII letters, digits and underscore, at most 256 characters in total.</param>
     /// <param name="args">The action arguments.</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>A task that completes when the device has answered.</returns>
