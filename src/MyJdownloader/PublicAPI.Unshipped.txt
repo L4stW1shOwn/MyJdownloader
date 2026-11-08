@@ -847,6 +847,20 @@ MyJdownloader.Events.EventPublisher.EventIds.init -> void
 MyJdownloader.Events.EventPublisher.EventPublisher() -> void
 MyJdownloader.Events.EventPublisher.Publisher.get -> string?
 MyJdownloader.Events.EventPublisher.Publisher.init -> void
+MyJdownloader.Events.EventStreamOptions
+MyJdownloader.Events.EventStreamOptions.<Clone>$() -> MyJdownloader.Events.EventStreamOptions!
+MyJdownloader.Events.EventStreamOptions.EmptyPollDelay.get -> System.TimeSpan
+MyJdownloader.Events.EventStreamOptions.EmptyPollDelay.init -> void
+MyJdownloader.Events.EventStreamOptions.Equals(MyJdownloader.Events.EventStreamOptions? other) -> bool
+MyJdownloader.Events.EventStreamOptions.EventStreamOptions() -> void
+MyJdownloader.Events.EventStreamOptions.Exclusions.get -> System.Collections.Generic.IReadOnlyList<string!>?
+MyJdownloader.Events.EventStreamOptions.Exclusions.init -> void
+MyJdownloader.Events.EventStreamOptions.MaxKeepalive.get -> System.TimeSpan
+MyJdownloader.Events.EventStreamOptions.MaxKeepalive.init -> void
+MyJdownloader.Events.EventStreamOptions.PollTimeout.get -> System.TimeSpan
+MyJdownloader.Events.EventStreamOptions.PollTimeout.init -> void
+MyJdownloader.Events.EventStreamOptions.Subscriptions.get -> System.Collections.Generic.IReadOnlyList<string!>!
+MyJdownloader.Events.EventStreamOptions.Subscriptions.init -> void
 MyJdownloader.Events.EventSubscription
 MyJdownloader.Events.EventSubscription.<Clone>$() -> MyJdownloader.Events.EventSubscription!
 MyJdownloader.Events.EventSubscription.Equals(MyJdownloader.Events.EventSubscription? other) -> bool
@@ -902,6 +916,7 @@ MyJdownloader.Events.EventsApi.ListenAsync(long subscriptionId, System.Threading
 MyJdownloader.Events.EventsApi.ListPublishersAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Events.EventPublisher!>!>!
 MyJdownloader.Events.EventsApi.RemoveSubscriptionAsync(long subscriptionId, System.Collections.Generic.IReadOnlyList<string!>! subscriptions, System.Collections.Generic.IReadOnlyList<string!>? exclusions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.Events.EventSubscription!>!
 MyJdownloader.Events.EventsApi.SetSubscriptionAsync(long subscriptionId, System.Collections.Generic.IReadOnlyList<string!>! subscriptions, System.Collections.Generic.IReadOnlyList<string!>? exclusions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.Events.EventSubscription!>!
+MyJdownloader.Events.EventsApi.StreamAsync(MyJdownloader.Events.EventStreamOptions! options, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Collections.Generic.IAsyncEnumerable<MyJdownloader.Events.DeviceEvent!>!
 MyJdownloader.Events.EventsApi.SubscribeAsync(System.Collections.Generic.IReadOnlyList<string!>! subscriptions, System.Collections.Generic.IReadOnlyList<string!>? exclusions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.Events.EventSubscription!>!
 MyJdownloader.Events.EventsApi.UnsubscribeAsync(long subscriptionId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.Events.EventSubscription!>!
 MyJdownloader.JDownloaderDevice.Events.get -> MyJdownloader.Events.EventsApi!
@@ -1026,3 +1041,8 @@ MyJdownloader.Extraction.ExtractionApi.GetArchiveSettingsAsync(System.Collection
 MyJdownloader.Extraction.ExtractionApi.GetQueueAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Extraction.ArchiveStatus!>!>!
 MyJdownloader.Extraction.ExtractionApi.SetArchiveSettingsAsync(string! archiveId, MyJdownloader.Extraction.ArchiveSettings! settings, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.Extraction.ExtractionApi.StartExtractionNowAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyDictionary<string!, bool?>!>!
+override MyJdownloader.Events.EventStreamOptions.Equals(object? obj) -> bool
+override MyJdownloader.Events.EventStreamOptions.GetHashCode() -> int
+override MyJdownloader.Events.EventStreamOptions.ToString() -> string!
+static MyJdownloader.Events.EventStreamOptions.operator !=(MyJdownloader.Events.EventStreamOptions? left, MyJdownloader.Events.EventStreamOptions? right) -> bool
+static MyJdownloader.Events.EventStreamOptions.operator ==(MyJdownloader.Events.EventStreamOptions? left, MyJdownloader.Events.EventStreamOptions? right) -> bool

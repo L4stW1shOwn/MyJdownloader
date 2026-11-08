@@ -1,5 +1,6 @@
 namespace MyJdownloader.Events;
 
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using MyJdownloader.Facades;
 
@@ -185,6 +186,105 @@ public sealed class EventsApi
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<IReadOnlyList<EventPublisher>> ListPublishersAsync(CancellationToken cancellationToken = default)
         => FacadeResults.ListAsync(this._channel.CallAsync(Base + "listpublisher", EventsJsonContext.Default.ListEventPublisher, [], cancellationToken));
+
+    /// <summary>Follows the events of the device as an asynchronous stream, owning the whole subscription lifecycle.</summary>
+    /// <remarks>
+    /// <para>
+    /// Each enumeration creates its own device subscription (<see cref="SubscribeAsync"/>), sets its timeouts
+    /// (<see cref="ChangeSubscriptionTimeoutsAsync"/>), then long-polls with <see cref="ListenAsync"/> and yields the
+    /// events in the order received; after an empty batch it waits <see cref="EventStreamOptions.EmptyPollDelay"/>.
+    /// Enumerating the same stream twice therefore creates two subscriptions.
+    /// </para>
+    /// <para>
+    /// Whatever ends the enumeration (<see langword="break"/>, cancellation, exception, <c>DisposeAsync</c>), the
+    /// subscription is removed with <see cref="UnsubscribeAsync"/> using <see cref="CancellationToken.None"/>, so a
+    /// cancelled stream still cleans up (that call stays bounded by <c>HttpClient.Timeout</c>). Failures of that cleanup
+    /// call (<see cref="MyJdException"/>, <see cref="TimeoutException"/>, <see cref="HttpRequestException"/>,
+    /// <see cref="IOException"/>, <see cref="OperationCanceledException"/>, <see cref="InvalidOperationException"/>)
+    /// are ignored so they never mask the exception that ended the stream; the device then drops the subscription after
+    /// <see cref="EventStreamOptions.MaxKeepalive"/>. An enumerator obtained manually and never disposed leaks the
+    /// device subscription until <see cref="EventStreamOptions.MaxKeepalive"/>.
+    /// </para>
+    /// <para>
+    /// The caller's token (and the one given through <c>WithCancellation</c>) flows into every call and delay. Nothing
+    /// runs between two <c>MoveNextAsync</c> calls: no background task, no timer, no network retry (ADR-005).
+    /// Events published while no subscription exists are lost. See ADR-010, "Opt-in event stream helper", for the
+    /// rationale and the full failure policy.
+    /// </para>
+    /// </remarks>
+    /// <param name="options">The patterns and polling options; copied at this call.</param>
+    /// <param name="cancellationToken">A token to cancel the stream; combined with the one given to <c>WithCancellation</c>.</param>
+    /// <returns>A lazy stream: no call is made until it is enumerated.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="options"/> or its <see cref="EventStreamOptions.Subscriptions"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">An item of <see cref="EventStreamOptions.Subscriptions"/> or <see cref="EventStreamOptions.Exclusions"/> is <see langword="null"/>, blank or contains control characters or lone surrogates; or <see cref="EventStreamOptions.PollTimeout"/> is not strictly below <see cref="EventStreamOptions.MaxKeepalive"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><see cref="EventStreamOptions.PollTimeout"/> or <see cref="EventStreamOptions.MaxKeepalive"/> is below 1 ms, or <see cref="EventStreamOptions.EmptyPollDelay"/> is negative.</exception>
+    public IAsyncEnumerable<DeviceEvent> StreamAsync(EventStreamOptions options, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(options);
+        _ = ListArgs(options.Subscriptions, options.Exclusions);
+        _ = Milliseconds(options.PollTimeout, nameof(options.PollTimeout));
+        _ = Milliseconds(options.MaxKeepalive, nameof(options.MaxKeepalive));
+        if (options.PollTimeout >= options.MaxKeepalive)
+        {
+            throw new ArgumentException("PollTimeout must be strictly below MaxKeepalive.", nameof(options));
+        }
+
+        ArgumentOutOfRangeException.ThrowIfLessThan(options.EmptyPollDelay, TimeSpan.Zero, nameof(options.EmptyPollDelay));
+
+        string[] subscriptions = [.. options.Subscriptions];
+        string[]? exclusions = options.Exclusions is null ? null : [.. options.Exclusions];
+        return this.StreamCoreAsync(subscriptions, exclusions, options.PollTimeout, options.MaxKeepalive, options.EmptyPollDelay, cancellationToken);
+    }
+
+    private async IAsyncEnumerable<DeviceEvent> StreamCoreAsync(
+        string[] subscriptions,
+        string[]? exclusions,
+        TimeSpan pollTimeout,
+        TimeSpan maxKeepalive,
+        TimeSpan emptyPollDelay,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        long? held = null;
+        try
+        {
+            var subscription = await this.SubscribeAsync(subscriptions, exclusions, cancellationToken).ConfigureAwait(false);
+            held = subscription.SubscriptionId;
+            await this.ChangeSubscriptionTimeoutsAsync(held.Value, pollTimeout, maxKeepalive, cancellationToken).ConfigureAwait(false);
+
+            while (true)
+            {
+                var batch = await this.ListenAsync(held.Value, cancellationToken).ConfigureAwait(false);
+                foreach (var evt in batch)
+                {
+                    yield return evt;
+                }
+
+                if (batch.Count == 0 && emptyPollDelay > TimeSpan.Zero)
+                {
+                    await Task.Delay(emptyPollDelay, cancellationToken).ConfigureAwait(false);
+                }
+            }
+        }
+        finally
+        {
+            if (held is { } id)
+            {
+                await this.UnsubscribeQuietlyAsync(id).ConfigureAwait(false);
+            }
+        }
+    }
+
+    private async Task UnsubscribeQuietlyAsync(long subscriptionId)
+    {
+        try
+        {
+            _ = await this.UnsubscribeAsync(subscriptionId, CancellationToken.None).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is MyJdException or TimeoutException or HttpRequestException or IOException or OperationCanceledException or InvalidOperationException)
+        {
+            // Best effort: never mask the exception that ended the stream; the device drops the subscription after MaxKeepalive.
+        }
+    }
 
     private static JsonElement[] ListArgs(JsonElement first, IReadOnlyList<string> subscriptions, IReadOnlyList<string>? exclusions)
     {
