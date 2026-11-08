@@ -7,7 +7,7 @@ using MyJdownloader.Tests.Transport;
 [TestFixture]
 public sealed class DialogsEndToEndTests
 {
-    private static readonly string[] _expectedParams = ["5", "{\"ok\":true}"];
+    private static readonly string[] _expectedParams = ["5", /*lang=json,strict*/ "{\"ok\":true}"];
     private static readonly TimeSpan _waitTimeout = TimeSpan.FromSeconds(5);
 
     private static byte[] Key(byte value) => [.. Enumerable.Repeat(value, 32)];

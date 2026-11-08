@@ -164,7 +164,7 @@ public sealed class DialogsApiTests
 
         await api.AnswerAsync(5, data);
 
-        AssertSent(channel, "answer", "5", "{\"ok\":true,\"text\":\"a b\",\"count\":3}");
+        AssertSent(channel, "answer", "5", /*lang=json,strict*/ "{\"ok\":true,\"text\":\"a b\",\"count\":3}");
     }
 
     [Test]
@@ -173,15 +173,15 @@ public sealed class DialogsApiTests
         var (channel, api) = Create();
         var data = new Dictionary<string, JsonElement>
         {
-            ["nested"] = Json("{\"a\":{\"b\":[1,2]},\"c\":null}"),
-            ["list"] = Json("[\"x\",{\"y\":false},3]"),
+            ["nested"] = Json(/*lang=json,strict*/ "{\"a\":{\"b\":[1,2]},\"c\":null}"),
+            ["list"] = Json(/*lang=json,strict*/ "[\"x\",{\"y\":false},3]"),
         };
 
         await api.AnswerAsync(5, data);
 
         var (_, args) = Sent(channel);
-        Assert.That(args[1].GetProperty("nested").GetRawText(), Is.EqualTo("{\"a\":{\"b\":[1,2]},\"c\":null}"));
-        Assert.That(args[1].GetProperty("list").GetRawText(), Is.EqualTo("[\"x\",{\"y\":false},3]"));
+        Assert.That(args[1].GetProperty("nested").GetRawText(), Is.EqualTo(/*lang=json,strict*/ "{\"a\":{\"b\":[1,2]},\"c\":null}"));
+        Assert.That(args[1].GetProperty("list").GetRawText(), Is.EqualTo(/*lang=json,strict*/ "[\"x\",{\"y\":false},3]"));
     }
 
     [Test]
@@ -196,7 +196,7 @@ public sealed class DialogsApiTests
         await task;
 
         var (_, args) = Sent(channel);
-        Assert.That(args[1].GetRawText(), Is.EqualTo("{\"ok\":true}"));
+        Assert.That(args[1].GetRawText(), Is.EqualTo(/*lang=json,strict*/ "{\"ok\":true}"));
     }
 
     [Test]
