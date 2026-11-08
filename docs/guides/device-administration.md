@@ -131,17 +131,39 @@ using System.Text.Json;
 using MyJdownloader.Dialogs;
 
 IReadOnlyList<long> ids = await device.Dialogs.ListAsync(cancellationToken);
-
-DialogInfo dialog = await device.Dialogs.GetAsync(ids[0], cancellationToken: cancellationToken);
-DialogTypeInfo typeInfo = await device.Dialogs.GetTypeInfoAsync(dialog.Type!, cancellationToken);
-
-// Acts on the device without confirmation. The keys come from typeInfo.Out.
-var answer = new Dictionary<string, JsonElement>
+if (ids.Count > 0)
 {
-    ["ok"] = JsonSerializer.SerializeToElement(true),
-};
-await device.Dialogs.AnswerAsync(ids[0], answer, cancellationToken);
+    DialogInfo dialog = await device.Dialogs.GetAsync(ids[0], cancellationToken: cancellationToken);
+    if (dialog.Type is not null)
+    {
+        DialogTypeInfo typeInfo = await device.Dialogs.GetTypeInfoAsync(dialog.Type, cancellationToken);
+
+        // Device text is untrusted: encode it before displaying it. Properties may hold secrets: never log them.
+        Console.WriteLine($"Dialog {ids[0]}: {Encode(dialog.Type)}");
+        foreach (var (key, value) in dialog.Properties ?? new Dictionary<string, string>())
+        {
+            Console.WriteLine($"  {Encode(key)} = {Encode(value)}");
+        }
+
+        // Answer only after an explicit user decision. The keys come from typeInfo.Out ("ok" is an example).
+        if (typeInfo.Out is { } outKeys && outKeys.ContainsKey("ok") && AskUser("Answer yes to this dialog?"))
+        {
+            var answer = new Dictionary<string, JsonElement>
+            {
+                ["ok"] = JsonSerializer.SerializeToElement(true),
+            };
+            await device.Dialogs.AnswerAsync(ids[0], answer, cancellationToken);
+        }
+    }
+}
 ```
+
+`Encode` and `AskUser` stand for your own output encoding and user prompt.
+Never answer dialogs automatically or in bulk without user review: some dialogs
+confirm overwrites, updates or trust decisions. Properties and answer values may
+hold secrets (login or password dialogs): never log them. With `includeIcon: true`
+the icon is a Base64 data URL inside `Properties`: check the `data:image/` prefix
+before you render it.
 
 - `AnswerAsync` closes the dialog and JDownloader continues immediately, without
   confirmation. Ask the user first. A timeout means the answer may have been applied.

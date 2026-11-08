@@ -10,6 +10,8 @@ Every method also throws `InvalidOperationException` when the client is not conn
 
 Text returned by the device (`DialogInfo`, `DialogTypeInfo`) is untrusted: it can contain file names, URLs or messages. Encode it before displaying it.
 
+Never answer dialogs automatically or in bulk without user review: some dialogs confirm overwrites, updates or trust decisions. Dialog `Properties` and the answer values (`data` of `AnswerAsync`) may hold secrets, for example in login or password dialogs: never log them. With `includeIcon: true`, the icon arrives as a Base64 data URL inside `Properties` (there is no dedicated member): check that it starts with `data:image/` and decode the Base64 before rendering it.
+
 ## DialogsApi
 
 `public sealed class DialogsApi`
@@ -40,21 +42,31 @@ IReadOnlyList<long> ids = await device.Dialogs.ListAsync();
 if (ids.Count > 0)
 {
     DialogInfo dialog = await device.Dialogs.GetAsync(ids[0]);
-
-    // Device text is untrusted: encode it before displaying it.
     if (dialog.Type is not null)
     {
         DialogTypeInfo typeInfo = await device.Dialogs.GetTypeInfoAsync(dialog.Type);
-    }
 
-    // Acts on the device without confirmation. Ask the user first, and use the keys from typeInfo.Out.
-    var answer = new Dictionary<string, JsonElement>
-    {
-        ["ok"] = JsonSerializer.SerializeToElement(true),
-    };
-    await device.Dialogs.AnswerAsync(ids[0], answer);
+        // Device text is untrusted: encode it before displaying it. Properties may hold secrets: never log them.
+        Console.WriteLine($"Dialog {ids[0]}: {Encode(dialog.Type)}");
+        foreach (var (key, value) in dialog.Properties ?? new Dictionary<string, string>())
+        {
+            Console.WriteLine($"  {Encode(key)} = {Encode(value)}");
+        }
+
+        // Answer only after an explicit user decision. The keys come from typeInfo.Out ("ok" is an example).
+        if (typeInfo.Out is { } outKeys && outKeys.ContainsKey("ok") && AskUser("Answer yes to this dialog?"))
+        {
+            var answer = new Dictionary<string, JsonElement>
+            {
+                ["ok"] = JsonSerializer.SerializeToElement(true),
+            };
+            await device.Dialogs.AnswerAsync(ids[0], answer);
+        }
+    }
 }
 ```
+
+`Encode` and `AskUser` stand for your own output encoding and user prompt.
 
 ## DialogInfo
 
@@ -67,7 +79,7 @@ A dialog currently open on the device. Fields the device does not return are `nu
 | Property | Type | Description |
 |---|---|---|
 | `Type` | `string?` | Dialog type reported by the device. Its set of values is not documented. |
-| `Properties` | `IReadOnlyDictionary<string, string>?` | Dialog properties (content, title, flags), or `null` when not returned or not requested. |
+| `Properties` | `IReadOnlyDictionary<string, string>?` | Dialog properties (content, title, flags), or `null` when not returned or not requested. May hold secrets: never log them. With `includeIcon`, holds the icon as a Base64 data URL: check the `data:image/` prefix before rendering it. |
 
 ## DialogTypeInfo
 

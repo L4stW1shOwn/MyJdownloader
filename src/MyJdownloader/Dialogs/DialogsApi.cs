@@ -7,6 +7,8 @@ using MyJdownloader.Facades;
 /// <remarks>
 /// <see cref="AnswerAsync"/> answers a dialog on the device without confirmation: JDownloader acts on it immediately.
 /// Text returned by the device (<see cref="DialogInfo"/>, <see cref="DialogTypeInfo"/>) is untrusted.
+/// Never answer dialogs automatically or in bulk without user review: some dialogs confirm overwrites, updates or trust decisions.
+/// Dialog properties and answer values may hold secrets (for example login or password dialogs): never log them.
 /// </remarks>
 public sealed class DialogsApi
 {
@@ -33,7 +35,7 @@ public sealed class DialogsApi
 
     /// <summary>Gets an open dialog (<c>/dialogs/get</c>).</summary>
     /// <param name="id">The dialog identifier, as returned by <see cref="ListAsync"/>.</param>
-    /// <param name="includeIcon">Whether the device should include the dialog icon; <see langword="false"/> by default as icons are large.</param>
+    /// <param name="includeIcon">Whether the device should include the dialog icon; <see langword="false"/> by default as icons are large. The icon arrives as a Base64 data URL inside <see cref="DialogInfo.Properties"/> (there is no dedicated member): it is untrusted, so check the <c>data:image/</c> prefix before rendering it.</param>
     /// <param name="includeProperties">Whether the device should include the dialog properties; <see langword="true"/> by default.</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The dialog.</returns>
@@ -68,7 +70,7 @@ public sealed class DialogsApi
 
     /// <summary>Answers an open dialog (<c>/dialogs/answer</c>).</summary>
     /// <param name="id">The dialog identifier, as returned by <see cref="ListAsync"/>.</param>
-    /// <param name="data">The answer properties (see <see cref="DialogTypeInfo.Out"/>), sent to the device as one JSON object; values are untyped (<see cref="JsonElement"/>) and must not be <c>default</c>.</param>
+    /// <param name="data">The answer properties (see <see cref="DialogTypeInfo.Out"/>), sent to the device as one JSON object; values are untyped (<see cref="JsonElement"/>) and must not be <c>default</c>. The values may hold secrets (for example passwords): never log them.</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>A task that completes when the device has answered; the device result is ignored.</returns>
     /// <remarks>The answer is applied on the device immediately and without confirmation, and cannot be undone: the dialog closes and JDownloader continues with the supplied values.</remarks>
