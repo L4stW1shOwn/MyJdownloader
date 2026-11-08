@@ -2,6 +2,7 @@
 
 - **Status**: Accepted
 - **Date**: 2026-11-08
+- **Amended**: 2026-11-08 (cleanup bounded to 10 s after security audit)
 
 ## Context
 
@@ -61,9 +62,14 @@ Lifecycle:
   batch, wait `EmptyPollDelay` (skipped when zero) to avoid a hot loop.
 - **End** (completion for any reason: `break`, cancellation, exception,
   explicit `DisposeAsync`): when a subscription is held, unsubscribe in a
-  `finally` block with **`CancellationToken.None`**, so a cancelled caller
-  still releases the subscription; the call remains bounded by
-  `HttpClient.Timeout`.
+  `finally` block with **its own token, cancelled after 10 seconds** and
+  independent of the caller's token (usually already cancelled), so a cancelled
+  caller still releases the subscription. The bound exists because a cancelled
+  consumer (for example a hosted service shutting down) must not block for up
+  to `HttpClient.Timeout` (100 s by default), or forever with an infinite
+  timeout (CWE-400). If the unsubscribe does not finish in 10 s it is
+  abandoned silently and the device drops the subscription after
+  `MaxKeepalive`.
 - The caller's token (combined with the one from `WithCancellation` through
   `[EnumeratorCancellation]`) flows into every call and delay. **Nothing runs
   between two `MoveNextAsync` calls**: no background task, no timer.
@@ -125,7 +131,8 @@ Negative:
 - Enumerating the same sequence twice creates two device subscriptions; callers
   must be aware of it.
 - The best-effort unsubscribe can leave a subscription on the device until
-  `MaxKeepalive` when the call fails; the failure is silent.
+  `MaxKeepalive` when the call fails or exceeds the 10 s bound; the failure is
+  silent.
 - The `PollTimeout` below `HttpClient.Timeout` rule is still documented, not
   enforced.
 - No retry on transient failures: a network error ends the stream, and the

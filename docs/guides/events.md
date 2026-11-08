@@ -33,7 +33,10 @@ Nothing happens until the sequence is enumerated. On the first `MoveNextAsync`
 the stream subscribes and sets the subscription timeouts, then long-polls and
 yields the events in the order received. When the enumeration ends for any reason
 (`break`, cancellation, exception, `DisposeAsync`), the stream unsubscribes with
-`CancellationToken.None`, so a cancelled caller still releases the subscription.
+its own token, cancelled after 10 seconds and independent of yours, so a
+cancelled caller still releases the subscription without blocking for up to
+`HttpClient.Timeout`. If the unsubscribe is not done in 10 s it is abandoned
+and the device drops the subscription after `MaxKeepalive`.
 Nothing runs between two `MoveNextAsync` calls: no background task, no timer.
 
 ### Options
