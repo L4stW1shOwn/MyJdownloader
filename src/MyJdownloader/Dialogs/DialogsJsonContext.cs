@@ -1,5 +1,6 @@
 namespace MyJdownloader.Dialogs;
 
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 /// <summary>Source-generated, tolerant JSON metadata for the <c>/dialogs</c> namespace.</summary>
@@ -9,6 +10,7 @@ using System.Text.Json.Serialization;
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 [JsonSerializable(typeof(DialogInfo))]
 [JsonSerializable(typeof(DialogTypeInfo))]
+[JsonSerializable(typeof(Dictionary<string, JsonElement>))]
 internal sealed partial class DialogsJsonContext : JsonSerializerContext
 {
 }
