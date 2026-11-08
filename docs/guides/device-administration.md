@@ -2,7 +2,7 @@
 
 Besides downloads, a device exposes facades for its own administration: version
 and plugins, operating-system power actions, advanced configuration, premium
-hoster accounts, captchas, extensions, updates and archive extraction. Each
+hoster accounts, captchas, dialogs, extensions, updates and archive extraction. Each
 facade is a property of `JDownloaderDevice`. This guide shows one use case per
 facade.
 
@@ -123,6 +123,33 @@ bool skipped = await device.Captcha.SkipAsync(jobs[0].Id, CaptchaSkipRequest.Sin
   and are untrusted. Check that the image starts with `data:image/`, decode the
   Base64 before you render it, and HTML-encode the text before you embed it in a
   page.
+
+## Dialogs: answer what JDownloader is waiting on
+
+```csharp
+using System.Text.Json;
+using MyJdownloader.Dialogs;
+
+IReadOnlyList<long> ids = await device.Dialogs.ListAsync(cancellationToken);
+
+DialogInfo dialog = await device.Dialogs.GetAsync(ids[0], cancellationToken: cancellationToken);
+DialogTypeInfo typeInfo = await device.Dialogs.GetTypeInfoAsync(dialog.Type!, cancellationToken);
+
+// Acts on the device without confirmation. The keys come from typeInfo.Out.
+var answer = new Dictionary<string, JsonElement>
+{
+    ["ok"] = JsonSerializer.SerializeToElement(true),
+};
+await device.Dialogs.AnswerAsync(ids[0], answer, cancellationToken);
+```
+
+- `AnswerAsync` closes the dialog and JDownloader continues immediately, without
+  confirmation. Ask the user first. A timeout means the answer may have been applied.
+- An unknown id answers `400 "Invalid ID"`, an unknown type `400 "Requested Type not found!"`,
+  and a dialog that needs another answer first `400 "Answer Dialog N first"`. All
+  surface as a `MyJdApiException`.
+- `Type`, the `Properties` and `DialogTypeInfo` text come from the device and are
+  untrusted: encode them before you display them.
 
 ## Extensions: list, install, enable
 

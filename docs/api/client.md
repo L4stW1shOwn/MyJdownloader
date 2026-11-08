@@ -203,6 +203,7 @@ Each facade property is created on first access. The facades are stateless, so a
 | [`Config`](config.md) | `ConfigApi Config { get; }` | Facade over the `/config` namespace: reading and writing JDownloader settings. |
 | [`Accounts`](accounts.md) | `AccountsApi Accounts { get; }` | Facade over the `/accountsV2` namespace: premium and basic-auth accounts. |
 | [`Captcha`](captcha.md) | `CaptchaApi Captcha { get; }` | Facade over the `/captcha` namespace: captcha jobs awaiting a solution. |
+| [`Dialogs`](dialogs.md) | `DialogsApi Dialogs { get; }` | Facade over the `/dialogs` namespace: dialogs JDownloader is waiting on. |
 | [`Events`](events.md) | `EventsApi Events { get; }` | Facade over the `/events` namespace: event subscriptions and polling. |
 | [`Extensions`](extensions.md) | `ExtensionsApi Extensions { get; }` | Facade over the `/extensions` namespace (type in `MyJdownloader.DeviceExtensions`). |
 | [`Extraction`](extraction.md) | `ExtractionApi Extraction { get; }` | Facade over the `/extraction` namespace: archive extraction. |
@@ -234,7 +235,7 @@ IReadOnlyList<CrawledLink> links = await device.LinkGrabber.QueryLinksAsync();
 - [Errors](errors.md)
 - [Common types](common-types.md)
 - [Dependency injection](dependency-injection.md)
-- [Link grabber](link-grabber.md) · [Downloads](downloads.md) · [Download controller](download-controller.md) · [Jd](jd.md) · [System](system.md) · [Config](config.md) · [Accounts](accounts.md) · [Captcha](captcha.md) · [Events](events.md) · [Extensions](extensions.md) · [Extraction](extraction.md) · [Update](update.md)
+- [Link grabber](link-grabber.md) · [Downloads](downloads.md) · [Download controller](download-controller.md) · [Jd](jd.md) · [System](system.md) · [Config](config.md) · [Accounts](accounts.md) · [Captcha](captcha.md) · [Dialogs](dialogs.md) · [Events](events.md) · [Extensions](extensions.md) · [Extraction](extraction.md) · [Update](update.md)
 - [Getting started](../guides/getting-started.md)
 - [Sessions and authentication](../guides/sessions-and-authentication.md)
 - [Error handling](../guides/error-handling.md)

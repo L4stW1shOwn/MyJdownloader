@@ -70,7 +70,7 @@ shows both setups.
 
 ## API coverage
 
-The typed facades cover 90 of the 169 official device actions; the others stay reachable through `IDeviceChannel`.
+The typed facades cover 94 of the 169 official device actions; the others stay reachable through `IDeviceChannel`.
 
 | Facade | Coverage |
 |---|---|
@@ -82,6 +82,7 @@ The typed facades cover 90 of the 169 official device actions; the others stay r
 | Config | 6/7 |
 | Accounts | ✅ 14/14 |
 | Captcha | ✅ 5/5 |
+| Dialogs | ✅ 4/4 |
 | Events | ✅ 10/10 |
 | Extensions | ✅ 5/5 |
 | Update | ✅ 3/3 |

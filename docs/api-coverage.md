@@ -14,12 +14,13 @@ Each row compares two counts for one device namespace. The first is the number o
 | [Config](api/config.md) | `/config` | 6/7 | `list` |
 | [Accounts](api/accounts.md) | `/accountsV2` | ✅ 14/14 | — |
 | [Captcha](api/captcha.md) | `/captcha` | ✅ 5/5 | — |
+| [Dialogs](api/dialogs.md) | `/dialogs` | ✅ 4/4 | — |
 | [Events](api/events.md) | `/events` | ✅ 10/10 | — |
 | [Extensions](api/extensions.md) | `/extensions` | ✅ 5/5 | — |
 | [Update](api/update.md) | `/update` | ✅ 3/3 | — |
 | [Extraction](api/extraction.md) | `/extraction` | ✅ 7/7 | — |
 
-Subtotal for the typed facades: 90/125 actions.
+Subtotal for the typed facades: 94/129 actions.
 
 ## Namespaces without a typed facade
 
@@ -27,7 +28,6 @@ These namespaces have no typed facade yet. Their actions are callable today thro
 
 | Namespace | Coverage | Actions |
 |---|---|---|
-| `/dialogs` | 0/4 | `answer`, `get`, `getTypeInfo`, `list` |
 | `/plugins` | 0/7 | `get`, `getAllPluginRegex`, `getPluginRegex`, `list`, `query`, `reset`, `set` |
 | `/log` | 0/2 | `getAvailableLogs`, `sendLogFile` |
 | `/contentV2` | 0/4 | `getFavIcon`, `getFileIcon`, `getIcon`, `getIconDescription` |
@@ -50,4 +50,4 @@ The following namespaces are not planned:
 
 ## Totals
 
-Across all official namespaces, 90 of the 169 actions have a typed method (`90/169`).
+Across all official namespaces, 94 of the 169 actions have a typed method (`94/169`).

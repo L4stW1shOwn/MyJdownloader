@@ -6,6 +6,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 
 ### Added
 
+- `device.Dialogs`: typed `/dialogs` facade (list, get, get type info, answer); answering acts on the device without confirmation; device text is untrusted.
 - `device.Events.StreamAsync` and `EventStreamOptions`: opt-in event stream that subscribes, resubscribes on expiry (device-side 404) and unsubscribes at the end of the enumeration (cleanup bounded to 10 s, independent of the caller's token); no network retry, events published between expiry and resubscription are lost.
 - Package metadata: repository and project URLs (`https://github.com/L4stW1shOwn/MyJdownloader`) on both NuGet packages.
 - `device.Extraction`: typed `/extraction` facade (add archive password, cancel extraction, archive info, get and set archive settings, queue, start extraction now); `ArchiveSettings` passwords are masked in `ToString()`, set and start calls act without confirmation.
