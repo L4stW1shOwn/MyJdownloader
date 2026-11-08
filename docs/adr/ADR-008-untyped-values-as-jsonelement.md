@@ -2,7 +2,6 @@
 
 - **Status**: Accepted
 - **Date**: 2026-11-06
-- **Reference**: `docs/superpowers/specs/2026-11-06-t015-config-design.md` (§3.1, §3.3, §4)
 
 ## Context
 

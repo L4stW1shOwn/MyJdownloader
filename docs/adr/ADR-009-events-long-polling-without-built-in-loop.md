@@ -2,7 +2,6 @@
 
 - **Status**: Accepted
 - **Date**: 2026-11-07
-- **Reference**: `docs/superpowers/specs/2026-11-07-t019-events-design.md`
 
 ## Context
 

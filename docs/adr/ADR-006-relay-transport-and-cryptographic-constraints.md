@@ -2,7 +2,6 @@
 
 - **Status**: Accepted
 - **Date**: 2026-11-02
-- **Reference**: `docs/superpowers/specs/2026-11-02-myjdownloader-client-design.md` (§1, §4, §11)
 
 ## Context
 

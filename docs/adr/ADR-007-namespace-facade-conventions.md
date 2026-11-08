@@ -3,7 +3,6 @@
 - **Status**: Accepted
 - **Date**: 2026-11-06
 - **Amended**: 2026-11-06 (T-011)
-- **Reference**: `docs/superpowers/specs/2026-11-06-t010-linkgrabber-design.md` (§2, §3, §5); amendment: `docs/superpowers/specs/2026-11-06-t011-downloads-design.md` (§2, §3.3, §4.1, §5)
 
 ## Context
 

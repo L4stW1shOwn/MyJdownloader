@@ -4,7 +4,6 @@
 - **Date**: 2026-11-02
 - **Amended**: 2026-11-06 (T-007)
 - **Amended**: 2026-11-06 (T-008)
-- **Reference**: `docs/superpowers/specs/2026-11-02-myjdownloader-client-design.md` (§5, §8)
 
 ## Context
 

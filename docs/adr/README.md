@@ -1,7 +1,6 @@
 # Architecture Decision Records
 
-Structural decisions of MyJdownloader. Source of truth:
-`docs/superpowers/specs/2026-11-02-myjdownloader-client-design.md`.
+Structural decisions of MyJdownloader.
 
 | No. | Title | Status | Link |
 |---|---|---|---|
