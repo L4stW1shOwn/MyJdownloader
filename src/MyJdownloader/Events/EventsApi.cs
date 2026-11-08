@@ -1,6 +1,5 @@
 namespace MyJdownloader.Events;
 
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using MyJdownloader.Facades;
 
@@ -221,7 +220,7 @@ public sealed class EventsApi
     public IAsyncEnumerable<DeviceEvent> StreamAsync(EventStreamOptions options, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(options);
-        _ = ListArgs(options.Subscriptions, options.Exclusions);
+        ValidatePatterns(options.Subscriptions, options.Exclusions);
         _ = Milliseconds(options.PollTimeout, nameof(options.PollTimeout));
         _ = Milliseconds(options.MaxKeepalive, nameof(options.MaxKeepalive));
         if (options.PollTimeout >= options.MaxKeepalive)
@@ -233,48 +232,10 @@ public sealed class EventsApi
 
         string[] subscriptions = [.. options.Subscriptions];
         string[]? exclusions = options.Exclusions is null ? null : [.. options.Exclusions];
-        return this.StreamCoreAsync(subscriptions, exclusions, options.PollTimeout, options.MaxKeepalive, options.EmptyPollDelay, cancellationToken);
+        return EventStream.RunAsync(this, subscriptions, exclusions, options.PollTimeout, options.MaxKeepalive, options.EmptyPollDelay, cancellationToken);
     }
 
-    private async IAsyncEnumerable<DeviceEvent> StreamCoreAsync(
-        string[] subscriptions,
-        string[]? exclusions,
-        TimeSpan pollTimeout,
-        TimeSpan maxKeepalive,
-        TimeSpan emptyPollDelay,
-        [EnumeratorCancellation] CancellationToken cancellationToken)
-    {
-        long? held = null;
-        try
-        {
-            var subscription = await this.SubscribeAsync(subscriptions, exclusions, cancellationToken).ConfigureAwait(false);
-            held = subscription.SubscriptionId;
-            await this.ChangeSubscriptionTimeoutsAsync(held.Value, pollTimeout, maxKeepalive, cancellationToken).ConfigureAwait(false);
-
-            while (true)
-            {
-                var batch = await this.ListenAsync(held.Value, cancellationToken).ConfigureAwait(false);
-                foreach (var evt in batch)
-                {
-                    yield return evt;
-                }
-
-                if (batch.Count == 0 && emptyPollDelay > TimeSpan.Zero)
-                {
-                    await Task.Delay(emptyPollDelay, cancellationToken).ConfigureAwait(false);
-                }
-            }
-        }
-        finally
-        {
-            if (held is { } id)
-            {
-                await this.UnsubscribeQuietlyAsync(id).ConfigureAwait(false);
-            }
-        }
-    }
-
-    private async Task UnsubscribeQuietlyAsync(long subscriptionId)
+    internal async Task UnsubscribeQuietlyAsync(long subscriptionId)
     {
         try
         {
@@ -296,6 +257,20 @@ public sealed class EventsApi
     {
         ArgumentNullException.ThrowIfNull(subscriptions);
         return [StringList(subscriptions, nameof(subscriptions)), StringList(exclusions, nameof(exclusions))];
+    }
+
+    private static void ValidatePatterns(IReadOnlyList<string> subscriptions, IReadOnlyList<string>? exclusions)
+    {
+        ArgumentNullException.ThrowIfNull(subscriptions);
+        foreach (var value in subscriptions)
+        {
+            FacadeGuard.ValidateText(value, nameof(subscriptions));
+        }
+
+        foreach (var value in exclusions ?? [])
+        {
+            FacadeGuard.ValidateText(value, nameof(exclusions));
+        }
     }
 
     private static JsonElement StringList(IReadOnlyList<string>? items, string paramName)

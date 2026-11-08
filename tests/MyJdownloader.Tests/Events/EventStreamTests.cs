@@ -1,6 +1,8 @@
 namespace MyJdownloader.Tests.Events;
 
+using System.Net;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Events;
 using NSubstitute;
 
@@ -43,6 +45,31 @@ public sealed class EventStreamTests
                 await cts.CancelAsync();
                 return await Task.FromCanceled<List<DeviceEvent>?>(cts.Token);
             });
+
+    private static MyJdApiException NotFound() => new("gone", MyJdErrorSource.Device, "NOT_FOUND", HttpStatusCode.NotFound);
+
+    private static void Script<T>(IDeviceChannel channel, string path, JsonTypeInfo<T> typeInfo, params object[] steps)
+    {
+        var index = 0;
+        channel.CallAsync(Base + path, typeInfo, Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(_ =>
+            {
+                var step = steps[Math.Min(Interlocked.Increment(ref index) - 1, steps.Length - 1)];
+                return step is Exception ex ? Task.FromException<T?>(ex) : Task.FromResult((T?)step);
+            });
+    }
+
+    private static void ListenScript(IDeviceChannel channel, params object[] steps) =>
+        Script(channel, "listen", EventsJsonContext.Default.ListDeviceEvent, steps);
+
+    private static void SubscribeScript(IDeviceChannel channel, params object[] steps) =>
+        Script(channel, "subscribe", EventsJsonContext.Default.EventSubscription, [.. steps.Select(s => s is long id ? new EventSubscription { SubscriptionId = id } : s)]);
+
+    private static void Fails(IDeviceChannel channel, string path, Exception ex) =>
+        Script(channel, path, EventsJsonContext.Default.EventSubscription, ex);
+
+    private static List<string> UnsubscribedIds(IDeviceChannel channel) =>
+        [.. Calls(channel).Where(c => c.Path == "unsubscribe").Select(c => c.Args.Single())];
 
     private static T[] Seq<T>(params T[] items) => items;
 
@@ -226,7 +253,8 @@ public sealed class EventStreamTests
 
         var unsubscribes = Calls(channel).Where(c => c.Path == "unsubscribe").ToList();
         Assert.That(unsubscribes, Has.Count.EqualTo(1));
-        Assert.That(unsubscribes[0].Token, Is.EqualTo(CancellationToken.None));
+        Assert.That(unsubscribes[0].Token, Is.Not.EqualTo(cts.Token));
+        Assert.That(unsubscribes[0].Token.CanBeCanceled, Is.False);
     }
 
     [Test]
@@ -283,5 +311,134 @@ public sealed class EventStreamTests
         _ = api.StreamAsync(Options());
 
         Assert.That(channel.ReceivedCalls(), Is.Empty);
+    }
+
+    [Test]
+    public async Task StreamAsync_ListenNotFound_ResubscribesAndYieldsNewEvents()
+    {
+        var (channel, api) = Create();
+        SubscribeScript(channel, 1L, 2L);
+        var e1 = Evt("e1");
+        ListenScript(channel, NotFound(), new List<DeviceEvent> { e1 });
+
+        var events = await Collect(api.StreamAsync(Options()), 1);
+
+        var calls = Calls(channel);
+        Assert.That(events, Is.EqualTo(Seq(e1)));
+        Assert.That(calls.Where(c => c.Path == "changesubscriptiontimeouts").Select(c => c.Args[0]), Is.EqualTo(Seq("1", "2")));
+        Assert.That(UnsubscribedIds(channel), Is.EqualTo(Seq("2")));
+    }
+
+    [Test]
+    public async Task StreamAsync_NotFoundTwiceAfterResubscribe_ThrowsApiException()
+    {
+        var (channel, api) = Create();
+        SubscribeScript(channel, 1L, 2L);
+        ListenScript(channel, NotFound(), NotFound());
+
+        var ex = await Assert.CatchAsync<MyJdApiException>(async () => await Collect(api.StreamAsync(Options()), 1));
+
+        Assert.That(ex?.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+        Assert.That(UnsubscribedIds(channel), Is.EqualTo(Seq("2")));
+    }
+
+    [Test]
+    public async Task StreamAsync_NotFoundAfterSuccessfulListen_ResubscribesAgain()
+    {
+        var (channel, api) = Create();
+        SubscribeScript(channel, 1L, 2L, 3L);
+        DeviceEvent e1 = Evt("e1"), e2 = Evt("e2");
+        ListenScript(channel, NotFound(), new List<DeviceEvent> { e1 }, NotFound(), new List<DeviceEvent> { e2 });
+
+        var events = await Collect(api.StreamAsync(Options()), 2);
+
+        Assert.That(events, Is.EqualTo(Seq(e1, e2)));
+        Assert.That(Calls(channel).Count(c => c.Path == "subscribe"), Is.EqualTo(3));
+        Assert.That(UnsubscribedIds(channel), Is.EqualTo(Seq("3")));
+    }
+
+    private static IEnumerable<TestCaseData> ListenErrors()
+    {
+        yield return new TestCaseData(new TimeoutException("t"));
+        yield return new TestCaseData(new HttpRequestException("h"));
+        yield return new TestCaseData(new MyJdRateLimitException("r"));
+        yield return new TestCaseData(new MyJdApiException("s", MyJdErrorSource.Device, "INTERNAL", HttpStatusCode.InternalServerError));
+    }
+
+    [TestCaseSource(nameof(ListenErrors))]
+    public async Task StreamAsync_ListenOtherError_PropagatesAndUnsubscribes(Exception error)
+    {
+        var (channel, api) = Create();
+        ListenScript(channel, error);
+
+        var ex = await Assert.CatchAsync<Exception>(async () => await Collect(api.StreamAsync(Options()), 1));
+
+        Assert.That(ex, Is.SameAs(error));
+        Assert.That(UnsubscribedIds(channel), Is.EqualTo(Seq("1")));
+    }
+
+    [Test]
+    public async Task StreamAsync_ChangeTimeoutsFails_UnsubscribesAndPropagates()
+    {
+        var (channel, api) = Create();
+        var error = new TimeoutException("t");
+        Fails(channel, "changesubscriptiontimeouts", error);
+
+        var ex = await Assert.CatchAsync<Exception>(async () => await Collect(api.StreamAsync(Options()), 1));
+
+        Assert.That(ex, Is.SameAs(error));
+        Assert.That(UnsubscribedIds(channel), Is.EqualTo(Seq("1")));
+    }
+
+    [Test]
+    public async Task StreamAsync_SubscribeFails_PropagatesWithoutUnsubscribe()
+    {
+        var (channel, api) = Create();
+        var error = new HttpRequestException("h");
+        Fails(channel, "subscribe", error);
+
+        var ex = await Assert.CatchAsync<Exception>(async () => await Collect(api.StreamAsync(Options()), 1));
+
+        Assert.That(ex, Is.SameAs(error));
+        Assert.That(UnsubscribedIds(channel), Is.Empty);
+    }
+
+    [Test]
+    public async Task StreamAsync_ResubscribeFails_PropagatesWithoutUnsubscribingExpiredId()
+    {
+        var (channel, api) = Create();
+        var error = new HttpRequestException("h");
+        SubscribeScript(channel, 1L, error);
+        ListenScript(channel, NotFound());
+
+        var ex = await Assert.CatchAsync<Exception>(async () => await Collect(api.StreamAsync(Options()), 1));
+
+        Assert.That(ex, Is.SameAs(error));
+        Assert.That(UnsubscribedIds(channel), Is.Empty);
+    }
+
+    [Test]
+    public async Task StreamAsync_UnsubscribeFailsAfterError_KeepsOriginalException()
+    {
+        var (channel, api) = Create();
+        var error = new HttpRequestException("h");
+        ListenScript(channel, error);
+        Fails(channel, "unsubscribe", new MyJdApiException("u", MyJdErrorSource.Device, "INTERNAL", HttpStatusCode.InternalServerError));
+
+        var ex = await Assert.CatchAsync<Exception>(async () => await Collect(api.StreamAsync(Options()), 1));
+
+        Assert.That(ex, Is.SameAs(error));
+    }
+
+    [Test]
+    public async Task StreamAsync_UnsubscribeFailsAfterBreak_DoesNotThrow()
+    {
+        var (channel, api) = Create();
+        ListenBatches(channel, [Evt("e1")]);
+        Fails(channel, "unsubscribe", new TimeoutException("u"));
+
+        var events = await Collect(api.StreamAsync(Options()), 1);
+
+        Assert.That(events, Has.Count.EqualTo(1));
     }
 }
