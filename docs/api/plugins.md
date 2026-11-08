@@ -47,14 +47,14 @@ Remarks:
 using System.Text.Json;
 using MyJdownloader.Plugins;
 
-// List the plugins (pattern and version included by default).
+// List the plugins. Skip the pattern; the version is still returned.
 IReadOnlyList<PluginInfo> plugins = await device.Plugins.ListAsync(new PluginsQuery { Pattern = false });
 if (plugins.Count > 0)
 {
     PluginInfo plugin = plugins[0];
 
     // Device text is untrusted: encode it before displaying it. Never log Value or DefaultValue.
-    Console.WriteLine($"{Encode(plugin.DisplayName)}: {Encode(plugin.Key)}");
+    Console.WriteLine($"{Encode(plugin.DisplayName ?? string.Empty)}: {Encode(plugin.Key ?? string.Empty)}");
 
     if (plugin.InterfaceName is not null && plugin.DisplayName is not null && plugin.Key is not null)
     {

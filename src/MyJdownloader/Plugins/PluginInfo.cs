@@ -40,7 +40,7 @@ public sealed record PluginInfo
     /// <summary>Gets the label of the enumeration type, when the setting is an enumeration.</summary>
     public string? EnumLabel { get; init; }
 
-    /// <summary>Gets the URL pattern of the plugin, a regular expression defined on the device; <see langword="null"/> when not requested.</summary>
+    /// <summary>Gets the URL pattern of the plugin, a regular expression defined on the device; <see langword="null"/> when not requested. Device-supplied patterns are untrusted: never compile them without a match timeout.</summary>
     public string? Pattern { get; init; }
 
     /// <summary>Gets the version of the plugin, or <see langword="null"/> when not requested.</summary>

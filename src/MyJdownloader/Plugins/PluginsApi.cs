@@ -100,7 +100,7 @@ public sealed class PluginsApi
     /// <returns>The plugins; empty when the device returns no data.</returns>
     /// <remarks>
     /// Current values are returned and may hold secrets: never log whole entries.
-    /// <see cref="PluginInfo.Pattern"/> is a regular expression defined on the device.
+    /// <see cref="PluginInfo.Pattern"/> is a regular expression defined on the device and is untrusted text: do not compile it without a match timeout.
     /// The encrypted response body is limited to 1 MiB (about 768 KiB of JSON): the list of all plugins can be large, otherwise the call fails with a <see cref="MyJdProtocolException"/>.
     /// </remarks>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>

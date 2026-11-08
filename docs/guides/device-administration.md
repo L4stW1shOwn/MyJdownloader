@@ -198,10 +198,17 @@ if (plugins.Count > 0)
                 plugin.Key,
                 JsonSerializer.SerializeToElement(false),
                 cancellationToken);
-
-            // Or go back to the default value.
-            await device.Plugins.ResetAsync(plugin.InterfaceName, plugin.DisplayName, plugin.Key, cancellationToken);
         }
+    }
+}
+
+// Alternative, under its own prompt: go back to the default value instead.
+if (plugins.Count > 0 && AskUser("Reset this plugin setting to its default value?"))
+{
+    PluginInfo target = plugins[0];
+    if (target.InterfaceName is not null && target.DisplayName is not null && target.Key is not null)
+    {
+        await device.Plugins.ResetAsync(target.InterfaceName, target.DisplayName, target.Key, cancellationToken);
     }
 }
 
