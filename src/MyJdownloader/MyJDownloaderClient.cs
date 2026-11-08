@@ -56,7 +56,11 @@ public sealed class MyJDownloaderClient
     /// <param name="options">The client options, or <see langword="null"/> for the defaults. The values are copied.</param>
     /// <param name="timeProvider">The time provider, or <see langword="null"/> for <see cref="TimeProvider.System"/>.</param>
     /// <exception cref="ArgumentNullException"><paramref name="httpClient"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">The options are invalid.</exception>
+    /// <exception cref="ArgumentException">
+    /// The options are invalid: <see cref="MyJDownloaderOptions.AppKey"/> is blank, longer than 256 characters or contains a control
+    /// character; <see cref="MyJDownloaderOptions.BaseAddress"/> is null or not an absolute <c>https</c> URI without user info, query
+    /// or fragment; <see cref="MyJDownloaderOptions.ApiVersion"/> is below 1.
+    /// </exception>
     public MyJDownloaderClient(HttpClient httpClient, MyJDownloaderOptions? options = null, TimeProvider? timeProvider = null)
     {
         ArgumentNullException.ThrowIfNull(httpClient);

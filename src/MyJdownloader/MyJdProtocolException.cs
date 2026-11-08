@@ -4,6 +4,10 @@ namespace MyJdownloader;
 /// Raised when a response violates the MyJDownloader protocol (malformed payload, bad signature, and so on).
 /// </summary>
 /// <remarks>
+/// It is raised when a response cannot be read or does not match the request: a successful response
+/// larger than 1 MiB, a body that cannot be decrypted or deserialized, a device answer whose request id does not match the
+/// request, or a device answer that cannot be read with the response type given by the caller. It carries no service error
+/// type and no HTTP status code. Treat it as "the response cannot be trusted", usually a bug or a version mismatch: retrying rarely helps.
 /// The library itself never attaches the inner detail of a decryption or protocol failure, to avoid
 /// exposing a padding oracle. The standard constructors exist for callers (for example tests).
 /// </remarks>

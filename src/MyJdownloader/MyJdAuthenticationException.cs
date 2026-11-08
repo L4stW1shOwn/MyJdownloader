@@ -3,6 +3,14 @@ namespace MyJdownloader;
 using System.Net;
 
 /// <summary>Raised when authentication fails or the session can no longer be used.</summary>
+/// <remarks>
+/// Raised for the error types <c>AUTH_FAILED</c>, <c>EMAIL_INVALID</c>, <c>EMAIL_FORBIDDEN</c>, <c>TOKEN_INVALID</c> and
+/// <c>ERROR_EMAIL_NOT_CONFIRMED</c>, whichever side reported them. It is thrown by <see cref="MyJDownloaderClient.ConnectAsync"/>
+/// when the credentials are rejected, and by a call whose automatic session renewal is rejected. In that second case, if the
+/// rejected session is still the current one, the client has already dropped it (<see cref="MyJDownloaderClient.IsConnected"/>
+/// is <see langword="false"/>). Do not retry with the same session: connect again with the account credentials, or restore a
+/// session that is still valid.
+/// </remarks>
 public sealed class MyJdAuthenticationException : MyJdException
 {
     /// <summary>Initializes a new instance of the <see cref="MyJdAuthenticationException"/> class.</summary>

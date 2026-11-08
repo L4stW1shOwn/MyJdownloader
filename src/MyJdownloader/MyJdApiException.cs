@@ -3,6 +3,13 @@ namespace MyJdownloader;
 using System.Net;
 
 /// <summary>Raised when the service or the device reports an error not covered by a more specific type.</summary>
+/// <remarks>
+/// This is the fallback of the mapping: any error type that does not select <see cref="MyJdAuthenticationException"/>,
+/// <see cref="MyJdDeviceOfflineException"/>, <see cref="MyJdRateLimitException"/> or <see cref="MyJdProtocolException"/>,
+/// including unrecognized types. The error type is kept in <see cref="MyJdException.ErrorType"/>, but the message shows
+/// <c>UNKNOWN</c> when the type is not safe to display. No retry delay or recovery hint is attached: decide from
+/// <see cref="MyJdException.ErrorType"/> and <see cref="MyJdException.StatusCode"/>.
+/// </remarks>
 public sealed class MyJdApiException : MyJdException
 {
     /// <summary>Initializes a new instance of the <see cref="MyJdApiException"/> class.</summary>

@@ -86,6 +86,7 @@ Raised when a response violates the MyJDownloader protocol: malformed payload, b
 
 **Remarks**
 
+- Raised when a successful response is larger than 1 MiB, when its body cannot be decrypted or deserialized, when a device answer's request id does not match the request, or when a device answer cannot be read with the response type given by the caller. An oversized body on a non-success response does not raise this exception: the status is mapped as an error of unknown type (`MyJdApiException`, `ErrorType` `UNKNOWN`).
 - The library never attaches the inner detail of a decryption or protocol failure, to avoid exposing a padding oracle. Treat this exception as "the response cannot be trusted", not as a diagnostic.
 - Usually a bug or a version mismatch, not a transient condition: retrying rarely helps.
 
@@ -103,6 +104,7 @@ Raised when the service rejects a request because of rate limiting or because it
 **Remarks**
 
 - The library does not retry this exception. Wait for `RetryAfter` when it is provided, then decide whether to call again.
+- `RetryAfter` comes from the HTTP `Retry-After` header (a delay or a date). It is never negative and is capped at 10 minutes. When it is `null`, the service gave no delay and the caller must choose one, for example with backoff.
 
 ## MyJdErrorSource
 

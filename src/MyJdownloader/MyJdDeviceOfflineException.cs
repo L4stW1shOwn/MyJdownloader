@@ -3,6 +3,11 @@ namespace MyJdownloader;
 using System.Net;
 
 /// <summary>Raised when the target device is offline or unreachable through the relay.</summary>
+/// <remarks>
+/// Raised for the error type <c>OFFLINE</c>. Restart and update actions usually take the device offline before it answers,
+/// so, like a timeout, this exception does not prove that the action failed: the action may have been executed. Check the
+/// device state before repeating a destructive action. The library never retries.
+/// </remarks>
 public sealed class MyJdDeviceOfflineException : MyJdException
 {
     /// <summary>Initializes a new instance of the <see cref="MyJdDeviceOfflineException"/> class.</summary>

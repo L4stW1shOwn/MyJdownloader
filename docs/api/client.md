@@ -76,7 +76,10 @@ Configuration of the MyJDownloader client. The client copies the values when it 
 **Remarks**
 
 - The defaults target the public MyJDownloader relay. The relay is the only transport in version 1 (ADR-006).
-- Validation happens in the `MyJDownloaderClient` constructor, which throws `ArgumentException` for an invalid value. With dependency injection, the same exception is thrown at the first resolution of the client.
+- The setters do not validate. Validation happens once, in the `MyJDownloaderClient` constructor, which throws `ArgumentException` for an invalid value. With dependency injection, the same exception is thrown at the first resolution of the client.
+- `AppKey` is not trimmed: leading and trailing spaces are kept as they are.
+- `BaseAddress` must not be `null`. HTTPS is required because device-call URL paths carry the session token, and the relay paths are appended to the address.
+- `ApiVersion` has no upper bound; the value is written into the encrypted body of every device call.
 
 ### Example
 

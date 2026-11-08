@@ -2,7 +2,13 @@ namespace MyJdownloader;
 
 using System.Net;
 
-/// <summary>Raised when the service rejects a request because of rate limiting.</summary>
+/// <summary>Raised when the service rejects a request because of rate limiting, overload or maintenance.</summary>
+/// <remarks>
+/// Raised for the error types <c>TOO_MANY_REQUESTS</c>, <c>OVERLOAD</c> and <c>MAINTENANCE</c>, whichever side reported them.
+/// The library never retries, so the caller must wait before calling again. Honor <see cref="RetryAfter"/> when it is not
+/// <see langword="null"/>: it comes from the HTTP <c>Retry-After</c> header (a delay or a date), is never negative and is capped
+/// at 10 minutes. When it is <see langword="null"/>, the service gave no delay and the caller must choose one (for example with backoff).
+/// </remarks>
 public sealed class MyJdRateLimitException : MyJdException
 {
     /// <summary>Initializes a new instance of the <see cref="MyJdRateLimitException"/> class.</summary>
