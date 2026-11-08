@@ -272,6 +272,19 @@ public sealed class EventStreamTests
     }
 
     [Test]
+    public async Task UnsubscribeQuietlyAsync_UnsubscribeIgnoresTokenAndNeverCompletes_ReturnsAfterCleanupTimeoutWithoutThrowing()
+    {
+        var (channel, api) = Create();
+        var never = new TaskCompletionSource<EventSubscription?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        channel.CallAsync(Base + "unsubscribe", EventsJsonContext.Default.EventSubscription, Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(never.Task);
+
+        await api.UnsubscribeQuietlyAsync(1, TimeSpan.FromMilliseconds(100)).WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.That(Calls(channel).Count(c => c.Path == "unsubscribe"), Is.EqualTo(1));
+    }
+
+    [Test]
     public void UnsubscribeQuietlyAsync_DefaultTimeout_IsTenSeconds() =>
         Assert.That(EventsApi.CleanupTimeout, Is.EqualTo(TimeSpan.FromSeconds(10)));
 

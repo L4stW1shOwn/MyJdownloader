@@ -197,7 +197,8 @@ public sealed class EventsApi
     /// <para>
     /// Whatever ends the enumeration (<see langword="break"/>, cancellation, exception, <c>DisposeAsync</c>), the
     /// subscription is removed with <see cref="UnsubscribeAsync"/> using its own token, independent of the caller's, so a
-    /// cancelled stream still cleans up; that call is bounded by 10 seconds. Failures of that cleanup
+    /// cancelled stream still cleans up; the cleanup returns within 10 seconds (an in-flight session reconnect on the client
+    /// may continue in the background). Failures of that cleanup
     /// call (<see cref="MyJdException"/>, <see cref="TimeoutException"/>, <see cref="HttpRequestException"/>,
     /// <see cref="IOException"/>, <see cref="OperationCanceledException"/>, <see cref="InvalidOperationException"/>)
     /// are ignored so they never mask the exception that ended the stream; the device then drops the subscription after
@@ -243,13 +244,18 @@ public sealed class EventsApi
     {
         // Own token, independent of the caller's (typically already cancelled): bounds the cleanup (CWE-400).
         using var cleanup = new CancellationTokenSource(cleanupTimeout);
+        Task<EventSubscription>? call = null;
         try
         {
-            _ = await this.UnsubscribeAsync(subscriptionId, cleanup.Token).ConfigureAwait(false);
+            // WaitAsync bounds the wait itself: a session reconnect inside the channel ignores the token (ADR-004).
+            call = this.UnsubscribeAsync(subscriptionId, cleanup.Token);
+            _ = await call.WaitAsync(cleanupTimeout).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is MyJdException or TimeoutException or HttpRequestException or IOException or OperationCanceledException or InvalidOperationException)
         {
             // Best effort: never mask the exception that ended the stream; the device drops the subscription after MaxKeepalive.
+            // The abandoned call may fault later: observe it so it never surfaces as an unobserved task exception.
+            _ = call?.ContinueWith(static t => _ = t.Exception, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
         }
     }
 
