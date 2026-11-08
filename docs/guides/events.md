@@ -5,12 +5,90 @@ you can receive through an event subscription. The subscription is consumed by
 long polling: `ListenAsync` waits on the device until events are queued or the
 poll timeout elapses, then returns them.
 
-The library provides the calls, not the loop. There is no built-in listen loop,
-no automatic resubscription and no retry (see
-[ADR-009](../adr/ADR-009-events-long-polling-without-built-in-loop.md)). You own
-the loop, its cancellation and its error policy.
+The easiest way to follow events is `StreamAsync`, an opt-in helper that owns the
+subscription lifecycle and exposes the events as an `IAsyncEnumerable<DeviceEvent>`
+(see [ADR-010](../adr/ADR-010-opt-in-event-stream-helper.md)). The low-level calls
+remain available when you need full control: there is no listen loop in them, no
+automatic resubscription and no retry (see
+[ADR-009](../adr/ADR-009-events-long-polling-without-built-in-loop.md)).
 
-## The calls
+## Event stream
+
+```csharp
+using MyJdownloader.Events;
+
+var options = new EventStreamOptions
+{
+    Subscriptions = ["downloads.*"],
+};
+
+await foreach (DeviceEvent evt in device.Events.StreamAsync(options, cancellationToken))
+{
+    // Publisher and EventId are device-controlled: encode them before logging. Data may hold secrets.
+    Console.WriteLine($"{evt.Publisher}/{evt.EventId}");
+}
+```
+
+Nothing happens until the sequence is enumerated. On the first `MoveNextAsync`
+the stream subscribes and sets the subscription timeouts, then long-polls and
+yields the events in the order received. When the enumeration ends for any reason
+(`break`, cancellation, exception, `DisposeAsync`), the stream unsubscribes with
+`CancellationToken.None`, so a cancelled caller still releases the subscription.
+Nothing runs between two `MoveNextAsync` calls: no background task, no timer.
+
+### Options
+
+| Property         | Default | Meaning                                                                 |
+|------------------|---------|-------------------------------------------------------------------------|
+| `Subscriptions`  | required | Event patterns (device-side regular expressions); may be empty.        |
+| `Exclusions`     | none    | Event patterns to exclude (device-side regular expressions).            |
+| `PollTimeout`    | 25 s    | How long the device holds each listen call. At least 1 ms, strictly below `MaxKeepalive`. |
+| `MaxKeepalive`   | 2 min   | How long the device keeps the subscription without a listen call. At least 1 ms. |
+| `EmptyPollDelay` | 1 s     | Pause after a listen call that returned no event; zero for no pause.    |
+
+The options are validated, and the lists copied, when `StreamAsync` is called:
+invalid arguments throw at the call, not at the first `MoveNextAsync`, and later
+changes to the options have no effect on a stream already created.
+
+### Behaviour to know
+
+- **One subscription per enumeration.** Enumerating the same sequence twice
+  creates two device subscriptions.
+- **Lost events.** Events published between a subscription expiry and the
+  resubscription are lost, and the caller is not told about the resubscription.
+- **Undisposed enumerator.** `await foreach` disposes the enumerator for you. If
+  you call `GetAsyncEnumerator` yourself and never dispose it, the device
+  subscription lives until `MaxKeepalive`.
+- **Cancellation during subscribe.** If you cancel while the subscribe call is in
+  flight, the device may already have created a subscription the stream does not
+  know about yet. It expires after `MaxKeepalive`.
+- **Best-effort cleanup.** A failure of the final unsubscribe is ignored so it
+  never masks the exception that ended the stream; the device drops the
+  subscription after `MaxKeepalive`.
+- **`PollTimeout` versus `HttpClient.Timeout`.** Each listen call is an ordinary
+  call bounded by `HttpClient.Timeout` (100 s by default). Keep `PollTimeout`
+  well below it (25 s by default). The library cannot read that timeout, so this
+  is documented, not enforced.
+
+### Failure policy
+
+| Situation                                              | Result                                                        |
+|--------------------------------------------------------|---------------------------------------------------------------|
+| 404 on listen (`MyJdApiException`, subscription expired or unknown) | The stream resubscribes silently with the same options and keeps listening. |
+| 404 on the first listen after a resubscription         | The stream ends with that `MyJdApiException` (no endless resubscribe loop). |
+| Failure while setting the timeouts at start            | The new subscription is unsubscribed; the exception propagates. |
+| Anything else (`TimeoutException`, `HttpRequestException`, `MyJdRateLimitException`, `MyJdDeviceOfflineException`, `OperationCanceledException`, ...) | Propagates unchanged and ends the stream. There is no retry. |
+
+Add your own back-off and restart policy around the `await foreach` if you want
+to survive transient failures. See [Error handling](error-handling.md).
+
+## Advanced: manual loop
+
+Use the low-level calls when you need the subscription id, a custom resubscription
+policy or full control. There is no built-in loop in them: you own the loop, its
+cancellation and its error policy.
+
+### The calls
 
 | Method                              | Purpose                                                        |
 |-------------------------------------|----------------------------------------------------------------|
@@ -25,7 +103,7 @@ the loop, its cancellation and its error policy.
 Subscription and exclusion patterns are regular expressions evaluated on the
 device, not by this library.
 
-## Caller-owned loop
+### Caller-owned loop
 
 ```csharp
 using System.Net;

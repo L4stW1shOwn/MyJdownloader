@@ -6,7 +6,7 @@ The events namespace subscribes to JDownloader's event publishers (listed by `Li
 
 Reach it as `device.Events`, which returns an `EventsApi`. The C# namespace is `MyJdownloader.Events`, and the device API path is `/events`.
 
-There is no built-in listen loop ([ADR-009](../adr/ADR-009-events-long-polling-without-built-in-loop.md)): the caller calls `ListenAsync` repeatedly, handles cancellation, and re-subscribes when the subscription expires.
+The low-level methods have no built-in listen loop ([ADR-009](../adr/ADR-009-events-long-polling-without-built-in-loop.md)): the caller calls `ListenAsync` repeatedly, handles cancellation, and re-subscribes when the subscription expires. `StreamAsync` is an opt-in helper that does this for you ([ADR-010](../adr/ADR-010-opt-in-event-stream-helper.md)).
 
 Every method also throws `InvalidOperationException` when the client is not connected, `MyJdException` for relay or device rejections, `OperationCanceledException`, `TimeoutException` and `HttpRequestException`. When a subscription is expired or unknown, the device usually answers `404`, which surfaces as a `MyJdApiException`. The error model is described in [errors.md](errors.md).
 
@@ -28,6 +28,7 @@ Typed facade over the `/events` namespace of one device (event subscriptions and
 | `ChangeSubscriptionTimeoutsAsync` | `Task<EventSubscription> ChangeSubscriptionTimeoutsAsync(long subscriptionId, TimeSpan pollTimeout, TimeSpan maxKeepalive, CancellationToken cancellationToken = default)` | Changes the poll timeout and keep-alive duration of a subscription (`/events/changesubscriptiontimeouts`). Both values must be at least 1 ms, otherwise `ArgumentOutOfRangeException` is thrown. Sent as whole milliseconds. |
 | `UnsubscribeAsync` | `Task<EventSubscription> UnsubscribeAsync(long subscriptionId, CancellationToken cancellationToken = default)` | Cancels a subscription (`/events/unsubscribe`). JDownloader does not document the returned subscription, so some properties may be absent. |
 | `ListPublishersAsync` | `Task<IReadOnlyList<EventPublisher>> ListPublishersAsync(CancellationToken cancellationToken = default)` | Lists the event publishers and the events they emit (`/events/listpublisher`). |
+| `StreamAsync` | `IAsyncEnumerable<DeviceEvent> StreamAsync(EventStreamOptions options, CancellationToken cancellationToken = default)` | Follows the events as an asynchronous stream: subscribes, resubscribes on expiry, unsubscribes at the end. Lazy; see the stream remarks. |
 
 Remarks:
 
@@ -36,6 +37,14 @@ Remarks:
 - The call is bounded by `HttpClient.Timeout`, which covers the response body. The library neither raises nor bypasses it, so keep the poll timeout well below it. For example, use 25 s with the default 100 s client timeout, through `ChangeSubscriptionTimeoutsAsync`.
 - Responses are capped at 1 MiB. The shape of the events is undocumented; it is an assumption to confirm by live tests.
 - `SubscribeAsync`, `UnsubscribeAsync` and the other write methods act on the device immediately. A timeout means the action may have been executed.
+
+`StreamAsync` remarks:
+
+- `options` is validated and its lists are copied at the call, so invalid arguments throw at the call, not at the first `MoveNextAsync`: `ArgumentNullException` (null `options` or `Subscriptions`), `ArgumentException` (invalid pattern, or `PollTimeout` not strictly below `MaxKeepalive`), `ArgumentOutOfRangeException` (`PollTimeout` or `MaxKeepalive` below 1 ms, negative `EmptyPollDelay`). No call is made until the stream is enumerated.
+- Each enumeration owns one device subscription: enumerating the same stream twice creates two. The subscription is removed with `CancellationToken.None` when the enumeration ends for any reason; a failure of that cleanup is ignored, and the device drops the subscription after `MaxKeepalive`. An enumerator obtained manually and never disposed leaks the subscription until `MaxKeepalive`.
+- If the caller cancels while the subscribe call is in flight, the device may already have created a subscription the stream does not know about yet; it expires after `MaxKeepalive`.
+- A 404 on listen (`MyJdApiException`) triggers a silent resubscription with the same options; events published between the expiry and the resubscription are lost. A 404 on the first listen after a resubscription ends the stream with that exception. Every other exception propagates and ends the stream; there is no network retry.
+- Keep `PollTimeout` well below `HttpClient.Timeout` (25 s against the default 100 s); this is documented, not enforced.
 
 ### Example
 
@@ -65,6 +74,33 @@ finally
     await device.Events.UnsubscribeAsync(subscription.SubscriptionId, CancellationToken.None);
 }
 ```
+
+Stream example:
+
+```csharp
+using MyJdownloader.Events;
+
+var options = new EventStreamOptions { Subscriptions = ["downloads.*"] };
+
+await foreach (DeviceEvent deviceEvent in device.Events.StreamAsync(options, cts.Token))
+{
+    Console.WriteLine($"{deviceEvent.Publisher} / {deviceEvent.EventId}");
+}
+```
+
+## EventStreamOptions
+
+`public sealed record EventStreamOptions`
+
+Options of `StreamAsync`: which events to follow and how the device-side subscription is polled. Validated, and the lists copied, when `StreamAsync` is called.
+
+| Property | Type | Description |
+|---|---|---|
+| `Subscriptions` | `IReadOnlyList<string>` | Required. Event patterns (device-side regular expressions); may be empty. Items follow the rules of `SubscribeAsync`. |
+| `Exclusions` | `IReadOnlyList<string>?` | Patterns to exclude; `null` (default) for none. |
+| `PollTimeout` | `TimeSpan` | How long the device holds each listen call. At least 1 ms and strictly below `MaxKeepalive`; default 25 s. Keep it well below `HttpClient.Timeout`. |
+| `MaxKeepalive` | `TimeSpan` | How long the device keeps the subscription without a listen call. At least 1 ms and strictly above `PollTimeout`; default 2 min. Also the time after which the device drops a subscription never released. |
+| `EmptyPollDelay` | `TimeSpan` | Pause after a listen call that returned no event. Zero or more; default 1 s. |
 
 ## DeviceEvent
 
