@@ -1078,3 +1078,82 @@ MyJdownloader.Dialogs.DialogsApi.GetAsync(long id, bool includeIcon = false, boo
 MyJdownloader.Dialogs.DialogsApi.GetTypeInfoAsync(string! dialogType, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.Dialogs.DialogTypeInfo!>!
 MyJdownloader.Dialogs.DialogsApi.ListAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<long>!>!
 MyJdownloader.JDownloaderDevice.Dialogs.get -> MyJdownloader.Dialogs.DialogsApi!
+MyJdownloader.Plugins.PluginConfigEntry
+MyJdownloader.Plugins.PluginConfigEntry.AbstractType.get -> MyJdownloader.Config.ConfigValueType?
+MyJdownloader.Plugins.PluginConfigEntry.AbstractType.init -> void
+MyJdownloader.Plugins.PluginConfigEntry.<Clone>$() -> MyJdownloader.Plugins.PluginConfigEntry!
+MyJdownloader.Plugins.PluginConfigEntry.DefaultValue.get -> System.Text.Json.JsonElement?
+MyJdownloader.Plugins.PluginConfigEntry.DefaultValue.init -> void
+MyJdownloader.Plugins.PluginConfigEntry.Docs.get -> string?
+MyJdownloader.Plugins.PluginConfigEntry.Docs.init -> void
+MyJdownloader.Plugins.PluginConfigEntry.EnumLabel.get -> string?
+MyJdownloader.Plugins.PluginConfigEntry.EnumLabel.init -> void
+MyJdownloader.Plugins.PluginConfigEntry.EnumOptions.get -> System.Collections.Generic.IReadOnlyList<MyJdownloader.Config.ConfigEnumOption!>?
+MyJdownloader.Plugins.PluginConfigEntry.EnumOptions.init -> void
+MyJdownloader.Plugins.PluginConfigEntry.Equals(MyJdownloader.Plugins.PluginConfigEntry? other) -> bool
+MyJdownloader.Plugins.PluginConfigEntry.InterfaceName.get -> string?
+MyJdownloader.Plugins.PluginConfigEntry.InterfaceName.init -> void
+MyJdownloader.Plugins.PluginConfigEntry.Key.get -> string?
+MyJdownloader.Plugins.PluginConfigEntry.Key.init -> void
+MyJdownloader.Plugins.PluginConfigEntry.PluginConfigEntry() -> void
+MyJdownloader.Plugins.PluginConfigEntry.Storage.get -> string?
+MyJdownloader.Plugins.PluginConfigEntry.Storage.init -> void
+MyJdownloader.Plugins.PluginConfigEntry.Type.get -> string?
+MyJdownloader.Plugins.PluginConfigEntry.Type.init -> void
+MyJdownloader.Plugins.PluginConfigEntry.Value.get -> System.Text.Json.JsonElement?
+MyJdownloader.Plugins.PluginConfigEntry.Value.init -> void
+MyJdownloader.Plugins.PluginInfo
+MyJdownloader.Plugins.PluginInfo.AbstractType.get -> MyJdownloader.Config.ConfigValueType?
+MyJdownloader.Plugins.PluginInfo.AbstractType.init -> void
+MyJdownloader.Plugins.PluginInfo.ClassName.get -> string?
+MyJdownloader.Plugins.PluginInfo.ClassName.init -> void
+MyJdownloader.Plugins.PluginInfo.<Clone>$() -> MyJdownloader.Plugins.PluginInfo!
+MyJdownloader.Plugins.PluginInfo.DefaultValue.get -> System.Text.Json.JsonElement?
+MyJdownloader.Plugins.PluginInfo.DefaultValue.init -> void
+MyJdownloader.Plugins.PluginInfo.DisplayName.get -> string?
+MyJdownloader.Plugins.PluginInfo.DisplayName.init -> void
+MyJdownloader.Plugins.PluginInfo.Docs.get -> string?
+MyJdownloader.Plugins.PluginInfo.Docs.init -> void
+MyJdownloader.Plugins.PluginInfo.EnumLabel.get -> string?
+MyJdownloader.Plugins.PluginInfo.EnumLabel.init -> void
+MyJdownloader.Plugins.PluginInfo.EnumOptions.get -> System.Collections.Generic.IReadOnlyList<MyJdownloader.Config.ConfigEnumOption!>?
+MyJdownloader.Plugins.PluginInfo.EnumOptions.init -> void
+MyJdownloader.Plugins.PluginInfo.Equals(MyJdownloader.Plugins.PluginInfo? other) -> bool
+MyJdownloader.Plugins.PluginInfo.InterfaceName.get -> string?
+MyJdownloader.Plugins.PluginInfo.InterfaceName.init -> void
+MyJdownloader.Plugins.PluginInfo.Key.get -> string?
+MyJdownloader.Plugins.PluginInfo.Key.init -> void
+MyJdownloader.Plugins.PluginInfo.Pattern.get -> string?
+MyJdownloader.Plugins.PluginInfo.Pattern.init -> void
+MyJdownloader.Plugins.PluginInfo.PluginInfo() -> void
+MyJdownloader.Plugins.PluginInfo.Storage.get -> string?
+MyJdownloader.Plugins.PluginInfo.Storage.init -> void
+MyJdownloader.Plugins.PluginInfo.Type.get -> string?
+MyJdownloader.Plugins.PluginInfo.Type.init -> void
+MyJdownloader.Plugins.PluginInfo.Value.get -> System.Text.Json.JsonElement?
+MyJdownloader.Plugins.PluginInfo.Value.init -> void
+MyJdownloader.Plugins.PluginInfo.Version.get -> string?
+MyJdownloader.Plugins.PluginInfo.Version.init -> void
+MyJdownloader.Plugins.PluginsQuery
+MyJdownloader.Plugins.PluginsQuery.<Clone>$() -> MyJdownloader.Plugins.PluginsQuery!
+MyJdownloader.Plugins.PluginsQuery.Equals(MyJdownloader.Plugins.PluginsQuery? other) -> bool
+MyJdownloader.Plugins.PluginsQuery.Pattern.get -> bool
+MyJdownloader.Plugins.PluginsQuery.Pattern.init -> void
+MyJdownloader.Plugins.PluginsQuery.PluginsQuery() -> void
+MyJdownloader.Plugins.PluginsQuery.Version.get -> bool
+MyJdownloader.Plugins.PluginsQuery.Version.init -> void
+override MyJdownloader.Plugins.PluginConfigEntry.Equals(object? obj) -> bool
+override MyJdownloader.Plugins.PluginConfigEntry.GetHashCode() -> int
+override MyJdownloader.Plugins.PluginConfigEntry.ToString() -> string!
+override MyJdownloader.Plugins.PluginInfo.Equals(object? obj) -> bool
+override MyJdownloader.Plugins.PluginInfo.GetHashCode() -> int
+override MyJdownloader.Plugins.PluginInfo.ToString() -> string!
+override MyJdownloader.Plugins.PluginsQuery.Equals(object? obj) -> bool
+override MyJdownloader.Plugins.PluginsQuery.GetHashCode() -> int
+override MyJdownloader.Plugins.PluginsQuery.ToString() -> string!
+static MyJdownloader.Plugins.PluginConfigEntry.operator !=(MyJdownloader.Plugins.PluginConfigEntry? left, MyJdownloader.Plugins.PluginConfigEntry? right) -> bool
+static MyJdownloader.Plugins.PluginConfigEntry.operator ==(MyJdownloader.Plugins.PluginConfigEntry? left, MyJdownloader.Plugins.PluginConfigEntry? right) -> bool
+static MyJdownloader.Plugins.PluginInfo.operator !=(MyJdownloader.Plugins.PluginInfo? left, MyJdownloader.Plugins.PluginInfo? right) -> bool
+static MyJdownloader.Plugins.PluginInfo.operator ==(MyJdownloader.Plugins.PluginInfo? left, MyJdownloader.Plugins.PluginInfo? right) -> bool
+static MyJdownloader.Plugins.PluginsQuery.operator !=(MyJdownloader.Plugins.PluginsQuery? left, MyJdownloader.Plugins.PluginsQuery? right) -> bool
+static MyJdownloader.Plugins.PluginsQuery.operator ==(MyJdownloader.Plugins.PluginsQuery? left, MyJdownloader.Plugins.PluginsQuery? right) -> bool
