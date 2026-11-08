@@ -2,6 +2,7 @@
 
 - **Status**: Accepted
 - **Date**: 2026-11-07
+- **Amended**: 2026-11-08 (T-045, see ADR-010)
 
 ## Context
 
@@ -70,9 +71,11 @@ Payloads and wire assumptions:
 
 Follow-up:
 
-- A high-level `IAsyncEnumerable<DeviceEvent>` stream helper is **deferred to
-  T-045**; it will have to define its lifecycle and failure policy explicitly,
-  in line with ADR-005.
+- A high-level `IAsyncEnumerable<DeviceEvent>` stream helper was **deferred to
+  T-045**. This deferral is **resolved by
+  [ADR-010](ADR-010-opt-in-event-stream-helper.md)** (T-045), which adds an
+  opt-in `EventsApi.StreamAsync` helper with an explicit lifecycle and failure
+  policy; the low-level decision above is unchanged.
 
 ## Considered alternatives
 
