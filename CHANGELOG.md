@@ -6,6 +6,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 
 ### Added
 
+- `device.Plugins`: typed `/plugins` facade (get, set and reset a plugin setting, list plugins, query plugin entries, get all plugin regexes, get the regexes matching a URL); `QueryAsync` reuses `ConfigQuery` and the config value types; values may hold secrets and are masked in `ToString()`, set and reset calls act without confirmation; patterns are device-side regular expressions and device text is untrusted.
 - `device.Dialogs`: typed `/dialogs` facade (list, get, get type info, answer); answering acts on the device without confirmation; device text is untrusted.
 - `device.Events.StreamAsync` and `EventStreamOptions`: opt-in event stream that subscribes, resubscribes on expiry (device-side 404) and unsubscribes at the end of the enumeration (cleanup bounded to 10 s, independent of the caller's token); no network retry, events published between expiry and resubscription are lost.
 - Package metadata: repository and project URLs (`https://github.com/L4stW1shOwn/MyJdownloader`) on both NuGet packages.

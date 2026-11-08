@@ -2,7 +2,7 @@
 
 Besides downloads, a device exposes facades for its own administration: version
 and plugins, operating-system power actions, advanced configuration, premium
-hoster accounts, captchas, dialogs, extensions, updates and archive extraction. Each
+hoster accounts, captchas, dialogs, plugin settings, extensions, updates and archive extraction. Each
 facade is a property of `JDownloaderDevice`. This guide shows one use case per
 facade.
 
@@ -172,6 +172,59 @@ before you render it.
   surface as a `MyJdApiException`.
 - `Type`, the `Properties` and `DialogTypeInfo` text come from the device and are
   untrusted: encode them before you display them.
+
+## Plugins: settings and URL patterns
+
+```csharp
+using System.Text.Json;
+using MyJdownloader.Plugins;
+
+// List the plugins (the list can be large, and entries may hold secrets: never log them).
+IReadOnlyList<PluginInfo> plugins = await device.Plugins.ListAsync(new PluginsQuery { Pattern = false }, cancellationToken);
+if (plugins.Count > 0)
+{
+    PluginInfo plugin = plugins[0];
+    if (plugin.InterfaceName is not null && plugin.DisplayName is not null && plugin.Key is not null)
+    {
+        // Read the setting. The value may hold a secret: do not log it.
+        JsonElement current = await device.Plugins.GetAsync(plugin.InterfaceName, plugin.DisplayName, plugin.Key, cancellationToken);
+
+        // Set and reset apply immediately, without confirmation: ask the user first.
+        if (current.ValueKind == JsonValueKind.True && AskUser("Disable this plugin setting?"))
+        {
+            await device.Plugins.SetAsync(
+                plugin.InterfaceName,
+                plugin.DisplayName,
+                plugin.Key,
+                JsonSerializer.SerializeToElement(false),
+                cancellationToken);
+
+            // Or go back to the default value.
+            await device.Plugins.ResetAsync(plugin.InterfaceName, plugin.DisplayName, plugin.Key, cancellationToken);
+        }
+    }
+}
+
+// Which plugin handles a URL?
+IReadOnlyList<string> patterns = await device.Plugins.GetPluginRegexAsync("https://example.com/file/abc", cancellationToken);
+Console.WriteLine($"{patterns.Count} pattern(s) match.");
+```
+
+`AskUser` stands for your own user prompt.
+
+- `SetAsync` and `ResetAsync` change the device configuration without confirmation.
+  A timeout means the action may have been executed: read the value back before
+  you replay it.
+- Plugin settings often hold secrets (hoster credentials, tokens). `ToString()` of
+  `PluginInfo` and `PluginConfigEntry` hides the values, but never log `Value`,
+  `DefaultValue` or the result of `GetAsync`.
+- Patterns are regular expressions defined on the device. Do not compile them
+  without a match timeout. The names, documentation and patterns are untrusted
+  text: encode them before you display them.
+- An unknown plugin, key or an invalid value answers `400 BAD_PARAMETERS` or
+  `400 INVALID_VALUE`, which surface as a `MyJdApiException`.
+- `QueryAsync` takes the `ConfigQuery` of the config facade. Restrict it with
+  `ConfigInterface` or `Pattern` to stay under the 1 MiB response cap.
 
 ## Extensions: list, install, enable
 

@@ -44,6 +44,7 @@ Reference pages for each public type and facade.
 - [Accounts](api/accounts.md): `device.Accounts`, premium hoster and basic authentication accounts.
 - [Captcha](api/captcha.md): `device.Captcha`, pending captcha challenges.
 - [Dialogs](api/dialogs.md): `device.Dialogs`, open dialogs, their type info and answers.
+- [Plugins](api/plugins.md): `device.Plugins`, plugin settings and URL patterns.
 - [Events](api/events.md): `device.Events`, subscriptions and long polling.
 - [Extensions](api/extensions.md): `device.Extensions`, JDownloader extensions.
 - [Update](api/update.md): `device.Update`, update checks and restart.
