@@ -1,0 +1,54 @@
+namespace MyJdownloader.Tests.Plugins;
+
+using System.Globalization;
+using System.Text.Json;
+using MyJdownloader.Tests.Transport;
+
+[TestFixture]
+public sealed class PluginsEndToEndTests
+{
+    private static readonly TimeSpan _waitTimeout = TimeSpan.FromSeconds(5);
+    private static readonly string[] _expectedParams = ["org.Iface", "foo.com", "Key", "\"foo\""];
+
+    private static byte[] Key(byte value) => [.. Enumerable.Repeat(value, 32)];
+
+    private static MyJdSession CreateSession() =>
+        new("user@example.com", Key(1), Key(2), "0011aabb", "ccdd2233", Key(3), Key(4));
+
+    private static (JDownloaderDevice Device, List<string> Bodies) CreateRig(Func<long, HttpResponseMessage> reply)
+    {
+        var bodies = new List<string>();
+#pragma warning disable CA2000 // The fake handler is owned by the HttpClient of the test
+        var server = new FakeMyJdServer(request =>
+        {
+            bodies.Add(FakeMyJdServer.DecryptedBodyOf(request, Key(4)));
+            return reply(FakeMyJdServer.BodyRidOf(request, Key(4)));
+        });
+        var client = new MyJDownloaderClient(new HttpClient(server));
+#pragma warning restore CA2000
+        client.RestoreSession(CreateSession());
+        return (client.GetDevice("dev1"), bodies);
+    }
+
+    [Test]
+    public async Task SetAsync_EndToEnd_SendsEncryptedBody()
+    {
+        var (device, bodies) = CreateRig(rid => FakeMyJdServer.EncryptedJson(
+            Key(4),
+            string.Create(CultureInfo.InvariantCulture, $"{{\"data\":true,\"rid\":{rid}}}")));
+
+        var result = await device.Plugins.SetAsync("org.Iface", "foo.com", "Key", JsonSerializer.SerializeToElement("foo")).WaitAsync(_waitTimeout);
+
+        using var document = JsonDocument.Parse(bodies.Single());
+        var root = document.RootElement;
+        var sent = root.GetProperty("params").EnumerateArray()
+            .Select(e => e.ValueKind == JsonValueKind.Null ? "null" : e.GetString())
+            .ToArray();
+        Assert.Multiple(() =>
+        {
+            Assert.That(root.GetProperty("url").GetString(), Is.EqualTo("/plugins/set"));
+            Assert.That(sent, Is.EqualTo(_expectedParams));
+            Assert.That(result, Is.True);
+        });
+    }
+}

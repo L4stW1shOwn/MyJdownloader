@@ -1157,3 +1157,12 @@ static MyJdownloader.Plugins.PluginInfo.operator !=(MyJdownloader.Plugins.Plugin
 static MyJdownloader.Plugins.PluginInfo.operator ==(MyJdownloader.Plugins.PluginInfo? left, MyJdownloader.Plugins.PluginInfo? right) -> bool
 static MyJdownloader.Plugins.PluginsQuery.operator !=(MyJdownloader.Plugins.PluginsQuery? left, MyJdownloader.Plugins.PluginsQuery? right) -> bool
 static MyJdownloader.Plugins.PluginsQuery.operator ==(MyJdownloader.Plugins.PluginsQuery? left, MyJdownloader.Plugins.PluginsQuery? right) -> bool
+MyJdownloader.JDownloaderDevice.Plugins.get -> MyJdownloader.Plugins.PluginsApi!
+MyJdownloader.Plugins.PluginsApi
+MyJdownloader.Plugins.PluginsApi.GetAllPluginRegexAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyDictionary<string!, System.Collections.Generic.IReadOnlyList<string!>!>!>!
+MyJdownloader.Plugins.PluginsApi.GetAsync(string! interfaceName, string! displayName, string! key, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Text.Json.JsonElement>!
+MyJdownloader.Plugins.PluginsApi.GetPluginRegexAsync(string! url, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<string!>!>!
+MyJdownloader.Plugins.PluginsApi.ListAsync(MyJdownloader.Plugins.PluginsQuery? query = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Plugins.PluginInfo!>!>!
+MyJdownloader.Plugins.PluginsApi.QueryAsync(MyJdownloader.Config.ConfigQuery? query = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Plugins.PluginConfigEntry!>!>!
+MyJdownloader.Plugins.PluginsApi.ResetAsync(string! interfaceName, string! displayName, string! key, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.Plugins.PluginsApi.SetAsync(string! interfaceName, string! displayName, string! key, System.Text.Json.JsonElement value, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
