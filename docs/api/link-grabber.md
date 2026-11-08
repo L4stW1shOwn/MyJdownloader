@@ -1,0 +1,223 @@
+# Link grabber
+
+The link grabber is JDownloader's staging area: links that have been accepted but not yet moved to the download list. Use it to add links, review the collected links and packages, rename or prioritize them, and then move them to the download list (see [Downloads](downloads.md)).
+
+Reach it as `device.LinkGrabber`, which returns a `LinkGrabberApi`. The C# namespace is `MyJdownloader.LinkGrabber`, and the device API path is `/linkgrabberv2`.
+
+Every method also throws `InvalidOperationException` when the client is not connected, `MyJdException` for relay or device rejections, `OperationCanceledException`, `TimeoutException` and `HttpRequestException`. The error model is described in [errors.md](errors.md).
+
+## LinkGrabberApi
+
+`public sealed class LinkGrabberApi`
+
+Typed facade over the `/linkgrabberv2` namespace of one device (links collected but not yet in the download list).
+
+| Member | Signature | Description |
+|---|---|---|
+| `AddLinksAsync` | `Task<LinkCollectingJob> AddLinksAsync(AddLinksRequest request, CancellationToken cancellationToken = default)` | Adds links to the link grabber (`/linkgrabberv2/addLinks`) and returns the collecting job. Throws `ArgumentNullException` for a null request or link, and `ArgumentException` for a missing link, a link that is blank or contains whitespace, control characters or lone surrogates, a text option that is blank or contains control characters, or `Priority.Unknown` (or an undefined priority). A timeout means the action may have been executed. |
+| `QueryLinksAsync` | `Task<IReadOnlyList<CrawledLink>> QueryLinksAsync(LinkQuery? query = null, CancellationToken cancellationToken = default)` | Lists the collected links (`/linkgrabberv2/queryLinks`). A `null` query returns all links with all fields except the download password. Pages larger than 1 MiB fail with `MyJdProtocolException`: page with `LinkQuery.StartAt` and `LinkQuery.MaxResults`. |
+| `QueryPackagesAsync` | `Task<IReadOnlyList<CrawledPackage>> QueryPackagesAsync(PackageQuery? query = null, CancellationToken cancellationToken = default)` | Lists the collected packages (`/linkgrabberv2/queryPackages`). A `null` query returns all fields of all packages. The same 1 MiB limit applies: page with `PackageQuery.StartAt` and `PackageQuery.MaxResults`. |
+| `MoveToDownloadListAsync` | `Task MoveToDownloadListAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)` | Moves links and packages to the download list (`/linkgrabberv2/moveToDownloadlist`). A timeout may still have moved them. |
+| `RemoveLinksAsync` | `Task RemoveLinksAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)` | Removes links and packages from the link grabber (`/linkgrabberv2/removeLinks`). |
+| `ClearListAsync` | `Task<bool> ClearListAsync(CancellationToken cancellationToken = default)` | Clears the whole link grabber list (`/linkgrabberv2/clearList`) and returns the value reported by the device. |
+| `IsCollectingAsync` | `Task<bool> IsCollectingAsync(CancellationToken cancellationToken = default)` | Returns `true` while links are still being collected (`/linkgrabberv2/isCollecting`). |
+| `GetPackageCountAsync` | `Task<int> GetPackageCountAsync(CancellationToken cancellationToken = default)` | Returns the number of packages in the link grabber (`/linkgrabberv2/getPackageCount`). |
+| `RenameLinkAsync` | `Task RenameLinkAsync(long linkId, string newName, CancellationToken cancellationToken = default)` | Renames a link (`/linkgrabberv2/renameLink`). The name becomes a file name on the device; `ArgumentNullException` for a null name and `ArgumentException` for a blank name or one with control characters. |
+| `RenamePackageAsync` | `Task RenamePackageAsync(long packageId, string newName, CancellationToken cancellationToken = default)` | Renames a package (`/linkgrabberv2/renamePackage`). Same argument rules as `RenameLinkAsync`. |
+| `SetEnabledAsync` | `Task SetEnabledAsync(bool enabled, IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)` | Enables or disables links and packages (`/linkgrabberv2/setEnabled`). |
+| `SetPriorityAsync` | `Task SetPriorityAsync(Priority priority, IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)` | Sets the priority of links and packages (`/linkgrabberv2/setPriority`). `Priority.Unknown` or an undefined value throws `ArgumentException`. |
+
+Remarks:
+
+- Arguments are validated synchronously, before any request is sent. Exception messages never contain argument values.
+- Links and URLs may embed credentials, and packages can carry a download password. Do not log whole `AddLinksRequest`, `CrawledLink` or `CrawledPackage` values.
+- The library does not filter URL schemes or destination paths. The device fetches the links from its own network, and `AddLinksRequest.DestinationFolder` is a path on the device. Callers handling untrusted input must allow-list both.
+- Identifier lists must not be `null`; passing `null` throws `ArgumentNullException`.
+
+### Example
+
+```csharp
+using MyJdownloader.LinkGrabber;
+
+var job = await device.LinkGrabber.AddLinksAsync(new AddLinksRequest
+{
+    Links = ["https://host.example/file1", "https://host.example/file2"],
+    PackageName = "my package",
+});
+
+// Pages are limited by the 1 MiB response cap: use StartAt and MaxResults on large lists.
+var packages = await device.LinkGrabber.QueryPackagesAsync(new PackageQuery { StartAt = 0, MaxResults = 100 });
+
+await device.LinkGrabber.MoveToDownloadListAsync([], [.. packages.Select(p => p.Uuid)]);
+```
+
+## AddLinksRequest
+
+`public sealed record AddLinksRequest`
+
+Parameters of `/linkgrabberv2/addLinks`. Members left `null` are not sent, so the device keeps its default. The record masks the passwords in `ToString()`, but links and `SourceUrl` may still embed credentials.
+
+| Property | Type | Description |
+|---|---|---|
+| `Links` | `IReadOnlyList<string>` (required) | The links to add. They are sent as one string joined with line feeds. |
+| `PackageName` | `string?` | Name of the package to create. |
+| `DestinationFolder` | `string?` | Destination folder on the device. Not filtered by the library. |
+| `ExtractPassword` | `string?` | Archive extraction password. |
+| `DownloadPassword` | `string?` | Download password. |
+| `SourceUrl` | `string?` | URL of the page the links come from. |
+| `Priority` | `Priority?` | Priority of the added links. `Priority.Unknown` is rejected. |
+| `Autostart` | `bool?` | Whether the downloads start automatically. |
+| `AutoExtract` | `bool?` | Whether archives are extracted automatically. |
+| `DeepDecrypt` | `bool?` | Whether deep link decryption is used. |
+| `OverwritePackagizerRules` | `bool?` | Whether packagizer rules are overwritten. |
+| `AssignJobId` | `bool?` | Whether the device returns a job identifier. |
+
+### Example
+
+```csharp
+var request = new AddLinksRequest
+{
+    Links = ["https://host.example/archive.part1.rar"],
+    AutoExtract = true,
+    Priority = Priority.High,
+};
+```
+
+## LinkCollectingJob
+
+`public sealed record LinkCollectingJob`
+
+A link collecting job started by `AddLinksAsync`.
+
+| Property | Type | Description |
+|---|---|---|
+| `Id` | `long` | Job identifier. |
+
+## CrawledLink
+
+`public sealed record CrawledLink`
+
+A link in the link grabber list. Fields that the query did not request are `null`.
+
+Do not destructure or serialize this record into logs. `ToString()` masks `DownloadPassword`, but `Url` may embed credentials.
+
+| Property | Type | Description |
+|---|---|---|
+| `Uuid` | `long` | Link identifier. |
+| `PackageUuid` | `long` | Identifier of the package containing the link. |
+| `Name` | `string?` | Link name. |
+| `Url` | `string?` | Link URL. May embed credentials; the raw value is not validated. |
+| `Host` | `string?` | Host serving the link. |
+| `BytesTotal` | `long?` | Total size in bytes. |
+| `Availability` | `AvailableLinkState?` | Online availability. |
+| `Enabled` | `bool?` | Whether the link is enabled. |
+| `Priority` | `Priority?` | Priority. |
+| `Comment` | `string?` | Comment. |
+| `DownloadPassword` | `string?` | Download password, only returned when requested by the query. |
+| `Variants` | `bool?` | Whether the link has variants. |
+| `Variant` | `LinkVariant?` | Selected variant. |
+| `Status` | `string?` | Human-readable status text, returned when the status flag is set. Not part of the published API documentation. |
+| `StatusIconKey` | `string?` | Key of the status icon. Not part of the published API documentation. |
+
+## CrawledPackage
+
+`public sealed record CrawledPackage`
+
+A package in the link grabber list. Fields that the query did not request are `null`.
+
+Do not destructure or serialize this record into logs. `ToString()` masks `DownloadPassword`. `QueryPackagesAsync` may still return it, because the API has no flag to opt out.
+
+| Property | Type | Description |
+|---|---|---|
+| `Uuid` | `long` | Package identifier. |
+| `Name` | `string?` | Package name. |
+| `BytesTotal` | `long?` | Total size in bytes. |
+| `ChildCount` | `int?` | Number of links in the package. |
+| `Comment` | `string?` | Comment. |
+| `DownloadPassword` | `string?` | Download password, when the device returns it. |
+| `Enabled` | `bool?` | Whether the package is enabled. |
+| `Hosts` | `IReadOnlyList<string>?` | Hosts serving the package links. |
+| `OnlineCount` | `int?` | Number of online links. |
+| `OfflineCount` | `int?` | Number of offline links. |
+| `TempUnknownCount` | `int?` | Number of temporarily unknown links. |
+| `UnknownCount` | `int?` | Number of links with an unknown state. |
+| `Priority` | `Priority?` | Priority. |
+| `SaveTo` | `string?` | Folder the package is saved to. |
+| `Status` | `string?` | Human-readable status text, returned when the status flag is set. Not part of the published API documentation. |
+| `StatusIconKey` | `string?` | Key of the status icon. Not part of the published API documentation. |
+
+## LinkVariant
+
+`public sealed record LinkVariant`
+
+A selectable variant (for example a quality) of a crawled link.
+
+| Property | Type | Description |
+|---|---|---|
+| `Id` | `string?` | Variant identifier. |
+| `Name` | `string?` | Variant display name. |
+| `IconKey` | `string?` | Key of the variant icon. |
+
+## LinkQuery
+
+`public sealed record LinkQuery`
+
+Selects the fields and range returned by `QueryLinksAsync`. Every field flag is `true` by default, except `Password`.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `Availability` | `bool` | `true` | Returns the availability. |
+| `BytesTotal` | `bool` | `true` | Returns the total size. |
+| `Comment` | `bool` | `true` | Returns the comment. |
+| `Enabled` | `bool` | `true` | Returns the enabled flag. |
+| `Host` | `bool` | `true` | Returns the host. |
+| `Priority` | `bool` | `true` | Returns the priority. |
+| `Status` | `bool` | `true` | Returns the status. |
+| `Url` | `bool` | `true` | Returns the URL. |
+| `VariantId` | `bool` | `true` | Returns the variant identifier. |
+| `VariantIcon` | `bool` | `true` | Returns the variant icon. |
+| `VariantName` | `bool` | `true` | Returns the variant name. |
+| `Variants` | `bool` | `true` | Returns the variants flag. |
+| `Password` | `bool` | `false` | Returns the download password. |
+| `PackageUuids` | `IReadOnlyList<long>?` | `null` | Restricts the query to these packages. `null` means all. |
+| `JobUuids` | `IReadOnlyList<long>?` | `null` | Restricts the query to these collecting jobs. `null` means all. |
+| `MaxResults` | `int` | `-1` | Maximum number of results. `-1` means no limit. Values below `-1` throw `ArgumentException`. |
+| `StartAt` | `int` | `0` | Index of the first result. Negative values throw `ArgumentException`. |
+
+### Example
+
+```csharp
+var links = await device.LinkGrabber.QueryLinksAsync(new LinkQuery { MaxResults = 200 });
+```
+
+## PackageQuery
+
+`public sealed record PackageQuery`
+
+Selects the fields and range returned by `QueryPackagesAsync`. Every field flag is `true` by default.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `AvailableOfflineCount` | `bool` | `true` | Returns the offline link count. |
+| `AvailableOnlineCount` | `bool` | `true` | Returns the online link count. |
+| `AvailableTempUnknownCount` | `bool` | `true` | Returns the temporarily unknown link count. |
+| `AvailableUnknownCount` | `bool` | `true` | Returns the unknown link count. |
+| `BytesTotal` | `bool` | `true` | Returns the total size. |
+| `ChildCount` | `bool` | `true` | Returns the child count. |
+| `Comment` | `bool` | `true` | Returns the comment. |
+| `Enabled` | `bool` | `true` | Returns the enabled flag. |
+| `Hosts` | `bool` | `true` | Returns the hosts. |
+| `Priority` | `bool` | `true` | Returns the priority. |
+| `SaveTo` | `bool` | `true` | Returns the save folder. |
+| `Status` | `bool` | `true` | Returns the status. |
+| `PackageUuids` | `IReadOnlyList<long>?` | `null` | Restricts the query to these packages. `null` means all. |
+| `MaxResults` | `int` | `-1` | Maximum number of results. `-1` means no limit. Values below `-1` throw `ArgumentException`. |
+| `StartAt` | `int` | `0` | Index of the first result. Negative values throw `ArgumentException`. |
+
+See also:
+
+- [client.md](client.md)
+- [device-channel.md](device-channel.md)
+- [errors.md](errors.md)
+- [common-types.md](common-types.md)
+- [Managing downloads](../guides/managing-downloads.md)
