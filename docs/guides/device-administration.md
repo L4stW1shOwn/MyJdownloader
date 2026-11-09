@@ -2,7 +2,7 @@
 
 Besides downloads, a device exposes facades for its own administration: version
 and plugins, operating-system power actions, internet reconnect, advanced configuration, premium
-hoster accounts, captchas, dialogs, plugin settings, extensions, updates and archive extraction. Each
+hoster accounts, captchas, dialogs, plugin settings, extensions, updates, archive extraction and support logs. Each
 facade is a property of `JDownloaderDevice`. This guide shows one use case per
 facade.
 
@@ -332,3 +332,35 @@ await device.Extraction.CancelExtractionAsync(controllerId, cancellationToken);
   returns them in clear. Do not log them.
 - `GetArchiveInfoAsync` and `GetArchiveSettingsAsync` look archives up by link or
   package id, or by archive id.
+
+## Log: send logs to JDownloader support
+
+```csharp
+using System.Linq;
+using MyJdownloader.Log;
+
+IReadOnlyList<LogFolder> folders = await device.Log.GetAvailableLogsAsync(cancellationToken);
+
+// Keep the folders the user chose; the current session is sent in any case.
+List<LogFolder> selected = folders
+    .Where(folder => folder.Created is not null && folder.LastModified is not null)
+    .Where(folder => ChosenByUser(folder))
+    .ToList();
+
+// Consent first: the upload goes to JDownloader's support servers, a third party.
+if (selected.Count > 0 && AskUser("Send these logs to JDownloader support? They can contain URLs, file names, account names and IP addresses."))
+{
+    string? logId = await device.Log.SendLogFileAsync(selected, cancellationToken);
+    // Show logId to the user as plain text: it is untrusted device text.
+}
+```
+
+`ChosenByUser` and `AskUser` stand for your own selection screen and user prompt.
+
+- The upload is a privacy decision of the end user. Logs can contain personal data,
+  and the log of the current session is always sent. Ask for explicit consent each
+  time, in an interactive session. Never send logs unattended.
+- `GetAvailableLogsAsync` writes a thread dump into the device log before it answers.
+- A `TimeoutException` or `HttpRequestException` means the upload may have been
+  executed. Do not call `SendLogFileAsync` again without asking the user.
+- The privacy warning, the errors and the remarks are in [log.md](../api/log.md).

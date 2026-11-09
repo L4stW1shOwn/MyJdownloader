@@ -24,8 +24,9 @@ Each row compares two counts for one device namespace. The first is the number o
 | [LinkCrawler](api/link-crawler.md) | `/linkcrawler` | ✅ 1/1 | — |
 | [Reconnect](api/reconnect.md) | `/reconnect` | ✅ 1/1 | — |
 | [Polling](api/polling.md) | `/polling` | ✅ 1/1 | — |
+| [Log](api/log.md) | `/log` | ✅ 2/2 | — |
 
-Subtotal for the typed facades: 105/142 actions.
+Subtotal for the typed facades: 107/144 actions.
 
 ## Namespaces without a typed facade
 
@@ -33,7 +34,6 @@ These namespaces have no typed facade yet. Their actions are callable today thro
 
 | Namespace | Coverage | Actions |
 |---|---|---|
-| `/log` | 0/2 | `getAvailableLogs`, `sendLogFile` |
 | `/contentV2` | 0/4 | `getFavIcon`, `getFileIcon`, `getIcon`, `getIconDescription` |
 | `/ui` | 0/2 | `getMenu`, `invokeAction` |
 | `/captchaforward` | 0/2 | `createJobRecaptchaV2`, `getResult` |
@@ -50,4 +50,4 @@ The following namespaces are not planned:
 
 ## Totals
 
-Across all official namespaces, 105 of the 169 actions have a typed method (`105/169`).
+Across all official namespaces, 107 of the 169 actions have a typed method (`107/169`).
