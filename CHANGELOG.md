@@ -6,6 +6,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 
 ### Added
 
+- `device.ContentV2`: typed `/contentV2` facade (hoster favicon, file-type icon and icon by key as PNG bytes, icon description); the icon bytes are unauthenticated (ADR-011): the client checks only the status, the `image/png` type, the 1 MiB limit and the PNG signature, so decode them in a sandboxed decoder and never serve them under another content type.
 - `device.Log`: typed `/log` facade (list the device log folders, upload selected folders to JDownloader support and get the log id); the upload goes to a third party without confirmation and logs can hold personal data, so obtain the end user's consent first; listing writes a thread dump on the device.
 - `device.Polling`: typed `/polling` facade (poll the download progress, download state, link grabber state, waiting captchas and aggregated numbers as a snapshot); the event `data` is untyped JSON and untrusted, and at least one event must be requested.
 - `device.Reconnect`: typed `/reconnect` facade (ask the device to reconnect its internet connection); acts without confirmation, interrupts downloads and may fail with `MyJdDeviceOfflineException` or a timeout while the reconnect happens.

@@ -214,6 +214,7 @@ Each facade property is created on first access. The facades are stateless, so a
 | [`Reconnect`](reconnect.md) | `ReconnectApi Reconnect { get; }` | Facade over the `/reconnect` namespace: reconnect the device internet connection. |
 | [`Polling`](polling.md) | `PollingApi Polling { get; }` | Facade over the `/polling` namespace: snapshot of the device state. |
 | [`Log`](log.md) | `LogApi Log { get; }` | Facade over the `/log` namespace: log folders and upload of logs to JDownloader support (privacy warning in the page). |
+| [`ContentV2`](content-v2.md) | `ContentV2Api ContentV2 { get; }` | Facade over the `/contentV2` namespace: hoster favicons and icons as PNG bytes (unauthenticated, see the page) and icon descriptions. |
 
 **Remarks**
 
@@ -241,7 +242,7 @@ IReadOnlyList<CrawledLink> links = await device.LinkGrabber.QueryLinksAsync();
 - [Errors](errors.md)
 - [Common types](common-types.md)
 - [Dependency injection](dependency-injection.md)
-- [Link grabber](link-grabber.md) · [Downloads](downloads.md) · [Download controller](download-controller.md) · [Jd](jd.md) · [System](system.md) · [Config](config.md) · [Accounts](accounts.md) · [Captcha](captcha.md) · [Dialogs](dialogs.md) · [Plugins](plugins.md) · [Events](events.md) · [Extensions](extensions.md) · [Extraction](extraction.md) · [Update](update.md) · [Device](device.md) · [Link crawler](link-crawler.md) · [Reconnect](reconnect.md) · [Polling](polling.md) · [Log](log.md)
+- [Link grabber](link-grabber.md) · [Downloads](downloads.md) · [Download controller](download-controller.md) · [Jd](jd.md) · [System](system.md) · [Config](config.md) · [Accounts](accounts.md) · [Captcha](captcha.md) · [Dialogs](dialogs.md) · [Plugins](plugins.md) · [Events](events.md) · [Extensions](extensions.md) · [Extraction](extraction.md) · [Update](update.md) · [Device](device.md) · [Link crawler](link-crawler.md) · [Reconnect](reconnect.md) · [Polling](polling.md) · [Log](log.md) · [ContentV2](content-v2.md)
 - [Getting started](../guides/getting-started.md)
 - [Sessions and authentication](../guides/sessions-and-authentication.md)
 - [Error handling](../guides/error-handling.md)

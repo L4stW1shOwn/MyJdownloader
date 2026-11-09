@@ -54,6 +54,7 @@ Reference pages for each public type and facade.
 - [Reconnect](api/reconnect.md): `device.Reconnect`, reconnect the device internet connection.
 - [Polling](api/polling.md): `device.Polling`, snapshot of the download, link grabber and captcha state.
 - [Log](api/log.md): `device.Log`, log folders and upload of logs to JDownloader support (third party, consent required).
+- [ContentV2](api/content-v2.md): `device.ContentV2`, hoster favicons and icons as PNG bytes (untrusted, unauthenticated) and icon descriptions.
 
 ## Architecture decisions
 

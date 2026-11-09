@@ -25,8 +25,9 @@ Each row compares two counts for one device namespace. The first is the number o
 | [Reconnect](api/reconnect.md) | `/reconnect` | ✅ 1/1 | — |
 | [Polling](api/polling.md) | `/polling` | ✅ 1/1 | — |
 | [Log](api/log.md) | `/log` | ✅ 2/2 | — |
+| [ContentV2](api/content-v2.md) | `/contentV2` | ✅ 4/4 | — |
 
-Subtotal for the typed facades: 107/144 actions.
+Subtotal for the typed facades: 111/148 actions.
 
 ## Namespaces without a typed facade
 
@@ -34,7 +35,6 @@ These namespaces have no typed facade yet. Their actions are callable today thro
 
 | Namespace | Coverage | Actions |
 |---|---|---|
-| `/contentV2` | 0/4 | `getFavIcon`, `getFileIcon`, `getIcon`, `getIconDescription` |
 | `/ui` | 0/2 | `getMenu`, `invokeAction` |
 | `/captchaforward` | 0/2 | `createJobRecaptchaV2`, `getResult` |
 | `/toolbar` | 0/15 | `addLinksFromDOM`, `checkLinksFromDOM`, `getStatus`, `isAvailable`, `pollCheckedLinksFromDOM`, `specialURLHandling`, `startDownloads`, `stopDownloads`, `toggleAutomaticReconnect`, `toggleClipboardMonitoring`, `toggleDownloadSpeedLimit`, `togglePauseDownloads`, `togglePremium`, `toggleStopAfterCurrentDownload`, `triggerUpdate` |
@@ -50,4 +50,4 @@ The following namespaces are not planned:
 
 ## Totals
 
-Across all official namespaces, 107 of the 169 actions have a typed method (`107/169`).
+Across all official namespaces, 111 of the 169 actions have a typed method (`111/169`).

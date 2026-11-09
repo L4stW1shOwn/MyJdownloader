@@ -9,6 +9,12 @@ responses to types.
 The channel design is described in [ADR-001](../adr/ADR-001-typed-facade-over-generic-core.md)
 and [ADR-008](../adr/ADR-008-untyped-values-as-jsonelement.md).
 
+`IDeviceChannel` only carries JSON answers. Binary actions, such as the icons of
+`device.ContentV2`, are not reachable through it: their PNG answers are not
+encrypted, and the channel cannot return them. Use the typed facade when it
+exists. A caller that needs another binary action must wait for a public API
+([ADR-011](../adr/ADR-011-unauthenticated-binary-device-responses.md)).
+
 ## Two overloads
 
 ```csharp
