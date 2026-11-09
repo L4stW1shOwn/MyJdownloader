@@ -6,7 +6,7 @@ using MyJdownloader.Transport;
 
 /// <summary>Typed facade over the <c>/contentV2</c> namespace of one device (icons of hosters, files and icon keys).</summary>
 /// <remarks>
-/// <para>The icon bytes are untrusted and unauthenticated: the device answers a PNG in clear, outside the encrypted envelope (ADR-011). The client only checks the PNG signature and a 1 MiB limit; decode them in a sandboxed image decoder, never serve the bytes under another content type and never base a security decision on them.</para>
+/// <para>The icon bytes are untrusted and unauthenticated: the device answers a PNG in clear, outside the encrypted envelope (ADR-011). The client only checks the HTTP status, the <c>image/png</c> content type, the 1 MiB limit and the PNG signature; decode them in a sandboxed image decoder, never serve the bytes under another content type and never base a security decision on them.</para>
 /// <para>The <see cref="IconDescriptor"/> returned by <see cref="GetIconDescriptionAsync"/> is untrusted device data.</para>
 /// </remarks>
 public sealed class ContentV2Api

@@ -62,7 +62,7 @@ The design choices behind the library (typed facades over a generic channel, the
 BCL-only AOT core, the injected `HttpClient`, the immutable session, error
 handling and events) are recorded as ADRs.
 
-- [Architecture decision records](adr/README.md): index of ADR-001 to ADR-009.
+- [Architecture decision records](adr/README.md): index of ADR-001 to ADR-011.
 
 ## Project files
 
