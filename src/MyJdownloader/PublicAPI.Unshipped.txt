@@ -81,6 +81,8 @@ MyJdownloader.Config.ConfigValueType.ShortList = 16 -> MyJdownloader.Config.Conf
 MyJdownloader.Config.ConfigValueType.String = 4 -> MyJdownloader.Config.ConfigValueType
 MyJdownloader.Config.ConfigValueType.StringList = 7 -> MyJdownloader.Config.ConfigValueType
 MyJdownloader.Config.ConfigValueType.Unknown = 0 -> MyJdownloader.Config.ConfigValueType
+MyJdownloader.Device.DeviceApi
+MyJdownloader.Device.DeviceApi.PingAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.DeviceInfo
 MyJdownloader.DeviceInfo.<Clone>$() -> MyJdownloader.DeviceInfo!
 MyJdownloader.DeviceInfo.DeviceInfo() -> void
@@ -103,9 +105,14 @@ MyJdownloader.IDeviceChannel.CallAsync(string! path, System.Collections.Generic.
 MyJdownloader.IDeviceChannel.CallAsync<T>(string! path, System.Text.Json.Serialization.Metadata.JsonTypeInfo<T>! responseType, System.Collections.Generic.IReadOnlyList<System.Text.Json.JsonElement>! args, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<T?>!
 MyJdownloader.JDownloaderDevice
 MyJdownloader.JDownloaderDevice.Channel.get -> MyJdownloader.IDeviceChannel!
+MyJdownloader.JDownloaderDevice.Device.get -> MyJdownloader.Device.DeviceApi!
 MyJdownloader.JDownloaderDevice.Id.get -> string!
 MyJdownloader.JDownloaderDevice.Downloads.get -> MyJdownloader.Downloads.DownloadsApi!
+MyJdownloader.JDownloaderDevice.LinkCrawler.get -> MyJdownloader.LinkCrawler.LinkCrawlerApi!
 MyJdownloader.JDownloaderDevice.LinkGrabber.get -> MyJdownloader.LinkGrabber.LinkGrabberApi!
+MyJdownloader.JDownloaderDevice.Reconnect.get -> MyJdownloader.Reconnect.ReconnectApi!
+MyJdownloader.LinkCrawler.LinkCrawlerApi
+MyJdownloader.LinkCrawler.LinkCrawlerApi.IsCrawlingAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.LinkGrabber.AddLinksRequest
 MyJdownloader.LinkGrabber.AddLinksRequest.<Clone>$() -> MyJdownloader.LinkGrabber.AddLinksRequest!
 MyJdownloader.LinkGrabber.AddLinksRequest.AddLinksRequest() -> void
@@ -369,6 +376,8 @@ MyJdownloader.Priority.Low = 5 -> MyJdownloader.Priority
 MyJdownloader.Priority.Lower = 6 -> MyJdownloader.Priority
 MyJdownloader.Priority.Lowest = 7 -> MyJdownloader.Priority
 MyJdownloader.Priority.Unknown = 0 -> MyJdownloader.Priority
+MyJdownloader.Reconnect.ReconnectApi
+MyJdownloader.Reconnect.ReconnectApi.DoReconnectAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 override MyJdownloader.Config.ConfigEntry.Equals(object? obj) -> bool
 override MyJdownloader.Config.ConfigEntry.GetHashCode() -> int
 override MyJdownloader.Config.ConfigEntry.ToString() -> string!
