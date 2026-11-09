@@ -28,6 +28,15 @@ internal sealed class FakeMyJdServer : HttpMessageHandler
     public static HttpResponseMessage Raw(string body, HttpStatusCode status = HttpStatusCode.OK)
         => new(status) { Content = new StringContent(body, Encoding.UTF8) };
 
+    /// <summary>A raw (unencrypted) binary answer; a <see langword="null"/> content type leaves the header unset.</summary>
+    public static HttpResponseMessage Png(byte[] body, string? contentType = "image/png", HttpStatusCode status = HttpStatusCode.OK)
+    {
+        ArgumentNullException.ThrowIfNull(body);
+        var content = new ByteArrayContent(body);
+        content.Headers.ContentType = contentType is null ? null : System.Net.Http.Headers.MediaTypeHeaderValue.Parse(contentType);
+        return new HttpResponseMessage(status) { Content = content };
+    }
+
     /// <summary>Returns the value of the <c>rid</c> query parameter, exactly as sent.</summary>
     public static long RidOf(HttpRequestMessage request)
     {

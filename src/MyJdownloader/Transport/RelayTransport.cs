@@ -26,6 +26,7 @@ internal sealed class RelayTransport
     private const string ServerMismatchMessage = "The MyJD server response does not match the request.";
     private const string DeviceUnreadableMessage = "The MyJD device returned a response that could not be read.";
     private const string DeviceMismatchMessage = "The MyJD device response does not match the request.";
+    private static readonly byte[] _pngSignature = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
     private static readonly TimeSpan _maxRetryAfter = TimeSpan.FromMinutes(10);
 
     private readonly HttpClient _httpClient;
@@ -51,7 +52,45 @@ internal sealed class RelayTransport
     /// <param name="source">The party the call is addressed to, used to map errors.</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The decrypted JSON answer.</returns>
-    public async Task<string> ExchangeAsync(HttpRequestMessage request, byte[] key, MyJdErrorSource source, CancellationToken cancellationToken)
+    public Task<string> ExchangeAsync(HttpRequestMessage request, byte[] key, MyJdErrorSource source, CancellationToken cancellationToken) =>
+        this.ExchangeWithTimeoutAsync(request, key, source, DecryptBody, cancellationToken);
+
+    /// <summary>
+    /// Sends the request and returns the raw PNG body of a successful answer; the request stays owned by the caller.
+    /// The body is neither encrypted nor tied to the request id: see ADR-011.
+    /// </summary>
+    /// <param name="request">The prepared request.</param>
+    /// <param name="key">The key used to decrypt an error answer.</param>
+    /// <param name="source">The party the call is addressed to, used to map errors.</param>
+    /// <param name="cancellationToken">A token to cancel the call.</param>
+    /// <returns>The PNG bytes, signature included.</returns>
+    public Task<byte[]> ExchangeBinaryAsync(HttpRequestMessage request, byte[] key, MyJdErrorSource source, CancellationToken cancellationToken) =>
+        this.ExchangeWithTimeoutAsync(request, key, source, ReadPng, cancellationToken);
+
+    private static string DecryptBody(HttpResponseMessage response, byte[] body, byte[] key, MyJdErrorSource source)
+    {
+        try
+        {
+            return MyJdCrypto.Decrypt(key, Encoding.UTF8.GetString(body));
+        }
+        catch (Exception ex) when (ex is FormatException or CryptographicException)
+        {
+            throw new MyJdProtocolException(UnreadableMessageFor(source), source);
+        }
+    }
+
+    private static byte[] ReadPng(HttpResponseMessage response, byte[] body, byte[] key, MyJdErrorSource source)
+    {
+        var mediaType = response.Content.Headers.ContentType?.MediaType;
+        if (!string.Equals(mediaType, "image/png", StringComparison.OrdinalIgnoreCase) || !body.AsSpan().StartsWith(_pngSignature))
+        {
+            throw new MyJdProtocolException(UnreadableMessageFor(source), source);
+        }
+
+        return body;
+    }
+
+    private async Task<T> ExchangeWithTimeoutAsync<T>(HttpRequestMessage request, byte[] key, MyJdErrorSource source, Func<HttpResponseMessage, byte[], byte[], MyJdErrorSource, T> convert, CancellationToken cancellationToken)
     {
         // HttpClient.Timeout stops applying once the headers are read: bound the whole exchange, body included.
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -62,7 +101,7 @@ internal sealed class RelayTransport
 
         try
         {
-            return await this.ExchangeCoreAsync(request, key, source, linked.Token).ConfigureAwait(false);
+            return await this.ExchangeCoreAsync(request, key, source, convert, linked.Token).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
@@ -152,7 +191,7 @@ internal sealed class RelayTransport
         return ClampRetryAfter(delay.Value);
     }
 
-    private async Task<string> ExchangeCoreAsync(HttpRequestMessage request, byte[] key, MyJdErrorSource source, CancellationToken cancellationToken)
+    private async Task<T> ExchangeCoreAsync<T>(HttpRequestMessage request, byte[] key, MyJdErrorSource source, Func<HttpResponseMessage, byte[], byte[], MyJdErrorSource, T> convert, CancellationToken cancellationToken)
     {
         using var response = await this._httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
         if (response.StatusCode != HttpStatusCode.OK)
@@ -165,13 +204,6 @@ internal sealed class RelayTransport
         }
 
         var body = await ReadBodyAsync(response.Content, source, cancellationToken).ConfigureAwait(false);
-        try
-        {
-            return MyJdCrypto.Decrypt(key, Encoding.UTF8.GetString(body));
-        }
-        catch (Exception ex) when (ex is FormatException or CryptographicException)
-        {
-            throw new MyJdProtocolException(UnreadableMessageFor(source), source);
-        }
+        return convert(response, body, key, source);
     }
 }

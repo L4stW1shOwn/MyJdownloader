@@ -12,7 +12,7 @@ using MyJdownloader.Crypto;
 
 /// <summary>Encrypted channel to one device through the relay; see <see cref="IDeviceChannel"/>.</summary>
 /// <remarks>No exception raised here carries the path, the device id, the session token or the arguments.</remarks>
-internal sealed partial class DeviceChannel : IDeviceChannel
+internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChannel
 {
     private const int MaxPathLength = 256;
     private const int MaxDeviceIdLength = 256;
@@ -59,6 +59,13 @@ internal sealed partial class DeviceChannel : IDeviceChannel
         ValidatePath(path);
         var snapshot = SnapshotArgs(args);
         return this.CallCoreAsync<object>(path, snapshot, null, cancellationToken);
+    }
+
+    public Task<byte[]> CallBinaryAsync(string path, IReadOnlyList<JsonElement> args, CancellationToken cancellationToken = default)
+    {
+        ValidatePath(path);
+        var snapshot = SnapshotArgs(args);
+        return this._client.ExecuteAsync((session, ct) => this.SendBinaryAsync(session, path, snapshot, ct), cancellationToken);
     }
 
     [GeneratedRegex(@"\A(?:/[A-Za-z0-9_]+)+\z", RegexOptions.CultureInvariant)]
@@ -153,22 +160,39 @@ internal sealed partial class DeviceChannel : IDeviceChannel
     private async Task<T?> SendAsync<T>(MyJdSession session, string path, string[] args, JsonTypeInfo<T>? responseType, CancellationToken cancellationToken)
     {
         var rid = this._requestIds.Next();
+        var json = await this.ExchangeAsync(
+            session,
+            path,
+            args,
+            rid,
+            (request, key) => this._transport.ExchangeAsync(request, key, MyJdErrorSource.Device, cancellationToken)).ConfigureAwait(false);
+        return ReadResponse(json, rid, responseType);
+    }
+
+    private Task<byte[]> SendBinaryAsync(MyJdSession session, string path, string[] args, CancellationToken cancellationToken) =>
+        this.ExchangeAsync(
+            session,
+            path,
+            args,
+            this._requestIds.Next(),
+            (request, key) => this._transport.ExchangeBinaryAsync(request, key, MyJdErrorSource.Device, cancellationToken));
+
+    // Builds the encrypted request, runs the exchange and clears the key copy whatever the outcome.
+    private async Task<TResult> ExchangeAsync<TResult>(MyJdSession session, string path, string[] args, long rid, Func<HttpRequestMessage, byte[], Task<TResult>> exchange)
+    {
         var url = this._options.BaseAddress.AbsoluteUri.TrimEnd('/') + "/t_" + session.SessionToken + "_" + this._escapedDeviceId + path;
-        string json;
         var key = session.DeviceEncryptionToken.ToArray();
         try
         {
             using var content = new StringContent(EncryptBody(key, path, args, rid, this._options.ApiVersion), Encoding.UTF8);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/aesjson-jd") { CharSet = "utf-8" };
             using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(url, UriKind.Absolute)) { Content = content };
-            json = await this._transport.ExchangeAsync(request, key, MyJdErrorSource.Device, cancellationToken).ConfigureAwait(false);
+            return await exchange(request, key).ConfigureAwait(false);
         }
         finally
         {
             CryptographicOperations.ZeroMemory(key);
         }
-
-        return ReadResponse(json, rid, responseType);
     }
 
     private static T? ReadResponse<T>(string json, long rid, JsonTypeInfo<T>? responseType)
