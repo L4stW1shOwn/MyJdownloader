@@ -55,4 +55,3 @@ See also:
 - [device-channel.md](device-channel.md)
 - [errors.md](errors.md)
 - [Device administration](../guides/device-administration.md)
-</content>

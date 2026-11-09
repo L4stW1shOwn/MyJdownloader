@@ -37,4 +37,3 @@ See also:
 - [errors.md](errors.md)
 - [common-types.md](common-types.md)
 - [Managing downloads](../guides/managing-downloads.md)
-</content>

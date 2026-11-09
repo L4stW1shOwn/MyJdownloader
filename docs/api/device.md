@@ -40,4 +40,3 @@ See also:
 - [errors.md](errors.md)
 - [common-types.md](common-types.md)
 - [Device administration](../guides/device-administration.md)
-</content>
