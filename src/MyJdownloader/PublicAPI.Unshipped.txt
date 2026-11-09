@@ -1175,3 +1175,40 @@ MyJdownloader.Plugins.PluginsApi.ListAsync(MyJdownloader.Plugins.PluginsQuery? q
 MyJdownloader.Plugins.PluginsApi.QueryAsync(MyJdownloader.Config.ConfigQuery? query = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Plugins.PluginConfigEntry!>!>!
 MyJdownloader.Plugins.PluginsApi.ResetAsync(string! interfaceName, string! displayName, string! key, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.Plugins.PluginsApi.SetAsync(string! interfaceName, string! displayName, string! key, System.Text.Json.JsonElement value, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.JDownloaderDevice.Polling.get -> MyJdownloader.Polling.PollingApi!
+MyJdownloader.Polling.PollingApi
+MyJdownloader.Polling.PollingApi.PollAsync(MyJdownloader.Polling.PollingQuery? query = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Polling.PollingResult!>!>!
+MyJdownloader.Polling.PollingQuery
+MyJdownloader.Polling.PollingQuery.AggregatedNumbers.get -> bool
+MyJdownloader.Polling.PollingQuery.AggregatedNumbers.init -> void
+MyJdownloader.Polling.PollingQuery.CaptchasWaiting.get -> bool
+MyJdownloader.Polling.PollingQuery.CaptchasWaiting.init -> void
+MyJdownloader.Polling.PollingQuery.<Clone>$() -> MyJdownloader.Polling.PollingQuery!
+MyJdownloader.Polling.PollingQuery.DownloadProgress.get -> bool
+MyJdownloader.Polling.PollingQuery.DownloadProgress.init -> void
+MyJdownloader.Polling.PollingQuery.DownloadProgressPackageUuids.get -> System.Collections.Generic.IReadOnlyList<long>?
+MyJdownloader.Polling.PollingQuery.DownloadProgressPackageUuids.init -> void
+MyJdownloader.Polling.PollingQuery.Equals(MyJdownloader.Polling.PollingQuery? other) -> bool
+MyJdownloader.Polling.PollingQuery.JdState.get -> bool
+MyJdownloader.Polling.PollingQuery.JdState.init -> void
+MyJdownloader.Polling.PollingQuery.LinkGrabberState.get -> bool
+MyJdownloader.Polling.PollingQuery.LinkGrabberState.init -> void
+MyJdownloader.Polling.PollingQuery.PollingQuery() -> void
+MyJdownloader.Polling.PollingResult
+MyJdownloader.Polling.PollingResult.<Clone>$() -> MyJdownloader.Polling.PollingResult!
+MyJdownloader.Polling.PollingResult.Equals(MyJdownloader.Polling.PollingResult? other) -> bool
+MyJdownloader.Polling.PollingResult.EventData.get -> System.Text.Json.JsonElement?
+MyJdownloader.Polling.PollingResult.EventData.init -> void
+MyJdownloader.Polling.PollingResult.EventName.get -> string?
+MyJdownloader.Polling.PollingResult.EventName.init -> void
+MyJdownloader.Polling.PollingResult.PollingResult() -> void
+override MyJdownloader.Polling.PollingQuery.Equals(object? obj) -> bool
+override MyJdownloader.Polling.PollingQuery.GetHashCode() -> int
+override MyJdownloader.Polling.PollingQuery.ToString() -> string!
+override MyJdownloader.Polling.PollingResult.Equals(object? obj) -> bool
+override MyJdownloader.Polling.PollingResult.GetHashCode() -> int
+override MyJdownloader.Polling.PollingResult.ToString() -> string!
+static MyJdownloader.Polling.PollingQuery.operator !=(MyJdownloader.Polling.PollingQuery? left, MyJdownloader.Polling.PollingQuery? right) -> bool
+static MyJdownloader.Polling.PollingQuery.operator ==(MyJdownloader.Polling.PollingQuery? left, MyJdownloader.Polling.PollingQuery? right) -> bool
+static MyJdownloader.Polling.PollingResult.operator !=(MyJdownloader.Polling.PollingResult? left, MyJdownloader.Polling.PollingResult? right) -> bool
+static MyJdownloader.Polling.PollingResult.operator ==(MyJdownloader.Polling.PollingResult? left, MyJdownloader.Polling.PollingResult? right) -> bool
