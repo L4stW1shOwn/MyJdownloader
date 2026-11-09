@@ -1231,6 +1231,12 @@ override MyJdownloader.Log.LogFolder.GetHashCode() -> int
 override MyJdownloader.Log.LogFolder.ToString() -> string!
 static MyJdownloader.Log.LogFolder.operator !=(MyJdownloader.Log.LogFolder? left, MyJdownloader.Log.LogFolder? right) -> bool
 static MyJdownloader.Log.LogFolder.operator ==(MyJdownloader.Log.LogFolder? left, MyJdownloader.Log.LogFolder? right) -> bool
+MyJdownloader.ContentV2.ContentV2Api
+MyJdownloader.ContentV2.ContentV2Api.GetFavIconAsync(string! hosterName, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<byte[]!>!
+MyJdownloader.ContentV2.ContentV2Api.GetFileIconAsync(string! fileName, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<byte[]!>!
+MyJdownloader.ContentV2.ContentV2Api.GetIconAsync(string! key, int size, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<byte[]!>!
+MyJdownloader.ContentV2.ContentV2Api.GetIconDescriptionAsync(string! key, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.ContentV2.IconDescriptor?>!
+MyJdownloader.JDownloaderDevice.ContentV2.get -> MyJdownloader.ContentV2.ContentV2Api!
 MyJdownloader.ContentV2.IconDescriptor
 MyJdownloader.ContentV2.IconDescriptor.<Clone>$() -> MyJdownloader.ContentV2.IconDescriptor!
 MyJdownloader.ContentV2.IconDescriptor.Cls.get -> string?
