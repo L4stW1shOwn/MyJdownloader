@@ -1231,3 +1231,20 @@ override MyJdownloader.Log.LogFolder.GetHashCode() -> int
 override MyJdownloader.Log.LogFolder.ToString() -> string!
 static MyJdownloader.Log.LogFolder.operator !=(MyJdownloader.Log.LogFolder? left, MyJdownloader.Log.LogFolder? right) -> bool
 static MyJdownloader.Log.LogFolder.operator ==(MyJdownloader.Log.LogFolder? left, MyJdownloader.Log.LogFolder? right) -> bool
+MyJdownloader.ContentV2.IconDescriptor
+MyJdownloader.ContentV2.IconDescriptor.<Clone>$() -> MyJdownloader.ContentV2.IconDescriptor!
+MyJdownloader.ContentV2.IconDescriptor.Cls.get -> string?
+MyJdownloader.ContentV2.IconDescriptor.Cls.init -> void
+MyJdownloader.ContentV2.IconDescriptor.Equals(MyJdownloader.ContentV2.IconDescriptor? other) -> bool
+MyJdownloader.ContentV2.IconDescriptor.IconDescriptor() -> void
+MyJdownloader.ContentV2.IconDescriptor.Key.get -> string?
+MyJdownloader.ContentV2.IconDescriptor.Key.init -> void
+MyJdownloader.ContentV2.IconDescriptor.Prps.get -> System.Text.Json.JsonElement?
+MyJdownloader.ContentV2.IconDescriptor.Prps.init -> void
+MyJdownloader.ContentV2.IconDescriptor.Rsc.get -> System.Collections.Generic.IReadOnlyList<MyJdownloader.ContentV2.IconDescriptor!>?
+MyJdownloader.ContentV2.IconDescriptor.Rsc.init -> void
+override MyJdownloader.ContentV2.IconDescriptor.Equals(object? obj) -> bool
+override MyJdownloader.ContentV2.IconDescriptor.GetHashCode() -> int
+override MyJdownloader.ContentV2.IconDescriptor.ToString() -> string!
+static MyJdownloader.ContentV2.IconDescriptor.operator !=(MyJdownloader.ContentV2.IconDescriptor? left, MyJdownloader.ContentV2.IconDescriptor? right) -> bool
+static MyJdownloader.ContentV2.IconDescriptor.operator ==(MyJdownloader.ContentV2.IconDescriptor? left, MyJdownloader.ContentV2.IconDescriptor? right) -> bool
