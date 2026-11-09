@@ -1212,3 +1212,22 @@ static MyJdownloader.Polling.PollingQuery.operator !=(MyJdownloader.Polling.Poll
 static MyJdownloader.Polling.PollingQuery.operator ==(MyJdownloader.Polling.PollingQuery? left, MyJdownloader.Polling.PollingQuery? right) -> bool
 static MyJdownloader.Polling.PollingResult.operator !=(MyJdownloader.Polling.PollingResult? left, MyJdownloader.Polling.PollingResult? right) -> bool
 static MyJdownloader.Polling.PollingResult.operator ==(MyJdownloader.Polling.PollingResult? left, MyJdownloader.Polling.PollingResult? right) -> bool
+MyJdownloader.JDownloaderDevice.Log.get -> MyJdownloader.Log.LogApi!
+MyJdownloader.Log.LogApi
+MyJdownloader.Log.LogApi.GetAvailableLogsAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Log.LogFolder!>!>!
+MyJdownloader.Log.LogApi.SendLogFileAsync(System.Collections.Generic.IReadOnlyList<MyJdownloader.Log.LogFolder!>! logFolders, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string?>!
+MyJdownloader.Log.LogFolder
+MyJdownloader.Log.LogFolder.<Clone>$() -> MyJdownloader.Log.LogFolder!
+MyJdownloader.Log.LogFolder.Created.get -> System.DateTimeOffset?
+MyJdownloader.Log.LogFolder.Created.init -> void
+MyJdownloader.Log.LogFolder.Current.get -> bool
+MyJdownloader.Log.LogFolder.Current.init -> void
+MyJdownloader.Log.LogFolder.Equals(MyJdownloader.Log.LogFolder? other) -> bool
+MyJdownloader.Log.LogFolder.LastModified.get -> System.DateTimeOffset?
+MyJdownloader.Log.LogFolder.LastModified.init -> void
+MyJdownloader.Log.LogFolder.LogFolder() -> void
+override MyJdownloader.Log.LogFolder.Equals(object? obj) -> bool
+override MyJdownloader.Log.LogFolder.GetHashCode() -> int
+override MyJdownloader.Log.LogFolder.ToString() -> string!
+static MyJdownloader.Log.LogFolder.operator !=(MyJdownloader.Log.LogFolder? left, MyJdownloader.Log.LogFolder? right) -> bool
+static MyJdownloader.Log.LogFolder.operator ==(MyJdownloader.Log.LogFolder? left, MyJdownloader.Log.LogFolder? right) -> bool
