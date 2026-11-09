@@ -1,7 +1,7 @@
 # Device administration
 
 Besides downloads, a device exposes facades for its own administration: version
-and plugins, operating-system power actions, advanced configuration, premium
+and plugins, operating-system power actions, internet reconnect, advanced configuration, premium
 hoster accounts, captchas, dialogs, plugin settings, extensions, updates and archive extraction. Each
 facade is a property of `JDownloaderDevice`. This guide shows one use case per
 facade.
@@ -39,6 +39,36 @@ await device.System.HibernateOsAsync(cancellationToken);
 These actions are destructive, and the device usually goes offline before it
 answers. A timeout or network error does not mean the action failed, and a replay
 can run it twice.
+
+## Reconnect: renew the internet connection
+
+```csharp
+using MyJdownloader;
+
+// Drops the internet connection of the device at once. Ask the user first.
+if (AskUser("Reconnect the internet connection of the device now?"))
+{
+    try
+    {
+        await device.Reconnect.DoReconnectAsync(cancellationToken);
+    }
+    catch (MyJdDeviceOfflineException)
+    {
+        // Expected while the connection comes back: the reconnect may already have happened.
+        // Check the device before any further action.
+    }
+}
+```
+
+`AskUser` stands for your own user prompt.
+
+- The device reconnects without confirmation. Running downloads are interrupted,
+  and the device may be briefly unreachable.
+- A `MyJdDeviceOfflineException`, a timeout or a network error does not prove the
+  reconnect failed. Check the device with `device.Device.PingAsync` before you
+  call `DoReconnectAsync` again.
+- `MyJDownloaderClient.ReconnectAsync` renews the MyJD session. It does not
+  reconnect the device.
 
 ## Config: advanced settings
 

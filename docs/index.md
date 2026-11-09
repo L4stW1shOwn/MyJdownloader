@@ -20,7 +20,7 @@ Task-oriented guides, one per use case.
 - [Dependency injection](guides/dependency-injection.md): register the client, its options, enrich the named HTTP client, and the configurations to avoid.
 - [Generic device calls](guides/generic-device-calls.md): call any device action through `IDeviceChannel` when no typed facade exists.
 - [Managing downloads](guides/managing-downloads.md): add links, work with the link grabber and the download list, control the downloads and clean up.
-- [Device administration](guides/device-administration.md): version and plugins, power actions, advanced configuration, accounts, captchas, extensions, updates and archive extraction.
+- [Device administration](guides/device-administration.md): version and plugins, power actions, internet reconnect, advanced configuration, accounts, captchas, extensions, updates and archive extraction.
 - [Events](guides/events.md): subscribe to device events and run the long-polling loop you own, with cancellation.
 - [Error handling](guides/error-handling.md): the `MyJdException` hierarchy, what to catch, rate limits, device offline, and retry policies.
 - [Logging and security](guides/logging-and-security.md): what is sensitive, how to protect the session, and how to configure logging without leaking tokens.
@@ -49,6 +49,10 @@ Reference pages for each public type and facade.
 - [Extensions](api/extensions.md): `device.Extensions`, JDownloader extensions.
 - [Update](api/update.md): `device.Update`, update checks and restart.
 - [Extraction](api/extraction.md): `device.Extraction`, archive queue and settings.
+- [Device](api/device.md): `device.Device`, liveness check (ping).
+- [Link crawler](api/link-crawler.md): `device.LinkCrawler`, whether the link crawler is running.
+- [Reconnect](api/reconnect.md): `device.Reconnect`, reconnect the device internet connection.
+- [Polling](api/polling.md): `device.Polling`, snapshot of the download, link grabber and captcha state.
 
 ## Architecture decisions
 

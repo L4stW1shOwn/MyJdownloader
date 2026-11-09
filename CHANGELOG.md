@@ -6,6 +6,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 
 ### Added
 
+- `device.Polling`: typed `/polling` facade (poll the download progress, download state, link grabber state, waiting captchas and aggregated numbers as a snapshot); the event `data` is untyped JSON and untrusted, and at least one event must be requested.
+- `device.Reconnect`: typed `/reconnect` facade (ask the device to reconnect its internet connection); acts without confirmation, interrupts downloads and may fail with `MyJdDeviceOfflineException` or a timeout while the reconnect happens.
+- `device.LinkCrawler`: typed `/linkcrawler` facade (is the link crawler running).
+- `device.Device`: typed `/device` facade (ping the device); `getDirectConnectionInfos` and `getSessionPublicKey` are not typed.
 - `device.Plugins`: typed `/plugins` facade (get, set and reset a plugin setting, list plugins, query plugin entries, get all plugin regexes, get the regexes matching a URL); `QueryAsync` reuses `ConfigQuery` and the config value types; values may hold secrets and are masked in `ToString()`, set and reset calls act without confirmation; patterns are device-side regular expressions and device text is untrusted.
 - `device.Dialogs`: typed `/dialogs` facade (list, get, get type info, answer); answering acts on the device without confirmation; device text is untrusted.
 - `device.Events.StreamAsync` and `EventStreamOptions`: opt-in event stream that subscribes, resubscribes on expiry (device-side 404) and unsubscribes at the end of the enumeration (cleanup bounded to 10 s, independent of the caller's token); no network retry, events published between expiry and resubscription are lost.

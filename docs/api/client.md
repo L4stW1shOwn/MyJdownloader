@@ -209,6 +209,10 @@ Each facade property is created on first access. The facades are stateless, so a
 | [`Extensions`](extensions.md) | `ExtensionsApi Extensions { get; }` | Facade over the `/extensions` namespace (type in `MyJdownloader.DeviceExtensions`). |
 | [`Extraction`](extraction.md) | `ExtractionApi Extraction { get; }` | Facade over the `/extraction` namespace: archive extraction. |
 | [`Update`](update.md) | `UpdateApi Update { get; }` | Facade over the `/update` namespace: update checks and restart-and-update. |
+| [`Device`](device.md) | `DeviceApi Device { get; }` | Facade over the `/device` namespace: liveness check (ping). |
+| [`LinkCrawler`](link-crawler.md) | `LinkCrawlerApi LinkCrawler { get; }` | Facade over the `/linkcrawler` namespace: whether the link crawler is running. |
+| [`Reconnect`](reconnect.md) | `ReconnectApi Reconnect { get; }` | Facade over the `/reconnect` namespace: reconnect the device internet connection. |
+| [`Polling`](polling.md) | `PollingApi Polling { get; }` | Facade over the `/polling` namespace: snapshot of the device state. |
 
 **Remarks**
 
@@ -236,7 +240,7 @@ IReadOnlyList<CrawledLink> links = await device.LinkGrabber.QueryLinksAsync();
 - [Errors](errors.md)
 - [Common types](common-types.md)
 - [Dependency injection](dependency-injection.md)
-- [Link grabber](link-grabber.md) · [Downloads](downloads.md) · [Download controller](download-controller.md) · [Jd](jd.md) · [System](system.md) · [Config](config.md) · [Accounts](accounts.md) · [Captcha](captcha.md) · [Dialogs](dialogs.md) · [Plugins](plugins.md) · [Events](events.md) · [Extensions](extensions.md) · [Extraction](extraction.md) · [Update](update.md)
+- [Link grabber](link-grabber.md) · [Downloads](downloads.md) · [Download controller](download-controller.md) · [Jd](jd.md) · [System](system.md) · [Config](config.md) · [Accounts](accounts.md) · [Captcha](captcha.md) · [Dialogs](dialogs.md) · [Plugins](plugins.md) · [Events](events.md) · [Extensions](extensions.md) · [Extraction](extraction.md) · [Update](update.md) · [Device](device.md) · [Link crawler](link-crawler.md) · [Reconnect](reconnect.md) · [Polling](polling.md)
 - [Getting started](../guides/getting-started.md)
 - [Sessions and authentication](../guides/sessions-and-authentication.md)
 - [Error handling](../guides/error-handling.md)

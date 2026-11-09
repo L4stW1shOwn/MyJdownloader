@@ -221,3 +221,18 @@ foreach (EventPublisher publisher in publishers)
 `UnsubscribeAsync(id)` cancels the subscription on the device. Call it when the
 loop ends, as in the `finally` block above. A subscription that is not cancelled
 expires on its own after its keep-alive time.
+
+## Current state without a subscription
+
+If you need the state at one moment, not a stream of changes, `device.Polling`
+answers once with the requested events and creates no subscription, so there is
+nothing to clean up:
+
+```csharp
+using MyJdownloader.Polling;
+
+IReadOnlyList<PollingResult> results = await device.Polling.PollAsync(cancellationToken: cancellationToken);
+```
+
+A poll does not report the changes that happen between two calls. The payloads
+of each event are described in [Polling](../api/polling.md).
