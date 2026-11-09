@@ -36,7 +36,7 @@ public sealed class LogApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The log id, or <see langword="null"/> when the device sent nothing (no folder matched or the upload failed).</returns>
     /// <remarks>
-    /// <para><b>Privacy.</b> This call uploads the selected log folders of the device to JDownloader's support servers, a third party, immediately and without any confirmation. Logs can contain personal data: download URLs, file names and paths, account user names and IP addresses. The device always sends the log of the current session too, whatever the selection. Obtain the explicit consent of the end user first and never call this method unattended.</para>
+    /// <para><b>Privacy.</b> This call uploads the selected log folders of the device to JDownloader's support servers, a third party, immediately and without any confirmation. Logs can contain personal data: download URLs, file names and paths, account user names and IP addresses. The device always sends the log of the current session too, whatever the selection. Obtain the explicit consent of the end user first and never call this method unattended. Cancelling the call does not withdraw the upload: once the request reached the device, the logs may be sent anyway, so ask for consent before the call, not during it.</para>
     /// <para>The returned id is what JDownloader support asks for; treat it as untrusted device text.</para>
     /// <para>The device zips and uploads the folders, so the call can be long: it answers after the first folder upload and continues with the rest in the background. The device itself rejects an empty selection with 400 BAD_PARAMETERS (<see cref="MyJdApiException"/>); this method validates earlier.</para>
     /// </remarks>
@@ -44,7 +44,7 @@ public sealed class LogApi
     /// <exception cref="ArgumentException"><paramref name="logFolders"/> is empty, contains a <see langword="null"/> element, or an element without <see cref="LogFolder.Created"/> or <see cref="LogFolder.LastModified"/>.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
-    /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
+    /// <exception cref="OperationCanceledException">The operation was cancelled; once the request is sent, cancelling does not stop the upload on the device.</exception>
     /// <exception cref="TimeoutException">The request timed out; the upload may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the upload may have been executed.</exception>
     public Task<string?> SendLogFileAsync(IReadOnlyList<LogFolder> logFolders, CancellationToken cancellationToken = default)

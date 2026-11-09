@@ -363,4 +363,6 @@ if (selected.Count > 0 && AskUser("Send these logs to JDownloader support? They 
 - `GetAvailableLogsAsync` writes a thread dump into the device log before it answers.
 - A `TimeoutException` or `HttpRequestException` means the upload may have been
   executed. Do not call `SendLogFileAsync` again without asking the user.
+- Cancelling the call does not withdraw the upload: once the request reached the
+  device, the logs may be sent anyway. Ask for consent before the call, not during it.
 - The privacy warning, the errors and the remarks are in [log.md](../api/log.md).

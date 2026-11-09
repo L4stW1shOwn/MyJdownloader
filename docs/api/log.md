@@ -10,7 +10,7 @@ Every method also throws `InvalidOperationException` when the client is not conn
 
 > **Warning: privacy.** `SendLogFileAsync` uploads the selected log folders of the device to JDownloader's support servers, a third party. It acts at once and without any confirmation. The logs can contain personal data: download URLs, file names and paths, account user names and IP addresses. The log of the current session is always sent, whatever the selection. Obtain the explicit consent of the end user before you call it, and never call it unattended (background jobs, batch tools, automated tests against a real device).
 >
-> The call is long: the device zips and uploads the folders. A `TimeoutException` or `HttpRequestException` means the upload may have been executed. Do not retry blindly: each call uploads the logs again.
+> The call is long: the device zips and uploads the folders. A `TimeoutException` or `HttpRequestException` means the upload may have been executed. Do not retry blindly: each call uploads the logs again. Cancelling the call does not withdraw the upload either: once the request reached the device, the logs may be sent anyway. Ask for consent before the call, not during it.
 
 ## LogApi
 
@@ -55,7 +55,7 @@ One log folder of the device, as listed by `GetAvailableLogsAsync` and selected 
 **Remarks**
 
 - Both dates must be set to select a folder with `SendLogFileAsync`.
-- The values come from the device and are untrusted text. Do not log the folder names or dates together with user data.
+- The values come from the device and are untrusted. They hold no personal data by themselves; the log content they designate does.
 
 ### Example
 
