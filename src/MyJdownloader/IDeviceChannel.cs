@@ -32,7 +32,7 @@ public interface IDeviceChannel
     /// <param name="args">The action arguments.</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The deserialized <c>data</c>, or <see langword="default"/> when it is absent or <see langword="null"/>.</returns>
-    /// <exception cref="ArgumentException">An argument is invalid or the arguments exceed 1 048 576 characters in total (thrown synchronously).</exception>
+    /// <exception cref="ArgumentException">An argument is invalid, there are more than 1 024 arguments, or the arguments exceed 1 048 576 characters in total (argument characters, not the HTTP body size); thrown synchronously.</exception>
     /// <exception cref="ArgumentNullException">An argument is <see langword="null"/> (thrown synchronously).</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
@@ -49,7 +49,7 @@ public interface IDeviceChannel
     /// <param name="args">The action arguments.</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>A task that completes when the device has answered.</returns>
-    /// <exception cref="ArgumentException">An argument is invalid or the arguments exceed 1 048 576 characters in total (thrown synchronously).</exception>
+    /// <exception cref="ArgumentException">An argument is invalid, there are more than 1 024 arguments, or the arguments exceed 1 048 576 characters in total (argument characters, not the HTTP body size); thrown synchronously.</exception>
     /// <exception cref="ArgumentNullException">An argument is <see langword="null"/> (thrown synchronously).</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>

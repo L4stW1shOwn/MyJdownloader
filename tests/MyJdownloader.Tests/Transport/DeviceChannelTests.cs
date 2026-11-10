@@ -261,7 +261,7 @@ public sealed partial class DeviceChannelTests
         var rig = CreateRig(call => Ok(call, "true"));
         var channel = rig.Client.CreateDeviceChannel("dev1");
 
-        await channel.CallAsync(VersionPath, [TextArg(524_288), TextArg(524_288)]).WaitAsync(_waitTimeout);
+        await channel.CallAsync(VersionPath, [TextArg(524_285), TextArg(524_285)]).WaitAsync(_waitTimeout);
 
         Assert.That(rig.Calls, Has.Count.EqualTo(1));
     }
@@ -272,7 +272,42 @@ public sealed partial class DeviceChannelTests
         var rig = CreateRig(call => Ok(call, "true"));
         var channel = rig.Client.CreateDeviceChannel("dev1");
 
-        var thrown = Assert.Catch<ArgumentException>(() => channel.CallAsync(VersionPath, [TextArg(524_288), TextArg(524_289)]));
+        var thrown = Assert.Catch<ArgumentException>(() => channel.CallAsync(VersionPath, [TextArg(524_285), TextArg(524_286)]));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.ParamName, Is.EqualTo("args"));
+            Assert.That(thrown.Message, Does.StartWith(TotalCapMessage));
+            Assert.That(rig.Calls, Is.Empty);
+        });
+    }
+
+    [Test]
+    public void CallAsync_TooManyArguments_ThrowsWithoutSending()
+    {
+        var rig = CreateRig(call => Ok(call, "true"));
+        var channel = rig.Client.CreateDeviceChannel("dev1");
+        var args = Enumerable.Range(0, 1_025).Select(_ => TextArg(0)).ToArray();
+
+        var thrown = Assert.Catch<ArgumentException>(() => channel.CallAsync(VersionPath, args));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.ParamName, Is.EqualTo("args"));
+            Assert.That(thrown.Message, Does.StartWith("The number of arguments must not exceed 1024."));
+            Assert.That(rig.Calls, Is.Empty);
+        });
+    }
+
+    [Test]
+    public void CallAsync_ManyArgumentsCountOverhead_ThrowsWithoutSending()
+    {
+        var rig = CreateRig(call => Ok(call, "true"));
+        var channel = rig.Client.CreateDeviceChannel("dev1");
+        // 1 024 arguments: characters alone total 1 048 575, the 3 characters of overhead each push it over the cap.
+        var args = Enumerable.Range(0, 1_024).Select(i => TextArg(i == 0 ? 1_023 : 1_024)).ToArray();
+
+        var thrown = Assert.Catch<ArgumentException>(() => channel.CallAsync(VersionPath, args));
 
         Assert.Multiple(() =>
         {

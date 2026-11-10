@@ -18,6 +18,7 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
     private const int MaxDeviceIdLength = 256;
     private const int MaxResponseDepth = 64;
     private const int MaxRequestArgsLength = 1_048_576;
+    private const int MaxRequestArgsCount = 1_024;
     private static readonly string _unreadableMessage = RelayTransport.UnreadableMessageFor(MyJdErrorSource.Device);
     private static readonly string _mismatchMessage = RelayTransport.MismatchMessageFor(MyJdErrorSource.Device);
 
@@ -101,6 +102,11 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
     private static string[] SnapshotArgs(IReadOnlyList<JsonElement> args)
     {
         ArgumentNullException.ThrowIfNull(args);
+        if (args.Count > MaxRequestArgsCount)
+        {
+            throw new ArgumentException("The number of arguments must not exceed 1024.", nameof(args));
+        }
+
         var snapshot = new string[args.Count];
         try
         {
@@ -124,7 +130,8 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
         long total = 0;
         foreach (var value in snapshot)
         {
-            total += value.Length;
+            // Three characters of JSON overhead per argument: two quotes and a separator.
+            total += value.Length + 3L;
         }
 
         if (total > MaxRequestArgsLength)
