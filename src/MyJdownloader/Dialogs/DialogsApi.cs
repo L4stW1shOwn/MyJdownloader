@@ -55,7 +55,7 @@ public sealed class DialogsApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The properties of the dialog type.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="dialogType"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="dialogType"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><paramref name="dialogType"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty. When the type is unknown the device answers 400 "Requested Type not found!", which surfaces as a <see cref="MyJdApiException"/>.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -75,7 +75,7 @@ public sealed class DialogsApi
     /// <returns>A task that completes when the device has answered; the device result is ignored.</returns>
     /// <remarks>The answer is applied on the device immediately and without confirmation, and cannot be undone: the dialog closes and JDownloader continues with the supplied values.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/> or contains a <see langword="null"/> key.</exception>
-    /// <exception cref="ArgumentException">A key of <paramref name="data"/> is blank or contains control characters or lone surrogates, or a value is <c>default</c>.</exception>
+    /// <exception cref="ArgumentException">A key of <paramref name="data"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates, or a value is <c>default</c>.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid. When the id is unknown the device answers 400 "Invalid ID", and when the dialog needs another answer first 400 "Answer Dialog N first"; both surface as a <see cref="MyJdApiException"/>.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>

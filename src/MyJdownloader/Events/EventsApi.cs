@@ -27,7 +27,7 @@ public sealed class EventsApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The resulting subscription.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="subscriptions"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">An item of <paramref name="subscriptions"/> or <paramref name="exclusions"/> is <see langword="null"/>, blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException">An item of <paramref name="subscriptions"/> or <paramref name="exclusions"/> is <see langword="null"/>, blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -90,7 +90,7 @@ public sealed class EventsApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The resulting subscription.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="subscriptions"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">An item of <paramref name="subscriptions"/> or <paramref name="exclusions"/> is <see langword="null"/>, blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException">An item of <paramref name="subscriptions"/> or <paramref name="exclusions"/> is <see langword="null"/>, blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty. When the subscription is expired or unknown the device usually answers 404, which surfaces as a <see cref="MyJdApiException"/>.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -110,7 +110,7 @@ public sealed class EventsApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The resulting subscription.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="subscriptions"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">An item of <paramref name="subscriptions"/> or <paramref name="exclusions"/> is <see langword="null"/>, blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException">An item of <paramref name="subscriptions"/> or <paramref name="exclusions"/> is <see langword="null"/>, blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty. When the subscription is expired or unknown the device usually answers 404, which surfaces as a <see cref="MyJdApiException"/>.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -130,7 +130,7 @@ public sealed class EventsApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The resulting subscription.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="subscriptions"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">An item of <paramref name="subscriptions"/> or <paramref name="exclusions"/> is <see langword="null"/>, blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException">An item of <paramref name="subscriptions"/> or <paramref name="exclusions"/> is <see langword="null"/>, blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty. When the subscription is expired or unknown the device usually answers 404, which surfaces as a <see cref="MyJdApiException"/>.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -216,7 +216,7 @@ public sealed class EventsApi
     /// <param name="cancellationToken">A token to cancel the stream; combined with the one given to <c>WithCancellation</c>.</param>
     /// <returns>A lazy stream: no call is made until it is enumerated.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="options"/> or its <see cref="EventStreamOptions.Subscriptions"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">An item of <see cref="EventStreamOptions.Subscriptions"/> or <see cref="EventStreamOptions.Exclusions"/> is <see langword="null"/>, blank or contains control characters or lone surrogates; or <see cref="EventStreamOptions.PollTimeout"/> is not strictly below <see cref="EventStreamOptions.MaxKeepalive"/>.</exception>
+    /// <exception cref="ArgumentException">An item of <see cref="EventStreamOptions.Subscriptions"/> or <see cref="EventStreamOptions.Exclusions"/> is <see langword="null"/>, blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates; or <see cref="EventStreamOptions.PollTimeout"/> is not strictly below <see cref="EventStreamOptions.MaxKeepalive"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><see cref="EventStreamOptions.PollTimeout"/> or <see cref="EventStreamOptions.MaxKeepalive"/> is below 1 ms, or <see cref="EventStreamOptions.EmptyPollDelay"/> is negative.</exception>
     public IAsyncEnumerable<DeviceEvent> StreamAsync(EventStreamOptions options, CancellationToken cancellationToken = default)
     {

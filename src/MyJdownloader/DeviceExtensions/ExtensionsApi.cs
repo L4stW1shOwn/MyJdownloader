@@ -22,7 +22,7 @@ public sealed class ExtensionsApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The extensions; empty when the device returns no data.</returns>
     /// <remarks><see cref="ExtensionQuery.Pattern"/> is a regular expression evaluated on the device.</remarks>
-    /// <exception cref="ArgumentException"><see cref="ExtensionQuery.Pattern"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><see cref="ExtensionQuery.Pattern"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -47,7 +47,7 @@ public sealed class ExtensionsApi
     /// Take <paramref name="id"/> from <see cref="Extension.Id"/> or an allow-list, never from end-user input. A timeout does not mean the action failed.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="id"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="id"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><paramref name="id"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -61,7 +61,7 @@ public sealed class ExtensionsApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns><see langword="true"/> when the extension is installed.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="id"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="id"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><paramref name="id"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -75,7 +75,7 @@ public sealed class ExtensionsApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns><see langword="true"/> when the extension is enabled.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="className"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="className"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><paramref name="className"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -91,7 +91,7 @@ public sealed class ExtensionsApi
     /// <returns><see langword="true"/> when the device applied the change.</returns>
     /// <remarks>The change is applied to the device configuration immediately, without confirmation. A timeout does not mean the action failed.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="className"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="className"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><paramref name="className"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>

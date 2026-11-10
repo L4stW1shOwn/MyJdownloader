@@ -37,6 +37,7 @@ An encrypted channel to one device, reached through the MyJDownloader relay. Obt
 **Remarks**
 
 - **Not retried.** On `TimeoutException`, `HttpRequestException` or `IOException`, the device may have executed the action. The library never retries it; the caller decides whether replaying is safe. Only idempotent actions should be retried automatically.
+- **Size limit.** The arguments may total at most 1 048 576 UTF-16 code units (`string.Length`). A larger set throws `ArgumentException` on `args`, synchronously, before encryption and any HTTP request. See [Argument validation](../guides/error-handling.md#argument-validation).
 - **Duration.** A call may last about three times `HttpClient.Timeout` (the call, the session renewal and the replay).
 - **Misconfigured response type.** An `InvalidOperationException` raised by a misconfigured `responseType` is reported as a `MyJdProtocolException`, meaning the device answer could not be read.
 - **Logging.** The session token and the device id travel in the URL path, and `HttpClient` logging does not redact them. Do not log full request URIs.

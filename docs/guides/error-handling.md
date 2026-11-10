@@ -59,6 +59,40 @@ the renewal was rejected. Then, connect again with the password
 | `IOException`                          | The response body could not be read.                                  |
 | `AggregateException`                   | Several `SessionChanged` handlers threw.                              |
 
+## Argument validation
+
+The facades check the strings you pass before they send anything. A text value
+must not be blank, must not contain control characters or lone surrogates, and
+must not exceed the maximum length of its category. A bad value throws an
+`ArgumentException` that names the argument (`ParamName`). It is thrown
+synchronously, before the task exists and before any request, so nothing
+reaches the relay or the device.
+
+The length is `string.Length`, that is a count of UTF-16 code units, not of
+visible characters. An emoji counts as 2.
+
+| Category | Maximum length | Examples |
+|---|---|---|
+| Identifiers | 1 024 | Config keys and interface names, types, file, package, hoster and user names, formats, host names, site keys, archive and extension ids |
+| File system paths | 32 767 | Download directories and paths, extraction paths, link grabber destination folders, config storage files |
+| Long text | 65 536 | URLs, captcha results and tokens, passwords, regular expressions, event subscription patterns, free text |
+
+On top of these limits, every device call, whatever the facade, rejects
+arguments that total more than 1 048 576 UTF-16 code units. This covers lists
+(link text, id arrays) and direct `IDeviceChannel.CallAsync` calls. It throws an
+`ArgumentException` on `args`, before encryption and any HTTP request.
+
+```csharp
+try
+{
+    await device.Captcha.SolveAsync(jobId, tooLongResult, cancellationToken: cancellationToken);
+}
+catch (ArgumentException ex)
+{
+    logger.LogWarning("Invalid argument {Argument}", ex.ParamName);
+}
+```
+
 ## What to catch
 
 Catch the most specific type you can act on. Do not swallow the base type

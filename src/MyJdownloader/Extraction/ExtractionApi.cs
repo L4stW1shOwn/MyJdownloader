@@ -28,7 +28,7 @@ public sealed class ExtractionApi
     /// The password is added to the persisted password list of the device. A timeout or a network error does not mean the action failed.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="password"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="password"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><paramref name="password"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -80,7 +80,7 @@ public sealed class ExtractionApi
     /// <returns>The archive settings; empty when the device returns no data.</returns>
     /// <remarks>The settings returned by the device contain passwords in clear: never log them.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="archiveIds"/> or one of its items is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">An item of <paramref name="archiveIds"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException">An item of <paramref name="archiveIds"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request (for example <c>BAD_PARAMETERS</c>), or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -121,7 +121,7 @@ public sealed class ExtractionApi
     /// <see langword="null"/> to keep them. A blank <see cref="ArchiveSettings.FinalPassword"/> is rejected, so it cannot be cleared through this method.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="archiveId"/>, <paramref name="settings"/> or a password item is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">A text value is blank or contains control characters or lone surrogates, or <see cref="ArchiveSettings.ArchiveId"/> is set and differs from <paramref name="archiveId"/>.</exception>
+    /// <exception cref="ArgumentException">A text value is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates, or <see cref="ArchiveSettings.ArchiveId"/> is set and differs from <paramref name="archiveId"/>.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request (for example <c>BAD_PARAMETERS</c>), or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>

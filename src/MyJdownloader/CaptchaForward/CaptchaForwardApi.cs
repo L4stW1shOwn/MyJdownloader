@@ -34,7 +34,7 @@ public sealed class CaptchaForwardApi
     /// <para>The solved token must never go into logs, telemetry, exception messages or URLs.</para>
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="siteKey"/> or <paramref name="domain"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">A text is blank or contains control characters or lone surrogates, <paramref name="siteKey"/> or <paramref name="stoken"/> contains a character other than an ASCII letter, digit, <c>-</c> or <c>_</c>, or <paramref name="domain"/> is not a DNS host name or IPv4 address (<paramref name="stoken"/> and <paramref name="reason"/> are checked only when not <see langword="null"/>).</exception>
+    /// <exception cref="ArgumentException">A text is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates, <paramref name="siteKey"/> or <paramref name="stoken"/> contains a character other than an ASCII letter, digit, <c>-</c> or <c>_</c>, or <paramref name="domain"/> is not a DNS host name or IPv4 address (<paramref name="stoken"/> and <paramref name="reason"/> are checked only when not <see langword="null"/>).</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request (for example when the queue is full), or the response is invalid (including a missing job identifier).</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled; the job may have been queued.</exception>

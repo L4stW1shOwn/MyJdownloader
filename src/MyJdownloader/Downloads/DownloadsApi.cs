@@ -196,7 +196,7 @@ public sealed class DownloadsApi
     /// <returns>A task that completes when the device has answered.</returns>
     /// <remarks>The new name becomes a file name on the device. JDownloader sanitizes it, but callers handling untrusted input should restrict it to an allow-list of characters.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="newName"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="newName"/> is blank or contains control characters.</exception>
+    /// <exception cref="ArgumentException"><paramref name="newName"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -212,7 +212,7 @@ public sealed class DownloadsApi
     /// <returns>A task that completes when the device has answered.</returns>
     /// <remarks>The new name becomes a package name on the device. JDownloader sanitizes it, but callers handling untrusted input should restrict it to an allow-list of characters.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="newName"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="newName"/> is blank or contains control characters.</exception>
+    /// <exception cref="ArgumentException"><paramref name="newName"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -270,7 +270,7 @@ public sealed class DownloadsApi
     /// <returns>A task that completes when the device has answered.</returns>
     /// <remarks>The path is a path on the device and is not filtered: callers handling untrusted input must allow-list it.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="directory"/> or <paramref name="packageIds"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="directory"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><paramref name="directory"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -296,7 +296,7 @@ public sealed class DownloadsApi
     /// <returns>A task that completes when the device has answered.</returns>
     /// <remarks>The package name and the download path are not filtered: callers handling untrusted input must allow-list them.</remarks>
     /// <exception cref="ArgumentNullException">An identifier list, <paramref name="newPackageName"/> or <paramref name="downloadPath"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="newPackageName"/> or <paramref name="downloadPath"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><paramref name="newPackageName"/> or <paramref name="downloadPath"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>

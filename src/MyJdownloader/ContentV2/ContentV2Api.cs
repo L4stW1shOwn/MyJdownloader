@@ -29,7 +29,7 @@ public sealed class ContentV2Api
     /// <returns>The PNG image, signature included. The bytes are untrusted and unauthenticated (ADR-011): never serve them under another content type and never base a security decision on them.</returns>
     /// <remarks>The device answers 404 FILE_NOT_FOUND (<see cref="MyJdApiException"/>) for a hoster without favicon.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="hosterName"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="hosterName"/> is blank or contains control characters.</exception>
+    /// <exception cref="ArgumentException"><paramref name="hosterName"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters.</exception>
     /// <exception cref="NotSupportedException">The channel of the device does not support binary answers.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the answer is not a PNG of at most 1 MiB.</exception>
@@ -47,7 +47,7 @@ public sealed class ContentV2Api
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The PNG image, signature included. The bytes are untrusted and unauthenticated (ADR-011): never serve them under another content type and never base a security decision on them.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="fileName"/> is blank or contains control characters.</exception>
+    /// <exception cref="ArgumentException"><paramref name="fileName"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters.</exception>
     /// <exception cref="NotSupportedException">The channel of the device does not support binary answers.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the answer is not a PNG of at most 1 MiB.</exception>
@@ -67,7 +67,7 @@ public sealed class ContentV2Api
     /// <returns>The PNG image, signature included. The bytes are untrusted and unauthenticated (ADR-011): never serve them under another content type and never base a security decision on them.</returns>
     /// <remarks>The device rejects an invalid key or size with 400 BAD_PARAMETERS (<see cref="MyJdApiException"/>); this method validates earlier.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="key"/> is blank or contains control characters.</exception>
+    /// <exception cref="ArgumentException"><paramref name="key"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> is not between 1 and 128.</exception>
     /// <exception cref="NotSupportedException">The channel of the device does not support binary answers.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
@@ -94,7 +94,7 @@ public sealed class ContentV2Api
     /// <returns>The description, or <see langword="null"/> when the device sent nothing.</returns>
     /// <remarks>The <see cref="IconDescriptor"/> is untrusted device data.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="key"/> is blank or contains control characters.</exception>
+    /// <exception cref="ArgumentException"><paramref name="key"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>

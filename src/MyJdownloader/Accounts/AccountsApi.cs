@@ -30,7 +30,7 @@ public sealed class AccountsApi
     /// This method transmits credentials to the device. A timeout or a network error does not mean the action failed: the account may have been changed.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="premiumHoster"/>, <paramref name="username"/> or <paramref name="password"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="premiumHoster"/> or <paramref name="username"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><paramref name="premiumHoster"/> or <paramref name="username"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -127,7 +127,7 @@ public sealed class AccountsApi
     /// This method transmits credentials to the device. A timeout or a network error does not mean the action failed: the account may have been changed.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="username"/> or <paramref name="password"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="username"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><paramref name="username"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -168,7 +168,7 @@ public sealed class AccountsApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The URL, or <see langword="null"/> when the device knows none for that hoster.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="hoster"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="hoster"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><paramref name="hoster"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -191,7 +191,7 @@ public sealed class AccountsApi
     /// This method transmits credentials to the device. A timeout or a network error does not mean the action failed: the account may have been changed.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="hostmask"/>, <paramref name="username"/> or <paramref name="password"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="type"/> is not a known value, or <paramref name="hostmask"/> or <paramref name="username"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><paramref name="type"/> is not a known value, or <paramref name="hostmask"/> or <paramref name="username"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -230,7 +230,7 @@ public sealed class AccountsApi
     /// A <see langword="null"/> <see cref="BasicAuthentication.Password"/> is not sent. The device behaviour in that case (keep or clear the stored password) is unconfirmed until live tests: send the entry as read from <see cref="ListBasicAuthAsync"/>, password included, to keep it.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="updatedEntry"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><see cref="BasicAuthentication.Type"/> is not a known value, or <see cref="BasicAuthentication.Hostmask"/> or <see cref="BasicAuthentication.Username"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><see cref="BasicAuthentication.Type"/> is not a known value, or <see cref="BasicAuthentication.Hostmask"/> or <see cref="BasicAuthentication.Username"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>

@@ -48,7 +48,7 @@ public sealed class CaptchaApi
     /// <param name="format">The requested image format, or <see langword="null"/> to let the device choose; not sent when <see langword="null"/>.</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The image as a Base64 data URL (<c>data:image/...;base64,...</c>), as sent by the device and not decoded.</returns>
-    /// <exception cref="ArgumentException"><paramref name="format"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><paramref name="format"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty. When the captcha id no longer exists the device usually answers 404 NOT_AVAILABLE, which surfaces as a <see cref="MyJdApiException"/>.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -90,7 +90,7 @@ public sealed class CaptchaApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns><see langword="true"/> when the device accepted the answer.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="result"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="result"/> is blank or contains control characters or lone surrogates, or <paramref name="resultFormat"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><paramref name="result"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates, or <paramref name="resultFormat"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty. When the captcha id no longer exists the device usually answers 404 NOT_AVAILABLE, which surfaces as a <see cref="MyJdApiException"/>.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>

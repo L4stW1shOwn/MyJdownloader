@@ -29,7 +29,7 @@ public sealed class ConfigApi
     /// <returns>The value of the entry; an element of kind <see cref="JsonValueKind.Null"/> when the device returns none.</returns>
     /// <remarks>The value may hold a secret: never log it.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="interfaceName"/> or <paramref name="key"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">An identifier is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException">An identifier is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -46,7 +46,7 @@ public sealed class ConfigApi
     /// <returns>The default value of the entry; an element of kind <see cref="JsonValueKind.Null"/> when the device returns none.</returns>
     /// <remarks>The value may hold a secret: never log it.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="interfaceName"/> or <paramref name="key"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">An identifier is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException">An identifier is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -67,7 +67,7 @@ public sealed class ConfigApi
     /// this wire behaviour is to be confirmed by live tests. The value may hold a secret: never log it.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="interfaceName"/> or <paramref name="key"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">An identifier is blank or contains control characters or lone surrogates, or <paramref name="value"/> is an undefined (default) element.</exception>
+    /// <exception cref="ArgumentException">An identifier is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates, or <paramref name="value"/> is an undefined (default) element.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -93,7 +93,7 @@ public sealed class ConfigApi
     /// <returns><see langword="true"/> when the device reset the entry.</returns>
     /// <remarks>The change is applied to the device configuration immediately, without confirmation.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="interfaceName"/> or <paramref name="key"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">An identifier is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException">An identifier is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -115,7 +115,7 @@ public sealed class ConfigApi
     /// The encrypted response body is limited to 1 MiB (about 768 KiB of JSON): on a large configuration, restrict the query with <see cref="ConfigQuery.ConfigInterface"/> or <see cref="ConfigQuery.Pattern"/>,
     /// otherwise the call fails with a <see cref="MyJdProtocolException"/>.
     /// </remarks>
-    /// <exception cref="ArgumentException"><see cref="ConfigQuery.ConfigInterface"/> or <see cref="ConfigQuery.Pattern"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><see cref="ConfigQuery.ConfigInterface"/> or <see cref="ConfigQuery.Pattern"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -135,7 +135,7 @@ public sealed class ConfigApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The options; empty when the device returns no data.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="type"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="type"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><paramref name="type"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>

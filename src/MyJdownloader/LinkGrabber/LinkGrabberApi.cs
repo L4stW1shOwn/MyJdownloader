@@ -32,7 +32,7 @@ public sealed class LinkGrabberApi
     /// <returns>The link collecting job.</returns>
     /// <remarks>Links and <see cref="AddLinksRequest.SourceUrl"/> may embed credentials. The library does not filter URL schemes nor destination paths: allow-list them when they come from untrusted input.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="request"/>, its links or one of its links is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">There is no link, a link is blank or contains whitespace, control characters or lone surrogates, a text option is blank or contains control characters, or the priority is <see cref="Priority.Unknown"/> or not a defined value.</exception>
+    /// <exception cref="ArgumentException">There is no link, a link is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains whitespace, control characters or lone surrogates, a text option is blank, longer than its allowed length, or contains control characters, or the priority is <see cref="Priority.Unknown"/> or not a defined value.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -177,7 +177,7 @@ public sealed class LinkGrabberApi
     /// <returns>A task that completes when the device has answered.</returns>
     /// <remarks>The new name becomes a file name on the device. JDownloader sanitizes it, but callers handling untrusted input should restrict it to an allow-list of characters.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="newName"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="newName"/> is blank or contains control characters.</exception>
+    /// <exception cref="ArgumentException"><paramref name="newName"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -193,7 +193,7 @@ public sealed class LinkGrabberApi
     /// <returns>A task that completes when the device has answered.</returns>
     /// <remarks>The new name becomes a package name on the device. JDownloader sanitizes it, but callers handling untrusted input should restrict it to an allow-list of characters.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="newName"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="newName"/> is blank or contains control characters.</exception>
+    /// <exception cref="ArgumentException"><paramref name="newName"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>

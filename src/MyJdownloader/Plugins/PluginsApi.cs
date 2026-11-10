@@ -32,7 +32,7 @@ public sealed class PluginsApi
     /// <returns>The value of the setting; an element of kind <see cref="JsonValueKind.Null"/> when the device returns none.</returns>
     /// <remarks>The value may hold a secret: never log it.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="interfaceName"/>, <paramref name="displayName"/> or <paramref name="key"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">An identifier is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException">An identifier is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -56,7 +56,7 @@ public sealed class PluginsApi
     /// this wire behaviour is to be confirmed by live tests. The value may hold a secret: never log it.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="interfaceName"/>, <paramref name="displayName"/> or <paramref name="key"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">An identifier is blank or contains control characters or lone surrogates, or <paramref name="value"/> is an undefined (default) element.</exception>
+    /// <exception cref="ArgumentException">An identifier is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates, or <paramref name="value"/> is an undefined (default) element.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -82,7 +82,7 @@ public sealed class PluginsApi
     /// <returns><see langword="true"/> when the device reset the setting.</returns>
     /// <remarks>The change is applied to the device configuration immediately, without confirmation.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="interfaceName"/>, <paramref name="displayName"/> or <paramref name="key"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">An identifier is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException">An identifier is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -125,7 +125,7 @@ public sealed class PluginsApi
     /// The encrypted response body is limited to 1 MiB (about 768 KiB of JSON): on a large configuration, restrict the query with <see cref="ConfigQuery.ConfigInterface"/> or <see cref="ConfigQuery.Pattern"/>,
     /// otherwise the call fails with a <see cref="MyJdProtocolException"/>.
     /// </remarks>
-    /// <exception cref="ArgumentException"><see cref="ConfigQuery.ConfigInterface"/> or <see cref="ConfigQuery.Pattern"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><see cref="ConfigQuery.ConfigInterface"/> or <see cref="ConfigQuery.Pattern"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -172,7 +172,7 @@ public sealed class PluginsApi
     /// <returns>The regular expressions; empty when the device returns no data.</returns>
     /// <remarks>The URL is sent to the device as is. The patterns are regular expressions defined on the device and are untrusted text: do not compile them without a match timeout.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="url"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="url"/> is blank or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentException"><paramref name="url"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
