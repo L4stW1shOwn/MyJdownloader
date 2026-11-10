@@ -63,6 +63,27 @@ internal static class FacadeGuard
         }
     }
 
+    internal static void ValidateUrlSafeToken(string text, string paramName)
+    {
+        ValidateText(text, paramName);
+        foreach (var c in text)
+        {
+            if (!(char.IsAsciiLetterOrDigit(c) || c is '-' or '_'))
+            {
+                throw new ArgumentException("A token must contain only ASCII letters, digits, '-' and '_'.", paramName);
+            }
+        }
+    }
+
+    internal static void ValidateHostName(string text, string paramName)
+    {
+        ValidateText(text, paramName);
+        if (Uri.CheckHostName(text) is not (UriHostNameType.Dns or UriHostNameType.IPv4))
+        {
+            throw new ArgumentException("A host name is expected (internationalized names must be sent as punycode).", paramName);
+        }
+    }
+
     internal static void ValidateRange(int maxResults, int startAt, string paramName)
     {
         if (maxResults < -1)

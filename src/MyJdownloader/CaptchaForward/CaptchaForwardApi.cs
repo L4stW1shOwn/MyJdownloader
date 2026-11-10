@@ -21,18 +21,20 @@ public sealed class CaptchaForwardApi
     }
 
     /// <summary>Queues a reCAPTCHA v2 challenge on the device (<c>/captchaforward/createJobRecaptchaV2</c>).</summary>
-    /// <param name="siteKey">The reCAPTCHA site key of the target site.</param>
-    /// <param name="domain">The domain of the target site.</param>
-    /// <param name="stoken">The optional <c>data-stoken</c> of the challenge; <see langword="null"/> sends an empty string, which the device treats as no token.</param>
+    /// <param name="siteKey">The reCAPTCHA site key of the target site; only ASCII letters, digits, <c>-</c> and <c>_</c> are accepted (the device inserts it into an HTML page).</param>
+    /// <param name="domain">The host name of the target site (DNS name or IPv4 address, no scheme, path or port); an internationalized name must be sent as punycode. The device inserts it into an HTML page.</param>
+    /// <param name="stoken">The optional <c>data-stoken</c> of the challenge; only ASCII letters, digits, <c>-</c> and <c>_</c> are accepted; <see langword="null"/> sends an empty string, which the device treats as no token.</param>
     /// <param name="reason">An optional reason for the job; <see langword="null"/> sends an empty string. Current JDownloader versions ignore it.</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The identifier of the job, to pass to <see cref="GetResultAsync"/>.</returns>
     /// <remarks>
     /// <para>The challenge is solved on the device (dialog, solvers) within 5 minutes. There is no built-in polling loop: call <see cref="GetResultAsync"/> with a delay between calls (ADR-005, ADR-009).</para>
     /// <para>The call is not idempotent: a replay queues another job.</para>
+    /// <para>Keep at most one pending job per user action and never create jobs in a loop: each job prompts the device user or a paid solver, and a full queue is rejected with <see cref="MyJdApiException"/>.</para>
+    /// <para>The solved token must never go into logs, telemetry, exception messages or URLs.</para>
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="siteKey"/> or <paramref name="domain"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">A text is blank or contains control characters or lone surrogates (<paramref name="stoken"/> and <paramref name="reason"/> are checked only when not <see langword="null"/>).</exception>
+    /// <exception cref="ArgumentException">A text is blank or contains control characters or lone surrogates, <paramref name="siteKey"/> or <paramref name="stoken"/> contains a character other than an ASCII letter, digit, <c>-</c> or <c>_</c>, or <paramref name="domain"/> is not a DNS host name or IPv4 address (<paramref name="stoken"/> and <paramref name="reason"/> are checked only when not <see langword="null"/>).</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request (for example when the queue is full), or the response is invalid (including a missing job identifier).</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled; the job may have been queued.</exception>
@@ -40,9 +42,15 @@ public sealed class CaptchaForwardApi
     /// <exception cref="HttpRequestException">A network error occurred; the job may have been queued.</exception>
     public Task<long> CreateJobRecaptchaV2Async(string siteKey, string domain, string? stoken = null, string? reason = null, CancellationToken cancellationToken = default)
     {
-        FacadeGuard.ValidateText(siteKey, nameof(siteKey));
-        FacadeGuard.ValidateText(domain, nameof(domain));
-        FacadeGuard.ValidateOptionalText(stoken, nameof(stoken));
+        ArgumentNullException.ThrowIfNull(siteKey);
+        ArgumentNullException.ThrowIfNull(domain);
+        FacadeGuard.ValidateUrlSafeToken(siteKey, nameof(siteKey));
+        FacadeGuard.ValidateHostName(domain, nameof(domain));
+        if (stoken is not null)
+        {
+            FacadeGuard.ValidateUrlSafeToken(stoken, nameof(stoken));
+        }
+
         FacadeGuard.ValidateOptionalText(reason, nameof(reason));
         var args = new[] { Text(siteKey), Text(stoken ?? string.Empty), Text(domain), Text(reason ?? string.Empty) };
         return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "createJobRecaptchaV2", FacadeJsonContext.Default.NullableInt64, args, cancellationToken));

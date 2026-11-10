@@ -22,13 +22,15 @@ Typed facade over the `/captchaforward` namespace of one device (reCAPTCHA v2 ch
 
 | Member | Signature | Description |
 |---|---|---|
-| `CreateJobRecaptchaV2Async` | `Task<long> CreateJobRecaptchaV2Async(string siteKey, string domain, string? stoken = null, string? reason = null, CancellationToken cancellationToken = default)` | Queues a reCAPTCHA v2 challenge (`/captchaforward/createJobRecaptchaV2`) and returns the identifier of the job. `siteKey` and `domain` are required. `stoken` and `reason` are sent as an empty string when `null`. Throws `ArgumentNullException` for a `null` `siteKey` or `domain`, and `ArgumentException` for a blank text or a text with control characters or lone surrogates; `stoken` and `reason` are checked only when not `null`. These checks run before any request. A full queue on the device is rejected as a `MyJdException`. A response without a job identifier throws `MyJdProtocolException`. |
+| `CreateJobRecaptchaV2Async` | `Task<long> CreateJobRecaptchaV2Async(string siteKey, string domain, string? stoken = null, string? reason = null, CancellationToken cancellationToken = default)` | Queues a reCAPTCHA v2 challenge (`/captchaforward/createJobRecaptchaV2`) and returns the identifier of the job. `siteKey` and `domain` are required. `stoken` and `reason` are sent as an empty string when `null`. Throws `ArgumentNullException` for a `null` `siteKey` or `domain`, and `ArgumentException` for a blank text or a text with control characters or lone surrogates, for a `siteKey` or `stoken` with a character other than an ASCII letter, digit, `-` or `_`, and for a `domain` that is not a DNS host name or an IPv4 address (an internationalized name must be sent as punycode); the device inserts these values into an HTML page, hence the strict checks. `stoken` and `reason` are checked only when not `null`. These checks run before any request. A full queue on the device is rejected as a `MyJdException`. A response without a job identifier throws `MyJdProtocolException`. |
 | `GetResultAsync` | `Task<string?> GetResultAsync(long jobId, CancellationToken cancellationToken = default)` | Reads the token of a job (`/captchaforward/getResult`). Returns the token, or `null` when the device sent none. A successful read removes the job. See the remarks for the status codes. |
 
 ### CreateJobRecaptchaV2Async
 
 Remarks:
 
+- Keep at most one pending job per user action and never create jobs in a loop: each job prompts the device user or a paid solver, and a full queue is rejected with a `MyJdApiException`.
+- The solved token must never go into logs, telemetry, exception messages or URLs.
 - The device solves the challenge within 5 minutes. The call does not wait for the solution: poll `GetResultAsync` with a delay between the calls. There is no built-in loop (see [ADR-005](../adr/ADR-005-error-handling.md) and [ADR-009](../adr/ADR-009-events-long-polling-without-built-in-loop.md)).
 - The call is not idempotent: a replay queues another job.
 - `reason` is ignored by current JDownloader versions. It is accepted for the device protocol only.

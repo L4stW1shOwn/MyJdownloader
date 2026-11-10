@@ -105,6 +105,13 @@ public sealed class CaptchaForwardApiTests
     [TestCase("key", "example.com", "st\u0000", null, "stoken")]
     [TestCase("key", "example.com", null, " ", "reason")]
     [TestCase("key", "example.com", null, "a\rb", "reason")]
+    [TestCase("key", "example.com", "a\"><script>", null, "stoken")]
+    [TestCase("key", "example.com", "a b", null, "stoken")]
+    [TestCase("k<y", "example.com", null, null, "siteKey")]
+    [TestCase("k&y", "example.com", null, null, "siteKey")]
+    [TestCase("key", "ex ample.com", null, null, "domain")]
+    [TestCase("key", "example.com/\"x", null, null, "domain")]
+    [TestCase("key", "<x>", null, null, "domain")]
     public void CreateJobRecaptchaV2Async_InvalidText_ThrowsWithoutCallingChannel(string siteKey, string domain, string? stoken, string? reason, string paramName)
     {
         var (channel, api) = CreateCreate();
@@ -113,6 +120,17 @@ public sealed class CaptchaForwardApiTests
 
         Assert.That(thrown!.ParamName, Is.EqualTo(paramName));
         Assert.That(channel.ReceivedCalls(), Is.Empty);
+    }
+
+    [TestCase("6Le-abc_DEF123", "sub.example.com", "tok-EN_1")]
+    [TestCase("key", "127.0.0.1", null)]
+    public async Task CreateJobRecaptchaV2Async_SafeValues_AreAccepted(string siteKey, string domain, string? stoken)
+    {
+        var (channel, api) = CreateCreate();
+
+        await api.CreateJobRecaptchaV2Async(siteKey, domain, stoken);
+
+        Assert.That(channel.ReceivedCalls(), Has.Exactly(1).Items);
     }
 
     [Test]
