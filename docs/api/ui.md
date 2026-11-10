@@ -60,7 +60,7 @@ One entry of a device menu, as returned by `GetMenuAsync`.
 
 - The values come from the device and are untrusted. Do not log them unfiltered.
 - `ToString()` includes the untrusted device text (`Id`, `Name`, `Icon`) unfiltered. Do not log it as is; filter control characters first.
-- `Children` compares by reference, so two items with equal content and children are not equal (`==` is `false`).
+- `Children` compares by reference, so two items with equal content and equal but distinct non-empty child lists are not equal (`==` is `false`). Items without children compare by content.
 - The identifier of a `Container` or `Link` item is not meant for `InvokeActionAsync`.
 
 ## MenuContext
