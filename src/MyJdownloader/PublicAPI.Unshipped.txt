@@ -1336,3 +1336,6 @@ MyJdownloader.Toolbar.ToolbarStatus.BytesLoaded.get -> long
 MyJdownloader.Toolbar.ToolbarStatus.BytesLoaded.init -> void
 MyJdownloader.Toolbar.ToolbarStatus.BytesTotal.get -> long
 MyJdownloader.Toolbar.ToolbarStatus.BytesTotal.init -> void
+MyJdownloader.DownloadEvents.DownloadEventsApi
+MyJdownloader.JDownloaderDevice.DownloadEvents.get -> MyJdownloader.DownloadEvents.DownloadEventsApi!
+MyJdownloader.DownloadEvents.DownloadEventsApi.SetStatusEventIntervalAsync(long subscriptionId, System.TimeSpan interval, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
