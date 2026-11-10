@@ -7,7 +7,7 @@ using System.Text;
 /// <remarks>
 /// <para>All content returned by the device is untrusted. The root item returned by the device has no identifier, name or type.</para>
 /// <para><see cref="object.ToString"/> includes the device text unfiltered: do not log it as is, filter control characters first.</para>
-/// <para><see cref="Children"/> compares by reference, so two items with equal content and equal but distinct non-empty child lists are not equal.</para>
+/// <para><see cref="Children"/> compares by reference, so two items with equal content are equal only when they hold the same <see cref="Children"/> instance; distinct lists, even empty ones, make them unequal.</para>
 /// </remarks>
 public sealed record MenuItem
 {
