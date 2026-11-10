@@ -21,13 +21,14 @@ using MyJdownloader.Plugins;
 using MyJdownloader.Polling;
 using MyJdownloader.Reconnect;
 using MyJdownloader.SystemControl;
+using MyJdownloader.Toolbar;
 using MyJdownloader.Ui;
 using MyJdownloader.Update;
 
 /// <summary>Entry point of the typed facade for one JDownloader device of the account.</summary>
 /// <remarks>
 /// The instance holds no session and no secret: it only carries the device id and its <see cref="IDeviceChannel"/>,
-/// which reads the current session of the client on every call. Typed namespace facades are exposed as properties, for example <see cref="LinkGrabber"/>, <see cref="Downloads"/>, <see cref="DownloadController"/>, <see cref="Jd"/>, <see cref="System"/>, <see cref="Config"/>, <see cref="Accounts"/>, <see cref="Captcha"/>, <see cref="Dialogs"/>, <see cref="Events"/>, <see cref="Extensions"/>, <see cref="Extraction"/>, <see cref="Plugins"/>, <see cref="Update"/>, <see cref="Device"/>, <see cref="LinkCrawler"/>, <see cref="Reconnect"/>, <see cref="Polling"/>, <see cref="Log"/>, <see cref="ContentV2"/>, <see cref="Ui"/> and <see cref="CaptchaForward"/>.
+/// which reads the current session of the client on every call. Typed namespace facades are exposed as properties, for example <see cref="LinkGrabber"/>, <see cref="Downloads"/>, <see cref="DownloadController"/>, <see cref="Jd"/>, <see cref="System"/>, <see cref="Config"/>, <see cref="Accounts"/>, <see cref="Captcha"/>, <see cref="Dialogs"/>, <see cref="Events"/>, <see cref="Extensions"/>, <see cref="Extraction"/>, <see cref="Plugins"/>, <see cref="Update"/>, <see cref="Device"/>, <see cref="LinkCrawler"/>, <see cref="Reconnect"/>, <see cref="Polling"/>, <see cref="Log"/>, <see cref="ContentV2"/>, <see cref="Ui"/>, <see cref="CaptchaForward"/> and <see cref="Toolbar"/>.
 /// </remarks>
 [DebuggerDisplay("Id = {Id}")]
 public sealed class JDownloaderDevice
@@ -133,4 +134,8 @@ public sealed class JDownloaderDevice
     /// <summary>Gets the typed facade over the <c>/captchaforward</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
     public CaptchaForwardApi CaptchaForward => field ??= new CaptchaForwardApi(this.Channel);
+
+    /// <summary>Gets the typed facade over the <c>/toolbar</c> namespace of this device.</summary>
+    /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
+    public ToolbarApi Toolbar => field ??= new ToolbarApi(this.Channel);
 }

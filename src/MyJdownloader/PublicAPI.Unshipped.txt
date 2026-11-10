@@ -1290,3 +1290,49 @@ MyJdownloader.CaptchaForward.CaptchaForwardApi
 MyJdownloader.CaptchaForward.CaptchaForwardApi.CreateJobRecaptchaV2Async(string! siteKey, string! domain, string? stoken = null, string? reason = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<long>!
 MyJdownloader.CaptchaForward.CaptchaForwardApi.GetResultAsync(long jobId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string?>!
 MyJdownloader.JDownloaderDevice.CaptchaForward.get -> MyJdownloader.CaptchaForward.CaptchaForwardApi!
+MyJdownloader.Toolbar.ToolbarApi
+MyJdownloader.JDownloaderDevice.Toolbar.get -> MyJdownloader.Toolbar.ToolbarApi!
+MyJdownloader.Toolbar.ToolbarApi.GetStatusAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.Toolbar.ToolbarStatus!>!
+MyJdownloader.Toolbar.ToolbarApi.IsAvailableAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.Toolbar.ToolbarApi.StartDownloadsAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.Toolbar.ToolbarApi.StopDownloadsAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.Toolbar.ToolbarApi.TriggerUpdateAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.Toolbar.ToolbarApi.ToggleDownloadSpeedLimitAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.Toolbar.ToolbarApi.TogglePauseDownloadsAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.Toolbar.ToolbarApi.TogglePremiumAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.Toolbar.ToolbarApi.ToggleClipboardMonitoringAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.Toolbar.ToolbarApi.ToggleAutomaticReconnectAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.Toolbar.ToolbarApi.ToggleStopAfterCurrentDownloadAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.Toolbar.ToolbarStatus
+MyJdownloader.Toolbar.ToolbarStatus.<Clone>$() -> MyJdownloader.Toolbar.ToolbarStatus!
+MyJdownloader.Toolbar.ToolbarStatus.Equals(MyJdownloader.Toolbar.ToolbarStatus? other) -> bool
+MyJdownloader.Toolbar.ToolbarStatus.ToolbarStatus() -> void
+override MyJdownloader.Toolbar.ToolbarStatus.Equals(object? obj) -> bool
+override MyJdownloader.Toolbar.ToolbarStatus.GetHashCode() -> int
+override MyJdownloader.Toolbar.ToolbarStatus.ToString() -> string!
+static MyJdownloader.Toolbar.ToolbarStatus.operator !=(MyJdownloader.Toolbar.ToolbarStatus? left, MyJdownloader.Toolbar.ToolbarStatus? right) -> bool
+static MyJdownloader.Toolbar.ToolbarStatus.operator ==(MyJdownloader.Toolbar.ToolbarStatus? left, MyJdownloader.Toolbar.ToolbarStatus? right) -> bool
+MyJdownloader.Toolbar.ToolbarStatus.State.get -> string?
+MyJdownloader.Toolbar.ToolbarStatus.State.init -> void
+MyJdownloader.Toolbar.ToolbarStatus.Running.get -> bool
+MyJdownloader.Toolbar.ToolbarStatus.Running.init -> void
+MyJdownloader.Toolbar.ToolbarStatus.SpeedLimitEnabled.get -> bool
+MyJdownloader.Toolbar.ToolbarStatus.SpeedLimitEnabled.init -> void
+MyJdownloader.Toolbar.ToolbarStatus.SpeedLimit.get -> long
+MyJdownloader.Toolbar.ToolbarStatus.SpeedLimit.init -> void
+MyJdownloader.Toolbar.ToolbarStatus.AutoReconnectEnabled.get -> bool
+MyJdownloader.Toolbar.ToolbarStatus.AutoReconnectEnabled.init -> void
+MyJdownloader.Toolbar.ToolbarStatus.ClipboardMonitored.get -> bool
+MyJdownloader.Toolbar.ToolbarStatus.ClipboardMonitored.init -> void
+MyJdownloader.Toolbar.ToolbarStatus.StopAfterCurrentDownload.get -> bool
+MyJdownloader.Toolbar.ToolbarStatus.StopAfterCurrentDownload.init -> void
+MyJdownloader.Toolbar.ToolbarStatus.PremiumEnabled.get -> bool
+MyJdownloader.Toolbar.ToolbarStatus.PremiumEnabled.init -> void
+MyJdownloader.Toolbar.ToolbarStatus.Speed.get -> long
+MyJdownloader.Toolbar.ToolbarStatus.Speed.init -> void
+MyJdownloader.Toolbar.ToolbarStatus.Paused.get -> bool
+MyJdownloader.Toolbar.ToolbarStatus.Paused.init -> void
+MyJdownloader.Toolbar.ToolbarStatus.BytesLoaded.get -> long
+MyJdownloader.Toolbar.ToolbarStatus.BytesLoaded.init -> void
+MyJdownloader.Toolbar.ToolbarStatus.BytesTotal.get -> long
+MyJdownloader.Toolbar.ToolbarStatus.BytesTotal.init -> void
