@@ -1254,3 +1254,35 @@ override MyJdownloader.ContentV2.IconDescriptor.GetHashCode() -> int
 override MyJdownloader.ContentV2.IconDescriptor.ToString() -> string!
 static MyJdownloader.ContentV2.IconDescriptor.operator !=(MyJdownloader.ContentV2.IconDescriptor? left, MyJdownloader.ContentV2.IconDescriptor? right) -> bool
 static MyJdownloader.ContentV2.IconDescriptor.operator ==(MyJdownloader.ContentV2.IconDescriptor? left, MyJdownloader.ContentV2.IconDescriptor? right) -> bool
+MyJdownloader.JDownloaderDevice.Ui.get -> MyJdownloader.Ui.UiApi!
+MyJdownloader.Ui.MenuContext
+MyJdownloader.Ui.MenuContext.Dlc = 1 -> MyJdownloader.Ui.MenuContext
+MyJdownloader.Ui.MenuContext.Lgc = 2 -> MyJdownloader.Ui.MenuContext
+MyJdownloader.Ui.MenuContext.Unknown = 0 -> MyJdownloader.Ui.MenuContext
+MyJdownloader.Ui.MenuItem
+MyJdownloader.Ui.MenuItem.<Clone>$() -> MyJdownloader.Ui.MenuItem!
+MyJdownloader.Ui.MenuItem.Children.get -> System.Collections.Generic.IReadOnlyList<MyJdownloader.Ui.MenuItem!>!
+MyJdownloader.Ui.MenuItem.Children.init -> void
+MyJdownloader.Ui.MenuItem.Equals(MyJdownloader.Ui.MenuItem? other) -> bool
+MyJdownloader.Ui.MenuItem.Icon.get -> string?
+MyJdownloader.Ui.MenuItem.Icon.init -> void
+MyJdownloader.Ui.MenuItem.Id.get -> string?
+MyJdownloader.Ui.MenuItem.Id.init -> void
+MyJdownloader.Ui.MenuItem.MenuItem() -> void
+MyJdownloader.Ui.MenuItem.Name.get -> string?
+MyJdownloader.Ui.MenuItem.Name.init -> void
+MyJdownloader.Ui.MenuItem.Type.get -> MyJdownloader.Ui.MenuItemType
+MyJdownloader.Ui.MenuItem.Type.init -> void
+MyJdownloader.Ui.MenuItemType
+MyJdownloader.Ui.MenuItemType.Action = 2 -> MyJdownloader.Ui.MenuItemType
+MyJdownloader.Ui.MenuItemType.Container = 1 -> MyJdownloader.Ui.MenuItemType
+MyJdownloader.Ui.MenuItemType.Link = 3 -> MyJdownloader.Ui.MenuItemType
+MyJdownloader.Ui.MenuItemType.Unknown = 0 -> MyJdownloader.Ui.MenuItemType
+MyJdownloader.Ui.UiApi
+MyJdownloader.Ui.UiApi.GetMenuAsync(MyJdownloader.Ui.MenuContext context, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.Ui.MenuItem!>!
+MyJdownloader.Ui.UiApi.InvokeActionAsync(MyJdownloader.Ui.MenuContext context, string! id, System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Text.Json.JsonElement>!
+override MyJdownloader.Ui.MenuItem.Equals(object? obj) -> bool
+override MyJdownloader.Ui.MenuItem.GetHashCode() -> int
+override MyJdownloader.Ui.MenuItem.ToString() -> string!
+static MyJdownloader.Ui.MenuItem.operator !=(MyJdownloader.Ui.MenuItem? left, MyJdownloader.Ui.MenuItem? right) -> bool
+static MyJdownloader.Ui.MenuItem.operator ==(MyJdownloader.Ui.MenuItem? left, MyJdownloader.Ui.MenuItem? right) -> bool
