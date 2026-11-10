@@ -3,6 +3,7 @@
 - **Status**: Accepted
 - **Date**: 2026-11-06
 - **Amended**: 2026-11-06 (T-011)
+- **Amended**: 2026-11-11 (T-060, length caps on caller strings and device-call arguments)
 
 ## Context
 
@@ -100,9 +101,9 @@ Responses (`data` absent or `null`):
 Validation and secrets:
 
 - **Synchronous validation before any call**: null arguments
-  (`ArgumentNullException`), blank strings and control characters (incl.
-  CR/LF), ranges, `Unknown` enum values (`ArgumentException` /
-  `ArgumentOutOfRangeException`). Messages name the parameter but never carry
+  (`ArgumentNullException`), blank strings, over-long strings and control
+  characters (incl. CR/LF), ranges, `Unknown` enum values (`ArgumentException`
+  / `ArgumentOutOfRangeException`). Messages name the parameter but never carry
   its value. Facade methods are not `async`: they validate, build the
   arguments, then return the channel task (or a small continuation to shape the
   result), so invalid input fails before any I/O.
@@ -110,6 +111,31 @@ Validation and secrets:
   `ToString()` shows `***` when the secret is set. Value equality is unchanged.
   Some API responses return secrets without an opt-out flag (for example a
   package `downloadPassword`): the XML doc of such members and queries must say so.
+
+Length caps (amendment, T-060):
+
+- **Caller strings have a maximum length per category**, counted in UTF-16
+  code units (`string.Length`):
+
+  | Category | Max | Covers |
+  |---|---|---|
+  | Identifier | 1 024 | identifiers, keys, types, names (file, package, hoster, user), formats, host names, site keys |
+  | Path | 32 767 | file system paths (Windows extended-length maximum; covers Linux `PATH_MAX` 4 096) |
+  | Long text | 65 536 | URLs, captcha results and tokens, passwords, regex and event subscription patterns, free text |
+
+- The length check runs **after the null check and before the character
+  scan** (a huge value is rejected without being scanned). Over the cap:
+  `ArgumentException` naming the argument, thrown synchronously before any
+  channel call, like every other check.
+- **`maxLength` is required**: `FacadeGuard.ValidateText`,
+  `ValidateOptionalText` and `ValidateUrlSafeToken` take a mandatory
+  `maxLength` (no default); `ValidateHostName` uses the identifier cap. Every
+  new facade call site must pick a category explicitly.
+- **Device calls are also capped as a whole**: the arguments of one
+  `IDeviceChannel.CallAsync` call must not exceed 1 048 576 UTF-16 code units
+  in total; otherwise `ArgumentException` on `args`, before serialization,
+  encryption and any HTTP call. This mirrors the 1 MiB response cap and covers
+  lists and direct `CallAsync` callers that bypass the facades.
 
 Documentation, tests and delivery:
 
@@ -134,6 +160,10 @@ Documentation, tests and delivery:
 | All facade types in the root `MyJdownloader` namespace | Name collisions across namespaces (`CrawledLink` vs download links, `...Query` types); flat, noisy IntelliSense; no clear ownership per feature. |
 | Source generator producing facades | Already rejected in ADR-001 (no reliable machine-readable API description, harder to stabilize the public surface). |
 | Raw `long` timestamps and durations | Loses typing; every caller must convert epoch milliseconds or seconds and handle sentinel values themselves. |
+| Single 256 cap on caller strings (T-060) | Rejects legitimate values: captcha tokens, file system paths and URLs routinely exceed it. |
+| Single 65 536 cap on caller strings (T-060) | Too weak a bound: a 60 000-character config key or identifier would still pass. |
+| Transport cap on request arguments alone (T-060) | Late, generic error that does not name the faulty argument; kept only as a complement. |
+| Optional `maxLength` with a default (T-060) | New call sites would silently inherit a possibly wrong cap; a required parameter forces the decision. |
 
 ## Consequences
 
@@ -148,6 +178,9 @@ Positive:
 - Facades are testable in isolation, with one end-to-end guard per facade.
 - Dates and durations are typed consistently across facades, with sentinels
   normalized to `null`.
+- Absurdly long caller strings and oversized device calls are rejected early
+  with a precise `ArgumentException`, bounding request memory and CPU use
+  (T-051 audit, CWE-1284), without rejecting real-world values.
 
 Negative:
 
@@ -163,3 +196,8 @@ Negative:
   until their follow-up ticket is delivered.
 - Enums used by the `cleanup` action of several namespaces (cross-facade enums)
   live in the root `MyJdownloader` namespace rather than with their facade.
+- The length caps (per category and the 1 048 576 request cap) are part of the
+  public contract: lowering one later is a behavioural breaking change. The
+  per-call-site classification table lives in the T-060 spec
+  (`docs/superpowers/specs/2026-11-11-t060-text-length-caps-design.md`), not
+  in this ADR; each new call site must be classified the same way.
