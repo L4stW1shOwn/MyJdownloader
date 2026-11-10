@@ -28,7 +28,7 @@ Typed facade over the `/plugins` namespace of one device (plugin settings and UR
 | `GetAllPluginRegexAsync` | `Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetAllPluginRegexAsync(CancellationToken cancellationToken = default)` | Returns the URL patterns of all plugins, keyed by plugin (`/plugins/getAllPluginRegex`). Empty when the device returns no data. |
 | `GetPluginRegexAsync` | `Task<IReadOnlyList<string>> GetPluginRegexAsync(string url, CancellationToken cancellationToken = default)` | Returns the URL patterns of the plugins matching a URL (`/plugins/getPluginRegex`). Empty when the device returns no data. |
 
-The identifiers `interfaceName`, `displayName`, `key` and `url` throw `ArgumentNullException` when null, and `ArgumentException` when blank or when they contain control characters or lone surrogates. For `QueryAsync`, the same `ArgumentException` applies to `ConfigQuery.ConfigInterface` and `ConfigQuery.Pattern` when they are set.
+The identifiers `interfaceName`, `displayName`, `key` and `url` throw `ArgumentNullException` when null, and `ArgumentException` when blank, when they contain control characters or lone surrogates, or when they are longer than its allowed length (see [Argument validation](../guides/error-handling.md#argument-validation)). For `QueryAsync`, the same `ArgumentException` applies to `ConfigQuery.ConfigInterface` and `ConfigQuery.Pattern` when they are set.
 
 Remarks:
 

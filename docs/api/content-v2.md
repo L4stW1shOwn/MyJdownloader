@@ -25,7 +25,7 @@ Typed facade over the `/contentV2` namespace of one device (hoster favicons, fil
 
 Common remarks:
 
-- The string arguments are validated before any request: `null` throws `ArgumentNullException`, a blank value or one with control characters throws `ArgumentException`. The validation messages never repeat the value.
+- The string arguments are validated before any request: `null` throws `ArgumentNullException`, a blank value, one with control characters, or one longer than its allowed length (see [Argument validation](../guides/error-handling.md#argument-validation)) throws `ArgumentException`. The validation messages never repeat the value.
 - The arguments are sent as they are, without escaping or normalization.
 - A successful icon answer that is not a PNG of at most 1 MiB, or whose `Content-Type` is not `image/png`, raises `MyJdProtocolException`. The device errors (for example `FILE_NOT_FOUND`) raise `MyJdApiException`, whose `ErrorType` holds the code.
 - The icon methods throw `NotSupportedException` when the channel of the device does not support binary answers. This cannot happen with a device obtained from `MyJDownloaderClient`.

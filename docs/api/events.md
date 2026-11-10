@@ -32,7 +32,7 @@ Typed facade over the `/events` namespace of one device (event subscriptions and
 
 Remarks:
 
-- Subscription patterns and exclusions are regular expressions evaluated on the device, not by this library. Each item must be non-null, non-blank, and free of control characters and lone surrogates; otherwise `ArgumentException` is thrown.
+- Subscription patterns and exclusions are regular expressions evaluated on the device, not by this library. Each item must be non-null, non-blank, and free of control characters and lone surrogates, and not longer than its allowed length (see [Argument validation](../guides/error-handling.md#argument-validation)); otherwise `ArgumentException` is thrown.
 - `ListenAsync` is a long poll: the device holds the request until events are queued or the subscription poll timeout elapses, then answers with the queued events, possibly none.
 - The call is bounded by `HttpClient.Timeout`, which covers the response body. The library neither raises nor bypasses it, so keep the poll timeout well below it. For example, use 25 s with the default 100 s client timeout, through `ChangeSubscriptionTimeoutsAsync`.
 - Responses are capped at 1 MiB. The shape of the events is undocumented; it is an assumption to confirm by live tests.

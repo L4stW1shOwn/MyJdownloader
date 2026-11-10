@@ -132,8 +132,10 @@ Length caps (amendment, T-060):
   `maxLength` (no default); `ValidateHostName` uses the identifier cap. Every
   new facade call site must pick a category explicitly.
 - **Device calls are also capped as a whole**: the arguments of one
-  `IDeviceChannel.CallAsync` call must not exceed 1 048 576 UTF-16 code units
-  in total; otherwise `ArgumentException` on `args`, before serialization,
+  `IDeviceChannel.CallAsync` call must not exceed 1 024 in number nor 1 048 576
+  UTF-16 code units in total (a non-string argument counts its escaped JSON
+  text, plus 3 per argument for quotes and separator). The cap bounds the
+  request, not the HTTP body size (escaping and encryption expand it); otherwise `ArgumentException` on `args`, before serialization,
   encryption and any HTTP call. This mirrors the 1 MiB response cap and covers
   lists and direct `CallAsync` callers that bypass the facades.
 

@@ -79,7 +79,10 @@ visible characters. An emoji counts as 2.
 | Long text | 65 536 | URLs, captcha results and tokens, passwords, regular expressions, event subscription patterns, free text |
 
 On top of these limits, every device call, whatever the facade, rejects
-arguments that total more than 1 048 576 UTF-16 code units. This covers lists
+more than 1 024 arguments, or arguments that total more than 1 048 576 UTF-16
+code units. A non-string argument counts its JSON text (escaped form), and each
+argument adds 3 for the quotes and separator. The cap bounds the request but is
+not the HTTP body size, which escaping and encryption expand. This covers lists
 (link text, id arrays) and direct `IDeviceChannel.CallAsync` calls. It throws an
 `ArgumentException` on `args`, before encryption and any HTTP request.
 
