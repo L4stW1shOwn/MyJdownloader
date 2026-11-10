@@ -9,6 +9,7 @@ using NSubstitute;
 public sealed class UiApiTests
 {
     private static readonly string[] _expectedMenuArgs = ["\"DLC\""];
+    private static readonly string[] _expectedLgcArgs = ["\"LGC\""];
     private static readonly string[] _expectedInvokeArgs = ["\"DLC\"", "\"checkonline\"", "[1,2]", "[3]"];
     private static readonly string[] _expectedEmptyInvokeArgs = ["\"DLC\"", "\"forcedls\"", "[]", "[]"];
 
@@ -68,6 +69,25 @@ public sealed class UiApiTests
         var (_, api) = CreateMenu(menu);
 
         Assert.ThrowsAsync<MyJdProtocolException>(() => api.GetMenuAsync(MenuContext.Dlc));
+    }
+
+    [Test]
+    public void GetMenuAsync_NullChildAtDepthThree_ThrowsProtocolException()
+    {
+        var menu = new MenuItem { Children = [new MenuItem { Children = [new MenuItem { Children = [null!] }] }] };
+        var (_, api) = CreateMenu(menu);
+
+        Assert.ThrowsAsync<MyJdProtocolException>(() => api.GetMenuAsync(MenuContext.Dlc));
+    }
+
+    [Test]
+    public async Task GetMenuAsync_LgcContext_SendsLgcArgument()
+    {
+        var (channel, api) = CreateMenu(new MenuItem());
+
+        await api.GetMenuAsync(MenuContext.Lgc);
+
+        Assert.That(SentArgs(channel), Is.EqualTo(_expectedLgcArgs));
     }
 
     [Test]
@@ -176,6 +196,18 @@ public sealed class UiApiTests
     public void InvokeActionAsync_InvalidId_ThrowsWithoutCallingChannel(string id)
     {
         var (channel, api) = CreateInvoke();
+
+        var thrown = Assert.Throws<ArgumentException>(() => api.InvokeActionAsync(MenuContext.Dlc, id, [], []));
+
+        Assert.That(thrown!.ParamName, Is.EqualTo("id"));
+        Assert.That(channel.ReceivedCalls(), Is.Empty);
+    }
+
+    [Test]
+    public void InvokeActionAsync_LoneSurrogateId_ThrowsWithoutCallingChannel()
+    {
+        var (channel, api) = CreateInvoke();
+        var id = "a" + (char)0xD800;
 
         var thrown = Assert.Throws<ArgumentException>(() => api.InvokeActionAsync(MenuContext.Dlc, id, [], []));
 
