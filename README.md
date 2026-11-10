@@ -70,7 +70,7 @@ shows both setups.
 
 ## API coverage
 
-The typed facades cover 113 of the 169 official device actions; the others stay reachable through `IDeviceChannel`.
+The typed facades cover 127 of the 169 official device actions; the others stay reachable through `IDeviceChannel`.
 
 | Facade | Coverage |
 |---|---|
@@ -95,6 +95,9 @@ The typed facades cover 113 of the 169 official device actions; the others stay 
 | Log | ✅ 2/2 |
 | ContentV2 | ✅ 4/4 |
 | Ui | ✅ 2/2 |
+| CaptchaForward | ✅ 2/2 |
+| Toolbar | 11/15 |
+| DownloadEvents | 1/2 |
 
 Full page: [API coverage](https://github.com/L4stW1shOwn/MyJdownloader/blob/main/docs/api-coverage.md).
 

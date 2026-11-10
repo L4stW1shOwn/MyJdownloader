@@ -6,6 +6,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 
 ### Added
 
+- `device.DownloadEvents`: typed `/downloadevents` facade (set the push interval of the `downloads.*` interval events for an events subscription, in whole milliseconds); `queryLinks` is not typed because the device always fails it ("Not Implemented").
+- `device.Toolbar`: typed `/toolbar` facade (read the toolbar status, start and stop the downloads, trigger an update check, flip six settings); each toggle returns the new state and is not idempotent, so read the status again after a timeout; the four DOM and script actions are not typed.
+- `device.CaptchaForward`: typed `/captchaforward` facade (queue a reCAPTCHA v2 challenge on the device and poll for its token, read once); the job prompts the device user or a solving service, and the token is a credential for the target site: never log it.
 - `device.Ui`: typed `/ui` facade (read the download list context menu and run its actions on selected links and packages); actions act on the device at once without confirmation (`checkonline` queues an online check, `forcedls` forces downloads), and the menu is untrusted device content.
 - `device.ContentV2`: typed `/contentV2` facade (hoster favicon, file-type icon and icon by key as PNG bytes, icon description); the icon bytes are unauthenticated (ADR-011): the client checks only the status, the `image/png` type, the 1 MiB limit and the PNG signature, so decode them in a sandboxed decoder and never serve them under another content type.
 - `device.Log`: typed `/log` facade (list the device log folders, upload selected folders to JDownloader support and get the log id); the upload goes to a third party without confirmation and logs can hold personal data, so obtain the end user's consent first; listing writes a thread dump on the device.

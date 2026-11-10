@@ -2,7 +2,7 @@
 
 Besides downloads, a device exposes facades for its own administration: version
 and plugins, operating-system power actions, internet reconnect, advanced configuration, premium
-hoster accounts, captchas, dialogs, plugin settings, extensions, updates, archive extraction and support logs. Each
+hoster accounts, captchas, reCAPTCHA v2 forwarding, dialogs, plugin settings, extensions, updates, archive extraction and support logs. Each
 facade is a property of `JDownloaderDevice`. This guide shows one use case per
 facade.
 
@@ -153,6 +153,46 @@ bool skipped = await device.Captcha.SkipAsync(jobs[0].Id, CaptchaSkipRequest.Sin
   and are untrusted. Check that the image starts with `data:image/`, decode the
   Base64 before you render it, and HTML-encode the text before you embed it in a
   page.
+
+## CaptchaForward: have the device solve a reCAPTCHA v2
+
+```csharp
+using System.Net;
+using MyJdownloader;
+
+// A person at the device, or a solving service, answers the challenge. Ask the end user first.
+long jobId = await device.CaptchaForward.CreateJobRecaptchaV2Async(
+    siteKey,
+    "example.com",
+    cancellationToken: cancellationToken);
+
+string? token = null;
+for (int attempt = 0; attempt < 72; attempt++)
+{
+    await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+    try
+    {
+        // The read removes the job: keep the token from here on.
+        token = await device.CaptchaForward.GetResultAsync(jobId, cancellationToken);
+        break;
+    }
+    catch (MyJdApiException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+    {
+        // Still pending, unknown or already read: wait, then poll again.
+    }
+}
+```
+
+`siteKey` and `cancellationToken` stand for your own values.
+
+- The token is a credential for the target site. Never log it, and keep it only
+  as long as you need it.
+- A `500` from `GetResultAsync` means the job failed. It surfaces as a
+  `MyJdApiException`: stop polling and do not create the job again in a loop.
+- `CreateJobRecaptchaV2Async` is not idempotent. After a timeout, a replay queues a
+  second challenge.
+- Status codes, the validation rules and the `reason` parameter are in the
+  [CaptchaForward page](../api/captchaforward.md).
 
 ## Dialogs: answer what JDownloader is waiting on
 

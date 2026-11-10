@@ -195,6 +195,35 @@ Points to note in this loop:
   timeout. If you change `HttpClient.Timeout` for the named client, keep it above
   the poll timeout. See [Dependency injection](dependency-injection.md).
 
+## Push interval of the download events
+
+`device.DownloadEvents` sets how often the `downloads.*` interval events are
+pushed to a subscription. The subscription is the one you create with the calls
+above: `StreamAsync` owns its subscription and does not expose its identifier,
+so use the manual calls for this.
+
+```csharp
+using System;
+using MyJdownloader.Events;
+
+EventSubscription subscription = await device.Events.SubscribeAsync(
+    ["downloads.*"],
+    cancellationToken: cancellationToken);
+
+// Push the downloads.* interval events every 2 seconds (the device default is 1 second).
+bool applied = await device.DownloadEvents.SetStatusEventIntervalAsync(
+    subscription.SubscriptionId,
+    TimeSpan.FromSeconds(2),
+    cancellationToken);
+```
+
+- `false` means the subscription is unknown or closed: subscribe again before you
+  listen.
+- The interval is sent as whole milliseconds, and a fraction is truncated. An
+  interval below 1 ms is rejected with `ArgumentOutOfRangeException`.
+- The interval applies until the subscription ends.
+- The page is [DownloadEvents](../api/downloadevents.md).
+
 ## Event payloads
 
 - `DeviceEvent.Publisher` and `DeviceEvent.EventId` are strings sent by the device.

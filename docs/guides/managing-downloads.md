@@ -186,6 +186,30 @@ int bytesPerSecond = await device.DownloadController.GetSpeedAsync(cancellationT
 the request. They do not wait for the state to change: read
 `GetCurrentStateAsync` if you need to confirm it.
 
+## Toolbar: status and toggles
+
+The browser-extension toolbar of the device has its own status and settings,
+read through `device.Toolbar`.
+
+```csharp
+using MyJdownloader.Toolbar;
+
+ToolbarStatus status = await device.Toolbar.GetStatusAsync(cancellationToken);
+Console.WriteLine($"Speed: {status.Speed} B/s, speed limit on: {status.SpeedLimitEnabled}");
+
+// Toggles flip a setting and return its new state. They act at once, without confirmation.
+bool limitNow = await device.Toolbar.ToggleDownloadSpeedLimitAsync(cancellationToken);
+```
+
+- A toggle is not idempotent: after a timeout, a replay flips the setting back.
+  Read `GetStatusAsync` before you call it again.
+- To pause or resume, prefer `device.DownloadController.PauseAsync(paused)`: it
+  takes the target state.
+- `TriggerUpdateAsync` only starts an update check in the background. See
+  [Update](device-administration.md#update-check-and-restart) to read its result.
+- `ToolbarStatus.State` is device text: show it as plain text.
+- The page lists the four toolbar actions that are not exposed, and why: [Toolbar](../api/toolbar.md).
+
 ## Run an action of the download list context menu
 
 The right-click menu of the download list is read through `device.Ui`. Its

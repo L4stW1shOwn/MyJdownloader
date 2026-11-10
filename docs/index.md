@@ -56,6 +56,9 @@ Reference pages for each public type and facade.
 - [Log](api/log.md): `device.Log`, log folders and upload of logs to JDownloader support (third party, consent required).
 - [ContentV2](api/content-v2.md): `device.ContentV2`, hoster favicons and icons as PNG bytes (untrusted, unauthenticated) and icon descriptions.
 - [Ui](api/ui.md): `device.Ui`, the download list context menu and its actions (actions act at once, consent required).
+- [CaptchaForward](api/captchaforward.md): `device.CaptchaForward`, reCAPTCHA v2 challenges solved by the device (the token is a credential, consent required).
+- [Toolbar](api/toolbar.md): `device.Toolbar`, status and toggles of the browser-extension toolbar (toggles flip the setting, so they are not idempotent).
+- [DownloadEvents](api/downloadevents.md): `device.DownloadEvents`, push interval of the download events of an event subscription.
 
 ## Architecture decisions
 

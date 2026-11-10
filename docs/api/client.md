@@ -216,6 +216,9 @@ Each facade property is created on first access. The facades are stateless, so a
 | [`Log`](log.md) | `LogApi Log { get; }` | Facade over the `/log` namespace: log folders and upload of logs to JDownloader support (privacy warning in the page). |
 | [`ContentV2`](content-v2.md) | `ContentV2Api ContentV2 { get; }` | Facade over the `/contentV2` namespace: hoster favicons and icons as PNG bytes (unauthenticated, see the page) and icon descriptions. |
 | [`Ui`](ui.md) | `UiApi Ui { get; }` | Facade over the `/ui` namespace: the download list context menu and its actions (actions act on the device at once, see the page). |
+| [`CaptchaForward`](captchaforward.md) | `CaptchaForwardApi CaptchaForward { get; }` | Facade over the `/captchaforward` namespace: reCAPTCHA v2 challenges solved by the device (the token is a credential, see the page). |
+| [`Toolbar`](toolbar.md) | `ToolbarApi Toolbar { get; }` | Facade over the `/toolbar` namespace: status and toggles of the browser-extension toolbar (toggles are not idempotent, see the page). |
+| [`DownloadEvents`](downloadevents.md) | `DownloadEventsApi DownloadEvents { get; }` | Facade over the `/downloadevents` namespace: push interval of the download events of an event subscription. |
 
 **Remarks**
 

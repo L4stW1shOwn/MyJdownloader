@@ -27,18 +27,11 @@ Each row compares two counts for one device namespace. The first is the number o
 | [Log](api/log.md) | `/log` | ✅ 2/2 | — |
 | [ContentV2](api/content-v2.md) | `/contentV2` | ✅ 4/4 | — |
 | [Ui](api/ui.md) | `/ui` | ✅ 2/2 | — |
+| [CaptchaForward](api/captchaforward.md) | `/captchaforward` | ✅ 2/2 | — |
+| [Toolbar](api/toolbar.md) | `/toolbar` | 11/15 | `addLinksFromDOM`, `checkLinksFromDOM`, `pollCheckedLinksFromDOM` (browser-extension DOM protocol with named HTTP parameters, not sendable through `IDeviceChannel`), `specialURLHandling` (returns JavaScript for a browser) |
+| [DownloadEvents](api/downloadevents.md) | `/downloadevents` | 1/2 | `queryLinks` (always fails with "Not Implemented" on the device) |
 
-Subtotal for the typed facades: 113/150 actions.
-
-## Namespaces without a typed facade
-
-These namespaces have no typed facade yet. Their actions are callable today through `IDeviceChannel.CallAsync` (see [generic device calls](guides/generic-device-calls.md)).
-
-| Namespace | Coverage | Actions |
-|---|---|---|
-| `/captchaforward` | 0/2 | `createJobRecaptchaV2`, `getResult` |
-| `/toolbar` | 0/15 | `addLinksFromDOM`, `checkLinksFromDOM`, `getStatus`, `isAvailable`, `pollCheckedLinksFromDOM`, `specialURLHandling`, `startDownloads`, `stopDownloads`, `toggleAutomaticReconnect`, `toggleClipboardMonitoring`, `toggleDownloadSpeedLimit`, `togglePauseDownloads`, `togglePremium`, `toggleStopAfterCurrentDownload`, `triggerUpdate` |
-| `/downloadevents` | 0/2 | `queryLinks`, `setStatusEventInterval` |
+Subtotal for the typed facades: 127/169 actions.
 
 ## Out of scope
 
@@ -50,4 +43,4 @@ The following namespaces are not planned:
 
 ## Totals
 
-Across all official namespaces, 113 of the 169 actions have a typed method (`113/169`).
+Across all official namespaces, 127 of the 169 actions have a typed method (`127/169`).
