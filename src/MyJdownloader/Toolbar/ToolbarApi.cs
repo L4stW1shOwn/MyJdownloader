@@ -5,7 +5,7 @@ using MyJdownloader.Facades;
 /// <summary>Typed facade over the <c>/toolbar</c> namespace of one device (the actions of the browser-extension toolbar).</summary>
 /// <remarks>
 /// <para>The facade exposes 11 of the 15 actions. <c>addLinksFromDOM</c>, <c>checkLinksFromDOM</c> and <c>pollCheckedLinksFromDOM</c> are not exposed: they are a browser-extension DOM protocol that reads named HTTP parameters, which the positional channel cannot send. <c>specialURLHandling</c> is not exposed either: it returns JavaScript meant to be evaluated by a browser.</para>
-/// <para>Several actions overlap with the <see cref="MyJdownloader.DownloadController.DownloadControllerApi"/> and <see cref="MyJdownloader.Update.UpdateApi"/> facades, which expose them with more detail. All content returned by the device is untrusted.</para>
+/// <para>Several actions overlap with the <see cref="DownloadController.DownloadControllerApi"/> and <see cref="Update.UpdateApi"/> facades, which expose them with more detail. All content returned by the device is untrusted.</para>
 /// </remarks>
 public sealed class ToolbarApi
 {
@@ -44,7 +44,7 @@ public sealed class ToolbarApi
     /// <summary>Starts the downloads (<c>/toolbar/startDownloads</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns><see langword="true"/> on current JDownloader versions.</returns>
-    /// <remarks>See also <see cref="MyJdownloader.DownloadController.DownloadControllerApi"/>.</remarks>
+    /// <remarks>See also <see cref="DownloadController.DownloadControllerApi"/>.</remarks>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid (including a missing result).</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -56,7 +56,7 @@ public sealed class ToolbarApi
     /// <summary>Stops the downloads (<c>/toolbar/stopDownloads</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns><see langword="true"/> on current JDownloader versions.</returns>
-    /// <remarks>See also <see cref="MyJdownloader.DownloadController.DownloadControllerApi"/>.</remarks>
+    /// <remarks>See also <see cref="DownloadController.DownloadControllerApi"/>.</remarks>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid (including a missing result).</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -68,7 +68,7 @@ public sealed class ToolbarApi
     /// <summary>Starts an update check in the background, without a dialog (<c>/toolbar/triggerUpdate</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns><see langword="true"/> on current JDownloader versions, as soon as the check is started.</returns>
-    /// <remarks>The call does not wait for the check. See also <see cref="MyJdownloader.Update.UpdateApi"/>.</remarks>
+    /// <remarks>The call does not wait for the check. See also <see cref="Update.UpdateApi"/>.</remarks>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid (including a missing result).</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>

@@ -6,7 +6,7 @@ using MyJdownloader.Facades;
 /// <summary>Typed facade over the <c>/downloadevents</c> namespace of one device (the push interval of the download events).</summary>
 /// <remarks>
 /// <para>The facade exposes 1 of the 2 actions. <c>/downloadevents/queryLinks</c> is not exposed because the device always fails it ("Not Implemented").</para>
-/// <para>See also <see cref="MyJdownloader.Events.EventsApi"/>, which creates the events subscriptions.</para>
+/// <para>See also <see cref="Events.EventsApi"/>, which creates the events subscriptions.</para>
 /// </remarks>
 public sealed class DownloadEventsApi
 {
@@ -21,7 +21,7 @@ public sealed class DownloadEventsApi
     }
 
     /// <summary>Sets the push interval of the <c>downloads.*</c> interval events for one events subscription (<c>/downloadevents/setStatusEventInterval</c>).</summary>
-    /// <param name="subscriptionId">The subscription to configure, see <see cref="MyJdownloader.Events.EventSubscription.SubscriptionId"/>.</param>
+    /// <param name="subscriptionId">The subscription to configure, see <see cref="Events.EventSubscription.SubscriptionId"/>.</param>
     /// <param name="interval">The new interval, sent as whole milliseconds (a fraction of a millisecond is truncated). The device default is 1000 ms.</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns><see langword="true"/> when the interval is set; <see langword="false"/> when the subscription is unknown or its channel is closed.</returns>
