@@ -1286,3 +1286,7 @@ override MyJdownloader.Ui.MenuItem.GetHashCode() -> int
 override MyJdownloader.Ui.MenuItem.ToString() -> string!
 static MyJdownloader.Ui.MenuItem.operator !=(MyJdownloader.Ui.MenuItem? left, MyJdownloader.Ui.MenuItem? right) -> bool
 static MyJdownloader.Ui.MenuItem.operator ==(MyJdownloader.Ui.MenuItem? left, MyJdownloader.Ui.MenuItem? right) -> bool
+MyJdownloader.CaptchaForward.CaptchaForwardApi
+MyJdownloader.CaptchaForward.CaptchaForwardApi.CreateJobRecaptchaV2Async(string! siteKey, string! domain, string? stoken = null, string? reason = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<long>!
+MyJdownloader.CaptchaForward.CaptchaForwardApi.GetResultAsync(long jobId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string?>!
+MyJdownloader.JDownloaderDevice.CaptchaForward.get -> MyJdownloader.CaptchaForward.CaptchaForwardApi!
