@@ -185,3 +185,35 @@ int bytesPerSecond = await device.DownloadController.GetSpeedAsync(cancellationT
 `StartAsync`, `StopAsync` and `PauseAsync` return `true` when the device accepted
 the request. They do not wait for the state to change: read
 `GetCurrentStateAsync` if you need to confirm it.
+
+## Run an action of the download list context menu
+
+The right-click menu of the download list is read through `device.Ui`. Its
+actions run on the links and packages the user selected. The menu belongs to the
+device and can be customized there, so take the identifiers from the menu and do
+not hard-code them.
+
+```csharp
+using MyJdownloader.Ui;
+
+MenuItem menu = await device.Ui.GetMenuAsync(MenuContext.Dlc, cancellationToken);
+
+// After the user confirmed the action, pass the identifier of an Action item.
+// The action runs at once, without confirmation on the device.
+_ = await device.Ui.InvokeActionAsync(
+    MenuContext.Dlc,
+    actionId,
+    selectedLinkIds,
+    selectedPackageIds,
+    cancellationToken);
+```
+
+- `checkonline` queues an online check of the selection and `forcedls` forces
+  the downloads of the selection. Both act on the device at once.
+- Items of type `Link` (for example `enable` and `rename`) do nothing on the
+  device. Handle them in your own code, with the facade methods of this guide.
+- Only the download list context (`MenuContext.Dlc`) is implemented by the device.
+- After a timeout, check the download list before you replay the action.
+
+The menu is untrusted device content: show its names as plain text. The full
+walk over the menu tree is in the [Ui page](../api/ui.md).

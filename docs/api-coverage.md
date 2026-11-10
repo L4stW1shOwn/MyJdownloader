@@ -26,8 +26,9 @@ Each row compares two counts for one device namespace. The first is the number o
 | [Polling](api/polling.md) | `/polling` | ✅ 1/1 | — |
 | [Log](api/log.md) | `/log` | ✅ 2/2 | — |
 | [ContentV2](api/content-v2.md) | `/contentV2` | ✅ 4/4 | — |
+| [Ui](api/ui.md) | `/ui` | ✅ 2/2 | — |
 
-Subtotal for the typed facades: 111/148 actions.
+Subtotal for the typed facades: 113/150 actions.
 
 ## Namespaces without a typed facade
 
@@ -35,7 +36,6 @@ These namespaces have no typed facade yet. Their actions are callable today thro
 
 | Namespace | Coverage | Actions |
 |---|---|---|
-| `/ui` | 0/2 | `getMenu`, `invokeAction` |
 | `/captchaforward` | 0/2 | `createJobRecaptchaV2`, `getResult` |
 | `/toolbar` | 0/15 | `addLinksFromDOM`, `checkLinksFromDOM`, `getStatus`, `isAvailable`, `pollCheckedLinksFromDOM`, `specialURLHandling`, `startDownloads`, `stopDownloads`, `toggleAutomaticReconnect`, `toggleClipboardMonitoring`, `toggleDownloadSpeedLimit`, `togglePauseDownloads`, `togglePremium`, `toggleStopAfterCurrentDownload`, `triggerUpdate` |
 | `/downloadevents` | 0/2 | `queryLinks`, `setStatusEventInterval` |
@@ -50,4 +50,4 @@ The following namespaces are not planned:
 
 ## Totals
 
-Across all official namespaces, 111 of the 169 actions have a typed method (`111/169`).
+Across all official namespaces, 113 of the 169 actions have a typed method (`113/169`).

@@ -215,6 +215,7 @@ Each facade property is created on first access. The facades are stateless, so a
 | [`Polling`](polling.md) | `PollingApi Polling { get; }` | Facade over the `/polling` namespace: snapshot of the device state. |
 | [`Log`](log.md) | `LogApi Log { get; }` | Facade over the `/log` namespace: log folders and upload of logs to JDownloader support (privacy warning in the page). |
 | [`ContentV2`](content-v2.md) | `ContentV2Api ContentV2 { get; }` | Facade over the `/contentV2` namespace: hoster favicons and icons as PNG bytes (unauthenticated, see the page) and icon descriptions. |
+| [`Ui`](ui.md) | `UiApi Ui { get; }` | Facade over the `/ui` namespace: the download list context menu and its actions (actions act on the device at once, see the page). |
 
 **Remarks**
 

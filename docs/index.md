@@ -19,7 +19,7 @@ Task-oriented guides, one per use case.
 - [Sessions and authentication](guides/sessions-and-authentication.md): connect with email and password, export and restore the session, automatic renewal, the session-changed event and how to store the session.
 - [Dependency injection](guides/dependency-injection.md): register the client, its options, enrich the named HTTP client, and the configurations to avoid.
 - [Generic device calls](guides/generic-device-calls.md): call any device action through `IDeviceChannel` when no typed facade exists.
-- [Managing downloads](guides/managing-downloads.md): add links, work with the link grabber and the download list, control the downloads and clean up.
+- [Managing downloads](guides/managing-downloads.md): add links, work with the link grabber and the download list, control the downloads, run the download list context menu and clean up.
 - [Device administration](guides/device-administration.md): version and plugins, power actions, internet reconnect, advanced configuration, accounts, captchas, extensions, updates, archive extraction and support logs.
 - [Events](guides/events.md): subscribe to device events and run the long-polling loop you own, with cancellation.
 - [Error handling](guides/error-handling.md): the `MyJdException` hierarchy, what to catch, rate limits, device offline, and retry policies.
@@ -55,6 +55,7 @@ Reference pages for each public type and facade.
 - [Polling](api/polling.md): `device.Polling`, snapshot of the download, link grabber and captcha state.
 - [Log](api/log.md): `device.Log`, log folders and upload of logs to JDownloader support (third party, consent required).
 - [ContentV2](api/content-v2.md): `device.ContentV2`, hoster favicons and icons as PNG bytes (untrusted, unauthenticated) and icon descriptions.
+- [Ui](api/ui.md): `device.Ui`, the download list context menu and its actions (actions act at once, consent required).
 
 ## Architecture decisions
 
