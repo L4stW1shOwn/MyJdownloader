@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.Config;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Config;
+using MyJdownloader.Tests.Facades;
 using NSubstitute;
 
 [TestFixture]
@@ -407,5 +408,113 @@ public sealed class ConfigApiTests
         var device = client.GetDevice("dev1");
 
         Assert.That(device.Config, Is.SameAs(device.Config));
+    }
+
+    [Test]
+    public void QueryAsync_ConfigInterfaceAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ConfigApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.QueryAsync(new ConfigQuery { ConfigInterface = TextCaps.Identifier }));
+    }
+
+    [Test]
+    public void QueryAsync_ConfigInterfaceOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ConfigApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.QueryAsync(new ConfigQuery { ConfigInterface = TextCaps.IdentifierOver }), "query");
+    }
+
+    [Test]
+    public void QueryAsync_PatternAtLongTextMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ConfigApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.QueryAsync(new ConfigQuery { Pattern = TextCaps.LongText }));
+    }
+
+    [Test]
+    public void QueryAsync_PatternOverLongTextMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ConfigApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.QueryAsync(new ConfigQuery { Pattern = TextCaps.LongTextOver }), "query");
+    }
+
+    [Test]
+    public void ListEnumAsync_TypeAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ConfigApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.ListEnumAsync(TextCaps.Identifier));
+    }
+
+    [Test]
+    public void ListEnumAsync_TypeOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ConfigApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.ListEnumAsync(TextCaps.IdentifierOver), "type");
+    }
+
+    [Test]
+    public void GetAsync_InterfaceNameAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ConfigApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.GetAsync(TextCaps.Identifier, null, "key"));
+    }
+
+    [Test]
+    public void GetAsync_InterfaceNameOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ConfigApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.GetAsync(TextCaps.IdentifierOver, null, "key"), "interfaceName");
+    }
+
+    [Test]
+    public void GetAsync_StorageAtPathMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ConfigApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.GetAsync("iface", TextCaps.Path, "key"));
+    }
+
+    [Test]
+    public void GetAsync_StorageOverPathMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ConfigApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.GetAsync("iface", TextCaps.PathOver, "key"), "storage");
+    }
+
+    [Test]
+    public void GetAsync_KeyAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ConfigApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.GetAsync("iface", null, TextCaps.Identifier));
+    }
+
+    [Test]
+    public void GetAsync_KeyOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ConfigApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.GetAsync("iface", null, TextCaps.IdentifierOver), "key");
     }
 }

@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.ContentV2;
+using MyJdownloader.Tests.Facades;
 using NSubstitute;
 
 [TestFixture]
@@ -182,5 +183,77 @@ public sealed class ContentV2ApiTests
         var device = new JDownloaderDevice("dev1", Substitute.For<IDeviceChannel>());
 
         Assert.That(device.ContentV2, Is.SameAs(device.ContentV2));
+    }
+
+    [Test]
+    public void GetFavIconAsync_HosterNameAtIdentifierMax_IsSent()
+    {
+        var channel = new FakeBinaryChannel([]);
+        var api = new ContentV2Api(channel);
+
+        TextCaps.AssertSent(() => channel.Calls.Count, () => api.GetFavIconAsync(TextCaps.Identifier));
+    }
+
+    [Test]
+    public void GetFavIconAsync_HosterNameOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = new FakeBinaryChannel([]);
+        var api = new ContentV2Api(channel);
+
+        TextCaps.AssertRejected(() => channel.Calls.Count, () => api.GetFavIconAsync(TextCaps.IdentifierOver), "hosterName");
+    }
+
+    [Test]
+    public void GetFileIconAsync_FileNameAtIdentifierMax_IsSent()
+    {
+        var channel = new FakeBinaryChannel([]);
+        var api = new ContentV2Api(channel);
+
+        TextCaps.AssertSent(() => channel.Calls.Count, () => api.GetFileIconAsync(TextCaps.Identifier));
+    }
+
+    [Test]
+    public void GetFileIconAsync_FileNameOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = new FakeBinaryChannel([]);
+        var api = new ContentV2Api(channel);
+
+        TextCaps.AssertRejected(() => channel.Calls.Count, () => api.GetFileIconAsync(TextCaps.IdentifierOver), "fileName");
+    }
+
+    [Test]
+    public void GetIconAsync_KeyAtIdentifierMax_IsSent()
+    {
+        var channel = new FakeBinaryChannel([]);
+        var api = new ContentV2Api(channel);
+
+        TextCaps.AssertSent(() => channel.Calls.Count, () => api.GetIconAsync(TextCaps.Identifier, 16));
+    }
+
+    [Test]
+    public void GetIconAsync_KeyOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = new FakeBinaryChannel([]);
+        var api = new ContentV2Api(channel);
+
+        TextCaps.AssertRejected(() => channel.Calls.Count, () => api.GetIconAsync(TextCaps.IdentifierOver, 16), "key");
+    }
+
+    [Test]
+    public void GetIconDescriptionAsync_KeyAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ContentV2Api(channel);
+
+        TextCaps.AssertSent(channel, () => api.GetIconDescriptionAsync(TextCaps.Identifier));
+    }
+
+    [Test]
+    public void GetIconDescriptionAsync_KeyOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ContentV2Api(channel);
+
+        TextCaps.AssertRejected(channel, () => api.GetIconDescriptionAsync(TextCaps.IdentifierOver), "key");
     }
 }

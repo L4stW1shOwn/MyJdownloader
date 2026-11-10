@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.Accounts;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Accounts;
+using MyJdownloader.Tests.Facades;
 using NSubstitute;
 
 [TestFixture]
@@ -593,5 +594,149 @@ public sealed class AccountsApiTests
         var device = client.GetDevice("dev1");
 
         Assert.That(device.Accounts, Is.SameAs(device.Accounts));
+    }
+
+    [Test]
+    public void AddAccountAsync_PremiumHosterAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new AccountsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.AddAccountAsync(TextCaps.Identifier, "user", "pw"));
+    }
+
+    [Test]
+    public void AddAccountAsync_PremiumHosterOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new AccountsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.AddAccountAsync(TextCaps.IdentifierOver, "user", "pw"), "premiumHoster");
+    }
+
+    [Test]
+    public void AddAccountAsync_UsernameAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new AccountsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.AddAccountAsync("host", TextCaps.Identifier, "pw"));
+    }
+
+    [Test]
+    public void AddAccountAsync_UsernameOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new AccountsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.AddAccountAsync("host", TextCaps.IdentifierOver, "pw"), "username");
+    }
+
+    [Test]
+    public void SetUserNameAndPasswordAsync_UsernameAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new AccountsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.SetUserNameAndPasswordAsync(1, TextCaps.Identifier, "pw"));
+    }
+
+    [Test]
+    public void SetUserNameAndPasswordAsync_UsernameOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new AccountsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.SetUserNameAndPasswordAsync(1, TextCaps.IdentifierOver, "pw"), "username");
+    }
+
+    [Test]
+    public void GetPremiumHosterUrlAsync_HosterAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new AccountsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.GetPremiumHosterUrlAsync(TextCaps.Identifier));
+    }
+
+    [Test]
+    public void GetPremiumHosterUrlAsync_HosterOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new AccountsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.GetPremiumHosterUrlAsync(TextCaps.IdentifierOver), "hoster");
+    }
+
+    [Test]
+    public void AddBasicAuthAsync_HostmaskAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new AccountsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.AddBasicAuthAsync(BasicAuthType.Ftp, TextCaps.Identifier, "user", "pw"));
+    }
+
+    [Test]
+    public void AddBasicAuthAsync_HostmaskOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new AccountsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.AddBasicAuthAsync(BasicAuthType.Ftp, TextCaps.IdentifierOver, "user", "pw"), "hostmask");
+    }
+
+    [Test]
+    public void AddBasicAuthAsync_UsernameAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new AccountsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.AddBasicAuthAsync(BasicAuthType.Ftp, "host", TextCaps.Identifier, "pw"));
+    }
+
+    [Test]
+    public void AddBasicAuthAsync_UsernameOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new AccountsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.AddBasicAuthAsync(BasicAuthType.Ftp, "host", TextCaps.IdentifierOver, "pw"), "username");
+    }
+
+    [Test]
+    public void UpdateBasicAuthAsync_HostmaskAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new AccountsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.UpdateBasicAuthAsync(new BasicAuthentication { Type = BasicAuthType.Ftp, Hostmask = TextCaps.Identifier }));
+    }
+
+    [Test]
+    public void UpdateBasicAuthAsync_HostmaskOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new AccountsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.UpdateBasicAuthAsync(new BasicAuthentication { Type = BasicAuthType.Ftp, Hostmask = TextCaps.IdentifierOver }), "updatedEntry");
+    }
+
+    [Test]
+    public void UpdateBasicAuthAsync_UsernameAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new AccountsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.UpdateBasicAuthAsync(new BasicAuthentication { Type = BasicAuthType.Ftp, Username = TextCaps.Identifier }));
+    }
+
+    [Test]
+    public void UpdateBasicAuthAsync_UsernameOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new AccountsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.UpdateBasicAuthAsync(new BasicAuthentication { Type = BasicAuthType.Ftp, Username = TextCaps.IdentifierOver }), "updatedEntry");
     }
 }

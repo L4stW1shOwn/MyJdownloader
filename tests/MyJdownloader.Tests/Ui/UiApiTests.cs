@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.Ui;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Ui;
+using MyJdownloader.Tests.Facades;
 using NSubstitute;
 
 [TestFixture]
@@ -235,5 +236,23 @@ public sealed class UiApiTests
 
         Assert.That(thrown!.ParamName, Is.EqualTo("packageIds"));
         Assert.That(channel.ReceivedCalls(), Is.Empty);
+    }
+
+    [Test]
+    public void InvokeActionAsync_IdAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new UiApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.InvokeActionAsync(MenuContext.Dlc, TextCaps.Identifier, [1L], [2L]));
+    }
+
+    [Test]
+    public void InvokeActionAsync_IdOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new UiApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.InvokeActionAsync(MenuContext.Dlc, TextCaps.IdentifierOver, [1L], [2L]), "id");
     }
 }

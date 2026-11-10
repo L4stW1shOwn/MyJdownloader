@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.LinkGrabber;
+using MyJdownloader.Tests.Facades;
 using NSubstitute;
 
 [TestFixture]
@@ -479,5 +480,77 @@ public sealed class LinkGrabberApiTests
         var device = client.GetDevice("dev1");
 
         Assert.That(device.LinkGrabber, Is.SameAs(device.LinkGrabber));
+    }
+
+    [Test]
+    public void AddLinksAsync_PackageNameAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new LinkGrabberApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.AddLinksAsync(new AddLinksRequest { Links = ["https://example.com/a"], PackageName = TextCaps.Identifier }));
+    }
+
+    [Test]
+    public void AddLinksAsync_PackageNameOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new LinkGrabberApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.AddLinksAsync(new AddLinksRequest { Links = ["https://example.com/a"], PackageName = TextCaps.IdentifierOver }), "request");
+    }
+
+    [Test]
+    public void AddLinksAsync_DestinationFolderAtPathMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new LinkGrabberApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.AddLinksAsync(new AddLinksRequest { Links = ["https://example.com/a"], DestinationFolder = TextCaps.Path }));
+    }
+
+    [Test]
+    public void AddLinksAsync_DestinationFolderOverPathMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new LinkGrabberApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.AddLinksAsync(new AddLinksRequest { Links = ["https://example.com/a"], DestinationFolder = TextCaps.PathOver }), "request");
+    }
+
+    [Test]
+    public void AddLinksAsync_SourceUrlAtLongTextMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new LinkGrabberApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.AddLinksAsync(new AddLinksRequest { Links = ["https://example.com/a"], SourceUrl = TextCaps.LongText }));
+    }
+
+    [Test]
+    public void AddLinksAsync_SourceUrlOverLongTextMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new LinkGrabberApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.AddLinksAsync(new AddLinksRequest { Links = ["https://example.com/a"], SourceUrl = TextCaps.LongTextOver }), "request");
+    }
+
+    [Test]
+    public void RenameLinkAsync_NewNameAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new LinkGrabberApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.RenameLinkAsync(1, TextCaps.Identifier));
+    }
+
+    [Test]
+    public void RenameLinkAsync_NewNameOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new LinkGrabberApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.RenameLinkAsync(1, TextCaps.IdentifierOver), "newName");
     }
 }

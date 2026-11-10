@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.DeviceExtensions;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.DeviceExtensions;
+using MyJdownloader.Tests.Facades;
 using NSubstitute;
 
 [TestFixture]
@@ -401,5 +402,59 @@ public sealed class ExtensionsApiTests
         var device = client.GetDevice("dev1");
 
         Assert.That(device.Extensions, Is.SameAs(device.Extensions));
+    }
+
+    [Test]
+    public void ListAsync_PatternAtLongTextMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ExtensionsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.ListAsync(new ExtensionQuery { Pattern = TextCaps.LongText }));
+    }
+
+    [Test]
+    public void ListAsync_PatternOverLongTextMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ExtensionsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.ListAsync(new ExtensionQuery { Pattern = TextCaps.LongTextOver }), "query");
+    }
+
+    [Test]
+    public void IsInstalledAsync_IdAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ExtensionsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.IsInstalledAsync(TextCaps.Identifier));
+    }
+
+    [Test]
+    public void IsInstalledAsync_IdOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ExtensionsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.IsInstalledAsync(TextCaps.IdentifierOver), "id");
+    }
+
+    [Test]
+    public void IsEnabledAsync_ClassNameAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ExtensionsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.IsEnabledAsync(TextCaps.Identifier));
+    }
+
+    [Test]
+    public void IsEnabledAsync_ClassNameOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ExtensionsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.IsEnabledAsync(TextCaps.IdentifierOver), "className");
     }
 }

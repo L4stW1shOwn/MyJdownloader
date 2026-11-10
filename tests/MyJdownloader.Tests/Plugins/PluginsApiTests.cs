@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Config;
 using MyJdownloader.Plugins;
+using MyJdownloader.Tests.Facades;
 using NSubstitute;
 
 [TestFixture]
@@ -486,5 +487,113 @@ public sealed class PluginsApiTests
         var device = client.GetDevice("dev1");
 
         Assert.That(device.Plugins, Is.SameAs(device.Plugins));
+    }
+
+    [Test]
+    public void QueryAsync_ConfigInterfaceAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new PluginsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.QueryAsync(new ConfigQuery { ConfigInterface = TextCaps.Identifier }));
+    }
+
+    [Test]
+    public void QueryAsync_ConfigInterfaceOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new PluginsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.QueryAsync(new ConfigQuery { ConfigInterface = TextCaps.IdentifierOver }), "query");
+    }
+
+    [Test]
+    public void QueryAsync_PatternAtLongTextMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new PluginsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.QueryAsync(new ConfigQuery { Pattern = TextCaps.LongText }));
+    }
+
+    [Test]
+    public void QueryAsync_PatternOverLongTextMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new PluginsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.QueryAsync(new ConfigQuery { Pattern = TextCaps.LongTextOver }), "query");
+    }
+
+    [Test]
+    public void GetPluginRegexAsync_UrlAtLongTextMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new PluginsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.GetPluginRegexAsync(TextCaps.LongText));
+    }
+
+    [Test]
+    public void GetPluginRegexAsync_UrlOverLongTextMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new PluginsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.GetPluginRegexAsync(TextCaps.LongTextOver), "url");
+    }
+
+    [Test]
+    public void GetAsync_InterfaceNameAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new PluginsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.GetAsync(TextCaps.Identifier, "display", "key"));
+    }
+
+    [Test]
+    public void GetAsync_InterfaceNameOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new PluginsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.GetAsync(TextCaps.IdentifierOver, "display", "key"), "interfaceName");
+    }
+
+    [Test]
+    public void GetAsync_DisplayNameAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new PluginsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.GetAsync("iface", TextCaps.Identifier, "key"));
+    }
+
+    [Test]
+    public void GetAsync_DisplayNameOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new PluginsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.GetAsync("iface", TextCaps.IdentifierOver, "key"), "displayName");
+    }
+
+    [Test]
+    public void GetAsync_KeyAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new PluginsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.GetAsync("iface", "display", TextCaps.Identifier));
+    }
+
+    [Test]
+    public void GetAsync_KeyOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new PluginsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.GetAsync("iface", "display", TextCaps.IdentifierOver), "key");
     }
 }

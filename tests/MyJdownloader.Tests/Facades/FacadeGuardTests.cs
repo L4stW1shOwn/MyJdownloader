@@ -27,7 +27,11 @@ public sealed class FacadeGuardTests
     {
         var ex = Assert.Throws<ArgumentException>(() => FacadeGuard.ValidateText(new string('\n', 11), "p", 10));
 
-        Assert.That(ex!.Message, Does.StartWith("A text value must not exceed 10 characters."));
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ParamName, Is.EqualTo("p"));
+            Assert.That(ex.Message, Does.StartWith("A text value must not exceed 10 characters."));
+        });
     }
 
     [Test]
@@ -35,7 +39,9 @@ public sealed class FacadeGuardTests
     {
         var text = string.Concat(Enumerable.Repeat("\U0001F600", 6));
 
-        Assert.Throws<ArgumentException>(() => FacadeGuard.ValidateText(text, "p", 11));
+        var ex = Assert.Throws<ArgumentException>(() => FacadeGuard.ValidateText(text, "p", 11));
+
+        Assert.That(ex!.ParamName, Is.EqualTo("p"));
         Assert.DoesNotThrow(() => FacadeGuard.ValidateText(text, "p", 12));
     }
 
@@ -48,7 +54,11 @@ public sealed class FacadeGuardTests
     {
         var ex = Assert.Throws<ArgumentException>(() => FacadeGuard.ValidateOptionalText(new string('a', 11), "p", 10));
 
-        Assert.That(ex!.Message, Does.StartWith("A text value must not exceed 10 characters."));
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ParamName, Is.EqualTo("p"));
+            Assert.That(ex.Message, Does.StartWith("A text value must not exceed 10 characters."));
+        });
     }
 
     [Test]
@@ -56,7 +66,11 @@ public sealed class FacadeGuardTests
     {
         var ex = Assert.Throws<ArgumentException>(() => FacadeGuard.ValidateUrlSafeToken(new string('a', 11), "p", 10));
 
-        Assert.That(ex!.Message, Does.StartWith("A text value must not exceed 10 characters."));
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ParamName, Is.EqualTo("p"));
+            Assert.That(ex.Message, Does.StartWith("A text value must not exceed 10 characters."));
+        });
     }
 
     [Test]
@@ -64,6 +78,19 @@ public sealed class FacadeGuardTests
     {
         var ex = Assert.Throws<ArgumentException>(() => FacadeGuard.ValidateHostName(new string('a', 1_025), "p"));
 
-        Assert.That(ex!.Message, Does.StartWith("A text value must not exceed 1024 characters."));
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ParamName, Is.EqualTo("p"));
+            Assert.That(ex.Message, Does.StartWith("A text value must not exceed 1024 characters."));
+        });
     }
+
+    [Test]
+    public void Caps_Constants_HaveSpecifiedValues()
+        => Assert.Multiple(() =>
+        {
+            Assert.That(FacadeGuard.MaxIdentifierLength, Is.EqualTo(1_024));
+            Assert.That(FacadeGuard.MaxPathLength, Is.EqualTo(32_767));
+            Assert.That(FacadeGuard.MaxLongTextLength, Is.EqualTo(65_536));
+        });
 }

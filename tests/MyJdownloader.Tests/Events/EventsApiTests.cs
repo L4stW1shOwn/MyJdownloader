@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.Events;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Events;
+using MyJdownloader.Tests.Facades;
 using NSubstitute;
 
 [TestFixture]
@@ -419,5 +420,79 @@ public sealed class EventsApiTests
         var device = client.GetDevice("dev1");
 
         Assert.That(device.Events, Is.SameAs(device.Events));
+    }
+
+    [Test]
+    public void SubscribeAsync_SubscriptionAtLongTextMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new EventsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.SubscribeAsync([TextCaps.LongText]));
+    }
+
+    [Test]
+    public void SubscribeAsync_SubscriptionOverLongTextMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new EventsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.SubscribeAsync([TextCaps.LongTextOver]), "subscriptions");
+    }
+
+    [Test]
+    public void SubscribeAsync_ExclusionAtLongTextMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new EventsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.SubscribeAsync(["a"], [TextCaps.LongText]));
+    }
+
+    [Test]
+    public void SubscribeAsync_ExclusionOverLongTextMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new EventsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.SubscribeAsync(["a"], [TextCaps.LongTextOver]), "exclusions");
+    }
+
+    [Test]
+    public void StreamAsync_SubscriptionAtLongTextMax_DoesNotThrow()
+    {
+        var api = new EventsApi(Substitute.For<IDeviceChannel>());
+
+        Assert.DoesNotThrow(() => api.StreamAsync(new EventStreamOptions { Subscriptions = [TextCaps.LongText] }));
+    }
+
+    [Test]
+    public void StreamAsync_SubscriptionOverLongTextMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new EventsApi(channel);
+
+        var thrown = Assert.Throws<ArgumentException>(() => api.StreamAsync(new EventStreamOptions { Subscriptions = [TextCaps.LongTextOver] }));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.ParamName, Is.EqualTo("subscriptions"));
+            Assert.That(channel.ReceivedCalls(), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void StreamAsync_ExclusionOverLongTextMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new EventsApi(channel);
+
+        var thrown = Assert.Throws<ArgumentException>(() => api.StreamAsync(new EventStreamOptions { Subscriptions = ["a"], Exclusions = [TextCaps.LongTextOver] }));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.ParamName, Is.EqualTo("exclusions"));
+            Assert.That(channel.ReceivedCalls(), Is.Empty);
+        });
     }
 }

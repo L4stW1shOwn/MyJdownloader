@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Extraction;
+using MyJdownloader.Tests.Facades;
 using NSubstitute;
 
 [TestFixture]
@@ -493,5 +494,113 @@ public sealed class ExtractionApiTests
         var device = client.GetDevice("dev1");
 
         Assert.That(device.Extraction, Is.SameAs(device.Extraction));
+    }
+
+    [Test]
+    public void AddArchivePasswordAsync_PasswordAtLongTextMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ExtractionApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.AddArchivePasswordAsync(TextCaps.LongText));
+    }
+
+    [Test]
+    public void AddArchivePasswordAsync_PasswordOverLongTextMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ExtractionApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.AddArchivePasswordAsync(TextCaps.LongTextOver), "password");
+    }
+
+    [Test]
+    public void GetArchiveSettingsAsync_ArchiveIdItemAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ExtractionApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.GetArchiveSettingsAsync([TextCaps.Identifier]));
+    }
+
+    [Test]
+    public void GetArchiveSettingsAsync_ArchiveIdItemOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ExtractionApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.GetArchiveSettingsAsync([TextCaps.IdentifierOver]), "archiveIds");
+    }
+
+    [Test]
+    public void SetArchiveSettingsAsync_ArchiveIdAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ExtractionApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.SetArchiveSettingsAsync(TextCaps.Identifier, new ArchiveSettings()));
+    }
+
+    [Test]
+    public void SetArchiveSettingsAsync_ArchiveIdOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ExtractionApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.SetArchiveSettingsAsync(TextCaps.IdentifierOver, new ArchiveSettings()), "archiveId");
+    }
+
+    [Test]
+    public void SetArchiveSettingsAsync_ExtractPathAtPathMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ExtractionApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.SetArchiveSettingsAsync("archive", new ArchiveSettings { ExtractPath = TextCaps.Path }));
+    }
+
+    [Test]
+    public void SetArchiveSettingsAsync_ExtractPathOverPathMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ExtractionApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.SetArchiveSettingsAsync("archive", new ArchiveSettings { ExtractPath = TextCaps.PathOver }), "settings");
+    }
+
+    [Test]
+    public void SetArchiveSettingsAsync_FinalPasswordAtLongTextMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ExtractionApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.SetArchiveSettingsAsync("archive", new ArchiveSettings { FinalPassword = TextCaps.LongText }));
+    }
+
+    [Test]
+    public void SetArchiveSettingsAsync_FinalPasswordOverLongTextMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ExtractionApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.SetArchiveSettingsAsync("archive", new ArchiveSettings { FinalPassword = TextCaps.LongTextOver }), "settings");
+    }
+
+    [Test]
+    public void SetArchiveSettingsAsync_PasswordItemAtLongTextMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ExtractionApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.SetArchiveSettingsAsync("archive", new ArchiveSettings { Passwords = [TextCaps.LongText] }));
+    }
+
+    [Test]
+    public void SetArchiveSettingsAsync_PasswordItemOverLongTextMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new ExtractionApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.SetArchiveSettingsAsync("archive", new ArchiveSettings { Passwords = [TextCaps.LongTextOver] }), "settings");
     }
 }

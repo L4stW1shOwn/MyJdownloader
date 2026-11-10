@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Downloads;
+using MyJdownloader.Tests.Facades;
 using NSubstitute;
 
 [TestFixture]
@@ -411,5 +412,77 @@ public sealed class DownloadsApiTests
         var device = client.GetDevice("dev1");
 
         Assert.That(device.Downloads, Is.SameAs(device.Downloads));
+    }
+
+    [Test]
+    public void SetDownloadDirectoryAsync_DirectoryAtPathMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new DownloadsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.SetDownloadDirectoryAsync(TextCaps.Path, [1L]));
+    }
+
+    [Test]
+    public void SetDownloadDirectoryAsync_DirectoryOverPathMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new DownloadsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.SetDownloadDirectoryAsync(TextCaps.PathOver, [1L]), "directory");
+    }
+
+    [Test]
+    public void MoveToNewPackageAsync_NewPackageNameAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new DownloadsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.MoveToNewPackageAsync([1L], [2L], TextCaps.Identifier, "/downloads"));
+    }
+
+    [Test]
+    public void MoveToNewPackageAsync_NewPackageNameOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new DownloadsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.MoveToNewPackageAsync([1L], [2L], TextCaps.IdentifierOver, "/downloads"), "newPackageName");
+    }
+
+    [Test]
+    public void MoveToNewPackageAsync_DownloadPathAtPathMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new DownloadsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.MoveToNewPackageAsync([1L], [2L], "package", TextCaps.Path));
+    }
+
+    [Test]
+    public void MoveToNewPackageAsync_DownloadPathOverPathMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new DownloadsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.MoveToNewPackageAsync([1L], [2L], "package", TextCaps.PathOver), "downloadPath");
+    }
+
+    [Test]
+    public void RenameLinkAsync_NewNameAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new DownloadsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.RenameLinkAsync(1, TextCaps.Identifier));
+    }
+
+    [Test]
+    public void RenameLinkAsync_NewNameOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new DownloadsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.RenameLinkAsync(1, TextCaps.IdentifierOver), "newName");
     }
 }

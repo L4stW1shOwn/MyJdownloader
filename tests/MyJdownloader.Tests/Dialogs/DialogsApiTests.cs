@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.Dialogs;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Dialogs;
+using MyJdownloader.Tests.Facades;
 using NSubstitute;
 
 [TestFixture]
@@ -295,5 +296,41 @@ public sealed class DialogsApiTests
         var device = client.GetDevice("dev1");
 
         Assert.That(device.Dialogs, Is.SameAs(device.Dialogs));
+    }
+
+    [Test]
+    public void GetTypeInfoAsync_DialogTypeAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new DialogsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.GetTypeInfoAsync(TextCaps.Identifier));
+    }
+
+    [Test]
+    public void GetTypeInfoAsync_DialogTypeOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new DialogsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.GetTypeInfoAsync(TextCaps.IdentifierOver), "dialogType");
+    }
+
+    [Test]
+    public void AnswerAsync_DataKeyAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new DialogsApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.AnswerAsync(1, new Dictionary<string, JsonElement> { [TextCaps.Identifier] = JsonSerializer.SerializeToElement(1) }));
+    }
+
+    [Test]
+    public void AnswerAsync_DataKeyOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new DialogsApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.AnswerAsync(1, new Dictionary<string, JsonElement> { [TextCaps.IdentifierOver] = JsonSerializer.SerializeToElement(1) }), "data");
     }
 }

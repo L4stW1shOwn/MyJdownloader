@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.Captcha;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Captcha;
+using MyJdownloader.Tests.Facades;
 using NSubstitute;
 
 [TestFixture]
@@ -366,5 +367,59 @@ public sealed class CaptchaApiTests
         var device = client.GetDevice("dev1");
 
         Assert.That(device.Captcha, Is.SameAs(device.Captcha));
+    }
+
+    [Test]
+    public void GetImageAsync_FormatAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new CaptchaApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.GetImageAsync(42, TextCaps.Identifier));
+    }
+
+    [Test]
+    public void GetImageAsync_FormatOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new CaptchaApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.GetImageAsync(42, TextCaps.IdentifierOver), "format");
+    }
+
+    [Test]
+    public void SolveAsync_ResultAtLongTextMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new CaptchaApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.SolveAsync(42, TextCaps.LongText));
+    }
+
+    [Test]
+    public void SolveAsync_ResultOverLongTextMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new CaptchaApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.SolveAsync(42, TextCaps.LongTextOver), "result");
+    }
+
+    [Test]
+    public void SolveAsync_ResultFormatAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new CaptchaApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.SolveAsync(42, "answer", TextCaps.Identifier));
+    }
+
+    [Test]
+    public void SolveAsync_ResultFormatOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new CaptchaApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.SolveAsync(42, "answer", TextCaps.IdentifierOver), "resultFormat");
     }
 }

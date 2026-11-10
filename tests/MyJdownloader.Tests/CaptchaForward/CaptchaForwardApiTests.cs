@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.CaptchaForward;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.CaptchaForward;
+using MyJdownloader.Tests.Facades;
 using NSubstitute;
 
 [TestFixture]
@@ -167,5 +168,68 @@ public sealed class CaptchaForwardApiTests
         await api.GetResultAsync(42, cts.Token);
 
         Assert.That(channel.ReceivedCalls().Single().GetArguments().Last(), Is.EqualTo(cts.Token));
+    }
+
+    [Test]
+    public void CreateJobRecaptchaV2Async_SiteKeyAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new CaptchaForwardApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.CreateJobRecaptchaV2Async(TextCaps.Identifier, "example.com"));
+    }
+
+    [Test]
+    public void CreateJobRecaptchaV2Async_SiteKeyOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new CaptchaForwardApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.CreateJobRecaptchaV2Async(TextCaps.IdentifierOver, "example.com"), "siteKey");
+    }
+
+    [Test]
+    public void CreateJobRecaptchaV2Async_DomainOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new CaptchaForwardApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.CreateJobRecaptchaV2Async("key", TextCaps.IdentifierOver), "domain");
+    }
+
+    [Test]
+    public void CreateJobRecaptchaV2Async_StokenAtLongTextMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new CaptchaForwardApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.CreateJobRecaptchaV2Async("key", "example.com", TextCaps.LongText));
+    }
+
+    [Test]
+    public void CreateJobRecaptchaV2Async_StokenOverLongTextMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new CaptchaForwardApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.CreateJobRecaptchaV2Async("key", "example.com", TextCaps.LongTextOver), "stoken");
+    }
+
+    [Test]
+    public void CreateJobRecaptchaV2Async_ReasonAtLongTextMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new CaptchaForwardApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.CreateJobRecaptchaV2Async("key", "example.com", null, TextCaps.LongText));
+    }
+
+    [Test]
+    public void CreateJobRecaptchaV2Async_ReasonOverLongTextMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new CaptchaForwardApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.CreateJobRecaptchaV2Async("key", "example.com", null, TextCaps.LongTextOver), "reason");
     }
 }
