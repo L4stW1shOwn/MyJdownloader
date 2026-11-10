@@ -134,8 +134,8 @@ public sealed class PluginsApi
     public Task<IReadOnlyList<PluginConfigEntry>> QueryAsync(ConfigQuery? query = null, CancellationToken cancellationToken = default)
     {
         query ??= new ConfigQuery();
-        FacadeGuard.ValidateOptionalText(query.ConfigInterface, nameof(query));
-        FacadeGuard.ValidateOptionalText(query.Pattern, nameof(query));
+        FacadeGuard.ValidateOptionalText(query.ConfigInterface, nameof(query), FacadeGuard.MaxIdentifierLength);
+        FacadeGuard.ValidateOptionalText(query.Pattern, nameof(query), FacadeGuard.MaxLongTextLength);
         var args = new[] { JsonSerializer.SerializeToElement(query, PluginsJsonContext.Default.ConfigQuery) };
         return FacadeResults.ListAsync(this._channel.CallAsync(Base + "query", PluginsJsonContext.Default.ListPluginConfigEntry, args, cancellationToken));
     }
@@ -181,16 +181,16 @@ public sealed class PluginsApi
     [SuppressMessage("Design", "CA1054:URI parameters should not be strings", Justification = "The device matches arbitrary link text, which is not necessarily a valid absolute URI.")]
     public Task<IReadOnlyList<string>> GetPluginRegexAsync(string url, CancellationToken cancellationToken = default)
     {
-        FacadeGuard.ValidateText(url, nameof(url));
+        FacadeGuard.ValidateText(url, nameof(url), FacadeGuard.MaxLongTextLength);
         var args = new[] { JsonSerializer.SerializeToElement(url, FacadeJsonContext.Default.String) };
         return FacadeResults.ListAsync(this._channel.CallAsync(Base + "getPluginRegex", PluginsJsonContext.Default.ListString, args, cancellationToken));
     }
 
     private static JsonElement[] IdentifierArgs(string interfaceName, string displayName, string key)
     {
-        FacadeGuard.ValidateText(interfaceName, nameof(interfaceName));
-        FacadeGuard.ValidateText(displayName, nameof(displayName));
-        FacadeGuard.ValidateText(key, nameof(key));
+        FacadeGuard.ValidateText(interfaceName, nameof(interfaceName), FacadeGuard.MaxIdentifierLength);
+        FacadeGuard.ValidateText(displayName, nameof(displayName), FacadeGuard.MaxIdentifierLength);
+        FacadeGuard.ValidateText(key, nameof(key), FacadeGuard.MaxIdentifierLength);
         return
         [
             JsonSerializer.SerializeToElement(interfaceName, FacadeJsonContext.Default.String),

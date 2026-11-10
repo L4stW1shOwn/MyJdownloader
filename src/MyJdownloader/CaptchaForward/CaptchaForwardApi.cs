@@ -44,14 +44,14 @@ public sealed class CaptchaForwardApi
     {
         ArgumentNullException.ThrowIfNull(siteKey);
         ArgumentNullException.ThrowIfNull(domain);
-        FacadeGuard.ValidateUrlSafeToken(siteKey, nameof(siteKey));
+        FacadeGuard.ValidateUrlSafeToken(siteKey, nameof(siteKey), FacadeGuard.MaxIdentifierLength);
         FacadeGuard.ValidateHostName(domain, nameof(domain));
         if (stoken is not null)
         {
-            FacadeGuard.ValidateUrlSafeToken(stoken, nameof(stoken));
+            FacadeGuard.ValidateUrlSafeToken(stoken, nameof(stoken), FacadeGuard.MaxLongTextLength);
         }
 
-        FacadeGuard.ValidateOptionalText(reason, nameof(reason));
+        FacadeGuard.ValidateOptionalText(reason, nameof(reason), FacadeGuard.MaxLongTextLength);
         var args = new[] { Text(siteKey), Text(stoken ?? string.Empty), Text(domain), Text(reason ?? string.Empty) };
         return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "createJobRecaptchaV2", FacadeJsonContext.Default.NullableInt64, args, cancellationToken));
     }

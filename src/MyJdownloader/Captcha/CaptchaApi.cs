@@ -56,7 +56,7 @@ public sealed class CaptchaApi
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<string> GetImageAsync(long id, string? format = null, CancellationToken cancellationToken = default)
     {
-        FacadeGuard.ValidateOptionalText(format, nameof(format));
+        FacadeGuard.ValidateOptionalText(format, nameof(format), FacadeGuard.MaxIdentifierLength);
         JsonElement[] args = format is null ? [Id(id)] : [Id(id), Str(format)];
         return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "get", FacadeJsonContext.Default.String, args, cancellationToken));
     }
@@ -98,8 +98,8 @@ public sealed class CaptchaApi
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task<bool> SolveAsync(long id, string result, string? resultFormat = null, CancellationToken cancellationToken = default)
     {
-        FacadeGuard.ValidateText(result, nameof(result));
-        FacadeGuard.ValidateOptionalText(resultFormat, nameof(resultFormat));
+        FacadeGuard.ValidateText(result, nameof(result), FacadeGuard.MaxLongTextLength);
+        FacadeGuard.ValidateOptionalText(resultFormat, nameof(resultFormat), FacadeGuard.MaxIdentifierLength);
         JsonElement[] args = resultFormat is null ? [Id(id), Str(result)] : [Id(id), Str(result), Str(resultFormat)];
         return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "solve", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }

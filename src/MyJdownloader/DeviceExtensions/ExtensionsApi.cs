@@ -31,7 +31,7 @@ public sealed class ExtensionsApi
     public Task<IReadOnlyList<Extension>> ListAsync(ExtensionQuery? query = null, CancellationToken cancellationToken = default)
     {
         query ??= new ExtensionQuery();
-        FacadeGuard.ValidateOptionalText(query.Pattern, nameof(query));
+        FacadeGuard.ValidateOptionalText(query.Pattern, nameof(query), FacadeGuard.MaxLongTextLength);
         var args = new[] { JsonSerializer.SerializeToElement(query, ExtensionsJsonContext.Default.ExtensionQuery) };
         return FacadeResults.ListAsync(
             this._channel.CallAsync(Base + "list", ExtensionsJsonContext.Default.ListExtension, args, cancellationToken),
@@ -102,7 +102,7 @@ public sealed class ExtensionsApi
 
     private Task<bool> CallBoolAsync(string action, string text, string paramName, bool? flag, CancellationToken cancellationToken)
     {
-        FacadeGuard.ValidateText(text, paramName);
+        FacadeGuard.ValidateText(text, paramName, FacadeGuard.MaxIdentifierLength);
         var first = JsonSerializer.SerializeToElement(text, FacadeJsonContext.Default.String);
         JsonElement[] args = flag is { } value
             ? [first, JsonSerializer.SerializeToElement(value, FacadeJsonContext.Default.Boolean)]

@@ -36,7 +36,7 @@ public sealed class ExtractionApi
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task AddArchivePasswordAsync(string password, CancellationToken cancellationToken = default)
     {
-        FacadeGuard.ValidateText(password, nameof(password));
+        FacadeGuard.ValidateText(password, nameof(password), FacadeGuard.MaxLongTextLength);
         return this._channel.CallAsync(Base + "addArchivePassword", [Str(password)], cancellationToken);
     }
 
@@ -91,7 +91,7 @@ public sealed class ExtractionApi
         ArgumentNullException.ThrowIfNull(archiveIds);
         foreach (var archiveId in archiveIds)
         {
-            FacadeGuard.ValidateText(archiveId, nameof(archiveIds));
+            FacadeGuard.ValidateText(archiveId, nameof(archiveIds), FacadeGuard.MaxIdentifierLength);
         }
 
         var args = new[] { JsonSerializer.SerializeToElement([.. archiveIds], ExtractionJsonContext.Default.StringArray) };
@@ -129,20 +129,20 @@ public sealed class ExtractionApi
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task<bool> SetArchiveSettingsAsync(string archiveId, ArchiveSettings settings, CancellationToken cancellationToken = default)
     {
-        FacadeGuard.ValidateText(archiveId, nameof(archiveId));
+        FacadeGuard.ValidateText(archiveId, nameof(archiveId), FacadeGuard.MaxIdentifierLength);
         ArgumentNullException.ThrowIfNull(settings);
         if (settings.ArchiveId is not null && !string.Equals(settings.ArchiveId, archiveId, StringComparison.Ordinal))
         {
             throw new ArgumentException("The settings archive identifier must be null or equal to the archive identifier.", nameof(settings));
         }
 
-        FacadeGuard.ValidateOptionalText(settings.ExtractPath, nameof(settings));
-        FacadeGuard.ValidateOptionalText(settings.FinalPassword, nameof(settings));
+        FacadeGuard.ValidateOptionalText(settings.ExtractPath, nameof(settings), FacadeGuard.MaxPathLength);
+        FacadeGuard.ValidateOptionalText(settings.FinalPassword, nameof(settings), FacadeGuard.MaxLongTextLength);
         if (settings.Passwords is { } passwords)
         {
             foreach (var password in passwords)
             {
-                FacadeGuard.ValidateText(password, nameof(settings));
+                FacadeGuard.ValidateText(password, nameof(settings), FacadeGuard.MaxLongTextLength);
             }
         }
 

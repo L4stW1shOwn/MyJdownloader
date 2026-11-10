@@ -276,12 +276,12 @@ public sealed class EventsApi
         ArgumentNullException.ThrowIfNull(subscriptions);
         foreach (var value in subscriptions)
         {
-            FacadeGuard.ValidateText(value, nameof(subscriptions));
+            FacadeGuard.ValidateText(value, nameof(subscriptions), FacadeGuard.MaxLongTextLength);
         }
 
         foreach (var value in exclusions ?? [])
         {
-            FacadeGuard.ValidateText(value, nameof(exclusions));
+            FacadeGuard.ValidateText(value, nameof(exclusions), FacadeGuard.MaxLongTextLength);
         }
     }
 
@@ -290,7 +290,7 @@ public sealed class EventsApi
         string[] values = items is null ? [] : [.. items];
         foreach (var value in values)
         {
-            FacadeGuard.ValidateText(value, paramName);
+            FacadeGuard.ValidateText(value, paramName, FacadeGuard.MaxLongTextLength);
         }
 
         return JsonSerializer.SerializeToElement(values, EventsJsonContext.Default.StringArray);

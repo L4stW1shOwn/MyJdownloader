@@ -38,8 +38,8 @@ public sealed class AccountsApi
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task AddAccountAsync(string premiumHoster, string username, string password, CancellationToken cancellationToken = default)
     {
-        FacadeGuard.ValidateText(premiumHoster, nameof(premiumHoster));
-        FacadeGuard.ValidateText(username, nameof(username));
+        FacadeGuard.ValidateText(premiumHoster, nameof(premiumHoster), FacadeGuard.MaxIdentifierLength);
+        FacadeGuard.ValidateText(username, nameof(username), FacadeGuard.MaxIdentifierLength);
         ArgumentNullException.ThrowIfNull(password);
         return this._channel.CallAsync(Base + "addAccount", [Str(premiumHoster), Str(username), Str(password)], cancellationToken);
     }
@@ -135,7 +135,7 @@ public sealed class AccountsApi
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task<bool> SetUserNameAndPasswordAsync(long accountId, string username, string password, CancellationToken cancellationToken = default)
     {
-        FacadeGuard.ValidateText(username, nameof(username));
+        FacadeGuard.ValidateText(username, nameof(username), FacadeGuard.MaxIdentifierLength);
         ArgumentNullException.ThrowIfNull(password);
         var args = new[] { JsonSerializer.SerializeToElement(accountId, FacadeJsonContext.Default.Int64), Str(username), Str(password) };
         return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "setUserNameAndPassword", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
@@ -176,7 +176,7 @@ public sealed class AccountsApi
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<string?> GetPremiumHosterUrlAsync(string hoster, CancellationToken cancellationToken = default)
     {
-        FacadeGuard.ValidateText(hoster, nameof(hoster));
+        FacadeGuard.ValidateText(hoster, nameof(hoster), FacadeGuard.MaxIdentifierLength);
         return this._channel.CallAsync(Base + "getPremiumHosterUrl", FacadeJsonContext.Default.String, [Str(hoster)], cancellationToken);
     }
 
@@ -200,8 +200,8 @@ public sealed class AccountsApi
     public Task<long> AddBasicAuthAsync(BasicAuthType type, string hostmask, string username, string password, CancellationToken cancellationToken = default)
     {
         ValidateType(type, nameof(type));
-        FacadeGuard.ValidateText(hostmask, nameof(hostmask));
-        FacadeGuard.ValidateText(username, nameof(username));
+        FacadeGuard.ValidateText(hostmask, nameof(hostmask), FacadeGuard.MaxIdentifierLength);
+        FacadeGuard.ValidateText(username, nameof(username), FacadeGuard.MaxIdentifierLength);
         ArgumentNullException.ThrowIfNull(password);
         var args = new[] { JsonSerializer.SerializeToElement(type, AccountsJsonContext.Default.BasicAuthType), Str(hostmask), Str(username), Str(password) };
         return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "addBasicAuth", FacadeJsonContext.Default.NullableInt64, args, cancellationToken));
@@ -240,8 +240,8 @@ public sealed class AccountsApi
     {
         ArgumentNullException.ThrowIfNull(updatedEntry);
         ValidateType(updatedEntry.Type, nameof(updatedEntry));
-        FacadeGuard.ValidateOptionalText(updatedEntry.Hostmask, nameof(updatedEntry));
-        FacadeGuard.ValidateOptionalText(updatedEntry.Username, nameof(updatedEntry));
+        FacadeGuard.ValidateOptionalText(updatedEntry.Hostmask, nameof(updatedEntry), FacadeGuard.MaxIdentifierLength);
+        FacadeGuard.ValidateOptionalText(updatedEntry.Username, nameof(updatedEntry), FacadeGuard.MaxIdentifierLength);
         var args = new[] { JsonSerializer.SerializeToElement(updatedEntry, AccountsJsonContext.Default.BasicAuthentication) };
         return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "updateBasicAuth", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }

@@ -63,7 +63,7 @@ public sealed class DialogsApi
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<DialogTypeInfo> GetTypeInfoAsync(string dialogType, CancellationToken cancellationToken = default)
     {
-        FacadeGuard.ValidateText(dialogType, nameof(dialogType));
+        FacadeGuard.ValidateText(dialogType, nameof(dialogType), FacadeGuard.MaxIdentifierLength);
         var args = new[] { JsonSerializer.SerializeToElement(dialogType, FacadeJsonContext.Default.String) };
         return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "getTypeInfo", DialogsJsonContext.Default.DialogTypeInfo, args, cancellationToken));
     }
@@ -87,7 +87,7 @@ public sealed class DialogsApi
         var copy = new Dictionary<string, JsonElement>(data.Count, StringComparer.Ordinal);
         foreach (var (key, value) in data)
         {
-            FacadeGuard.ValidateText(key, nameof(data));
+            FacadeGuard.ValidateText(key, nameof(data), FacadeGuard.MaxIdentifierLength);
             if (value.ValueKind == JsonValueKind.Undefined)
             {
                 throw new ArgumentException("A value must not be a default JsonElement.", nameof(data));

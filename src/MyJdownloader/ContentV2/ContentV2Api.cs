@@ -38,7 +38,7 @@ public sealed class ContentV2Api
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<byte[]> GetFavIconAsync(string hosterName, CancellationToken cancellationToken = default)
     {
-        FacadeGuard.ValidateText(hosterName, nameof(hosterName));
+        FacadeGuard.ValidateText(hosterName, nameof(hosterName), FacadeGuard.MaxIdentifierLength);
         return this.CallBinaryAsync("getFavIcon", [Str(hosterName)], cancellationToken);
     }
 
@@ -56,7 +56,7 @@ public sealed class ContentV2Api
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<byte[]> GetFileIconAsync(string fileName, CancellationToken cancellationToken = default)
     {
-        FacadeGuard.ValidateText(fileName, nameof(fileName));
+        FacadeGuard.ValidateText(fileName, nameof(fileName), FacadeGuard.MaxIdentifierLength);
         return this.CallBinaryAsync("getFileIcon", [Str(fileName)], cancellationToken);
     }
 
@@ -77,7 +77,7 @@ public sealed class ContentV2Api
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<byte[]> GetIconAsync(string key, int size, CancellationToken cancellationToken = default)
     {
-        FacadeGuard.ValidateText(key, nameof(key));
+        FacadeGuard.ValidateText(key, nameof(key), FacadeGuard.MaxIdentifierLength);
         if (size is < MinIconSize or > MaxIconSize)
         {
             throw new ArgumentOutOfRangeException(nameof(size), "The size must be between 1 and 128.");
@@ -102,7 +102,7 @@ public sealed class ContentV2Api
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<IconDescriptor?> GetIconDescriptionAsync(string key, CancellationToken cancellationToken = default)
     {
-        FacadeGuard.ValidateText(key, nameof(key));
+        FacadeGuard.ValidateText(key, nameof(key), FacadeGuard.MaxIdentifierLength);
         return this._channel.CallAsync(Base + "getIconDescription", ContentV2JsonContext.Default.IconDescriptor, [Str(key)], cancellationToken);
     }
 

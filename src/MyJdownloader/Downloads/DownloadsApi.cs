@@ -278,7 +278,7 @@ public sealed class DownloadsApi
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task SetDownloadDirectoryAsync(string directory, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)
     {
-        FacadeGuard.ValidateText(directory, nameof(directory));
+        FacadeGuard.ValidateText(directory, nameof(directory), FacadeGuard.MaxPathLength);
         var args = new[]
         {
             JsonSerializer.SerializeToElement(directory, FacadeJsonContext.Default.String),
@@ -305,8 +305,8 @@ public sealed class DownloadsApi
     public Task MoveToNewPackageAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, string newPackageName, string downloadPath, CancellationToken cancellationToken = default)
     {
         var ids = FacadeGuard.IdArgs(linkIds, packageIds);
-        FacadeGuard.ValidateText(newPackageName, nameof(newPackageName));
-        FacadeGuard.ValidateText(downloadPath, nameof(downloadPath));
+        FacadeGuard.ValidateText(newPackageName, nameof(newPackageName), FacadeGuard.MaxIdentifierLength);
+        FacadeGuard.ValidateText(downloadPath, nameof(downloadPath), FacadeGuard.MaxPathLength);
         var args = new[]
         {
             ids[0],
@@ -319,7 +319,7 @@ public sealed class DownloadsApi
 
     private Task RenameAsync(string action, long id, string newName, CancellationToken cancellationToken)
     {
-        FacadeGuard.ValidateText(newName, nameof(newName));
+        FacadeGuard.ValidateText(newName, nameof(newName), FacadeGuard.MaxIdentifierLength);
         var args = new[]
         {
             JsonSerializer.SerializeToElement(id, FacadeJsonContext.Default.Int64),

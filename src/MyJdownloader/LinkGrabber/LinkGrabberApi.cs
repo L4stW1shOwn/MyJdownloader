@@ -53,9 +53,9 @@ public sealed class LinkGrabberApi
             ValidateLink(link, nameof(request));
         }
 
-        FacadeGuard.ValidateOptionalText(request.PackageName, nameof(request));
-        FacadeGuard.ValidateOptionalText(request.DestinationFolder, nameof(request));
-        FacadeGuard.ValidateOptionalText(request.SourceUrl, nameof(request));
+        FacadeGuard.ValidateOptionalText(request.PackageName, nameof(request), FacadeGuard.MaxIdentifierLength);
+        FacadeGuard.ValidateOptionalText(request.DestinationFolder, nameof(request), FacadeGuard.MaxPathLength);
+        FacadeGuard.ValidateOptionalText(request.SourceUrl, nameof(request), FacadeGuard.MaxLongTextLength);
         if (request.Priority is { } requested && !FacadeGuard.IsKnown(requested))
         {
             throw new ArgumentException("The priority must be a known value.", nameof(request));
@@ -275,7 +275,7 @@ public sealed class LinkGrabberApi
 
     private Task RenameAsync(string action, long id, string newName, CancellationToken cancellationToken)
     {
-        FacadeGuard.ValidateText(newName, nameof(newName));
+        FacadeGuard.ValidateText(newName, nameof(newName), FacadeGuard.MaxIdentifierLength);
         var args = new[]
         {
             JsonSerializer.SerializeToElement(id, FacadeJsonContext.Default.Int64),

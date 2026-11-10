@@ -124,8 +124,8 @@ public sealed class ConfigApi
     public Task<IReadOnlyList<ConfigEntry>> QueryAsync(ConfigQuery? query = null, CancellationToken cancellationToken = default)
     {
         query ??= new ConfigQuery();
-        FacadeGuard.ValidateOptionalText(query.ConfigInterface, nameof(query));
-        FacadeGuard.ValidateOptionalText(query.Pattern, nameof(query));
+        FacadeGuard.ValidateOptionalText(query.ConfigInterface, nameof(query), FacadeGuard.MaxIdentifierLength);
+        FacadeGuard.ValidateOptionalText(query.Pattern, nameof(query), FacadeGuard.MaxLongTextLength);
         var args = new[] { JsonSerializer.SerializeToElement(query, ConfigJsonContext.Default.ConfigQuery) };
         return FacadeResults.ListAsync(this._channel.CallAsync(Base + "query", ConfigJsonContext.Default.ListConfigEntry, args, cancellationToken));
     }
@@ -143,16 +143,16 @@ public sealed class ConfigApi
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<IReadOnlyList<ConfigEnumOption>> ListEnumAsync(string type, CancellationToken cancellationToken = default)
     {
-        FacadeGuard.ValidateText(type, nameof(type));
+        FacadeGuard.ValidateText(type, nameof(type), FacadeGuard.MaxIdentifierLength);
         var args = new[] { JsonSerializer.SerializeToElement(type, FacadeJsonContext.Default.String) };
         return FacadeResults.ListAsync(this._channel.CallAsync(Base + "listEnum", ConfigJsonContext.Default.ListConfigEnumOption, args, cancellationToken));
     }
 
     private static JsonElement[] IdentifierArgs(string interfaceName, string? storage, string key)
     {
-        FacadeGuard.ValidateText(interfaceName, nameof(interfaceName));
-        FacadeGuard.ValidateOptionalText(storage, nameof(storage));
-        FacadeGuard.ValidateText(key, nameof(key));
+        FacadeGuard.ValidateText(interfaceName, nameof(interfaceName), FacadeGuard.MaxIdentifierLength);
+        FacadeGuard.ValidateOptionalText(storage, nameof(storage), FacadeGuard.MaxPathLength);
+        FacadeGuard.ValidateText(key, nameof(key), FacadeGuard.MaxIdentifierLength);
         return
         [
             JsonSerializer.SerializeToElement(interfaceName, FacadeJsonContext.Default.String),

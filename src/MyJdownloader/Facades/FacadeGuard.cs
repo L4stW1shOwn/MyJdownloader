@@ -6,6 +6,15 @@ using System.Text.Json;
 /// <summary>Argument validation and serialization helpers shared by the device namespace facades.</summary>
 internal static class FacadeGuard
 {
+    /// <summary>Maximum length of identifiers, keys, names, formats and host names, in UTF-16 code units.</summary>
+    internal const int MaxIdentifierLength = 1_024;
+
+    /// <summary>Maximum length of file system paths, in UTF-16 code units.</summary>
+    internal const int MaxPathLength = 32_767;
+
+    /// <summary>Maximum length of URLs, tokens, passwords, patterns and free text, in UTF-16 code units.</summary>
+    internal const int MaxLongTextLength = 65_536;
+
     internal static bool IsKnown<TEnum>(TEnum value)
         where TEnum : struct, Enum
         => !value.Equals(default(TEnum)) && Enum.IsDefined(value);
@@ -27,17 +36,22 @@ internal static class FacadeGuard
         return JsonSerializer.SerializeToElement([.. ids], FacadeJsonContext.Default.Int64Array);
     }
 
-    internal static void ValidateOptionalText(string? text, string paramName)
+    internal static void ValidateOptionalText(string? text, string paramName, int maxLength)
     {
         if (text is not null)
         {
-            ValidateText(text, paramName);
+            ValidateText(text, paramName, maxLength);
         }
     }
 
-    internal static void ValidateText(string text, string paramName)
+    internal static void ValidateText(string text, string paramName, int maxLength)
     {
         ArgumentNullException.ThrowIfNull(text, paramName);
+        if (text.Length > maxLength)
+        {
+            throw new ArgumentException(string.Create(CultureInfo.InvariantCulture, $"A text value must not exceed {maxLength} characters."), paramName);
+        }
+
         if (string.IsNullOrWhiteSpace(text))
         {
             throw new ArgumentException("A text value must not be blank.", paramName);
@@ -63,9 +77,9 @@ internal static class FacadeGuard
         }
     }
 
-    internal static void ValidateUrlSafeToken(string text, string paramName)
+    internal static void ValidateUrlSafeToken(string text, string paramName, int maxLength)
     {
-        ValidateText(text, paramName);
+        ValidateText(text, paramName, maxLength);
         foreach (var c in text)
         {
             if (!(char.IsAsciiLetterOrDigit(c) || c is '-' or '_'))
@@ -77,7 +91,7 @@ internal static class FacadeGuard
 
     internal static void ValidateHostName(string text, string paramName)
     {
-        ValidateText(text, paramName);
+        ValidateText(text, paramName, MaxIdentifierLength);
         if (Uri.CheckHostName(text) is not (UriHostNameType.Dns or UriHostNameType.IPv4))
         {
             throw new ArgumentException("A host name is expected (internationalized names must be sent as punycode).", paramName);

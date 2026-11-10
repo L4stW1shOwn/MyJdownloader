@@ -62,7 +62,7 @@ public sealed class UiApi
     public Task<JsonElement> InvokeActionAsync(MenuContext context, string id, IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)
     {
         var contextArg = ContextArg(context);
-        FacadeGuard.ValidateText(id, nameof(id));
+        FacadeGuard.ValidateText(id, nameof(id), FacadeGuard.MaxIdentifierLength);
         var ids = FacadeGuard.IdArgs(linkIds, packageIds);
         var args = new[] { contextArg, JsonSerializer.SerializeToElement(id, FacadeJsonContext.Default.String), ids[0], ids[1] };
         return ToValueAsync(this._channel.CallAsync(Base + "invokeAction", UiJsonContext.Default.NullableJsonElement, args, cancellationToken));
