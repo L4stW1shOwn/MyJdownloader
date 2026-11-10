@@ -15,10 +15,13 @@ public sealed partial class DeviceChannelTests
     private const string VersionPath = "/jd/version";
     private const string ReconnectPath = "/my/reconnect";
     private const string NotConnectedMessage = "The client is not connected.";
+    private const string TotalCapMessage = "The arguments must not exceed 1048576 characters in total.";
     private static readonly TimeSpan _waitTimeout = TimeSpan.FromSeconds(5);
 
     private static readonly string[] _twoParams = ["abc", /*lang=json,strict*/ "{\"a\":1}"];
     private static readonly string[] _threeParams = ["abc", /*lang=json,strict*/ "{\"a\":1}", "5"];
+
+    private static JsonElement TextArg(int length) => Json("\"" + new string('a', length) + "\"");
 
     private static byte[] Key(byte value) => [.. Enumerable.Repeat(value, 32)];
 
@@ -248,6 +251,50 @@ public sealed partial class DeviceChannelTests
         Assert.Multiple(() =>
         {
             Assert.That(thrown!.ParamName, Is.EqualTo("args"));
+            Assert.That(rig.Calls, Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task CallAsync_ArgumentsAtTotalCap_IsSent()
+    {
+        var rig = CreateRig(call => Ok(call, "true"));
+        var channel = rig.Client.CreateDeviceChannel("dev1");
+
+        await channel.CallAsync(VersionPath, [TextArg(524_288), TextArg(524_288)]).WaitAsync(_waitTimeout);
+
+        Assert.That(rig.Calls, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void CallAsync_ArgumentsOverTotalCap_ThrowsWithoutSending()
+    {
+        var rig = CreateRig(call => Ok(call, "true"));
+        var channel = rig.Client.CreateDeviceChannel("dev1");
+
+        var thrown = Assert.Catch<ArgumentException>(() => channel.CallAsync(VersionPath, [TextArg(524_288), TextArg(524_289)]));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.ParamName, Is.EqualTo("args"));
+            Assert.That(thrown.Message, Does.StartWith(TotalCapMessage));
+            Assert.That(rig.Calls, Is.Empty);
+        });
+    }
+
+    [Test]
+    public void CallAsync_NonStringArgumentsCountRawText()
+    {
+        var rig = CreateRig(call => Ok(call, "true"));
+        var channel = rig.Client.CreateDeviceChannel("dev1");
+        var array = Json("[\"" + new string('a', 1_048_576) + "\"]");
+
+        var thrown = Assert.Catch<ArgumentException>(() => channel.CallAsync(VersionPath, [array]));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.ParamName, Is.EqualTo("args"));
+            Assert.That(thrown.Message, Does.StartWith(TotalCapMessage));
             Assert.That(rig.Calls, Is.Empty);
         });
     }

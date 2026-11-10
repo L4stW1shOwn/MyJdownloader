@@ -17,6 +17,7 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
     private const int MaxPathLength = 256;
     private const int MaxDeviceIdLength = 256;
     private const int MaxResponseDepth = 64;
+    private const int MaxRequestArgsLength = 1_048_576;
     private static readonly string _unreadableMessage = RelayTransport.UnreadableMessageFor(MyJdErrorSource.Device);
     private static readonly string _mismatchMessage = RelayTransport.MismatchMessageFor(MyJdErrorSource.Device);
 
@@ -118,6 +119,17 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
         {
             // Includes ObjectDisposedException: the document of an argument was disposed, or its text is not valid.
             throw new ArgumentException("An argument is not valid.", nameof(args));
+        }
+
+        long total = 0;
+        foreach (var value in snapshot)
+        {
+            total += value.Length;
+        }
+
+        if (total > MaxRequestArgsLength)
+        {
+            throw new ArgumentException("The arguments must not exceed 1048576 characters in total.", nameof(args));
         }
 
         foreach (var value in snapshot)
