@@ -1,7 +1,14 @@
 namespace MyJdownloader.Ui;
 
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
+
 /// <summary>One entry of a device menu, as returned by <c>/ui/getMenu</c>.</summary>
-/// <remarks>All content returned by the device is untrusted. The root item returned by the device has no identifier, name or type.</remarks>
+/// <remarks>
+/// <para>All content returned by the device is untrusted. The root item returned by the device has no identifier, name or type.</para>
+/// <para><see cref="object.ToString"/> includes the device text unfiltered: do not log it as is, filter control characters first.</para>
+/// <para><see cref="Children"/> compares by reference, so two items with equal content and children are not equal.</para>
+/// </remarks>
 public sealed record MenuItem
 {
     /// <summary>Gets the identifier of the item, to pass to <see cref="UiApi.InvokeActionAsync"/> for an action; <see langword="null"/> when not set.</summary>
@@ -22,4 +29,15 @@ public sealed record MenuItem
         get;
         init => field = value ?? [];
     } = [];
+
+    [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Invoked by the compiler-generated ToString.")]
+    private bool PrintMembers(StringBuilder builder)
+    {
+        builder.Append("Type = ").Append(this.Type)
+            .Append(", Id = ").Append(this.Id)
+            .Append(", Name = ").Append(this.Name)
+            .Append(", Icon = ").Append(this.Icon)
+            .Append(", Children = ").Append(this.Children.Count);
+        return true;
+    }
 }

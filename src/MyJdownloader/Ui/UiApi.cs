@@ -49,7 +49,7 @@ public sealed class UiApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The result of the action; an element of kind <see cref="JsonValueKind.Null"/> when the device returns none, which is the case for every current JDownloader action.</returns>
     /// <remarks>
-    /// <para>Actions have side effects on the device: for example <c>checkonline</c> queues an online check of the selection and <c>forcedls</c> forces its downloads. Only <see cref="MenuContext.Dlc"/> acts; other contexts do nothing. An unknown action id is answered with 404 (<see cref="MyJdApiException"/>). Items of type <see cref="MenuItemType.Link"/> do nothing on the device.</para>
+    /// <para>Actions have side effects on the device: for example <c>checkonline</c> queues an online check of the selection and <c>forcedls</c> forces its downloads. Only <see cref="MenuContext.Dlc"/> acts; other contexts do nothing. An unknown action id is answered with 404 (<see cref="MyJdApiException"/>). Items of type <see cref="MenuItemType.Link"/> do nothing on the device. Obtain the explicit consent of the end user before calling it and never call it unattended.</para>
     /// <para>The result comes from the device and is untrusted.</para>
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="id"/>, <paramref name="linkIds"/> or <paramref name="packageIds"/> is <see langword="null"/>.</exception>
