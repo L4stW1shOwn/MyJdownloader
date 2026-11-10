@@ -63,7 +63,8 @@ the renewal was rejected. Then, connect again with the password
 
 The facades check the strings you pass before they send anything. A text value
 must not be blank, must not contain control characters or lone surrogates, and
-must not exceed the maximum length of its category. A bad value throws an
+must not exceed the maximum length of its category. Optional texts are checked only
+when you give them. A bad value throws an
 `ArgumentException` that names the argument (`ParamName`). It is thrown
 synchronously, before the task exists and before any request, so nothing
 reaches the relay or the device.

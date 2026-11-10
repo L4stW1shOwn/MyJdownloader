@@ -40,10 +40,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 - DeviceInfo: device identifier, name and type returned by the MyJD server.
 - Solution skeleton.
 - `MyJDownloaderOptions`.
+- `AddMyJDownloader` named HTTP client registration.
+- Exception hierarchy: MyJdException, MyJdAuthenticationException, MyJdDeviceOfflineException, MyJdRateLimitException, MyJdApiException, MyJdProtocolException, MyJdErrorSource; the service-reported `ErrorType` is capped at 256 characters and its control, format, line and paragraph separator characters and unpaired surrogates are replaced with `?`.
+- MyJdSession: immutable session with masked ToString() and versioned ToJson()/FromJson() export.
 
 ### Changed
 
 - Caller strings validated by the facades and the arguments of a device call now have documented maximum lengths (1 024, 32 767 or 65 536 UTF-16 code units by category, 1 048 576 in total per call); longer values throw `ArgumentException` before any request (CWE-1284).
-- `AddMyJDownloader` named HTTP client registration.
-- Exception hierarchy: MyJdException, MyJdAuthenticationException, MyJdDeviceOfflineException, MyJdRateLimitException, MyJdApiException, MyJdProtocolException, MyJdErrorSource; the service-reported `ErrorType` is capped at 256 characters and its control, format, line and paragraph separator characters and unpaired surrogates are replaced with `?`.
-- MyJdSession: immutable session with masked ToString() and versioned ToJson()/FromJson() export.
