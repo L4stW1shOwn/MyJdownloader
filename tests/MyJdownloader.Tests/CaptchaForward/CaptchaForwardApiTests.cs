@@ -194,7 +194,14 @@ public sealed class CaptchaForwardApiTests
         var channel = Substitute.For<IDeviceChannel>();
         var api = new CaptchaForwardApi(channel);
 
-        TextCaps.AssertRejected(channel, () => api.CreateJobRecaptchaV2Async("key", TextCaps.IdentifierOver), "domain");
+        var thrown = Assert.Throws<ArgumentException>(() => api.CreateJobRecaptchaV2Async("key", TextCaps.IdentifierOver));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.ParamName, Is.EqualTo("domain"));
+            Assert.That(thrown.Message, Does.StartWith("A text value must not exceed 1024 characters."));
+            Assert.That(channel.ReceivedCalls(), Is.Empty);
+        });
     }
 
     [Test]

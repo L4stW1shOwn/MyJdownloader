@@ -459,11 +459,19 @@ public sealed class EventsApiTests
     }
 
     [Test]
-    public void StreamAsync_SubscriptionAtLongTextMax_DoesNotThrow()
+    public void StreamAsync_SubscriptionAtLongTextMax_IsAccepted()
     {
         var api = new EventsApi(Substitute.For<IDeviceChannel>());
 
         Assert.DoesNotThrow(() => api.StreamAsync(new EventStreamOptions { Subscriptions = [TextCaps.LongText] }));
+    }
+
+    [Test]
+    public void StreamAsync_ExclusionAtLongTextMax_IsAccepted()
+    {
+        var api = new EventsApi(Substitute.For<IDeviceChannel>());
+
+        Assert.DoesNotThrow(() => api.StreamAsync(new EventStreamOptions { Subscriptions = ["a"], Exclusions = [TextCaps.LongText] }));
     }
 
     [Test]
