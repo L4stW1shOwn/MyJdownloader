@@ -18,7 +18,7 @@ Typed facade over the `/downloadevents` namespace of one device (the push interv
 
 | Member | Signature | Description |
 |---|---|---|
-| `SetStatusEventIntervalAsync` | `Task<bool> SetStatusEventIntervalAsync(long subscriptionId, TimeSpan interval, CancellationToken cancellationToken = default)` | Sets the push interval of the `downloads.*` interval events for one event subscription (`/downloadevents/setStatusEventInterval`). Returns `true` when the interval is set, and `false` when the subscription is unknown or its channel is closed. Throws `ArgumentOutOfRangeException` when `interval` is shorter than 1 millisecond, before any request. Throws `MyJdProtocolException` when the response holds no value. |
+| `SetStatusEventIntervalAsync` | `Task<bool> SetStatusEventIntervalAsync(long subscriptionId, TimeSpan interval, CancellationToken cancellationToken = default)` | Sets the push interval of the `downloads.*` interval events for one event subscription (`/downloadevents/setStatusEventInterval`). Returns `true` when the interval is set, and `false` when the subscription is unknown or its channel is closed. Throws `ArgumentOutOfRangeException` when `interval` is shorter than 1 millisecond, before any request. Throws `MyJdProtocolException` when the response holds no value. An interval well below the 1000 ms default raises the load on the device and on the relay. |
 
 Remarks:
 

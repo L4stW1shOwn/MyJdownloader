@@ -25,7 +25,7 @@ public sealed class DownloadEventsApi
     /// <param name="interval">The new interval, sent as whole milliseconds (a fraction of a millisecond is truncated). The device default is 1000 ms.</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns><see langword="true"/> when the interval is set; <see langword="false"/> when the subscription is unknown or its channel is closed.</returns>
-    /// <remarks>The interval applies until the subscription ends.</remarks>
+    /// <remarks>The interval applies until the subscription ends. Intervals well below the 1000 ms default raise the load on the device and on the relay.</remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="interval"/> is shorter than 1 millisecond.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid (including a missing result).</exception>
