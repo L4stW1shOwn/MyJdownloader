@@ -14,6 +14,8 @@ using MyJdownloader.Json;
         typeof(TolerantEnumConverter<CleanupAction>),
         typeof(TolerantEnumConverter<CleanupMode>),
         typeof(TolerantEnumConverter<SelectionType>),
+        typeof(TolerantEnumConverter<UrlDisplayType>),
+        typeof(TolerantEnumConverter<SkipReason>),
         typeof(UnixMillisecondsConverter),
         typeof(SecondsDurationConverter),
     ])]
@@ -25,6 +27,11 @@ using MyJdownloader.Json;
 [JsonSerializable(typeof(CleanupAction))]
 [JsonSerializable(typeof(CleanupMode))]
 [JsonSerializable(typeof(SelectionType))]
+[JsonSerializable(typeof(UrlDisplayType))]
+[JsonSerializable(typeof(UrlDisplayType[]))]
+[JsonSerializable(typeof(SkipReason))]
+[JsonSerializable(typeof(DownloadLink))]
+[JsonSerializable(typeof(Dictionary<string, List<long>>))]
 [JsonSerializable(typeof(int?))]
 [JsonSerializable(typeof(bool?))]
 internal sealed partial class DownloadsJsonContext : JsonSerializerContext

@@ -164,4 +164,41 @@ public sealed class DownloadsJsonTests
 
         Assert.That(first, Is.EqualTo(second));
     }
+
+    [TestCase(UrlDisplayType.Referrer, "\"REFERRER\"")]
+    [TestCase(UrlDisplayType.Content, "\"CONTENT\"")]
+    public void UrlDisplayType_Serialize_WritesUpperSnakeName(UrlDisplayType value, string expected)
+    {
+        var json = JsonSerializer.Serialize(value, DownloadsJsonContext.Default.UrlDisplayType);
+
+        Assert.That(json, Is.EqualTo(expected));
+    }
+
+    [TestCase(SkipReason.ConnectionUnavailable, "\"CONNECTION_UNAVAILABLE\"")]
+    [TestCase(SkipReason.FfprobeMissing, "\"FFPROBE_MISSING\"")]
+    [TestCase(SkipReason.UpdateRestartRequired, "\"UPDATE_RESTART_REQUIRED\"")]
+    public void SkipReason_Serialize_WritesUpperSnakeName(SkipReason value, string expected)
+    {
+        var json = JsonSerializer.Serialize(value, DownloadsJsonContext.Default.SkipReason);
+
+        Assert.That(json, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void UrlDisplayType_UnknownWireValue_ReadsUnknown()
+    {
+        var values = JsonSerializer.Deserialize("[\"SOMETHING_NEW\"]", DownloadsJsonContext.Default.UrlDisplayTypeArray);
+
+        UrlDisplayType[] expected = [UrlDisplayType.Unknown];
+
+        Assert.That(values, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void SkipReason_UnknownWireValue_ReadsUnknown()
+    {
+        var value = JsonSerializer.Deserialize("\"SOMETHING_NEW\"", DownloadsJsonContext.Default.SkipReason);
+
+        Assert.That(value, Is.EqualTo(SkipReason.Unknown));
+    }
 }

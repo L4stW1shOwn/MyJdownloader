@@ -1339,3 +1339,23 @@ MyJdownloader.Toolbar.ToolbarStatus.BytesTotal.init -> void
 MyJdownloader.DownloadEvents.DownloadEventsApi
 MyJdownloader.JDownloaderDevice.DownloadEvents.get -> MyJdownloader.DownloadEvents.DownloadEventsApi!
 MyJdownloader.DownloadEvents.DownloadEventsApi.SetStatusEventIntervalAsync(long subscriptionId, System.TimeSpan interval, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.UrlDisplayType
+MyJdownloader.UrlDisplayType.Unknown = 0 -> MyJdownloader.UrlDisplayType
+MyJdownloader.UrlDisplayType.Custom = 1 -> MyJdownloader.UrlDisplayType
+MyJdownloader.UrlDisplayType.Referrer = 2 -> MyJdownloader.UrlDisplayType
+MyJdownloader.UrlDisplayType.Origin = 3 -> MyJdownloader.UrlDisplayType
+MyJdownloader.UrlDisplayType.Container = 4 -> MyJdownloader.UrlDisplayType
+MyJdownloader.UrlDisplayType.Content = 5 -> MyJdownloader.UrlDisplayType
+MyJdownloader.SkipReason
+MyJdownloader.SkipReason.Unknown = 0 -> MyJdownloader.SkipReason
+MyJdownloader.SkipReason.ConnectionUnavailable = 1 -> MyJdownloader.SkipReason
+MyJdownloader.SkipReason.TooManyRetries = 2 -> MyJdownloader.SkipReason
+MyJdownloader.SkipReason.Captcha = 3 -> MyJdownloader.SkipReason
+MyJdownloader.SkipReason.Manual = 4 -> MyJdownloader.SkipReason
+MyJdownloader.SkipReason.DiskFull = 5 -> MyJdownloader.SkipReason
+MyJdownloader.SkipReason.NoAccount = 6 -> MyJdownloader.SkipReason
+MyJdownloader.SkipReason.InvalidDestination = 7 -> MyJdownloader.SkipReason
+MyJdownloader.SkipReason.FileExists = 8 -> MyJdownloader.SkipReason
+MyJdownloader.SkipReason.UpdateRestartRequired = 9 -> MyJdownloader.SkipReason
+MyJdownloader.SkipReason.FfmpegMissing = 10 -> MyJdownloader.SkipReason
+MyJdownloader.SkipReason.FfprobeMissing = 11 -> MyJdownloader.SkipReason
