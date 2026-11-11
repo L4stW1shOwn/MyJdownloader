@@ -5,6 +5,7 @@
 - **Amended**: 2026-11-06 (T-011)
 - **Amended**: 2026-11-11 (T-060, length caps on caller strings and device-call arguments)
 - **Amended**: 2026-11-11 (T-066, no implicit "everything" on empty selections)
+- **Amended**: 2026-11-11 (T-064, no negative element in identifier lists)
 
 ## Context
 
@@ -159,6 +160,23 @@ Empty selections on destructive actions (amendment, 2026-11-11, T-066):
 - Nothing is published yet, so the behaviour change is free; it is listed in
   `CHANGELOG.md` under `[Unreleased]` / Changed. Every future selection-based
   destructive action follows the same rule.
+
+Identifier lists (amendment, 2026-11-11, T-064):
+
+- **Identifier lists follow the scalar identifier rule** (T-043 audit,
+  finding L1, CWE-20): every element of a list (`linkIds`, `packageIds`, ...)
+  passed to a facade must be `>= 0`, as negative values could be device-side
+  sentinels. The rule is enforced by the facades only: a raw
+  `IDeviceChannel.CallAsync` call is not guarded.
+- `FacadeGuard.Ids` copies the list once, rejects any negative element with
+  `ArgumentOutOfRangeException` on the list parameter, fixed message "An
+  identifier must not be negative." (same as scalar ids and
+  `LinkCrawlerJobQuery.JobIds`; no value, `ActualValue` null), and serializes
+  that same copy, so the checked and the sent values cannot differ.
+- Empty lists keep their existing per-action meaning (see T-066).
+- Every action taking identifier lists is affected. Nothing is published yet,
+  so the behaviour change is free; it is listed in `CHANGELOG.md` under
+  `[Unreleased]` / Changed.
 
 Documentation, tests and delivery:
 
