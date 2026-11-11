@@ -61,7 +61,14 @@ public sealed class LiveSession
             return;
         }
 
-        await Client.DisconnectAsync();
-        _httpClient.Dispose();
+        try
+        {
+            await Client.DisconnectAsync();
+        }
+        finally
+        {
+            _httpClient.Dispose();
+            _httpClient = null;
+        }
     }
 }

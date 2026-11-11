@@ -91,8 +91,15 @@ public static class LiveOutput
 
     private static string MaskUrl(string value)
     {
-        if (!Uri.TryCreate(value, UriKind.Absolute, out var uri)
-            || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+        if (!Uri.TryCreate(value, UriKind.Absolute, out var uri))
+        {
+            return value.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+                || value.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+                ? MaskedValue
+                : value;
+        }
+
+        if ((uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
             || (uri.UserInfo.Length == 0 && uri.Query.Length == 0))
         {
             return value;

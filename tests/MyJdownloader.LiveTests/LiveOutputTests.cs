@@ -54,7 +54,7 @@ public sealed class LiveOutputTests
     {
         var result = Mask("""{"jobId":4,"name":"n"}""");
 
-        Assert.That(result, Does.Contain("4"));
+        Assert.That(result, Does.Contain("\"jobId\": 4"));
         Assert.That(result, Does.Contain("\"n\""));
     }
 
@@ -76,30 +76,64 @@ public sealed class LiveOutputTests
         Assert.That(result, Does.Contain("\"token\": \"***\""));
     }
 
-    [Test]
-    public void Mask_SessionKeys_AreMasked()
+    [TestCase("sessiontoken")]
+    [TestCase("regaintoken")]
+    [TestCase("email")]
+    [TestCase("user")]
+    [TestCase("username")]
+    [TestCase("apiKey")]
+    [TestCase("cookieValue")]
+    [TestCase("authHeader")]
+    [TestCase("loginName")]
+    public void Mask_SecretKey_IsMasked(string key)
     {
-        var result = Mask("""
-            {"sessiontoken":"v1s","regaintoken":"v2r","email":"v3e","user":"v4u","username":"v5n"}
-            """);
+        var result = Mask($$"""{"{{key}}":"distinctvalue"}""");
 
-        foreach (var value in new[] { "v1s", "v2r", "v3e", "v4u", "v5n" })
-        {
-            Assert.That(result, Does.Not.Contain(value));
-        }
+        Assert.That(result, Does.Not.Contain("distinctvalue"));
+        Assert.That(result, Does.Contain("\"***\""));
     }
 
     [Test]
-    public void Mask_SubstringKeys_AreMasked()
+    public void Mask_EscapedKey_IsMasked()
     {
-        var result = Mask("""
-            {"apiKey":"w1a","cookieValue":"w2c","authHeader":"w3h","loginName":"w4l"}
-            """);
+        var result = Mask("""{"pa\u0073s":"xval"}""");
 
-        foreach (var value in new[] { "w1a", "w2c", "w3h", "w4l" })
-        {
-            Assert.That(result, Does.Not.Contain(value));
-        }
+        Assert.That(result, Does.Not.Contain("xval"));
+    }
+
+    [Test]
+    public void Mask_ArrayRoot_IsMasked()
+    {
+        var result = Mask("""[{"token":"xval"}]""");
+
+        Assert.That(result, Does.Not.Contain("xval"));
+    }
+
+    [Test]
+    public void Mask_StringRootUrlWithQuery_IsStripped()
+    {
+        var result = Mask("\"https://h/a?t=1\"");
+
+        Assert.That(result, Does.Contain("https://h/a?***"));
+        Assert.That(result, Does.Not.Contain("t=1"));
+    }
+
+    [Test]
+    public void Mask_UrlWithNonDefaultPort_KeepsPort()
+    {
+        var result = Mask("""{"link":"https://h:8443/a?q=1"}""");
+
+        Assert.That(result, Does.Contain("h:8443"));
+        Assert.That(result, Does.Not.Contain("q=1"));
+    }
+
+    [Test]
+    public void Mask_UnparseableHttpUrl_IsReplaced()
+    {
+        var result = Mask("""{"link":"https://u:p@h:99999/x?t=1"}""");
+
+        Assert.That(result, Does.Not.Contain("u:p"));
+        Assert.That(result, Does.Not.Contain("t=1"));
     }
 
     [Test]
