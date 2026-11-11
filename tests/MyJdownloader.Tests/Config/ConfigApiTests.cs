@@ -245,6 +245,18 @@ public sealed class ConfigApiTests
     }
 
     [Test]
+    public async Task SetAsync_ValueAtRequestCap_ReachesChannel()
+    {
+        var (channel, api) = Create();
+        ReturnsBool(channel, "set", true);
+        var value = JsonSerializer.SerializeToElement(new string('a', 1_048_574));
+
+        await api.SetAsync(Iface, null, "Key", value);
+
+        Assert.That(Sent(channel).Path, Is.EqualTo("/config/set"));
+    }
+
+    [Test]
     public async Task SetAsync_String_SendsQuotedJsonText() =>
         Assert.That(await SentSetValueAsync(JsonSerializer.SerializeToElement("foo")), Is.EqualTo("\"foo\""));
 
