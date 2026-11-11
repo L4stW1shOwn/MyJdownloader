@@ -87,7 +87,8 @@ not the HTTP body size, which escaping and encryption expand. This covers lists
 `ArgumentException` on `args`, before encryption and any HTTP request.
 `Config.SetAsync` and `Plugins.SetAsync` check their `value` first: a JSON text
 longer than 1 048 576 UTF-16 code units throws an `ArgumentException` on
-`value` before it is copied.
+`value` before it is copied. A shorter value still counts toward the total cap
+of the call, with the other arguments and the 3-character overhead.
 
 ```csharp
 try
