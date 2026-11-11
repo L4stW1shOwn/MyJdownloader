@@ -5,6 +5,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/MyJdownloader.Extensions.DependencyInjection.Tests/MyJdownloader.Extensions.DependencyInjection.Tests.csproj" />
+    <Project Path="tests/MyJdownloader.LiveTests/MyJdownloader.LiveTests.csproj" />
     <Project Path="tests/MyJdownloader.Tests/MyJdownloader.Tests.csproj" />
   </Folder>
 </Solution>
