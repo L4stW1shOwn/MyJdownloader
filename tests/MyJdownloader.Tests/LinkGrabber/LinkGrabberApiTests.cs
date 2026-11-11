@@ -105,6 +105,8 @@ public sealed class LinkGrabberApiTests
             var bad = text;
             var label = bad is null ? "null" : bad.Length == 0 ? "empty" : bad.Replace("\n", "LF", StringComparison.Ordinal).Replace("\r", "CR", StringComparison.Ordinal).Replace("\u0001", "ctl", StringComparison.Ordinal).Replace("\u2028", "LS", StringComparison.Ordinal).Replace("\uD800", "surrogate", StringComparison.Ordinal).Replace(" ", "blank", StringComparison.Ordinal);
             yield return Case($"SetDownloadDirectoryAsync_Directory_{label}_Throws", a => a.SetDownloadDirectoryAsync(bad!, _noIds));
+            yield return Case($"SetVariantAsync_VariantId_{label}_Throws", a => a.SetVariantAsync(1, bad!));
+            yield return Case($"AddVariantCopyAsync_VariantId_{label}_Throws", a => a.AddVariantCopyAsync(1, 2, 3, bad!));
             yield return Case($"MoveToNewPackageAsync_NewPackageName_{label}_Throws", a => a.MoveToNewPackageAsync(_noIds, _noIds, bad!, "/dl"));
             yield return Case($"MoveToNewPackageAsync_DownloadPath_{label}_Throws", a => a.MoveToNewPackageAsync(_noIds, _noIds, "pkg", bad!));
             if (bad is not null)
@@ -113,6 +115,13 @@ public sealed class LinkGrabberApiTests
             }
         }
 
+        yield return Case("GetVariantsAsync_NegativeLinkId_Throws", a => a.GetVariantsAsync(-1));
+        yield return Case("SetVariantAsync_NegativeLinkId_Throws", a => a.SetVariantAsync(-1, "v1"));
+        yield return Case("AddVariantCopyAsync_NegativeLinkId_Throws", a => a.AddVariantCopyAsync(-1, 2, 3, "v1"));
+        yield return Case("AddVariantCopyAsync_NegativeAfterLinkId_Throws", a => a.AddVariantCopyAsync(1, -1, 3, "v1"));
+        yield return Case("AddVariantCopyAsync_NegativeDestinationPackageId_Throws", a => a.AddVariantCopyAsync(1, 2, -1, "v1"));
+        yield return Case("SetVariantAsync_VariantId_TooLong_Throws", a => a.SetVariantAsync(1, TextCaps.IdentifierOver));
+        yield return Case("AddVariantCopyAsync_VariantId_TooLong_Throws", a => a.AddVariantCopyAsync(1, 2, 3, TextCaps.IdentifierOver));
         yield return Case("SetDownloadPasswordAsync_Password_TooLong_Throws", a => a.SetDownloadPasswordAsync(_noIds, _noIds, TextCaps.LongTextOver));
         yield return Case("SetDownloadPasswordAsync_NullLinkIds_Throws", a => a.SetDownloadPasswordAsync(null!, _noIds, "pw"));
         yield return Case("SetDownloadPasswordAsync_NullPackageIds_Throws", a => a.SetDownloadPasswordAsync(_noIds, null!, "pw"));
@@ -781,6 +790,10 @@ public sealed class LinkGrabberApiTests
         Assert.That(ex.ToString(), Does.Not.Contain("Zq7").And.Not.Contain("Xv9"));
     }
 
+    private static void ReturnsVariants(IDeviceChannel channel, List<LinkVariant>? value)
+        => channel.CallAsync(Base + "getVariants", Arg.Any<JsonTypeInfo<List<LinkVariant>>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(value));
+
     private static void ReturnsUrlMap(IDeviceChannel channel, Dictionary<string, List<long>>? value)
         => channel.CallAsync(Base + "getDownloadUrls", Arg.Any<JsonTypeInfo<Dictionary<string, List<long>>>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(value));
@@ -828,5 +841,61 @@ public sealed class LinkGrabberApiTests
         var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.GetDownloadUrlsAsync(_ids, _packageIds, _contentTypes));
 
         AssertDeviceUnreadable(thrown);
+    }
+
+    [Test]
+    public async Task GetVariantsAsync_Variants_ReturnsList()
+    {
+        var (channel, api) = Create();
+        ReturnsVariants(channel, [new LinkVariant { Id = "v1", Name = "720p", IconKey = "k" }]);
+
+        var result = await api.GetVariantsAsync(5);
+
+        AssertSent(channel, "getVariants", "5");
+        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result[0].Id, Is.EqualTo("v1"));
+        Assert.That(result[0].Name, Is.EqualTo("720p"));
+    }
+
+    [Test]
+    public async Task GetVariantsAsync_NullAnswer_ReturnsEmpty()
+    {
+        var (channel, api) = Create();
+        ReturnsVariants(channel, null);
+
+        var result = await api.GetVariantsAsync(5);
+
+        Assert.That(result, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetVariantsAsync_NullItem_ThrowsUnreadable()
+    {
+        var (channel, api) = Create();
+        ReturnsVariants(channel, [null!]);
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.GetVariantsAsync(5));
+
+        AssertDeviceUnreadable(thrown);
+    }
+
+    [Test]
+    public async Task SetVariantAsync_Args_SendsPathAndArgs()
+    {
+        var (channel, api) = Create();
+
+        await api.SetVariantAsync(5, "v1");
+
+        AssertSent(channel, "setVariant", "5", "\"v1\"");
+    }
+
+    [Test]
+    public async Task AddVariantCopyAsync_Args_SendsPathAndArgs()
+    {
+        var (channel, api) = Create();
+
+        await api.AddVariantCopyAsync(5, 6, 7, "v1");
+
+        AssertSent(channel, "addVariantCopy", "5", "6", "7", "\"v1\"");
     }
 }

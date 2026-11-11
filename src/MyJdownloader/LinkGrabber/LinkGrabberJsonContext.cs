@@ -21,6 +21,7 @@ using MyJdownloader.Json;
 [JsonSerializable(typeof(PackageQuery))]
 [JsonSerializable(typeof(List<CrawledLink>))]
 [JsonSerializable(typeof(List<CrawledPackage>))]
+[JsonSerializable(typeof(List<LinkVariant>))]
 [JsonSerializable(typeof(LinkCollectingJob))]
 [JsonSerializable(typeof(Priority))]
 [JsonSerializable(typeof(CleanupAction))]
