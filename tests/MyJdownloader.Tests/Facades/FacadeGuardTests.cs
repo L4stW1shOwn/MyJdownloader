@@ -146,4 +146,35 @@ public sealed class FacadeGuardTests
 
         Assert.That(ex!.ParamName, Is.EqualTo("p"));
     }
+
+    [Test]
+    public void OptionalIds_Null_ReturnsNull()
+        => Assert.That(FacadeGuard.OptionalIds(null, "p"), Is.Null);
+
+    [Test]
+    public void OptionalIds_NegativeElement_Throws()
+    {
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => FacadeGuard.OptionalIds([1, -987654], "p"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ParamName, Is.EqualTo("p"));
+            Assert.That(ex.Message, Does.Not.Contain("987654"));
+            Assert.That(ex.ActualValue, Is.Null);
+        });
+    }
+
+    [Test]
+    public void OptionalIds_Valid_ReturnsCopy()
+    {
+        long[] source = [1, 2];
+
+        var result = FacadeGuard.OptionalIds(source, "p");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.EqualTo(source));
+            Assert.That(result, Is.Not.SameAs(source));
+        });
+    }
 }
