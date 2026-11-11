@@ -194,4 +194,60 @@ public sealed partial class LinkGrabberApi
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task StartOnlineStatusCheckAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)
         => this._channel.CallAsync(Base + "startOnlineStatusCheck", FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken);
+
+    /// <summary>Sets or clears the download password of links and packages (<c>/linkgrabberv2/setDownloadPassword</c>).</summary>
+    /// <param name="linkIds">The identifiers of the links to change.</param>
+    /// <param name="packageIds">The identifiers of the packages to change.</param>
+    /// <param name="password">The new password, or <see langword="null"/> to clear it. A blank password is rejected, so only <see langword="null"/> clears.</param>
+    /// <param name="cancellationToken">A token to cancel the call.</param>
+    /// <returns><see langword="true"/> when the device applied the change.</returns>
+    /// <remarks>
+    /// Applied without confirmation. The effect of <see langword="null"/> (clear) is to be confirmed by live tests.
+    /// The password is a secret: it is sent as a call argument, never retained or logged by the library; do not log it either.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="linkIds"/> or <paramref name="packageIds"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="password"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
+    /// <exception cref="InvalidOperationException">The client is not connected.</exception>
+    /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
+    /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
+    /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
+    /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
+    public Task<bool> SetDownloadPasswordAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, string? password, CancellationToken cancellationToken = default)
+    {
+        var ids = FacadeGuard.IdArgs(linkIds, packageIds);
+        if (password is not null)
+        {
+            FacadeGuard.ValidateText(password, nameof(password), FacadeGuard.MaxLongTextLength);
+        }
+
+        var args = new[] { ids[0], ids[1], JsonSerializer.SerializeToElement(password, FacadeJsonContext.Default.String) };
+        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "setDownloadPassword", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
+    }
+
+    /// <summary>Gets the download URLs of links and packages (<c>/linkgrabberv2/getDownloadUrls</c>).</summary>
+    /// <param name="linkIds">The identifiers of the links to select.</param>
+    /// <param name="packageIds">The identifiers of the packages to select.</param>
+    /// <param name="urlDisplayTypes">The kinds of URL to return; must contain at least one, without duplicates.</param>
+    /// <param name="cancellationToken">A token to cancel the call.</param>
+    /// <returns>The link identifiers by URL; empty when the device answers nothing.</returns>
+    /// <remarks>
+    /// The keys are untrusted device URLs that may embed credentials: never log them.
+    /// The accepted <see cref="UrlDisplayType"/> values are to be confirmed by live tests.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="linkIds"/>, <paramref name="packageIds"/> or <paramref name="urlDisplayTypes"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="urlDisplayTypes"/> is empty, contains a duplicate, <see cref="UrlDisplayType.Unknown"/> or an undefined value.</exception>
+    /// <exception cref="InvalidOperationException">The client is not connected.</exception>
+    /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
+    /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
+    /// <exception cref="TimeoutException">The request timed out.</exception>
+    /// <exception cref="HttpRequestException">A network error occurred.</exception>
+    public Task<IReadOnlyDictionary<string, IReadOnlyList<long>>> GetDownloadUrlsAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, IReadOnlyList<UrlDisplayType> urlDisplayTypes, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(linkIds);
+        ArgumentNullException.ThrowIfNull(packageIds);
+        var types = FacadeGuard.UrlDisplayTypeArg(urlDisplayTypes, nameof(urlDisplayTypes));
+        var ids = FacadeGuard.IdArgs(linkIds, packageIds);
+        var args = new[] { ids[0], ids[1], types };
+        return FacadeResults.UrlMapAsync(this._channel.CallAsync(Base + "getDownloadUrls", FacadeJsonContext.Default.DictionaryStringListInt64, args, cancellationToken));
+    }
 }

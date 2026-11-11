@@ -17,6 +17,7 @@ public sealed class LinkGrabberApiTests
     private static readonly long[] _packageIds = [3];
     private static readonly long[] _noIds = [];
     private static readonly long[] _singleUuid = [5];
+    private static readonly UrlDisplayType[] _contentTypes = [UrlDisplayType.Content];
 
     private static IEnumerable<string?> BadTexts()
     {
@@ -106,7 +107,22 @@ public sealed class LinkGrabberApiTests
             yield return Case($"SetDownloadDirectoryAsync_Directory_{label}_Throws", a => a.SetDownloadDirectoryAsync(bad!, _noIds));
             yield return Case($"MoveToNewPackageAsync_NewPackageName_{label}_Throws", a => a.MoveToNewPackageAsync(_noIds, _noIds, bad!, "/dl"));
             yield return Case($"MoveToNewPackageAsync_DownloadPath_{label}_Throws", a => a.MoveToNewPackageAsync(_noIds, _noIds, "pkg", bad!));
+            if (bad is not null)
+            {
+                yield return Case($"SetDownloadPasswordAsync_Password_{label}_Throws", a => a.SetDownloadPasswordAsync(_noIds, _noIds, bad));
+            }
         }
+
+        yield return Case("SetDownloadPasswordAsync_Password_TooLong_Throws", a => a.SetDownloadPasswordAsync(_noIds, _noIds, TextCaps.LongTextOver));
+        yield return Case("SetDownloadPasswordAsync_NullLinkIds_Throws", a => a.SetDownloadPasswordAsync(null!, _noIds, "pw"));
+        yield return Case("SetDownloadPasswordAsync_NullPackageIds_Throws", a => a.SetDownloadPasswordAsync(_noIds, null!, "pw"));
+        yield return Case("GetDownloadUrlsAsync_NullLinkIds_Throws", a => a.GetDownloadUrlsAsync(null!, _noIds, _contentTypes));
+        yield return Case("GetDownloadUrlsAsync_NullPackageIds_Throws", a => a.GetDownloadUrlsAsync(_noIds, null!, _contentTypes));
+        yield return Case("GetDownloadUrlsAsync_NullTypes_Throws", a => a.GetDownloadUrlsAsync(_noIds, _noIds, null!));
+        yield return Case("GetDownloadUrlsAsync_EmptyTypes_Throws", a => a.GetDownloadUrlsAsync(_noIds, _noIds, []));
+        yield return Case("GetDownloadUrlsAsync_DuplicateType_Throws", a => a.GetDownloadUrlsAsync(_noIds, _noIds, [UrlDisplayType.Content, UrlDisplayType.Content]));
+        yield return Case("GetDownloadUrlsAsync_UnknownType_Throws", a => a.GetDownloadUrlsAsync(_noIds, _noIds, [UrlDisplayType.Unknown]));
+        yield return Case("GetDownloadUrlsAsync_UndefinedType_Throws", a => a.GetDownloadUrlsAsync(_noIds, _noIds, [(UrlDisplayType)99]));
     }
 
     private static TestCaseData Case(string name, Func<LinkGrabberApi, Task> call)
@@ -708,5 +724,109 @@ public sealed class LinkGrabberApiTests
         var api = new LinkGrabberApi(channel);
 
         TextCaps.AssertRejected(channel, () => api.MoveToNewPackageAsync([1L], [2L], "package", TextCaps.PathOver), "downloadPath");
+    }
+
+    [Test]
+    public async Task SetDownloadPasswordAsync_Password_SendsPathAndArgs()
+    {
+        var (channel, api) = Create();
+        ReturnsBool(channel, "setDownloadPassword", true);
+
+        var result = await api.SetDownloadPasswordAsync(_ids, _packageIds, "pw");
+
+        Assert.That(result, Is.True);
+        AssertSent(channel, "setDownloadPassword", "[1,2]", "[3]", "\"pw\"");
+    }
+
+    [Test]
+    public async Task SetDownloadPasswordAsync_NullPassword_SendsJsonNull()
+    {
+        var (channel, api) = Create();
+        ReturnsBool(channel, "setDownloadPassword", true);
+
+        await api.SetDownloadPasswordAsync(_ids, _packageIds, null);
+
+        var (_, args) = Sent(channel);
+        Assert.That(args[2].GetRawText(), Is.EqualTo("null"));
+    }
+
+    [Test]
+    public void SetDownloadPasswordAsync_PasswordAtMax_Sends()
+    {
+        var (channel, api) = Create();
+
+        TextCaps.AssertSent(channel, () => api.SetDownloadPasswordAsync(_ids, _packageIds, TextCaps.LongText));
+    }
+
+    [Test]
+    public async Task SetDownloadPasswordAsync_EmptyAnswer_ThrowsUnreadable()
+    {
+        var (channel, api) = Create();
+        ReturnsBool(channel, "setDownloadPassword", null);
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.SetDownloadPasswordAsync(_ids, _packageIds, "pw"));
+
+        AssertDeviceUnreadable(thrown);
+    }
+
+    [Test]
+    public void SetDownloadPasswordAsync_InvalidPassword_MessageOmitsPassword()
+    {
+        var (_, api) = Create();
+
+        var ex = Assert.Throws<ArgumentException>(() => api.SetDownloadPasswordAsync(_ids, _packageIds, "Zq7\u0001Xv9"));
+
+        Assert.That(ex!.ParamName, Is.EqualTo("password"));
+        Assert.That(ex.Message, Does.Not.Contain("Zq7").And.Not.Contain("Xv9"));
+        Assert.That(ex.ToString(), Does.Not.Contain("Zq7").And.Not.Contain("Xv9"));
+    }
+
+    private static void ReturnsUrlMap(IDeviceChannel channel, Dictionary<string, List<long>>? value)
+        => channel.CallAsync(Base + "getDownloadUrls", Arg.Any<JsonTypeInfo<Dictionary<string, List<long>>>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(value));
+
+    [Test]
+    public async Task GetDownloadUrlsAsync_Args_SendsPathAndArgs()
+    {
+        var (channel, api) = Create();
+        ReturnsUrlMap(channel, []);
+
+        await api.GetDownloadUrlsAsync(_ids, _packageIds, [UrlDisplayType.Content, UrlDisplayType.Origin]);
+
+        AssertSent(channel, "getDownloadUrls", "[1,2]", "[3]", "[\"CONTENT\",\"ORIGIN\"]");
+    }
+
+    [Test]
+    public async Task GetDownloadUrlsAsync_Map_ReturnsDictionary()
+    {
+        var (channel, api) = Create();
+        ReturnsUrlMap(channel, new Dictionary<string, List<long>> { ["https://h/a"] = [1, 2] });
+
+        var result = await api.GetDownloadUrlsAsync(_ids, _packageIds, _contentTypes);
+
+        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result["https://h/a"], Is.EqualTo(new long[] { 1, 2 }));
+    }
+
+    [Test]
+    public async Task GetDownloadUrlsAsync_NullAnswer_ReturnsEmpty()
+    {
+        var (channel, api) = Create();
+        ReturnsUrlMap(channel, null);
+
+        var result = await api.GetDownloadUrlsAsync(_ids, _packageIds, _contentTypes);
+
+        Assert.That(result, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetDownloadUrlsAsync_NullList_ThrowsUnreadable()
+    {
+        var (channel, api) = Create();
+        ReturnsUrlMap(channel, new Dictionary<string, List<long>> { ["u"] = null! });
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.GetDownloadUrlsAsync(_ids, _packageIds, _contentTypes));
+
+        AssertDeviceUnreadable(thrown);
     }
 }
