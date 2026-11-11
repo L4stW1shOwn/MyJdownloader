@@ -118,8 +118,9 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
                     throw new ArgumentException("An argument is undefined.", nameof(args));
                 }
 
-                // Conservative lower bound before allocating: a \uXXXX escape is 6 UTF-8 bytes for one UTF-16 char; -2 covers the quotes.
-                if (total + RequestArgsLimit.MinLength(element) + 3 > RequestArgsLimit.MaxLength)
+                // Checked before allocating: exact length for raw text, a conservative lower bound for strings (escapes are not counted).
+                var minLength = element.ValueKind == JsonValueKind.String ? RequestArgsLimit.MinLength(element) : RequestArgsLimit.RawTextLength(element);
+                if (total + minLength + 3 > RequestArgsLimit.MaxLength)
                 {
                     throw new ArgumentException("The arguments must not exceed 1048576 characters in total.", nameof(args));
                 }
