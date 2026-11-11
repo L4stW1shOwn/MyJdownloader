@@ -372,6 +372,27 @@ public sealed partial class DeviceChannelTests
     }
 
     [Test]
+    public void CallAsync_ArgLowerBoundOverCap_ThrowsBeforeMaterializing()
+    {
+        var rig = CreateRig(call => Ok(call, "true"));
+        var channel = rig.Client.CreateDeviceChannel("dev1");
+        // 1 100 000 escapes: raw text of about 6.6 MB, so the lower bound alone exceeds the cap.
+        var escaped = Json("\"" + string.Concat(Enumerable.Repeat("\\u0041", 1_100_000)) + "\"");
+        var document = JsonDocument.Parse("\"abc\"");
+        var disposed = document.RootElement;
+        document.Dispose();
+
+        var thrown = Assert.Catch<ArgumentException>(() => channel.CallAsync(VersionPath, [escaped, disposed]));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.ParamName, Is.EqualTo("args"));
+            Assert.That(thrown.Message, Does.StartWith(TotalCapMessage));
+            Assert.That(rig.Calls, Is.Empty);
+        });
+    }
+
+    [Test]
     public async Task CallAsync_HeavilyEscapedArgWithinCap_IsSent()
     {
         var rig = CreateRig(call => Ok(call, "true"));
