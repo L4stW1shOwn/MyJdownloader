@@ -4,6 +4,7 @@
 - **Date**: 2026-11-06
 - **Amended**: 2026-11-06 (T-011)
 - **Amended**: 2026-11-11 (T-060, length caps on caller strings and device-call arguments)
+- **Amended**: 2026-11-11 (T-066, no implicit "everything" on empty selections)
 
 ## Context
 
@@ -138,6 +139,23 @@ Length caps (amendment, T-060):
   request, not the HTTP body size (escaping and encryption expand it); otherwise `ArgumentException` on `args`, before serialization,
   encryption and any HTTP call. This mirrors the 1 MiB response cap and covers
   lists and direct `CallAsync` callers that bypass the facades.
+
+Empty selections on destructive actions (amendment, 2026-11-11, T-066):
+
+- **An empty selection never silently means "everything"** on a
+  selection-based destructive action (T-042 audit, finding L2, CWE-1188).
+  With `CleanupMode.RemoveLinksAndDeleteFiles`, `Unselected` with no
+  identifier deletes every file on the device, and the library adds no
+  confirmation step: an accidental empty selection must fail fast.
+- `CleanupAsync` (Downloads and LinkGrabber facades) rejects
+  `SelectionType.Unselected` when both `linkIds` and `packageIds` are empty:
+  `ArgumentException` on `selectionType`, fixed message "Unselected with no
+  identifier targets every item; use SelectionType.All explicitly.", thrown
+  synchronously before any channel call. Targeting every item requires
+  `SelectionType.All` explicitly.
+- Nothing is published yet, so the behaviour change is free; it is listed in
+  `CHANGELOG.md` under `[Unreleased]` / Changed. Every future selection-based
+  destructive action follows the same rule.
 
 Documentation, tests and delivery:
 
