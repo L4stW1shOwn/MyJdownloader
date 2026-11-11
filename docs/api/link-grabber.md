@@ -44,7 +44,7 @@ Typed facade over the `/linkgrabberv2` namespace of one device (links collected 
 | `AbortAsync` | `Task<bool> AbortAsync(CancellationToken cancellationToken = default)` | Aborts the link crawler jobs (`/linkgrabberv2/abort`). Stops every running crawl job (to be confirmed by live tests). Returns the value reported by the device. |
 | `AbortAsync` | `Task<bool> AbortAsync(long jobId, CancellationToken cancellationToken = default)` | Aborts one link crawler job (`/linkgrabberv2/abort`). A negative `jobId` throws `ArgumentOutOfRangeException`. Returns the value reported by the device. |
 | `GetChildrenChangedAsync` | `Task<long> GetChildrenChangedAsync(long structureWatermark, CancellationToken cancellationToken = default)` | Gets the children change counter of the link grabber (`/linkgrabberv2/getChildrenChanged`). A negative watermark throws `ArgumentOutOfRangeException`. The exact semantics of the watermark and of the result are to be confirmed by live tests. |
-| `GetDownloadFolderHistoryAsync` | `Task<IReadOnlyList<string>> GetDownloadFolderHistoryAsync(CancellationToken cancellationToken = default)` | Lists the download folder history (`/linkgrabberv2/getDownloadFolderHistorySelectionBase`). Empty when the device answers nothing. Entries are untrusted device paths. |
+| `GetDownloadFolderHistoryAsync` | `Task<IReadOnlyList<string>> GetDownloadFolderHistoryAsync(CancellationToken cancellationToken = default)` | Lists the download folder history (`/linkgrabberv2/getDownloadFolderHistorySelectionBase`). Empty when the device answers nothing. Entries are untrusted device paths that may contain user names or share credentials: do not log them. |
 
 Remarks:
 

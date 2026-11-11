@@ -87,7 +87,7 @@ public sealed partial class LinkGrabberApi
     /// <summary>Lists the download folder history (<c>/linkgrabberv2/getDownloadFolderHistorySelectionBase</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The folders; empty when the device answers nothing.</returns>
-    /// <remarks>Folder entries are untrusted device paths.</remarks>
+    /// <remarks>Folder entries are untrusted device paths that may contain user names or share credentials: do not log them.</remarks>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
