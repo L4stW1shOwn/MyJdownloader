@@ -544,6 +544,29 @@ public sealed class LinkGrabberApiTests
     }
 
     [Test]
+    public void CleanupAsync_UnselectedWithListChangingAfterCopy_Throws()
+    {
+        var (channel, api) = Create();
+        var changing = new CountOnlyList();
+
+        var thrown = Assert.Throws<ArgumentException>(() => api.CleanupAsync(changing, changing, CleanupAction.DeleteFinished, CleanupMode.RemoveLinksOnly, SelectionType.Unselected));
+
+        Assert.That(thrown!.ParamName, Is.EqualTo("selectionType"));
+        Assert.That(channel.ReceivedCalls(), Is.Empty);
+    }
+
+    private sealed class CountOnlyList : IReadOnlyList<long>
+    {
+        public int Count => 1;
+
+        public long this[int index] => throw new NotSupportedException();
+
+        public IEnumerator<long> GetEnumerator() => Enumerable.Empty<long>().GetEnumerator();
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => this.GetEnumerator();
+    }
+
+    [Test]
     public async Task CleanupAsync_UnselectedWithIds_IsSent()
     {
         var (channel, api) = Create();

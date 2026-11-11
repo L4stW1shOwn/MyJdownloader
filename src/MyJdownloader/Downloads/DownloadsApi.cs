@@ -138,7 +138,7 @@ public sealed partial class DownloadsApi
 
         var ids = FacadeGuard.IdArgs(linkIds, packageIds);
 
-        if (selectionType == SelectionType.Unselected && linkIds.Count == 0 && packageIds.Count == 0)
+        if (selectionType == SelectionType.Unselected && ids[0].GetArrayLength() == 0 && ids[1].GetArrayLength() == 0)
         {
             throw new ArgumentException("Unselected with no identifier targets every item; use SelectionType.All explicitly.", nameof(selectionType));
         }
