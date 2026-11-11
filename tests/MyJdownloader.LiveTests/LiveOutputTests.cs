@@ -1,6 +1,7 @@
 namespace MyJdownloader.LiveTests;
 
 using System.Text.Json;
+using MyJdownloader.LiveTests.Live;
 
 #pragma warning disable JSON002 // Probable JSON string: intentional payloads used as plain string vectors
 
@@ -85,6 +86,10 @@ public sealed class LiveOutputTests
     [TestCase("cookieValue")]
     [TestCase("authHeader")]
     [TestCase("loginName")]
+    [TestCase("pwd")]
+    [TestCase("userCredential")]
+    [TestCase("sessionId")]
+    [TestCase("requestSignature")]
     public void Mask_SecretKey_IsMasked(string key)
     {
         var result = Mask($$"""{"{{key}}":"distinctvalue"}""");
@@ -147,6 +152,33 @@ public sealed class LiveOutputTests
     }
 
     [Test]
+    public void Mask_FtpUrlWithUserInfoAndQuery_IsStripped()
+    {
+        var result = Mask("""{"link":"ftp://u:p@h/x?t=1"}""");
+
+        Assert.That(result, Does.Not.Contain("u:p"));
+        Assert.That(result, Does.Not.Contain("t=1"));
+        Assert.That(result, Does.Contain("ftp://***@h/x"));
+    }
+
+    [Test]
+    public void Mask_SftpUrlWithUser_IsStripped()
+    {
+        var result = Mask("""{"link":"sftp://u@h"}""");
+
+        Assert.That(result, Does.Not.Contain("u@"));
+    }
+
+    [Test]
+    public void Mask_FreeTextContainingUrl_IsFullyMasked()
+    {
+        var result = Mask("\"text http://u:p@h/x\"");
+
+        Assert.That(result, Does.Contain("\"***\""));
+        Assert.That(result, Does.Not.Contain("u:p"));
+    }
+
+    [Test]
     public void Mask_PlainUrl_IsKept()
     {
         var result = Mask("""{"link":"https://example.com/a"}""");
@@ -170,5 +202,28 @@ public sealed class LiveOutputTests
         var result = Mask("\"https://h/x#secret\"");
 
         Assert.That(result, Does.Not.Contain("secret"));
+    }
+
+    [Test]
+    public void RedactUrlKeys_UrlKeyWithUserInfoAndQuery_IsReducedToHost()
+    {
+        using var doc = JsonDocument.Parse("""{"https://u:p@h/x?t=1":[1]}""");
+
+        var result = LiveGuard.RedactUrlKeys(doc.RootElement).GetRawText();
+
+        Assert.That(result, Does.Contain("\"https://h/***#1\""));
+        Assert.That(result, Does.Not.Contain("u:p"));
+        Assert.That(result, Does.Not.Contain("t=1"));
+    }
+
+    [Test]
+    public void RedactUrlKeys_NonUrlKey_IsMasked()
+    {
+        using var doc = JsonDocument.Parse("""{"plainkey":[1]}""");
+
+        var result = LiveGuard.RedactUrlKeys(doc.RootElement).GetRawText();
+
+        Assert.That(result, Does.Contain("\"***#1\""));
+        Assert.That(result, Does.Not.Contain("plainkey"));
     }
 }

@@ -10,7 +10,7 @@ public static class LiveOutput
     private const string MaskedValue = "***";
 
     private static readonly string[] _sensitiveFragments =
-        ["pass", "token", "secret", "key", "cookie", "auth", "mail", "user", "login"];
+        ["pass", "token", "secret", "key", "cookie", "auth", "mail", "user", "login", "pwd", "credential", "session", "signature"];
 
     /// <summary>Writes a masked, indented copy of <paramref name="json"/> to the test output.</summary>
     /// <param name="label">A label that MUST be a test constant, never data coming from the service.</param>
@@ -91,17 +91,14 @@ public static class LiveOutput
 
     private static string MaskUrl(string value)
     {
-        if (!Uri.TryCreate(value, UriKind.Absolute, out var uri))
-        {
-            return value.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
-                || value.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
-                ? MaskedValue
-                : value;
-        }
-
-        if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+        if (!value.Contains("://", StringComparison.Ordinal))
         {
             return value;
+        }
+
+        if (!Uri.TryCreate(value, UriKind.Absolute, out var uri) || uri.IsFile || uri.IsUnc || uri.Host.Length == 0)
+        {
+            return MaskedValue;
         }
 
         var builder = new StringBuilder(uri.Scheme).Append("://");
@@ -116,8 +113,25 @@ public static class LiveOutput
             builder.Append(':').Append(uri.Port);
         }
 
-        builder.Append(uri.AbsolutePath);
-        if (uri.Query.Length > 0)
+        // Schemes without query support (ftp, sftp...) keep '?' and '#' escaped inside the path.
+        var path = uri.AbsolutePath;
+        var cut = path.IndexOf('%', StringComparison.Ordinal);
+        var hasQuery = uri.Query.Length > 0;
+        while (cut >= 0)
+        {
+            if (path.AsSpan(cut).StartsWith("%3F", StringComparison.OrdinalIgnoreCase)
+                || path.AsSpan(cut).StartsWith("%23", StringComparison.OrdinalIgnoreCase))
+            {
+                hasQuery = true;
+                path = path[..cut];
+                break;
+            }
+
+            cut = path.IndexOf('%', cut + 1);
+        }
+
+        builder.Append(path);
+        if (hasQuery)
         {
             builder.Append('?').Append(MaskedValue);
         }

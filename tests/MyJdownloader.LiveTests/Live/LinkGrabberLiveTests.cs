@@ -136,6 +136,10 @@ public sealed class LinkGrabberLiveTests
         var raw = await LiveGuard.RunAsync(() => LiveGuard.RawAsync(BasePath + "queryLinkCrawlerJobs", [LiveGuard.Json("{}")], cancellationToken));
 
         LiveOutput.Dump("queryLinkCrawlerJobs", raw);
+
+        var jobs = await LiveGuard.RunAsync(() => LinkGrabber.QueryLinkCrawlerJobsAsync(cancellationToken: cancellationToken));
+        Assert.That(jobs, Is.Not.Null);
+        await TestContext.Out.WriteLineAsync($"Crawler jobs: {jobs.Count}");
     }
 
     [Test]
@@ -154,12 +158,20 @@ public sealed class LinkGrabberLiveTests
         var raw = await LiveGuard.RunAsync(() => LiveGuard.RawAsync(BasePath + "getChildrenChanged", [LiveGuard.Json("0")], cancellationToken));
 
         LiveOutput.Dump("getChildrenChanged", raw);
+
+        var changed = await LiveGuard.RunAsync(() => LinkGrabber.GetChildrenChangedAsync(0, cancellationToken));
+        await TestContext.Out.WriteLineAsync($"Children changed: {changed}");
     }
 
     [Test]
     [CancelAfter(60_000)]
     public async Task TestLink_AddInspectRemove(CancellationToken cancellationToken)
     {
+        if (Environment.GetEnvironmentVariable("MYJD_LIVE_WRITES") != "1")
+        {
+            Assert.Ignore("Live writes not enabled (set MYJD_LIVE_WRITES=1)");
+        }
+
         // A TimeoutException from AddLinksAsync leaves no job id to clean up: check for the test link manually.
         var job = await LiveGuard.RunAsync(() => LinkGrabber.AddLinksAsync(new AddLinksRequest { Links = [TestLink], Autostart = false, AssignJobId = true }, cancellationToken));
         if (job.Id <= 0)

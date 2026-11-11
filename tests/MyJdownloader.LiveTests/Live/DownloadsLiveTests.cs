@@ -68,10 +68,12 @@ public sealed class DownloadsLiveTests
     [CancelAfter(60_000)]
     public async Task StopMark_Probe(CancellationToken cancellationToken)
     {
+        var mark = await LiveGuard.RunAsync(() => Downloads.GetStopMarkAsync(cancellationToken));
+        await TestContext.Out.WriteLineAsync($"Stop mark present before probe: {mark is not null}");
+
         var raw = await LiveGuard.RunAsync(() => LiveGuard.RawAsync(BasePath + "getStopMark", [], cancellationToken));
         LiveOutput.Dump("getStopMark", raw);
 
-        await Assert.DoesNotThrowAsync(async () => await Downloads.GetStopMarkAsync(cancellationToken));
     }
 
     [Test]
@@ -90,6 +92,9 @@ public sealed class DownloadsLiveTests
         var link = await FirstLinkOrIgnoreAsync(cancellationToken);
         var linkIds = LiveGuard.Json("[" + link.Uuid.ToString(CultureInfo.InvariantCulture) + "]");
         var packageIds = LiveGuard.Json("[]");
+
+        var typed = await LiveGuard.RunAsync(() => Downloads.GetDownloadUrlsAsync([link.Uuid], [], [UrlDisplayType.Content], cancellationToken));
+        Assert.That(typed, Is.Not.Null);
 
         foreach (var type in Enum.GetValues<UrlDisplayType>().Where(t => t != UrlDisplayType.Unknown))
         {
@@ -112,6 +117,11 @@ public sealed class DownloadsLiveTests
     [CancelAfter(60_000)]
     public async Task StopMark_SetThenRemove_RestoresNone(CancellationToken cancellationToken)
     {
+        if (Environment.GetEnvironmentVariable("MYJD_LIVE_WRITES") != "1")
+        {
+            Assert.Ignore("Live writes not enabled (set MYJD_LIVE_WRITES=1)");
+        }
+
         var link = await FirstLinkOrIgnoreAsync(cancellationToken);
         var existing = await LiveGuard.RunAsync(() => Downloads.GetStopMarkAsync(cancellationToken));
         if (existing is not null)
@@ -129,9 +139,10 @@ public sealed class DownloadsLiveTests
         }
         finally
         {
+            using var cleanup = new CancellationTokenSource(TimeSpan.FromSeconds(10));
             try
             {
-                await Downloads.RemoveStopMarkAsync(CancellationToken.None);
+                await Downloads.RemoveStopMarkAsync(cleanup.Token);
             }
             catch (Exception ex) when (ex is MyJdException or OperationCanceledException or TimeoutException or HttpRequestException)
             {

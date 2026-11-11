@@ -4,8 +4,8 @@ The `tests/MyJdownloader.LiveTests` project runs the library against the real
 MyJDownloader service and one of your own devices. It proves the protocol works
 end to end (connect, device list, encrypted device calls, session renewal) and
 prints the raw answers of a few calls so the models can be frozen from real
-data. The suite is opt-in: without credentials, every test is reported as
-ignored.
+data. The suite is opt-in: without credentials, only the live tests are
+ignored; the masking helper tests still run.
 
 ## Variables
 
@@ -22,16 +22,26 @@ Set them in your shell only. Never put them in a file of the repository, in a
 ## Run
 
 ```bash
-export MYJD_EMAIL='<your account email>'
-read -rs MYJD_PASSWORD && export MYJD_PASSWORD   # typed without echo, not kept in the shell history
-# export MYJD_DEVICE='<device name>'   # optional
-
-dotnet test tests/MyJdownloader.LiveTests
+dotnet build tests/MyJdownloader.LiveTests
+read -rs MYJD_PASSWORD   # typed without echo, not kept in the shell history; no export
+MYJD_EMAIL='<your account email>' MYJD_PASSWORD="$MYJD_PASSWORD" \
+  dotnet test tests/MyJdownloader.LiveTests --no-build
 unset MYJD_PASSWORD
 ```
 
-Type the password at the `read` prompt rather than on the command line, so it
-does not end up in the shell history, and unset it after the run.
+Optionally prefix the `dotnet test` line with `MYJD_LIVE_WRITES=1` (to enable
+the two write tests) and `MYJD_DEVICE='<device name>'`.
+
+Do not `export` the password: an exported variable is inherited by every child
+process, including long-lived build servers that outlive the run. Passing it on
+the `dotnet test` command line only scopes it to that process.
+
+**Warning**: `quality.sh` or a solution-level `dotnet test` (no category filter)
+runs the live suite whenever `MYJD_EMAIL` and `MYJD_PASSWORD` are set. The two
+write tests (stop mark and test link, described below) additionally need
+`MYJD_LIVE_WRITES=1`; without it they are ignored. When enabled, they add and
+remove a test link in the link grabber and set then remove a stop mark on the
+first download.
 
 The tests run serially (to respect the service rate limit), with a 60 second
 timeout per test. A device that is offline gives an inconclusive result, and
@@ -92,10 +102,17 @@ The probe tests print the raw JSON answers to the test output, never to a file.
 Before printing, the values are masked at any depth:
 
 - properties whose name contains `pass`, `token`, `secret`, `key`, `cookie`,
-  `auth`, `mail`, `user` or `login` (case-insensitive) become `"***"`;
-- URL values lose their user information, and their query and fragment;
+  `auth`, `mail`, `user`, `login`, `pwd`, `credential`, `session` or `signature` (case-insensitive) become `"***"`;
+- URL values of every scheme with a host (http, https, ftp, sftp, ...) lose
+  their user information, and their query and fragment; free text containing
+  `://` is masked entirely;
 - the URL keys of the `getDownloadUrls` answer are reduced to
   `scheme://host/***`.
+
+The system and storage probes print local paths, which may contain your OS user
+name: review them before sharing. Do not run the suite in a loop: the service
+throttles repeated connects. The stop mark test briefly holds a stop mark on the
+first download, which may pause the scheduling of new downloads during the test.
 
 Masking is a safety net, not a guarantee. Review the output before sharing it.
 The `.trx` files under `TestResults/` contain the same output and your device

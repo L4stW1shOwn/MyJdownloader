@@ -48,8 +48,9 @@ public sealed class LiveSession
         var deviceName = Environment.GetEnvironmentVariable("MYJD_DEVICE");
         _httpClient = new HttpClient();
         Client = new MyJDownloaderClient(_httpClient);
-        await Client.ConnectAsync(email!, password!);
-        var devices = await Client.GetDevicesAsync();
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+        await Client.ConnectAsync(email!, password!, timeout.Token);
+        var devices = await Client.GetDevicesAsync(timeout.Token);
         Device = Client.GetDevice(SelectDevice(devices, deviceName).Id);
     }
 
