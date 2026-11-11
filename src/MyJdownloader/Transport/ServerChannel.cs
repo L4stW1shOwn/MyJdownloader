@@ -6,7 +6,6 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Crypto;
-using MyJdownloader.Facades;
 using MyJdownloader.Json;
 
 /// <summary>
@@ -23,6 +22,7 @@ using MyJdownloader.Json;
 internal sealed class ServerChannel
 {
     private const int MaxEmailLength = 254;
+    private const int MaxPasswordLength = 65_536;
     private const int MaxDeviceIdLength = 256;
     private static readonly string _unreadableMessage = RelayTransport.UnreadableMessageFor(MyJdErrorSource.Server);
     private static readonly string _mismatchMessage = RelayTransport.MismatchMessageFor(MyJdErrorSource.Server);
@@ -56,7 +56,7 @@ internal sealed class ServerChannel
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(email);
         ArgumentException.ThrowIfNullOrEmpty(password);
-        if (password.Length > FacadeGuard.MaxLongTextLength)
+        if (password.Length > MaxPasswordLength)
         {
             throw new ArgumentException("The password is not valid.", nameof(password));
         }
