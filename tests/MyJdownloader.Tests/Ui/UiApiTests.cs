@@ -2,8 +2,8 @@ namespace MyJdownloader.Tests.Ui;
 
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
-using MyJdownloader.Ui;
 using MyJdownloader.Tests.Facades;
+using MyJdownloader.Ui;
 using NSubstitute;
 
 [TestFixture]
