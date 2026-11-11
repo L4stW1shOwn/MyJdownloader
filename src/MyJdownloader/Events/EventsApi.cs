@@ -229,7 +229,7 @@ public sealed class EventsApi
             throw new ArgumentException("PollTimeout must be strictly below MaxKeepalive.", nameof(options));
         }
 
-        ArgumentOutOfRangeException.ThrowIfLessThan(options.EmptyPollDelay, TimeSpan.Zero, nameof(options.EmptyPollDelay));
+        ThrowIfNegativeDelay(options.EmptyPollDelay, nameof(options.EmptyPollDelay));
 
         string[] subscriptions = [.. options.Subscriptions];
         string[]? exclusions = options.Exclusions is null ? null : [.. options.Exclusions];
@@ -294,6 +294,14 @@ public sealed class EventsApi
         }
 
         return JsonSerializer.SerializeToElement(values, EventsJsonContext.Default.StringArray);
+    }
+
+    private static void ThrowIfNegativeDelay(TimeSpan value, string paramName)
+    {
+        if (value < TimeSpan.Zero)
+        {
+            throw new ArgumentOutOfRangeException(paramName, "The delay must not be negative.");
+        }
     }
 
     private static long Milliseconds(TimeSpan value, string paramName)

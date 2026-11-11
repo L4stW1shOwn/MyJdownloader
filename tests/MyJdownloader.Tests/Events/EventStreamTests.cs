@@ -191,6 +191,21 @@ public sealed class EventStreamTests
     }
 
     [Test]
+    public void StreamAsync_NegativeEmptyPollDelay_MessageOmitsValue()
+    {
+        var (_, api) = Create();
+
+        var thrown = Assert.Throws<ArgumentOutOfRangeException>(() => api.StreamAsync(new EventStreamOptions { Subscriptions = _downloads, EmptyPollDelay = TimeSpan.FromMilliseconds(-987654) }));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.ParamName, Is.EqualTo("EmptyPollDelay"));
+            Assert.That(thrown.Message, Does.Not.Contain("987654"));
+            Assert.That(thrown.ActualValue, Is.Null);
+        });
+    }
+
+    [Test]
     public void EventStreamOptions_Defaults_MatchSpec()
     {
         var options = new EventStreamOptions { Subscriptions = _downloads };
