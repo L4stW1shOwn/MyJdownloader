@@ -741,6 +741,21 @@ public sealed class AccountsApiTests
     }
 
     [Test]
+    public async Task ListAccountsAsync_FilterListChangingAfterCheck_SendsCheckedCopy()
+    {
+        var (channel, api) = Create();
+
+        await api.ListAccountsAsync(new AccountQuery { Uuids = new ShiftingList() });
+
+        var json = Sent(channel).Args[0].GetRawText();
+        Assert.Multiple(() =>
+        {
+            Assert.That(json, Does.Contain("\"uuidlist\":[1]"));
+            Assert.That(json, Does.Not.Contain("-1]"));
+        });
+    }
+
+    [Test]
     public void ListAccountsAsync_NegativeFilterId_Throws()
     {
         var (channel, api) = Create();

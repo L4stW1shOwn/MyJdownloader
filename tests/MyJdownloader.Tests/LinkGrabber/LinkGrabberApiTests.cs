@@ -1128,6 +1128,21 @@ public sealed class LinkGrabberApiTests
     }
 
     [Test]
+    public async Task QueryLinksAsync_FilterListChangingAfterCheck_SendsCheckedCopy()
+    {
+        var (channel, api) = Create();
+
+        await api.QueryLinksAsync(new LinkQuery { PackageUuids = new ShiftingList() });
+
+        var json = Sent(channel).Args[0].GetRawText();
+        Assert.Multiple(() =>
+        {
+            Assert.That(json, Does.Contain("\"packageUUIDs\":[1]"));
+            Assert.That(json, Does.Not.Contain("-1]"));
+        });
+    }
+
+    [Test]
     public void QueryLinksAsync_NegativePackageFilterId_Throws()
     {
         var (channel, api) = Create();

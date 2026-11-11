@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.Polling;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Polling;
+using MyJdownloader.Tests.Facades;
 using NSubstitute;
 
 [TestFixture]
@@ -137,6 +138,31 @@ public sealed class PollingApiTests
         var device = client.GetDevice("dev1");
 
         Assert.That(device.Polling, Is.SameAs(device.Polling));
+    }
+
+    [Test]
+    public async Task PollAsync_DownloadProgressListChangingAfterCheck_SendsCheckedCopy()
+    {
+        var (channel, api) = Create();
+
+        await api.PollAsync(new PollingQuery { DownloadProgressPackageUuids = new ShiftingList() });
+
+        var json = SentJson(channel);
+        Assert.Multiple(() =>
+        {
+            Assert.That(json, Does.Contain("\"downloadProgress\":[1]"));
+            Assert.That(json, Does.Not.Contain("-1]"));
+        });
+    }
+
+    [Test]
+    public async Task PollAsync_DownloadProgressPackageUuids_AreSent()
+    {
+        var (channel, api) = Create();
+
+        await api.PollAsync(new PollingQuery { DownloadProgressPackageUuids = [1L, 2L] });
+
+        Assert.That(SentJson(channel), Does.Contain("\"downloadProgress\":[1,2]"));
     }
 
     [Test]
