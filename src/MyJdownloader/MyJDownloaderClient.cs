@@ -106,7 +106,7 @@ public sealed class MyJDownloaderClient
     /// Argument validation exceptions (<see cref="ArgumentException"/>, <see cref="ArgumentNullException"/>) are thrown synchronously,
     /// before the returned <see cref="Task{TResult}"/>; this is deliberate so that the password is never captured by asynchronous code.
     /// </remarks>
-    /// <exception cref="ArgumentException">The email or password is invalid (thrown synchronously).</exception>
+    /// <exception cref="ArgumentException">The email or password is invalid, for example a password longer than 65 536 characters (thrown synchronously).</exception>
     /// <exception cref="ArgumentNullException">The email or password is <see langword="null"/> (thrown synchronously).</exception>
     /// <exception cref="MyJdException">The server rejected the request or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>

@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Crypto;
+using MyJdownloader.Facades;
 using MyJdownloader.Json;
 
 /// <summary>
@@ -55,6 +56,11 @@ internal sealed class ServerChannel
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(email);
         ArgumentException.ThrowIfNullOrEmpty(password);
+        if (password.Length > FacadeGuard.MaxLongTextLength)
+        {
+            throw new ArgumentException("The password is not valid.", nameof(password));
+        }
+
         if (email.Length > MaxEmailLength || email.Any(char.IsControl))
         {
             throw new ArgumentException("The e-mail address is not valid.", nameof(email));

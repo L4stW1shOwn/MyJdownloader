@@ -46,4 +46,4 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 
 ### Changed
 
-- Caller strings validated by the facades and the arguments of a device call now have documented maximum lengths (1 024, 32 767 or 65 536 UTF-16 code units by category, 1 048 576 in total and at most 1 024 arguments per call); longer values throw `ArgumentException` before any request (CWE-1284).
+- Caller strings validated by the facades and the arguments of a device call now have documented maximum lengths (1 024, 32 767 or 65 536 UTF-16 code units by category, 1 048 576 in total and at most 1 024 arguments per call); the `ConnectAsync` password is limited to 65 536 and a `Config`/`Plugins` `SetAsync` value to 1 048 576 characters of JSON text; longer values throw `ArgumentException` before any request (CWE-1284).

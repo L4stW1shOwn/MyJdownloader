@@ -141,6 +141,29 @@ public sealed class ServerChannelConnectTests
     }
 
     [Test]
+    public void CreateConnectRequest_PasswordOver65536Chars_ThrowsWithoutRequestOrLeak()
+    {
+        using var server = ServerReturningValid();
+        var channel = CreateChannel(server);
+        var password = new string('p', 65_537);
+
+        var exception = Assert.Throws<ArgumentException>(() => channel.CreateConnectRequest(Email, password));
+
+        Assert.That(exception!.ParamName, Is.EqualTo("password"));
+        Assert.That(exception.Message, Does.Not.Contain(password));
+        Assert.That(server.Requests, Is.Empty);
+    }
+
+    [Test]
+    public void CreateConnectRequest_Password65536Chars_IsAccepted()
+    {
+        using var server = ServerReturningValid();
+        var channel = CreateChannel(server);
+
+        Assert.DoesNotThrow(() => channel.CreateConnectRequest(Email, new string('p', 65_536)));
+    }
+
+    [Test]
     public void CreateConnectRequest_EmptyPassword_ThrowsWithoutRequest()
     {
         using var server = ServerReturningValid();
