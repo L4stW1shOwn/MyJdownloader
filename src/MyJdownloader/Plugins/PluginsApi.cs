@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using MyJdownloader.Config;
 using MyJdownloader.Facades;
+using MyJdownloader.Transport;
 
 /// <summary>Typed facade over the <c>/plugins</c> namespace of one device (plugin settings and URL patterns).</summary>
 /// <remarks>
@@ -56,7 +57,7 @@ public sealed class PluginsApi
     /// this wire behaviour is to be confirmed by live tests. The value may hold a secret: never log it.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="interfaceName"/>, <paramref name="displayName"/> or <paramref name="key"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">An identifier is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates, or <paramref name="value"/> is an undefined (default) element.</exception>
+    /// <exception cref="ArgumentException">An identifier is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates, or <paramref name="value"/> is an undefined (default) element or is longer than 1 048 576 characters of JSON text.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -68,6 +69,12 @@ public sealed class PluginsApi
         if (value.ValueKind == JsonValueKind.Undefined)
         {
             throw new ArgumentException("The value must not be an undefined JSON element.", nameof(value));
+        }
+
+        // The raw text becomes a string argument of the same length.
+        if (RequestArgsLimit.RawTextLength(value) > RequestArgsLimit.MaxLength)
+        {
+            throw new ArgumentException("The value must not exceed 1048576 characters.", nameof(value));
         }
 
         var valueArg = JsonSerializer.SerializeToElement(value.GetRawText(), FacadeJsonContext.Default.String);

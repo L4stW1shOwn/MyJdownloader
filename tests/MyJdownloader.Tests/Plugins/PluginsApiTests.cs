@@ -258,6 +258,21 @@ public sealed class PluginsApiTests
     }
 
     [Test]
+    public void SetAsync_ValueOverRequestCap_ThrowsWithoutSending()
+    {
+        var (channel, api) = Create();
+        var value = JsonSerializer.SerializeToElement(new string('a', 1_048_575));
+
+        var ex = Assert.Throws<ArgumentException>(() => api.SetAsync(Iface, Name, "Key", value));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ParamName, Is.EqualTo("value"));
+            Assert.That(channel.ReceivedCalls(), Is.Empty);
+        });
+    }
+
+    [Test]
     public async Task SetAsync_String_SendsQuotedJsonText() =>
         Assert.That(await SentSetValueAsync(JsonSerializer.SerializeToElement("foo")), Is.EqualTo("\"foo\""));
 

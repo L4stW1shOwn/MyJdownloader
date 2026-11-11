@@ -3,7 +3,6 @@ namespace MyJdownloader.Transport;
 using System.Buffers;
 using System.Diagnostics;
 using System.Net.Http.Headers;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -18,7 +17,6 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
     private const int MaxPathLength = 256;
     private const int MaxDeviceIdLength = 256;
     private const int MaxResponseDepth = 64;
-    private const int MaxRequestArgsLength = 1_048_576;
     private const int MaxRequestArgsCount = 1_024;
     private static readonly string _unreadableMessage = RelayTransport.UnreadableMessageFor(MyJdErrorSource.Device);
     private static readonly string _mismatchMessage = RelayTransport.MismatchMessageFor(MyJdErrorSource.Device);
@@ -121,8 +119,7 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
                 }
 
                 // Conservative lower bound before allocating: a \uXXXX escape is 6 UTF-8 bytes for one UTF-16 char; -2 covers the quotes.
-                var lowerBound = Math.Max(0, JsonMarshal.GetRawUtf8Value(element).Length - 2) / 6;
-                if (total + lowerBound + 3 > MaxRequestArgsLength)
+                if (total + RequestArgsLimit.MinLength(element) + 3 > RequestArgsLimit.MaxLength)
                 {
                     throw new ArgumentException("The arguments must not exceed 1048576 characters in total.", nameof(args));
                 }
@@ -131,7 +128,7 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
 
                 // Three characters of JSON overhead per argument: two quotes and a separator.
                 total += snapshot[i].Length + 3L;
-                if (total > MaxRequestArgsLength)
+                if (total > RequestArgsLimit.MaxLength)
                 {
                     throw new ArgumentException("The arguments must not exceed 1048576 characters in total.", nameof(args));
                 }
