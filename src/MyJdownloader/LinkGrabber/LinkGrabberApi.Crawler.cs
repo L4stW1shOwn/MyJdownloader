@@ -19,9 +19,10 @@ public sealed partial class LinkGrabberApi
     public Task<IReadOnlyList<LinkCrawlerJob>> QueryLinkCrawlerJobsAsync(LinkCrawlerJobQuery? query = null, CancellationToken cancellationToken = default)
     {
         query ??= new LinkCrawlerJobQuery();
-        if (query.JobIds is not null)
+        var copy = query.JobIds is null ? null : (long[])[.. query.JobIds];
+        if (copy is not null)
         {
-            foreach (var id in query.JobIds)
+            foreach (var id in copy)
             {
                 if (id < 0)
                 {
@@ -30,7 +31,7 @@ public sealed partial class LinkGrabberApi
             }
         }
 
-        var args = new[] { JsonSerializer.SerializeToElement(query, LinkGrabberJsonContext.Default.LinkCrawlerJobQuery) };
+        var args = new[] { JsonSerializer.SerializeToElement(query with { JobIds = copy }, LinkGrabberJsonContext.Default.LinkCrawlerJobQuery) };
         return FacadeResults.ListAsync(this._channel.CallAsync(Base + "queryLinkCrawlerJobs", LinkGrabberJsonContext.Default.ListLinkCrawlerJob, args, cancellationToken));
     }
 
