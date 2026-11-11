@@ -1,5 +1,6 @@
 namespace MyJdownloader.Transport;
 
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
@@ -8,6 +9,12 @@ using System.Text.Json;
 internal static class RequestArgsLimit
 {
     internal const int MaxLength = 1_048_576;
+
+    /// <summary>The message of the exception thrown when the arguments of a call exceed <see cref="MaxLength"/> characters in total.</summary>
+    internal static readonly string TotalMessage = string.Create(CultureInfo.InvariantCulture, $"The arguments must not exceed {MaxLength} characters in total.");
+
+    /// <summary>The message of the exception thrown when a single value exceeds <see cref="MaxLength"/> characters.</summary>
+    internal static readonly string ValueMessage = string.Create(CultureInfo.InvariantCulture, $"The value must not exceed {MaxLength} characters.");
 
     /// <summary>Returns a lower bound of the number of UTF-16 characters of an element once unescaped, from its raw UTF-8 size and without allocating.</summary>
     /// <param name="element">The element.</param>

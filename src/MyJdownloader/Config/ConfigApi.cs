@@ -85,7 +85,7 @@ public sealed class ConfigApi
         // The raw text becomes a string argument of the same length.
         if (RequestArgsLimit.RawTextLength(value) > RequestArgsLimit.MaxLength)
         {
-            throw new ArgumentException("The value must not exceed 1048576 characters.", nameof(value));
+            throw new ArgumentException(RequestArgsLimit.ValueMessage, nameof(value));
         }
 
         var valueArg = JsonSerializer.SerializeToElement(value.GetRawText(), FacadeJsonContext.Default.String);

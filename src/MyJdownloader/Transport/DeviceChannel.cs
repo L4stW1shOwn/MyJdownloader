@@ -122,7 +122,7 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
                 var minLength = element.ValueKind == JsonValueKind.String ? RequestArgsLimit.MinLength(element) : RequestArgsLimit.RawTextLength(element);
                 if (total + minLength + 3 > RequestArgsLimit.MaxLength)
                 {
-                    throw new ArgumentException("The arguments must not exceed 1048576 characters in total.", nameof(args));
+                    throw new ArgumentException(RequestArgsLimit.TotalMessage, nameof(args));
                 }
 
                 snapshot[i] = element.ValueKind == JsonValueKind.String ? element.GetString()! : element.GetRawText();
@@ -131,7 +131,7 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
                 total += snapshot[i].Length + 3L;
                 if (total > RequestArgsLimit.MaxLength)
                 {
-                    throw new ArgumentException("The arguments must not exceed 1048576 characters in total.", nameof(args));
+                    throw new ArgumentException(RequestArgsLimit.TotalMessage, nameof(args));
                 }
             }
         }
