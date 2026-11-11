@@ -54,6 +54,7 @@ public sealed class UiApi
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="id"/>, <paramref name="linkIds"/> or <paramref name="packageIds"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="context"/> is <see cref="MenuContext.Unknown"/> or not defined, or <paramref name="id"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in <paramref name="linkIds"/> or <paramref name="packageIds"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled; the action may have been executed.</exception>

@@ -72,6 +72,11 @@ reaches the relay or the device.
 The length is `string.Length`, that is a count of UTF-16 code units, not of
 visible characters. An emoji counts as 2.
 
+Identifier lists (`linkIds`, `packageIds`, `ids`) reject negative elements, like
+single identifiers do. A negative element throws an `ArgumentOutOfRangeException`
+on the list parameter, with the fixed message "An identifier must not be
+negative." (the value is not echoed). It is thrown before any request.
+
 | Category | Maximum length | Examples |
 |---|---|---|
 | Identifiers | 1 024 | Config keys and interface names, types, file, package, hoster and user names, formats, host names, site keys, archive and extension ids |

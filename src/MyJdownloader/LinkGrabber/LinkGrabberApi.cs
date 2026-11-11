@@ -116,6 +116,7 @@ public sealed partial class LinkGrabberApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>A task that completes when the device has answered.</returns>
     /// <exception cref="ArgumentNullException">An identifier list is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in <paramref name="linkIds"/> or <paramref name="packageIds"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -130,6 +131,7 @@ public sealed partial class LinkGrabberApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>A task that completes when the device has answered.</returns>
     /// <exception cref="ArgumentNullException">An identifier list is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in <paramref name="linkIds"/> or <paramref name="packageIds"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -210,6 +212,7 @@ public sealed partial class LinkGrabberApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>A task that completes when the device has answered.</returns>
     /// <exception cref="ArgumentNullException">An identifier list is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in <paramref name="linkIds"/> or <paramref name="packageIds"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -230,6 +233,7 @@ public sealed partial class LinkGrabberApi
     /// <returns>A task that completes when the device has answered.</returns>
     /// <exception cref="ArgumentNullException">An identifier list is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="priority"/> is <see cref="Priority.Unknown"/> or not a defined value.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in <paramref name="linkIds"/> or <paramref name="packageIds"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>

@@ -14,7 +14,7 @@ public sealed partial class DownloadsApi
     /// <remarks>Applied without confirmation. The meaning of <c>0</c> for <paramref name="afterLinkId"/> is to be confirmed by live tests.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="linkIds"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="linkIds"/> is empty.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="afterLinkId"/> or <paramref name="destinationPackageId"/> is negative.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="afterLinkId"/> or <paramref name="destinationPackageId"/> is negative, or an identifier in <paramref name="linkIds"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -43,7 +43,7 @@ public sealed partial class DownloadsApi
     /// <remarks>Applied without confirmation. The meaning of <c>0</c> for <paramref name="afterPackageId"/> is to be confirmed by live tests.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="packageIds"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="packageIds"/> is empty.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="afterPackageId"/> is negative.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="afterPackageId"/> is negative, or an identifier in <paramref name="packageIds"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -69,6 +69,7 @@ public sealed partial class DownloadsApi
     /// <returns>A task that completes when the device has answered.</returns>
     /// <remarks>Applied without confirmation.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="linkIds"/> or <paramref name="packageIds"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in <paramref name="linkIds"/> or <paramref name="packageIds"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -84,6 +85,7 @@ public sealed partial class DownloadsApi
     /// <returns>A task that completes when the device has answered.</returns>
     /// <remarks>Applied without confirmation.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="linkIds"/> or <paramref name="packageIds"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in <paramref name="linkIds"/> or <paramref name="packageIds"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -104,6 +106,7 @@ public sealed partial class DownloadsApi
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="linkIds"/> or <paramref name="packageIds"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="password"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in <paramref name="linkIds"/> or <paramref name="packageIds"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -130,6 +133,7 @@ public sealed partial class DownloadsApi
     /// <remarks>Applied without confirmation.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="linkIds"/> or <paramref name="packageIds"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="reason"/> is <see cref="SkipReason.Unknown"/> or not a defined value.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in <paramref name="linkIds"/> or <paramref name="packageIds"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -165,6 +169,7 @@ public sealed partial class DownloadsApi
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="linkIds"/>, <paramref name="packageIds"/> or <paramref name="urlDisplayTypes"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="urlDisplayTypes"/> is empty, contains a duplicate, <see cref="UrlDisplayType.Unknown"/> or an undefined value.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in <paramref name="linkIds"/> or <paramref name="packageIds"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>

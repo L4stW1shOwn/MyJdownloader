@@ -67,6 +67,7 @@ public sealed class AccountsApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>A task that completes when the device has answered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="ids"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in <paramref name="ids"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -80,6 +81,7 @@ public sealed class AccountsApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>A task that completes when the device has answered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="ids"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in <paramref name="ids"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -93,6 +95,7 @@ public sealed class AccountsApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>A task that completes when the device has answered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="ids"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in <paramref name="ids"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -109,6 +112,7 @@ public sealed class AccountsApi
     /// The change is applied immediately, without confirmation.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="ids"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in <paramref name="ids"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -254,6 +258,7 @@ public sealed class AccountsApi
     /// The change is applied immediately, without confirmation.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="ids"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in <paramref name="ids"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>

@@ -63,6 +63,7 @@ public sealed class ExtractionApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The archive statuses; empty when the device returns no data.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="linkIds"/> or <paramref name="packageIds"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in <paramref name="linkIds"/> or <paramref name="packageIds"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -157,6 +158,7 @@ public sealed class ExtractionApi
     /// <returns>The outcome per archive identifier (<see langword="null"/> when the device gives none); empty when the device returns no data.</returns>
     /// <remarks>The extraction starts immediately, without confirmation. A timeout does not mean the action failed.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="linkIds"/> or <paramref name="packageIds"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in <paramref name="linkIds"/> or <paramref name="packageIds"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
