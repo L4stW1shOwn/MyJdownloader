@@ -49,5 +49,5 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 ### Changed
 
 - `CleanupAsync` (Downloads and LinkGrabber) rejects `SelectionType.Unselected` with both identifier lists empty, which would target every item; use `SelectionType.All` explicitly (ADR-007).
-- Identifier lists (`linkIds`, `packageIds`, …) now reject negative elements with `ArgumentOutOfRangeException`, like single identifiers (ADR-007).
+- Identifier lists (`linkIds`, `packageIds`, …) now reject negative elements with `ArgumentOutOfRangeException`, like single identifiers; the identifier filters of query objects (`PackageUuids`, `JobUuids`, `Uuids`, `DownloadProgressPackageUuids`) follow the same rule (ParamName `query`) (ADR-007).
 - Caller strings validated by the facades and the arguments of a device call now have documented maximum lengths (1 024, 32 767 or 65 536 UTF-16 code units by category, 1 048 576 in total and at most 1 024 arguments per call); the `ConnectAsync` password is limited to 65 536 and a `Config`/`Plugins` `SetAsync` value to 1 048 576 characters of JSON text; longer values throw `ArgumentException` before any request (CWE-1284).

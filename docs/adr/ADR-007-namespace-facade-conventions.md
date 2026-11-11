@@ -174,11 +174,12 @@ Identifier lists (amendment, 2026-11-11, T-064):
   scalar ids use "The identifier must not be negative."; no value,
   `ActualValue` null), and serializes that same copy, so the checked and the
   sent values cannot differ.
-- Scope: facade method parameters only. Identifier filters inside query
-  objects (`LinkQuery.PackageUuids`/`JobUuids`, `PackageQuery`,
+- Scope: facade method parameters, and since T-068 the identifier filters
+  inside query objects (`LinkQuery.PackageUuids`/`JobUuids`, `PackageQuery`,
   `DownloadLinkQuery`, `DownloadPackageQuery`, `AccountQuery.Uuids`,
-  `PollingQuery.DownloadProgressPackageUuids`) are not covered (backlog
-  T-068); `LinkCrawlerJobQuery.JobIds` is.
+  `PollingQuery.DownloadProgressPackageUuids`, as `LinkCrawlerJobQuery.JobIds`
+  already was). Same rule, `ParamName` `query`, and the checked copy is the
+  one sent via `with`.
 - Empty lists keep their existing per-action meaning (see T-066).
 - Every action taking identifier lists is affected. Nothing is published yet,
   so the behaviour change is free; it is listed in `CHANGELOG.md` under

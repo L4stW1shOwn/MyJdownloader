@@ -76,6 +76,9 @@ Identifier lists (`linkIds`, `packageIds`, `ids`) reject negative elements, like
 single identifiers do. A negative element throws an `ArgumentOutOfRangeException`
 on the list parameter, with the fixed message "An identifier must not be
 negative." (the value is not echoed). It is thrown before any request.
+The identifier filters of query objects (`PackageUuids`, `JobUuids`, `Uuids`,
+`DownloadProgressPackageUuids`) follow the same rule; the `ParamName` is then
+`query`.
 
 | Category | Maximum length | Examples |
 |---|---|---|

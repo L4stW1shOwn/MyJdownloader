@@ -35,6 +35,7 @@ public sealed partial class DownloadsApi
     /// otherwise the call fails with a <see cref="MyJdProtocolException"/>. Links may embed credentials: do not log whole records.
     /// </remarks>
     /// <exception cref="ArgumentException"><see cref="DownloadLinkQuery.MaxResults"/> is below -1 or <see cref="DownloadLinkQuery.StartAt"/> is negative.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in a filter of <paramref name="query"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -59,6 +60,7 @@ public sealed partial class DownloadsApi
     /// otherwise the call fails with a <see cref="MyJdProtocolException"/>. Do not log whole records: the device may return secrets such as the download password without an opt-out flag.
     /// </remarks>
     /// <exception cref="ArgumentException"><see cref="DownloadPackageQuery.MaxResults"/> is below -1 or <see cref="DownloadPackageQuery.StartAt"/> is negative.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in a filter of <paramref name="query"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>

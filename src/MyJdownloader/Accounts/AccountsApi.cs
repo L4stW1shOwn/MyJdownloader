@@ -49,6 +49,7 @@ public sealed class AccountsApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The accounts; empty when the device returns no data.</returns>
     /// <exception cref="ArgumentException"><see cref="AccountQuery.MaxResults"/> is less than -1 or <see cref="AccountQuery.StartAt"/> is negative.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in a filter of <paramref name="query"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>

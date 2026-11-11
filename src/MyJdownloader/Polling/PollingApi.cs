@@ -24,6 +24,7 @@ public sealed class PollingApi
     /// <returns>One entry per requested event, in the order downloadProgress, jdState, linkGrabberState, captchasWaiting, aggregatedNumbers; an empty list when the device returns none.</returns>
     /// <remarks>The event data comes from the device and is untrusted.</remarks>
     /// <exception cref="ArgumentException">No event is enabled in <paramref name="query"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in a filter of <paramref name="query"/> is negative.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
