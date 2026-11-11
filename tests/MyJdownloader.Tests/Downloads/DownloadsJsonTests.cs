@@ -2,6 +2,7 @@ namespace MyJdownloader.Tests.Downloads;
 
 using System.Text.Json;
 using MyJdownloader.Downloads;
+using MyJdownloader.Facades;
 
 [TestFixture]
 public sealed class DownloadsJsonTests
@@ -165,11 +166,13 @@ public sealed class DownloadsJsonTests
         Assert.That(first, Is.EqualTo(second));
     }
 
-    [TestCase(UrlDisplayType.Referrer, "\"REFERRER\"")]
-    [TestCase(UrlDisplayType.Content, "\"CONTENT\"")]
+    [TestCase(UrlDisplayType.Referrer, "[\"REFERRER\"]")]
+    [TestCase(UrlDisplayType.Content, "[\"CONTENT\"]")]
     public void UrlDisplayType_Serialize_WritesUpperSnakeName(UrlDisplayType value, string expected)
     {
-        var json = JsonSerializer.Serialize(value, DownloadsJsonContext.Default.UrlDisplayType);
+        UrlDisplayType[] values = [value];
+
+        var json = JsonSerializer.Serialize(values, FacadeJsonContext.Default.UrlDisplayTypeArray);
 
         Assert.That(json, Is.EqualTo(expected));
     }
@@ -187,7 +190,7 @@ public sealed class DownloadsJsonTests
     [Test]
     public void UrlDisplayType_UnknownWireValue_ReadsUnknown()
     {
-        var values = JsonSerializer.Deserialize("[\"SOMETHING_NEW\"]", DownloadsJsonContext.Default.UrlDisplayTypeArray);
+        var values = JsonSerializer.Deserialize("[\"SOMETHING_NEW\"]", FacadeJsonContext.Default.UrlDisplayTypeArray);
 
         UrlDisplayType[] expected = [UrlDisplayType.Unknown];
 
