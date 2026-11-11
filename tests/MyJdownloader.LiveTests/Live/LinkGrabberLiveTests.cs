@@ -13,15 +13,20 @@ public sealed class LinkGrabberLiveTests
 
     private static LinkGrabberApi LinkGrabber => LiveSession.Device.LinkGrabber;
 
+    // The server-side jobUUIDs filter is not trusted: only a link whose Url is exactly TestLink may be
+    // inspected, modified or removed, so a user's own link can never be touched by this test.
+    private static bool IsTestLink(CrawledLink link) => string.Equals(link.Url, TestLink, StringComparison.Ordinal);
+
     private static async Task<CrawledLink?> WaitForLinkAsync(long jobId, CancellationToken cancellationToken)
     {
         var query = new LinkQuery { JobUuids = [jobId] };
         for (var attempt = 0; attempt < 40; attempt++)
         {
             var links = await LiveGuard.RunAsync(() => LinkGrabber.QueryLinksAsync(query, cancellationToken));
-            if (links.Count > 0)
+            var match = links.FirstOrDefault(IsTestLink);
+            if (match is not null)
             {
-                return links[0];
+                return match;
             }
 
             await Task.Delay(500, cancellationToken);
@@ -29,6 +34,9 @@ public sealed class LinkGrabberLiveTests
 
         return null;
     }
+
+    private static bool IsCleanupFailure(Exception ex) =>
+        ex is MyJdException or OperationCanceledException or TimeoutException or HttpRequestException;
 
     /// <summary>Removes only the link created by the test; never lets a cleanup failure replace the test outcome.</summary>
     private static async Task<bool> RemoveTestLinkAsync(long jobId, long? linkId)
@@ -44,14 +52,28 @@ public sealed class LinkGrabberLiveTests
 
             // The link was not seen in time: a late-arriving link of this job must not be left behind.
             var late = await LinkGrabber.QueryLinksAsync(new LinkQuery { JobUuids = [jobId] }, cleanup.Token);
-            foreach (var link in late)
+            // Best effort: a link appearing after this query may remain.
+            var success = true;
+            foreach (var link in late.Where(IsTestLink))
             {
-                await LinkGrabber.RemoveLinksAsync([link.Uuid], [], cleanup.Token);
+                try
+                {
+                    await LinkGrabber.RemoveLinksAsync([link.Uuid], [], cleanup.Token);
+                }
+                catch (Exception ex) when (IsCleanupFailure(ex))
+                {
+                    success = false;
+                }
             }
 
-            return true;
+            if (!success)
+            {
+                await TestContext.Out.WriteLineAsync("WARNING: test link cleanup failed");
+            }
+
+            return success;
         }
-        catch (Exception ex) when (ex is MyJdException or OperationCanceledException)
+        catch (Exception ex) when (IsCleanupFailure(ex))
         {
             await TestContext.Out.WriteLineAsync("WARNING: test link cleanup failed");
             return false;
@@ -117,15 +139,21 @@ public sealed class LinkGrabberLiveTests
     public async Task TestLink_AddInspectRemove(CancellationToken cancellationToken)
     {
         var job = await LiveGuard.RunAsync(() => LinkGrabber.AddLinksAsync(new AddLinksRequest { Links = [TestLink], Autostart = false, AssignJobId = true }, cancellationToken));
+        if (job.Id <= 0)
+        {
+            await RemoveTestLinkAsync(job.Id, null);
+            Assert.Inconclusive("Unexpected link collecting job id");
+        }
+
+        // A TimeoutException from AddLinksAsync leaves no job id to clean up: check for the test link manually.
         long? linkId = null;
-        var cleanedUp = false;
+        bool cleanedUp;
         try
         {
             var link = await WaitForLinkAsync(job.Id, cancellationToken);
             if (link is null)
             {
                 Assert.Inconclusive("Test link did not appear");
-                return;
             }
 
             linkId = link.Uuid;
@@ -160,7 +188,7 @@ public sealed class LinkGrabberLiveTests
         if (cleanedUp)
         {
             var remaining = await LiveGuard.RunAsync(() => LinkGrabber.QueryLinksAsync(new LinkQuery { JobUuids = [job.Id] }, cancellationToken));
-            Assert.That(remaining, Is.Empty);
+            Assert.That(remaining.Where(IsTestLink), Is.Empty);
         }
     }
 }

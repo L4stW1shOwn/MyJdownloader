@@ -133,7 +133,7 @@ public sealed class DownloadsLiveTests
             {
                 await Downloads.RemoveStopMarkAsync(CancellationToken.None);
             }
-            catch (MyJdException)
+            catch (Exception ex) when (ex is MyJdException or OperationCanceledException or TimeoutException or HttpRequestException)
             {
                 await TestContext.Out.WriteLineAsync("WARNING: stop mark cleanup failed");
             }

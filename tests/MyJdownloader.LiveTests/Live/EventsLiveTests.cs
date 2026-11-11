@@ -32,7 +32,7 @@ public sealed class EventsLiveTests
             {
                 await events.UnsubscribeAsync(subscription.SubscriptionId, cleanup.Token);
             }
-            catch (Exception ex) when (ex is MyJdException or OperationCanceledException)
+            catch (Exception ex) when (ex is MyJdException or OperationCanceledException or TimeoutException or HttpRequestException)
             {
                 await TestContext.Out.WriteLineAsync("WARNING: unsubscribe cleanup failed");
             }
