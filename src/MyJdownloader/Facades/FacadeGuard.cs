@@ -27,6 +27,34 @@ internal static class FacadeGuard
         }
     }
 
+    internal static void RequireNotEmpty(IReadOnlyList<long> ids, string paramName)
+    {
+        if (ids.Count == 0)
+        {
+            throw new ArgumentException("The list must contain at least one identifier.", paramName);
+        }
+    }
+
+    internal static JsonElement UrlDisplayTypeArg(IReadOnlyList<UrlDisplayType> urlDisplayTypes, string paramName)
+    {
+        ArgumentNullException.ThrowIfNull(urlDisplayTypes, paramName);
+        if (urlDisplayTypes.Count == 0)
+        {
+            throw new ArgumentException("The list must contain at least one URL display type.", paramName);
+        }
+
+        var seen = new HashSet<UrlDisplayType>();
+        foreach (var type in urlDisplayTypes)
+        {
+            if (!IsKnown(type) || !seen.Add(type))
+            {
+                throw new ArgumentException("The URL display types must be valid and distinct.", paramName);
+            }
+        }
+
+        return JsonSerializer.SerializeToElement([.. urlDisplayTypes], FacadeJsonContext.Default.UrlDisplayTypeArray);
+    }
+
     internal static JsonElement[] IdArgs(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds)
     {
         ArgumentNullException.ThrowIfNull(linkIds);

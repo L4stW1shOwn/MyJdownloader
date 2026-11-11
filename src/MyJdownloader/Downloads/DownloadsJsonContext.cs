@@ -31,7 +31,6 @@ using MyJdownloader.Json;
 [JsonSerializable(typeof(UrlDisplayType[]))]
 [JsonSerializable(typeof(SkipReason))]
 [JsonSerializable(typeof(DownloadLink))]
-[JsonSerializable(typeof(Dictionary<string, List<long>>))]
 [JsonSerializable(typeof(int?))]
 [JsonSerializable(typeof(bool?))]
 internal sealed partial class DownloadsJsonContext : JsonSerializerContext

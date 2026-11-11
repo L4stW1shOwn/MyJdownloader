@@ -41,6 +41,21 @@ internal static class FacadeResults
     internal static async Task<int> RequireAsync(Task<int?> call)
         => await call.ConfigureAwait(false) ?? throw Unreadable();
 
+    internal static async Task<IReadOnlyDictionary<string, IReadOnlyList<long>>> UrlMapAsync(Task<Dictionary<string, List<long>>?> call)
+    {
+        var map = await call.ConfigureAwait(false);
+        var result = new Dictionary<string, IReadOnlyList<long>>(map?.Count ?? 0, StringComparer.Ordinal);
+        if (map is not null)
+        {
+            foreach (var (url, list) in map)
+            {
+                result.Add(url, list ?? throw Unreadable());
+            }
+        }
+
+        return result;
+    }
+
     internal static MyJdProtocolException Unreadable()
         => new(RelayTransport.UnreadableMessageFor(MyJdErrorSource.Device), MyJdErrorSource.Device);
 }

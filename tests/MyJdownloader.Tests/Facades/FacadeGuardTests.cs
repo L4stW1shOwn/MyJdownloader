@@ -93,4 +93,28 @@ public sealed class FacadeGuardTests
             Assert.That(FacadeGuard.MaxPathLength, Is.EqualTo(32_767));
             Assert.That(FacadeGuard.MaxLongTextLength, Is.EqualTo(65_536));
         });
+
+    [Test]
+    public void UrlDisplayTypeArg_Duplicate_Throws()
+    {
+        var ex = Assert.Throws<ArgumentException>(() => FacadeGuard.UrlDisplayTypeArg([UrlDisplayType.Content, UrlDisplayType.Content], "p"));
+
+        Assert.That(ex!.ParamName, Is.EqualTo("p"));
+    }
+
+    [Test]
+    public void UrlDisplayTypeArg_Valid_SerializesWireNames()
+    {
+        var element = FacadeGuard.UrlDisplayTypeArg([UrlDisplayType.Content, UrlDisplayType.Origin], "p");
+
+        Assert.That(element.GetRawText(), Is.EqualTo("[\"CONTENT\",\"ORIGIN\"]"));
+    }
+
+    [Test]
+    public void RequireNotEmpty_Empty_Throws()
+    {
+        var ex = Assert.Throws<ArgumentException>(() => FacadeGuard.RequireNotEmpty([], "p"));
+
+        Assert.That(ex!.ParamName, Is.EqualTo("p"));
+    }
 }

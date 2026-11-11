@@ -23,7 +23,7 @@ public sealed partial class DownloadsApi
     public Task MoveLinksAsync(IReadOnlyList<long> linkIds, long afterLinkId, long destinationPackageId, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(linkIds);
-        RequireNotEmpty(linkIds, nameof(linkIds));
+        FacadeGuard.RequireNotEmpty(linkIds, nameof(linkIds));
         FacadeGuard.ThrowIfNegative(afterLinkId, nameof(afterLinkId));
         FacadeGuard.ThrowIfNegative(destinationPackageId, nameof(destinationPackageId));
         var args = new[]
@@ -52,7 +52,7 @@ public sealed partial class DownloadsApi
     public Task MovePackagesAsync(IReadOnlyList<long> packageIds, long afterPackageId, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(packageIds);
-        RequireNotEmpty(packageIds, nameof(packageIds));
+        FacadeGuard.RequireNotEmpty(packageIds, nameof(packageIds));
         FacadeGuard.ThrowIfNegative(afterPackageId, nameof(afterPackageId));
         var args = new[]
         {
@@ -174,51 +174,13 @@ public sealed partial class DownloadsApi
     {
         ArgumentNullException.ThrowIfNull(linkIds);
         ArgumentNullException.ThrowIfNull(packageIds);
-        ArgumentNullException.ThrowIfNull(urlDisplayTypes);
-        if (urlDisplayTypes.Count == 0)
-        {
-            throw new ArgumentException("The list must contain at least one URL display type.", nameof(urlDisplayTypes));
-        }
-
-        var seen = new HashSet<UrlDisplayType>();
-        foreach (var type in urlDisplayTypes)
-        {
-            if (!FacadeGuard.IsKnown(type) || !seen.Add(type))
-            {
-                throw new ArgumentException("The URL display types must be valid and distinct.", nameof(urlDisplayTypes));
-            }
-        }
-
         var ids = FacadeGuard.IdArgs(linkIds, packageIds);
         var args = new[]
         {
             ids[0],
             ids[1],
-            JsonSerializer.SerializeToElement([.. urlDisplayTypes], DownloadsJsonContext.Default.UrlDisplayTypeArray),
+            FacadeGuard.UrlDisplayTypeArg(urlDisplayTypes, nameof(urlDisplayTypes)),
         };
-        return MapDownloadUrlsAsync(this._channel.CallAsync(Base + "getDownloadUrls", DownloadsJsonContext.Default.DictionaryStringListInt64, args, cancellationToken));
-    }
-
-    private static async Task<IReadOnlyDictionary<string, IReadOnlyList<long>>> MapDownloadUrlsAsync(Task<Dictionary<string, List<long>>?> answer)
-    {
-        var map = await answer.ConfigureAwait(false);
-        var result = new Dictionary<string, IReadOnlyList<long>>(map?.Count ?? 0, StringComparer.Ordinal);
-        if (map is not null)
-        {
-            foreach (var (url, list) in map)
-            {
-                result.Add(url, list ?? throw FacadeResults.Unreadable());
-            }
-        }
-
-        return result;
-    }
-
-    private static void RequireNotEmpty(IReadOnlyList<long> ids, string paramName)
-    {
-        if (ids.Count == 0)
-        {
-            throw new ArgumentException("The list must contain at least one identifier.", paramName);
-        }
+        return FacadeResults.UrlMapAsync(this._channel.CallAsync(Base + "getDownloadUrls", FacadeJsonContext.Default.DictionaryStringListInt64, args, cancellationToken));
     }
 }
