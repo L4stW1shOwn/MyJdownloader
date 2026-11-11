@@ -14,7 +14,7 @@ using MyJdownloader.Facades;
 /// <see cref="AddLinksRequest.DestinationFolder"/> is a path on the device, so callers handling untrusted input must allow-list both.
 /// </para>
 /// </remarks>
-public sealed class LinkGrabberApi
+public sealed partial class LinkGrabberApi
 {
     private const string Base = "/linkgrabberv2/";
 

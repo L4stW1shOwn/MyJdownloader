@@ -75,6 +75,38 @@ public sealed class LinkGrabberApiTests
         yield return Case("SetPriorityAsync_UndefinedPriority_Throws", a => a.SetPriorityAsync((Priority)42, _noIds, _noIds));
         yield return Case("AddLinksAsync_UndefinedPriority_Throws", a => a.AddLinksAsync(new AddLinksRequest { Links = valid, Priority = (Priority)42 }));
         yield return Case("SetPriorityAsync_UnknownPriority_Throws", a => a.SetPriorityAsync(Priority.Unknown, _noIds, _noIds));
+
+        yield return Case("CleanupAsync_NullLinkIds_Throws", a => a.CleanupAsync(null!, _noIds, CleanupAction.DeleteFinished, CleanupMode.RemoveLinksOnly, SelectionType.Selected));
+        yield return Case("CleanupAsync_NullPackageIds_Throws", a => a.CleanupAsync(_noIds, null!, CleanupAction.DeleteFinished, CleanupMode.RemoveLinksOnly, SelectionType.Selected));
+        yield return Case("CleanupAsync_UnknownAction_Throws", a => a.CleanupAsync(_noIds, _noIds, CleanupAction.Unknown, CleanupMode.RemoveLinksOnly, SelectionType.Selected));
+        yield return Case("CleanupAsync_UndefinedAction_Throws", a => a.CleanupAsync(_noIds, _noIds, (CleanupAction)99, CleanupMode.RemoveLinksOnly, SelectionType.Selected));
+        yield return Case("CleanupAsync_UnknownMode_Throws", a => a.CleanupAsync(_noIds, _noIds, CleanupAction.DeleteFinished, CleanupMode.Unknown, SelectionType.Selected));
+        yield return Case("CleanupAsync_UndefinedMode_Throws", a => a.CleanupAsync(_noIds, _noIds, CleanupAction.DeleteFinished, (CleanupMode)99, SelectionType.Selected));
+        yield return Case("CleanupAsync_UnknownSelectionType_Throws", a => a.CleanupAsync(_noIds, _noIds, CleanupAction.DeleteFinished, CleanupMode.RemoveLinksOnly, SelectionType.Unknown));
+        yield return Case("CleanupAsync_UndefinedSelectionType_Throws", a => a.CleanupAsync(_noIds, _noIds, CleanupAction.DeleteFinished, CleanupMode.RemoveLinksOnly, (SelectionType)99));
+        yield return Case("MoveLinksAsync_NullLinkIds_Throws", a => a.MoveLinksAsync(null!, 0, 0));
+        yield return Case("MoveLinksAsync_EmptyLinkIds_Throws", a => a.MoveLinksAsync(_noIds, 0, 0));
+        yield return Case("MoveLinksAsync_NegativeAfterLinkId_Throws", a => a.MoveLinksAsync(_ids, -1, 0));
+        yield return Case("MoveLinksAsync_NegativeDestinationPackageId_Throws", a => a.MoveLinksAsync(_ids, 0, -1));
+        yield return Case("MovePackagesAsync_NullPackageIds_Throws", a => a.MovePackagesAsync(null!, 0));
+        yield return Case("MovePackagesAsync_EmptyPackageIds_Throws", a => a.MovePackagesAsync(_noIds, 0));
+        yield return Case("MovePackagesAsync_NegativeAfterPackageId_Throws", a => a.MovePackagesAsync(_packageIds, -1));
+        yield return Case("MoveToNewPackageAsync_NullLinkIds_Throws", a => a.MoveToNewPackageAsync(null!, _noIds, "pkg", "/dl"));
+        yield return Case("MoveToNewPackageAsync_NullPackageIds_Throws", a => a.MoveToNewPackageAsync(_noIds, null!, "pkg", "/dl"));
+        yield return Case("SplitPackageByHosterAsync_NullLinkIds_Throws", a => a.SplitPackageByHosterAsync(null!, _packageIds));
+        yield return Case("SplitPackageByHosterAsync_NullPackageIds_Throws", a => a.SplitPackageByHosterAsync(_ids, null!));
+        yield return Case("SetDownloadDirectoryAsync_NullPackageIds_Throws", a => a.SetDownloadDirectoryAsync("/dl", null!));
+        yield return Case("StartOnlineStatusCheckAsync_NullLinkIds_Throws", a => a.StartOnlineStatusCheckAsync(null!, _packageIds));
+        yield return Case("StartOnlineStatusCheckAsync_NullPackageIds_Throws", a => a.StartOnlineStatusCheckAsync(_ids, null!));
+
+        foreach (var text in BadTexts())
+        {
+            var bad = text;
+            var label = bad is null ? "null" : bad.Length == 0 ? "empty" : bad.Replace("\n", "LF", StringComparison.Ordinal).Replace("\r", "CR", StringComparison.Ordinal).Replace("\u0001", "ctl", StringComparison.Ordinal).Replace("\u2028", "LS", StringComparison.Ordinal).Replace("\uD800", "surrogate", StringComparison.Ordinal).Replace(" ", "blank", StringComparison.Ordinal);
+            yield return Case($"SetDownloadDirectoryAsync_Directory_{label}_Throws", a => a.SetDownloadDirectoryAsync(bad!, _noIds));
+            yield return Case($"MoveToNewPackageAsync_NewPackageName_{label}_Throws", a => a.MoveToNewPackageAsync(_noIds, _noIds, bad!, "/dl"));
+            yield return Case($"MoveToNewPackageAsync_DownloadPath_{label}_Throws", a => a.MoveToNewPackageAsync(_noIds, _noIds, "pkg", bad!));
+        }
     }
 
     private static TestCaseData Case(string name, Func<LinkGrabberApi, Task> call)
@@ -461,6 +493,76 @@ public sealed class LinkGrabberApiTests
         AssertSent(channel, "setPriority", /*lang=json,strict*/ "\"HIGH\"", "[1,2]", "[3]");
     }
 
+    [Test]
+    public async Task CleanupAsync_Args_SendsPathAndArgs()
+    {
+        var (channel, api) = Create();
+
+        await api.CleanupAsync(_ids, _packageIds, CleanupAction.DeleteDisabled, CleanupMode.RemoveLinksOnly, SelectionType.Selected);
+
+        AssertSent(channel, "cleanup", "[1,2]", "[3]", "\"DELETE_DISABLED\"", "\"REMOVE_LINKS_ONLY\"", "\"SELECTED\"");
+    }
+
+    [Test]
+    public async Task MoveLinksAsync_Args_SendsPathAndArgs()
+    {
+        var (channel, api) = Create();
+
+        await api.MoveLinksAsync(_ids, 3, 4);
+
+        AssertSent(channel, "moveLinks", "[1,2]", "3", "4");
+    }
+
+    [Test]
+    public async Task MovePackagesAsync_Args_SendsPathAndArgs()
+    {
+        var (channel, api) = Create();
+
+        await api.MovePackagesAsync(_packageIds, 0);
+
+        AssertSent(channel, "movePackages", "[3]", "0");
+    }
+
+    [Test]
+    public async Task MoveToNewPackageAsync_Args_SendsPathAndArgs()
+    {
+        var (channel, api) = Create();
+
+        await api.MoveToNewPackageAsync(_ids, _packageIds, "Pkg", "/dl");
+
+        AssertSent(channel, "movetoNewPackage", "[1,2]", "[3]", "\"Pkg\"", "\"/dl\"");
+    }
+
+    [Test]
+    public async Task SetDownloadDirectoryAsync_Args_SendsDirectoryFirst()
+    {
+        var (channel, api) = Create();
+
+        await api.SetDownloadDirectoryAsync("/dl", _packageIds);
+
+        AssertSent(channel, "setDownloadDirectory", "\"/dl\"", "[3]");
+    }
+
+    [Test]
+    public async Task SplitPackageByHosterAsync_Ids_SendsPathAndArgs()
+    {
+        var (channel, api) = Create();
+
+        await api.SplitPackageByHosterAsync(_ids, _packageIds);
+
+        AssertSent(channel, "splitPackageByHoster", "[1,2]", "[3]");
+    }
+
+    [Test]
+    public async Task StartOnlineStatusCheckAsync_Ids_SendsPathAndArgs()
+    {
+        var (channel, api) = Create();
+
+        await api.StartOnlineStatusCheckAsync(_ids, _packageIds);
+
+        AssertSent(channel, "startOnlineStatusCheck", "[1,2]", "[3]");
+    }
+
     [TestCaseSource(nameof(InvalidCalls))]
     public void InvalidArguments_ThrowWithoutCallingChannel(Func<LinkGrabberApi, Task> call)
     {
@@ -552,5 +654,59 @@ public sealed class LinkGrabberApiTests
         var api = new LinkGrabberApi(channel);
 
         TextCaps.AssertRejected(channel, () => api.RenameLinkAsync(1, TextCaps.IdentifierOver), "newName");
+    }
+
+    [Test]
+    public void SetDownloadDirectoryAsync_DirectoryAtPathMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new LinkGrabberApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.SetDownloadDirectoryAsync(TextCaps.Path, [1L]));
+    }
+
+    [Test]
+    public void SetDownloadDirectoryAsync_DirectoryOverPathMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new LinkGrabberApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.SetDownloadDirectoryAsync(TextCaps.PathOver, [1L]), "directory");
+    }
+
+    [Test]
+    public void MoveToNewPackageAsync_NewPackageNameAtIdentifierMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new LinkGrabberApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.MoveToNewPackageAsync([1L], [2L], TextCaps.Identifier, "/downloads"));
+    }
+
+    [Test]
+    public void MoveToNewPackageAsync_NewPackageNameOverIdentifierMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new LinkGrabberApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.MoveToNewPackageAsync([1L], [2L], TextCaps.IdentifierOver, "/downloads"), "newPackageName");
+    }
+
+    [Test]
+    public void MoveToNewPackageAsync_DownloadPathAtPathMax_IsSent()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new LinkGrabberApi(channel);
+
+        TextCaps.AssertSent(channel, () => api.MoveToNewPackageAsync([1L], [2L], "package", TextCaps.Path));
+    }
+
+    [Test]
+    public void MoveToNewPackageAsync_DownloadPathOverPathMax_ThrowsWithoutCallingChannel()
+    {
+        var channel = Substitute.For<IDeviceChannel>();
+        var api = new LinkGrabberApi(channel);
+
+        TextCaps.AssertRejected(channel, () => api.MoveToNewPackageAsync([1L], [2L], "package", TextCaps.PathOver), "downloadPath");
     }
 }

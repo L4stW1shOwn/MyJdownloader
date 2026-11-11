@@ -8,7 +8,14 @@ using MyJdownloader.Json;
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-    Converters = [typeof(TolerantEnumConverter<Priority>), typeof(TolerantEnumConverter<AvailableLinkState>)])]
+    Converters =
+    [
+        typeof(TolerantEnumConverter<Priority>),
+        typeof(TolerantEnumConverter<AvailableLinkState>),
+        typeof(TolerantEnumConverter<CleanupAction>),
+        typeof(TolerantEnumConverter<CleanupMode>),
+        typeof(TolerantEnumConverter<SelectionType>),
+    ])]
 [JsonSerializable(typeof(AddLinksQueryDto))]
 [JsonSerializable(typeof(LinkQuery))]
 [JsonSerializable(typeof(PackageQuery))]
@@ -16,6 +23,9 @@ using MyJdownloader.Json;
 [JsonSerializable(typeof(List<CrawledPackage>))]
 [JsonSerializable(typeof(LinkCollectingJob))]
 [JsonSerializable(typeof(Priority))]
+[JsonSerializable(typeof(CleanupAction))]
+[JsonSerializable(typeof(CleanupMode))]
+[JsonSerializable(typeof(SelectionType))]
 internal sealed partial class LinkGrabberJsonContext : JsonSerializerContext
 {
 }
