@@ -170,9 +170,15 @@ Identifier lists (amendment, 2026-11-11, T-064):
   `IDeviceChannel.CallAsync` call is not guarded.
 - `FacadeGuard.Ids` copies the list once, rejects any negative element with
   `ArgumentOutOfRangeException` on the list parameter, fixed message "An
-  identifier must not be negative." (same as scalar ids and
-  `LinkCrawlerJobQuery.JobIds`; no value, `ActualValue` null), and serializes
-  that same copy, so the checked and the sent values cannot differ.
+  identifier must not be negative." (same as `LinkCrawlerJobQuery.JobIds`;
+  scalar ids use "The identifier must not be negative."; no value,
+  `ActualValue` null), and serializes that same copy, so the checked and the
+  sent values cannot differ.
+- Scope: facade method parameters only. Identifier filters inside query
+  objects (`LinkQuery.PackageUuids`/`JobUuids`, `PackageQuery`,
+  `DownloadLinkQuery`, `DownloadPackageQuery`, `AccountQuery.Uuids`,
+  `PollingQuery.DownloadProgressPackageUuids`) are not covered (backlog
+  T-068); `LinkCrawlerJobQuery.JobIds` is.
 - Empty lists keep their existing per-action meaning (see T-066).
 - Every action taking identifier lists is affected. Nothing is published yet,
   so the behaviour change is free; it is listed in `CHANGELOG.md` under
