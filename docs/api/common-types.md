@@ -121,6 +121,51 @@ Selects which of the given items an action applies to, as used by the JDownloade
 
 - With `Unselected`, every item except the given ones is targeted. Combined with `CleanupMode.RemoveLinksAndDeleteFiles`, this can delete every downloaded file on the device. Use `Selected` when you mean a precise list.
 
+## SkipReason
+
+`public enum SkipReason`
+
+Why a download link is skipped, as reported by the JDownloader API. Passed to the unskip action of the downloads facade.
+
+| Member | Signature | Description |
+|---|---|---|
+| `Unknown` | `Unknown = 0` | The value is missing or not recognized. It cannot be sent: the downloads facade rejects it. |
+| `ConnectionUnavailable` | `ConnectionUnavailable = 1` | No connection available (`CONNECTION_UNAVAILABLE`). |
+| `TooManyRetries` | `TooManyRetries = 2` | Too many retries (`TOO_MANY_RETRIES`). |
+| `Captcha` | `Captcha = 3` | A captcha is required (`CAPTCHA`). |
+| `Manual` | `Manual = 4` | Skipped manually (`MANUAL`). |
+| `DiskFull` | `DiskFull = 5` | The disk is full (`DISK_FULL`). |
+| `NoAccount` | `NoAccount = 6` | No account available (`NO_ACCOUNT`). |
+| `InvalidDestination` | `InvalidDestination = 7` | Invalid destination (`INVALID_DESTINATION`). |
+| `FileExists` | `FileExists = 8` | The file already exists (`FILE_EXISTS`). |
+| `UpdateRestartRequired` | `UpdateRestartRequired = 9` | An update restart is required (`UPDATE_RESTART_REQUIRED`). |
+| `FfmpegMissing` | `FfmpegMissing = 10` | FFmpeg is missing (`FFMPEG_MISSING`). |
+| `FfprobeMissing` | `FfprobeMissing = 11` | FFprobe is missing (`FFPROBE_MISSING`). |
+
+**Remarks**
+
+- Unrecognized values returned by a device are read as `Unknown`.
+
+## UrlDisplayType
+
+`public enum UrlDisplayType`
+
+Which URL a download link displays, as used by the JDownloader API. Passed to the download URLs action of the downloads facade.
+
+| Member | Signature | Description |
+|---|---|---|
+| `Unknown` | `Unknown = 0` | The value is missing or not recognized. It cannot be sent: the downloads facade rejects it. |
+| `Custom` | `Custom = 1` | Custom URL (`CUSTOM`). |
+| `Referrer` | `Referrer = 2` | Referrer URL (`REFERRER`). |
+| `Origin` | `Origin = 3` | Origin URL (`ORIGIN`). |
+| `Container` | `Container = 4` | Container URL (`CONTAINER`). |
+| `Content` | `Content = 5` | Content URL (`CONTENT`). |
+
+**Remarks**
+
+- Unrecognized values returned by a device are read as `Unknown`.
+- The values are to be confirmed by live tests.
+
 ## See also
 
 - [Client API](client.md)
