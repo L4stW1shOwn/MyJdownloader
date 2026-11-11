@@ -85,6 +85,9 @@ argument adds 3 for the quotes and separator. The cap bounds the request but is
 not the HTTP body size, which escaping and encryption expand. This covers lists
 (link text, id arrays) and direct `IDeviceChannel.CallAsync` calls. It throws an
 `ArgumentException` on `args`, before encryption and any HTTP request.
+`Config.SetAsync` and `Plugins.SetAsync` check their `value` first: a JSON text
+longer than 1 048 576 UTF-16 code units throws an `ArgumentException` on
+`value` before it is copied.
 
 ```csharp
 try
