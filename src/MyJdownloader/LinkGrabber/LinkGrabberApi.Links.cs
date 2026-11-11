@@ -17,9 +17,10 @@ public sealed partial class LinkGrabberApi
     /// Applied without confirmation. Destructive: with <see cref="CleanupMode.RemoveLinksAndDeleteFiles"/> the files are deleted on the device, with <see cref="CleanupMode.RemoveLinksAndRecycleFiles"/> they are moved to the recycle bin.
     /// The library adds no confirmation step: callers are responsible for confirming with the user.
     /// With <see cref="SelectionType.All"/> the identifiers are ignored, and with <see cref="SelectionType.Unselected"/> every item except the given ones is targeted: combined with <see cref="CleanupMode.RemoveLinksAndDeleteFiles"/> this can delete every downloaded file on the device.
+    /// Targeting every item requires <see cref="SelectionType.All"/>: <see cref="SelectionType.Unselected"/> with both identifier lists empty is rejected.
     /// </remarks>
     /// <exception cref="ArgumentNullException">An identifier list is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="action"/>, <paramref name="mode"/> or <paramref name="selectionType"/> is <c>Unknown</c> or not a defined value.</exception>
+    /// <exception cref="ArgumentException"><paramref name="action"/>, <paramref name="mode"/> or <paramref name="selectionType"/> is <c>Unknown</c> or not a defined value, or <paramref name="selectionType"/> is <see cref="SelectionType.Unselected"/> with both identifier lists empty.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
@@ -43,6 +44,12 @@ public sealed partial class LinkGrabberApi
         }
 
         var ids = FacadeGuard.IdArgs(linkIds, packageIds);
+
+        if (selectionType == SelectionType.Unselected && linkIds.Count == 0 && packageIds.Count == 0)
+        {
+            throw new ArgumentException("Unselected with no identifier targets every item; use SelectionType.All explicitly.", nameof(selectionType));
+        }
+
         var args = new[]
         {
             ids[0],

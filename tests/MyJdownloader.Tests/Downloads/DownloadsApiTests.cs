@@ -321,6 +321,37 @@ public sealed class DownloadsApiTests
     }
 
     [Test]
+    public void CleanupAsync_UnselectedWithEmptyLists_Throws()
+    {
+        var (channel, api) = Create();
+
+        var thrown = Assert.Throws<ArgumentException>(() => api.CleanupAsync(_noIds, _noIds, CleanupAction.DeleteFinished, CleanupMode.RemoveLinksOnly, SelectionType.Unselected));
+
+        Assert.That(thrown!.ParamName, Is.EqualTo("selectionType"));
+        Assert.That(channel.ReceivedCalls(), Is.Empty);
+    }
+
+    [Test]
+    public async Task CleanupAsync_UnselectedWithIds_IsSent()
+    {
+        var (channel, api) = Create();
+
+        await api.CleanupAsync(_ids, _noIds, CleanupAction.DeleteFinished, CleanupMode.RemoveLinksOnly, SelectionType.Unselected);
+
+        AssertSent(channel, "cleanup", "[1,2]", "[]", "\"DELETE_FINISHED\"", "\"REMOVE_LINKS_ONLY\"", "\"UNSELECTED\"");
+    }
+
+    [Test]
+    public async Task CleanupAsync_AllWithEmptyLists_IsSent()
+    {
+        var (channel, api) = Create();
+
+        await api.CleanupAsync(_noIds, _noIds, CleanupAction.DeleteFinished, CleanupMode.RemoveLinksOnly, SelectionType.All);
+
+        AssertSent(channel, "cleanup", "[]", "[]", "\"DELETE_FINISHED\"", "\"REMOVE_LINKS_ONLY\"", "\"ALL\"");
+    }
+
+    [Test]
     public async Task SetEnabledAsync_Enabled_SendsPathAndArgs()
     {
         var (channel, api) = Create();
