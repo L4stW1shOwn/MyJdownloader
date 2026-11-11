@@ -353,6 +353,38 @@ public sealed partial class DeviceChannelTests
     }
 
     [Test]
+    public void CallAsync_OverCapArgBeforeDisposedDocument_ThrowsTotalCapWithoutMaterializingRest()
+    {
+        var rig = CreateRig(call => Ok(call, "true"));
+        var channel = rig.Client.CreateDeviceChannel("dev1");
+        var document = JsonDocument.Parse("\"abc\"");
+        var disposed = document.RootElement;
+        document.Dispose();
+
+        var thrown = Assert.Catch<ArgumentException>(() => channel.CallAsync(VersionPath, [TextArg(1_048_576), disposed]));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.ParamName, Is.EqualTo("args"));
+            Assert.That(thrown.Message, Does.StartWith(TotalCapMessage));
+            Assert.That(rig.Calls, Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task CallAsync_HeavilyEscapedArgWithinCap_IsSent()
+    {
+        var rig = CreateRig(call => Ok(call, "true"));
+        var channel = rig.Client.CreateDeviceChannel("dev1");
+        // 200 000 escapes: about 1.2 MB of raw text, but only 200 000 characters once unescaped.
+        var escaped = Json("\"" + string.Concat(Enumerable.Repeat("\\u0041", 200_000)) + "\"");
+
+        await channel.CallAsync(VersionPath, [escaped]).WaitAsync(_waitTimeout);
+
+        Assert.That(rig.Calls, Has.Count.EqualTo(1));
+    }
+
+    [Test]
     public void CallAsync_NullResponseType_Throws()
     {
         var rig = CreateRig(call => Ok(call, "true"));

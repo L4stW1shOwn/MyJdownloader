@@ -3,6 +3,7 @@ namespace MyJdownloader.Transport;
 using System.Buffers;
 using System.Diagnostics;
 using System.Net.Http.Headers;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -108,6 +109,7 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
         }
 
         var snapshot = new string[args.Count];
+        long total = 0;
         try
         {
             for (var i = 0; i < snapshot.Length; i++)
@@ -118,25 +120,27 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
                     throw new ArgumentException("An argument is undefined.", nameof(args));
                 }
 
+                // Conservative lower bound before allocating: a \uXXXX escape is 6 UTF-8 bytes for one UTF-16 char; -2 covers the quotes.
+                var lowerBound = Math.Max(0, JsonMarshal.GetRawUtf8Value(element).Length - 2) / 6;
+                if (total + lowerBound + 3 > MaxRequestArgsLength)
+                {
+                    throw new ArgumentException("The arguments must not exceed 1048576 characters in total.", nameof(args));
+                }
+
                 snapshot[i] = element.ValueKind == JsonValueKind.String ? element.GetString()! : element.GetRawText();
+
+                // Three characters of JSON overhead per argument: two quotes and a separator.
+                total += snapshot[i].Length + 3L;
+                if (total > MaxRequestArgsLength)
+                {
+                    throw new ArgumentException("The arguments must not exceed 1048576 characters in total.", nameof(args));
+                }
             }
         }
         catch (InvalidOperationException)
         {
             // Includes ObjectDisposedException: the document of an argument was disposed, or its text is not valid.
             throw new ArgumentException("An argument is not valid.", nameof(args));
-        }
-
-        long total = 0;
-        foreach (var value in snapshot)
-        {
-            // Three characters of JSON overhead per argument: two quotes and a separator.
-            total += value.Length + 3L;
-        }
-
-        if (total > MaxRequestArgsLength)
-        {
-            throw new ArgumentException("The arguments must not exceed 1048576 characters in total.", nameof(args));
         }
 
         foreach (var value in snapshot)
