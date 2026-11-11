@@ -1,5 +1,6 @@
 namespace MyJdownloader.LiveTests.Live;
 
+using System.Globalization;
 using System.Text.Json;
 
 /// <summary>Helpers shared by the live tests.</summary>
@@ -44,5 +45,27 @@ internal static class LiveGuard
     {
         var answer = await LiveSession.Device.Channel.CallAsync(path, LiveJsonContext.Default.JsonElement, args, cancellationToken);
         return answer;
+    }
+
+    /// <summary>Replaces object property names that may be URLs by a host-only form.</summary>
+    public static JsonElement RedactUrlKeys(JsonElement answer)
+    {
+        if (answer.ValueKind != JsonValueKind.Object)
+        {
+            return answer;
+        }
+
+        var redacted = new Dictionary<string, JsonElement>();
+        var index = 0;
+        foreach (var property in answer.EnumerateObject())
+        {
+            var key = Uri.TryCreate(property.Name, UriKind.Absolute, out var uri)
+                ? uri.Scheme + "://" + uri.Host + "/***"
+                : "***";
+            index++;
+            redacted[key + "#" + index.ToString(CultureInfo.InvariantCulture)] = property.Value;
+        }
+
+        return JsonSerializer.SerializeToElement(redacted, LiveJsonContext.Default.DictionaryStringJsonElement);
     }
 }

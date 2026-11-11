@@ -23,27 +23,6 @@ public sealed class DownloadsLiveTests
         return links[0];
     }
 
-    private static JsonElement RedactUrlKeys(JsonElement answer)
-    {
-        if (answer.ValueKind != JsonValueKind.Object)
-        {
-            return answer;
-        }
-
-        var redacted = new Dictionary<string, JsonElement>();
-        var index = 0;
-        foreach (var property in answer.EnumerateObject())
-        {
-            var key = Uri.TryCreate(property.Name, UriKind.Absolute, out var uri)
-                ? uri.Scheme + "://" + uri.Host + "/***"
-                : "***";
-            index++;
-            redacted[key + "#" + index.ToString(CultureInfo.InvariantCulture)] = property.Value;
-        }
-
-        return JsonSerializer.SerializeToElement(redacted, LiveJsonContext.Default.DictionaryStringJsonElement);
-    }
-
     [Test]
     [CancelAfter(60_000)]
     public async Task QueryLinks_Answers(CancellationToken cancellationToken)
@@ -120,7 +99,7 @@ public sealed class DownloadsLiveTests
             try
             {
                 var raw = await LiveGuard.RunAsync(() => LiveGuard.RawAsync(BasePath + "getDownloadUrls", [linkIds, packageIds, types], cancellationToken));
-                LiveOutput.Dump("getDownloadUrls", RedactUrlKeys(raw));
+                LiveOutput.Dump("getDownloadUrls", LiveGuard.RedactUrlKeys(raw));
             }
             catch (MyJdException ex)
             {
