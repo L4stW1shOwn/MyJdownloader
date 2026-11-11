@@ -138,4 +138,18 @@ public sealed class PollingApiTests
 
         Assert.That(device.Polling, Is.SameAs(device.Polling));
     }
+
+    [Test]
+    public void PollAsync_NegativeFilterId_Throws()
+    {
+        var (channel, api) = Create();
+
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => api.PollAsync(new PollingQuery { DownloadProgressPackageUuids = [-1] }));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ParamName, Is.EqualTo("query"));
+            Assert.That(channel.ReceivedCalls(), Is.Empty);
+        });
+    }
 }

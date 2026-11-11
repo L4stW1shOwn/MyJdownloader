@@ -84,7 +84,9 @@ public sealed partial class LinkGrabberApi
     {
         query ??= new LinkQuery();
         FacadeGuard.ValidateRange(query.MaxResults, query.StartAt, nameof(query));
-        var args = new[] { JsonSerializer.SerializeToElement(query, LinkGrabberJsonContext.Default.LinkQuery) };
+        var packageUuids = FacadeGuard.OptionalIds(query.PackageUuids, nameof(query));
+        var jobUuids = FacadeGuard.OptionalIds(query.JobUuids, nameof(query));
+        var args = new[] { JsonSerializer.SerializeToElement(query with { PackageUuids = packageUuids, JobUuids = jobUuids }, LinkGrabberJsonContext.Default.LinkQuery) };
         return FacadeResults.ListAsync(this._channel.CallAsync(Base + "queryLinks", LinkGrabberJsonContext.Default.ListCrawledLink, args, cancellationToken));
     }
 
@@ -106,7 +108,8 @@ public sealed partial class LinkGrabberApi
     {
         query ??= new PackageQuery();
         FacadeGuard.ValidateRange(query.MaxResults, query.StartAt, nameof(query));
-        var args = new[] { JsonSerializer.SerializeToElement(query, LinkGrabberJsonContext.Default.PackageQuery) };
+        var packageUuids = FacadeGuard.OptionalIds(query.PackageUuids, nameof(query));
+        var args = new[] { JsonSerializer.SerializeToElement(query with { PackageUuids = packageUuids }, LinkGrabberJsonContext.Default.PackageQuery) };
         return FacadeResults.ListAsync(this._channel.CallAsync(Base + "queryPackages", LinkGrabberJsonContext.Default.ListCrawledPackage, args, cancellationToken), static package => package.Hosts?.Contains(null!) == true);
     }
 

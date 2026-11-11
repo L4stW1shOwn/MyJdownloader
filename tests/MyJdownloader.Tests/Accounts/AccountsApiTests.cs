@@ -739,4 +739,18 @@ public sealed class AccountsApiTests
 
         TextCaps.AssertRejected(channel, () => api.UpdateBasicAuthAsync(new BasicAuthentication { Type = BasicAuthType.Ftp, Username = TextCaps.IdentifierOver }), "updatedEntry");
     }
+
+    [Test]
+    public void ListAccountsAsync_NegativeFilterId_Throws()
+    {
+        var (channel, api) = Create();
+
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => api.ListAccountsAsync(new AccountQuery { Uuids = [-1] }));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ParamName, Is.EqualTo("query"));
+            Assert.That(channel.ReceivedCalls(), Is.Empty);
+        });
+    }
 }

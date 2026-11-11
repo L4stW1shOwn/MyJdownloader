@@ -37,7 +37,8 @@ public sealed class PollingApi
             throw new ArgumentException("At least one event must be enabled.", nameof(query));
         }
 
-        var args = new[] { BuildArgument(query) };
+        var packageUuids = FacadeGuard.OptionalIds(query.DownloadProgressPackageUuids, nameof(query));
+        var args = new[] { BuildArgument(query with { DownloadProgressPackageUuids = packageUuids }) };
         return FacadeResults.ListAsync(this._channel.CallAsync(Base + "poll", PollingJsonContext.Default.ListPollingResult, args, cancellationToken));
     }
 

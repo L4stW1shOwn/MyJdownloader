@@ -44,7 +44,9 @@ public sealed partial class DownloadsApi
     {
         query ??= new DownloadLinkQuery();
         FacadeGuard.ValidateRange(query.MaxResults, query.StartAt, nameof(query));
-        var args = new[] { JsonSerializer.SerializeToElement(query, DownloadsJsonContext.Default.DownloadLinkQuery) };
+        var packageUuids = FacadeGuard.OptionalIds(query.PackageUuids, nameof(query));
+        var jobUuids = FacadeGuard.OptionalIds(query.JobUuids, nameof(query));
+        var args = new[] { JsonSerializer.SerializeToElement(query with { PackageUuids = packageUuids, JobUuids = jobUuids }, DownloadsJsonContext.Default.DownloadLinkQuery) };
         return FacadeResults.ListAsync(this._channel.CallAsync(Base + "queryLinks", DownloadsJsonContext.Default.ListDownloadLink, args, cancellationToken));
     }
 
@@ -66,7 +68,8 @@ public sealed partial class DownloadsApi
     {
         query ??= new DownloadPackageQuery();
         FacadeGuard.ValidateRange(query.MaxResults, query.StartAt, nameof(query));
-        var args = new[] { JsonSerializer.SerializeToElement(query, DownloadsJsonContext.Default.DownloadPackageQuery) };
+        var packageUuids = FacadeGuard.OptionalIds(query.PackageUuids, nameof(query));
+        var args = new[] { JsonSerializer.SerializeToElement(query with { PackageUuids = packageUuids }, DownloadsJsonContext.Default.DownloadPackageQuery) };
         return FacadeResults.ListAsync(this._channel.CallAsync(Base + "queryPackages", DownloadsJsonContext.Default.ListDownloadPackage, args, cancellationToken), static package => package.Hosts?.Contains(null!) == true);
     }
 

@@ -58,7 +58,8 @@ public sealed class AccountsApi
     {
         query ??= new AccountQuery();
         FacadeGuard.ValidateRange(query.MaxResults, query.StartAt, nameof(query));
-        var args = new[] { JsonSerializer.SerializeToElement(query, AccountsJsonContext.Default.AccountQuery) };
+        var uuids = FacadeGuard.OptionalIds(query.Uuids, nameof(query));
+        var args = new[] { JsonSerializer.SerializeToElement(query with { Uuids = uuids }, AccountsJsonContext.Default.AccountQuery) };
         return FacadeResults.ListAsync(this._channel.CallAsync(Base + "listAccounts", AccountsJsonContext.Default.ListAccount, args, cancellationToken));
     }
 

@@ -1126,4 +1126,46 @@ public sealed class LinkGrabberApiTests
 
         AssertDeviceUnreadable(thrown);
     }
+
+    [Test]
+    public void QueryLinksAsync_NegativePackageFilterId_Throws()
+    {
+        var (channel, api) = Create();
+
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => api.QueryLinksAsync(new LinkQuery { PackageUuids = [-1] }));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ParamName, Is.EqualTo("query"));
+            Assert.That(channel.ReceivedCalls(), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void QueryLinksAsync_NegativeJobFilterId_Throws()
+    {
+        var (channel, api) = Create();
+
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => api.QueryLinksAsync(new LinkQuery { JobUuids = [-1] }));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ParamName, Is.EqualTo("query"));
+            Assert.That(channel.ReceivedCalls(), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void QueryPackagesAsync_NegativeFilterId_Throws()
+    {
+        var (channel, api) = Create();
+
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => api.QueryPackagesAsync(new PackageQuery { PackageUuids = [-1] }));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ParamName, Is.EqualTo("query"));
+            Assert.That(channel.ReceivedCalls(), Is.Empty);
+        });
+    }
 }

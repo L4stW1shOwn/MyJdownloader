@@ -926,4 +926,46 @@ public sealed class DownloadsApiTests
             Assert.That(thrown.ActualValue, Is.Null);
         });
     }
+
+    [Test]
+    public void QueryLinksAsync_NegativePackageFilterId_Throws()
+    {
+        var (channel, api) = Create();
+
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => api.QueryLinksAsync(new DownloadLinkQuery { PackageUuids = [-1] }));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ParamName, Is.EqualTo("query"));
+            Assert.That(channel.ReceivedCalls(), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void QueryLinksAsync_NegativeJobFilterId_Throws()
+    {
+        var (channel, api) = Create();
+
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => api.QueryLinksAsync(new DownloadLinkQuery { JobUuids = [-1] }));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ParamName, Is.EqualTo("query"));
+            Assert.That(channel.ReceivedCalls(), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void QueryPackagesAsync_NegativeFilterId_Throws()
+    {
+        var (channel, api) = Create();
+
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => api.QueryPackagesAsync(new DownloadPackageQuery { PackageUuids = [-1] }));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ParamName, Is.EqualTo("query"));
+            Assert.That(channel.ReceivedCalls(), Is.Empty);
+        });
+    }
 }
