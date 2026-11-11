@@ -640,6 +640,11 @@ MyJdownloader.Downloads.DownloadsApi.ResumeLinksAsync(System.Collections.Generic
 MyJdownloader.Downloads.DownloadsApi.SetDownloadDirectoryAsync(string! directory, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.Downloads.DownloadsApi.SetEnabledAsync(bool enabled, System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.Downloads.DownloadsApi.SetPriorityAsync(MyJdownloader.Priority priority, System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Downloads.DownloadsApi.GetStopMarkAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<long?>!
+MyJdownloader.Downloads.DownloadsApi.GetStopMarkedLinkAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.Downloads.DownloadLink?>!
+MyJdownloader.Downloads.DownloadsApi.SetStopMarkAsync(long linkId, long packageId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Downloads.DownloadsApi.RemoveStopMarkAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Downloads.DownloadsApi.GetStructureChangeCounterAsync(long oldCounterValue, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<long>!
 MyJdownloader.SelectionType
 MyJdownloader.SelectionType.All = 3 -> MyJdownloader.SelectionType
 MyJdownloader.SelectionType.None = 4 -> MyJdownloader.SelectionType

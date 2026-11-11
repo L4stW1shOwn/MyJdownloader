@@ -14,7 +14,7 @@ using MyJdownloader.Facades;
 /// <see cref="CleanupAsync"/> can delete files on the device and the library adds no confirmation step.
 /// </para>
 /// </remarks>
-public sealed class DownloadsApi
+public sealed partial class DownloadsApi
 {
     private const string Base = "/downloadsV2/";
 

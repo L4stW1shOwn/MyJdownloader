@@ -63,6 +63,8 @@ public sealed class DownloadsApiTests
         yield return Case("QueryLinksAsync_NegativeStartAt_Throws", a => a.QueryLinksAsync(new DownloadLinkQuery { StartAt = -1 }));
         yield return Case("QueryPackagesAsync_MaxResultsBelowMinusOne_Throws", a => a.QueryPackagesAsync(new DownloadPackageQuery { MaxResults = -2 }));
         yield return Case("QueryPackagesAsync_NegativeStartAt_Throws", a => a.QueryPackagesAsync(new DownloadPackageQuery { StartAt = -1 }));
+        yield return Case("SetStopMarkAsync_NegativeLinkId_Throws", a => a.SetStopMarkAsync(-1, 0));
+        yield return Case("SetStopMarkAsync_NegativePackageId_Throws", a => a.SetStopMarkAsync(0, -1));
         yield return Case("SetPriorityAsync_UnknownPriority_Throws", a => a.SetPriorityAsync(Priority.Unknown, _noIds, _noIds));
         yield return Case("SetPriorityAsync_UndefinedPriority_Throws", a => a.SetPriorityAsync((Priority)42, _noIds, _noIds));
         yield return Case("CleanupAsync_UnknownAction_Throws", a => a.CleanupAsync(_noIds, _noIds, CleanupAction.Unknown, CleanupMode.RemoveLinksOnly, SelectionType.All));
@@ -115,6 +117,14 @@ public sealed class DownloadsApiTests
         channel.CallAsync(Base + path, Arg.Any<JsonTypeInfo<int>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(value ?? 0));
         channel.CallAsync(Base + path, Arg.Any<JsonTypeInfo<int?>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(value));
+    }
+
+    private static void ReturnsLong(IDeviceChannel channel, string path, long? value)
+    {
+        channel.CallAsync(Base + path, Arg.Any<JsonTypeInfo<long>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(value ?? 0));
+        channel.CallAsync(Base + path, Arg.Any<JsonTypeInfo<long?>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(value));
     }
 
@@ -390,6 +400,123 @@ public sealed class DownloadsApiTests
         ReturnsBool(channel, "forceDownload", null);
 
         var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.ForceDownloadAsync(_ids, _packageIds));
+
+        AssertDeviceUnreadable(thrown);
+    }
+
+    [Test]
+    public async Task GetStopMarkAsync_MinusOne_ReturnsNull()
+    {
+        var (channel, api) = Create();
+        ReturnsLong(channel, "getStopMark", -1);
+
+        var result = await api.GetStopMarkAsync();
+
+        Assert.That(result, Is.Null);
+        AssertSent(channel, "getStopMark");
+    }
+
+    [Test]
+    public async Task GetStopMarkAsync_Zero_ReturnsZero()
+    {
+        var (channel, api) = Create();
+        ReturnsLong(channel, "getStopMark", 0);
+
+        var result = await api.GetStopMarkAsync();
+
+        Assert.That(result, Is.EqualTo(0L));
+        AssertSent(channel, "getStopMark");
+    }
+
+    [Test]
+    public async Task GetStopMarkAsync_Id_ReturnsId()
+    {
+        var (channel, api) = Create();
+        ReturnsLong(channel, "getStopMark", 42);
+
+        var result = await api.GetStopMarkAsync();
+
+        Assert.That(result, Is.EqualTo(42L));
+        AssertSent(channel, "getStopMark");
+    }
+
+    [Test]
+    public async Task GetStopMarkAsync_EmptyAnswer_ThrowsUnreadable()
+    {
+        var (channel, api) = Create();
+        ReturnsLong(channel, "getStopMark", null);
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.GetStopMarkAsync());
+
+        AssertDeviceUnreadable(thrown);
+        AssertSent(channel, "getStopMark");
+    }
+
+    [Test]
+    public async Task GetStopMarkedLinkAsync_NullAnswer_ReturnsNull()
+    {
+        var (channel, api) = Create();
+        channel.CallAsync(Base + "getStopMarkedLink", Arg.Any<JsonTypeInfo<DownloadLink>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<DownloadLink?>(null));
+
+        var result = await api.GetStopMarkedLinkAsync();
+
+        Assert.That(result, Is.Null);
+        AssertSent(channel, "getStopMarkedLink");
+    }
+
+    [Test]
+    public async Task GetStopMarkedLinkAsync_Link_ReturnsLink()
+    {
+        var (channel, api) = Create();
+        channel.CallAsync(Base + "getStopMarkedLink", Arg.Any<JsonTypeInfo<DownloadLink>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<DownloadLink?>(new DownloadLink { Uuid = 7 }));
+
+        var result = await api.GetStopMarkedLinkAsync();
+
+        Assert.That(result!.Uuid, Is.EqualTo(7L));
+        AssertSent(channel, "getStopMarkedLink");
+    }
+
+    [Test]
+    public async Task SetStopMarkAsync_Ids_SendsPathAndArgs()
+    {
+        var (channel, api) = Create();
+
+        await api.SetStopMarkAsync(5, 6);
+
+        AssertSent(channel, "setStopMark", "5", "6");
+    }
+
+    [Test]
+    public async Task RemoveStopMarkAsync_SendsPath()
+    {
+        var (channel, api) = Create();
+
+        await api.RemoveStopMarkAsync();
+
+        AssertSent(channel, "removeStopMark");
+    }
+
+    [Test]
+    public async Task GetStructureChangeCounterAsync_Value_ReturnsValue()
+    {
+        var (channel, api) = Create();
+        ReturnsLong(channel, "getStructureChangeCounter", 9);
+
+        var result = await api.GetStructureChangeCounterAsync(3);
+
+        Assert.That(result, Is.EqualTo(9L));
+        AssertSent(channel, "getStructureChangeCounter", "3");
+    }
+
+    [Test]
+    public async Task GetStructureChangeCounterAsync_EmptyAnswer_ThrowsUnreadable()
+    {
+        var (channel, api) = Create();
+        ReturnsLong(channel, "getStructureChangeCounter", null);
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.GetStructureChangeCounterAsync(3));
 
         AssertDeviceUnreadable(thrown);
     }
