@@ -245,4 +245,16 @@ public sealed class LinkGrabberJsonTests
         Assert.That(text, Does.Not.Contain("source.example").And.Not.Contain("token=abc").And.Not.Contain("secret-host"));
         Assert.That(text, Does.Contain("Links = [2 item(s)]"));
     }
+
+    [Test]
+    public void LinkCrawlerJob_UnknownField_IsIgnored()
+    {
+        const string payload = /*lang=json,strict*/ """{"jobId":4,"crawling":true,"crawled":2,"somethingNew":1}""";
+
+        var job = JsonSerializer.Deserialize(payload, LinkGrabberJsonContext.Default.LinkCrawlerJob);
+
+        Assert.That(job!.JobId, Is.EqualTo(4));
+        Assert.That(job.Crawling, Is.True);
+        Assert.That(job.Crawled, Is.EqualTo(2));
+    }
 }

@@ -17,6 +17,7 @@ public sealed class LinkGrabberApiTests
     private static readonly long[] _packageIds = [3];
     private static readonly long[] _noIds = [];
     private static readonly long[] _singleUuid = [5];
+    private static readonly string[] _folders = ["/a", "/b"];
     private static readonly UrlDisplayType[] _contentTypes = [UrlDisplayType.Content];
 
     private static IEnumerable<string?> BadTexts()
@@ -132,6 +133,9 @@ public sealed class LinkGrabberApiTests
         yield return Case("GetDownloadUrlsAsync_DuplicateType_Throws", a => a.GetDownloadUrlsAsync(_noIds, _noIds, [UrlDisplayType.Content, UrlDisplayType.Content]));
         yield return Case("GetDownloadUrlsAsync_UnknownType_Throws", a => a.GetDownloadUrlsAsync(_noIds, _noIds, [UrlDisplayType.Unknown]));
         yield return Case("GetDownloadUrlsAsync_UndefinedType_Throws", a => a.GetDownloadUrlsAsync(_noIds, _noIds, [(UrlDisplayType)99]));
+        yield return Case("AbortAsync_NegativeJobId_Throws", a => a.AbortAsync(-1));
+        yield return Case("GetChildrenChangedAsync_NegativeWatermark_Throws", a => a.GetChildrenChangedAsync(-1));
+        yield return Case("QueryLinkCrawlerJobsAsync_NegativeJobId_Throws", a => a.QueryLinkCrawlerJobsAsync(new LinkCrawlerJobQuery { JobIds = [-1] }));
     }
 
     private static TestCaseData Case(string name, Func<LinkGrabberApi, Task> call)
@@ -897,5 +901,153 @@ public sealed class LinkGrabberApiTests
         await api.AddVariantCopyAsync(5, 6, 7, "v1");
 
         AssertSent(channel, "addVariantCopy", "5", "6", "7", "\"v1\"");
+    }
+
+    private static void ReturnsCrawlerJobs(IDeviceChannel channel, List<LinkCrawlerJob>? value)
+        => channel.CallAsync(Base + "queryLinkCrawlerJobs", Arg.Any<JsonTypeInfo<List<LinkCrawlerJob>>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(value));
+
+    private static void ReturnsLong(IDeviceChannel channel, string path, long? value)
+        => channel.CallAsync(Base + path, Arg.Any<JsonTypeInfo<long?>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(value));
+
+    private static void ReturnsFolders(IDeviceChannel channel, List<string>? value)
+        => channel.CallAsync(Base + "getDownloadFolderHistorySelectionBase", Arg.Any<JsonTypeInfo<List<string>>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(value));
+
+    [Test]
+    public async Task QueryLinkCrawlerJobsAsync_NullQuery_SendsEmptyObject()
+    {
+        var (channel, api) = Create();
+
+        await api.QueryLinkCrawlerJobsAsync();
+
+        AssertSent(channel, "queryLinkCrawlerJobs", "{}");
+    }
+
+    [Test]
+    public async Task QueryLinkCrawlerJobsAsync_Query_SendsJobIds()
+    {
+        var (channel, api) = Create();
+
+        await api.QueryLinkCrawlerJobsAsync(new LinkCrawlerJobQuery { JobIds = [4], CollectorInfo = true });
+
+        AssertSent(channel, "queryLinkCrawlerJobs", /*lang=json,strict*/ """{"jobIds":[4],"collectorInfo":true}""");
+    }
+
+    [Test]
+    public async Task QueryLinkCrawlerJobsAsync_Jobs_ReturnsList()
+    {
+        var (channel, api) = Create();
+        ReturnsCrawlerJobs(channel, [new LinkCrawlerJob { JobId = 4, Crawling = true, Crawled = 2 }]);
+
+        var result = await api.QueryLinkCrawlerJobsAsync();
+
+        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result[0].JobId, Is.EqualTo(4));
+        Assert.That(result[0].Crawling, Is.True);
+        Assert.That(result[0].Crawled, Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task QueryLinkCrawlerJobsAsync_NullItem_ThrowsUnreadable()
+    {
+        var (channel, api) = Create();
+        ReturnsCrawlerJobs(channel, [null!]);
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.QueryLinkCrawlerJobsAsync());
+
+        AssertDeviceUnreadable(thrown);
+    }
+
+    [Test]
+    public async Task AbortAsync_NoJob_SendsNoArgs()
+    {
+        var (channel, api) = Create();
+        ReturnsBool(channel, "abort", true);
+
+        var result = await api.AbortAsync();
+
+        Assert.That(result, Is.True);
+        AssertSent(channel, "abort");
+    }
+
+    [Test]
+    public async Task AbortAsync_JobId_SendsJobId()
+    {
+        var (channel, api) = Create();
+        ReturnsBool(channel, "abort", true);
+
+        await api.AbortAsync(4);
+
+        AssertSent(channel, "abort", "4");
+    }
+
+    [Test]
+    public async Task AbortAsync_EmptyAnswer_ThrowsUnreadable()
+    {
+        var (channel, api) = Create();
+        ReturnsBool(channel, "abort", null);
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.AbortAsync());
+
+        AssertDeviceUnreadable(thrown);
+    }
+
+    [Test]
+    public async Task GetChildrenChangedAsync_Value_ReturnsValue()
+    {
+        var (channel, api) = Create();
+        ReturnsLong(channel, "getChildrenChanged", 9);
+
+        var result = await api.GetChildrenChangedAsync(3);
+
+        Assert.That(result, Is.EqualTo(9));
+        AssertSent(channel, "getChildrenChanged", "3");
+    }
+
+    [Test]
+    public async Task GetChildrenChangedAsync_EmptyAnswer_ThrowsUnreadable()
+    {
+        var (channel, api) = Create();
+        ReturnsLong(channel, "getChildrenChanged", null);
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.GetChildrenChangedAsync(3));
+
+        AssertDeviceUnreadable(thrown);
+    }
+
+    [Test]
+    public async Task GetDownloadFolderHistoryAsync_Folders_ReturnsList()
+    {
+        var (channel, api) = Create();
+        ReturnsFolders(channel, ["/a", "/b"]);
+
+        var result = await api.GetDownloadFolderHistoryAsync();
+
+        Assert.That(result, Is.EqualTo(_folders));
+        AssertSent(channel, "getDownloadFolderHistorySelectionBase");
+    }
+
+    [Test]
+    public async Task GetDownloadFolderHistoryAsync_NullAnswer_ReturnsEmpty()
+    {
+        var (channel, api) = Create();
+        ReturnsFolders(channel, null);
+
+        var result = await api.GetDownloadFolderHistoryAsync();
+
+        Assert.That(result, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetDownloadFolderHistoryAsync_NullItem_ThrowsUnreadable()
+    {
+        var (channel, api) = Create();
+        ReturnsFolders(channel, [null!]);
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.GetDownloadFolderHistoryAsync());
+
+        AssertDeviceUnreadable(thrown);
     }
 }

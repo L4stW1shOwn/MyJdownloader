@@ -209,11 +209,43 @@ MyJdownloader.LinkGrabber.LinkCollectingJob.Equals(MyJdownloader.LinkGrabber.Lin
 MyJdownloader.LinkGrabber.LinkCollectingJob.Id.get -> long
 MyJdownloader.LinkGrabber.LinkCollectingJob.Id.init -> void
 MyJdownloader.LinkGrabber.LinkCollectingJob.LinkCollectingJob() -> void
+MyJdownloader.LinkGrabber.LinkCrawlerJob
+MyJdownloader.LinkGrabber.LinkCrawlerJob.<Clone>$() -> MyJdownloader.LinkGrabber.LinkCrawlerJob!
+MyJdownloader.LinkGrabber.LinkCrawlerJob.Broken.get -> int?
+MyJdownloader.LinkGrabber.LinkCrawlerJob.Broken.init -> void
+MyJdownloader.LinkGrabber.LinkCrawlerJob.Checking.get -> bool?
+MyJdownloader.LinkGrabber.LinkCrawlerJob.Checking.init -> void
+MyJdownloader.LinkGrabber.LinkCrawlerJob.Crawled.get -> int?
+MyJdownloader.LinkGrabber.LinkCrawlerJob.Crawled.init -> void
+MyJdownloader.LinkGrabber.LinkCrawlerJob.CrawlerId.get -> long?
+MyJdownloader.LinkGrabber.LinkCrawlerJob.CrawlerId.init -> void
+MyJdownloader.LinkGrabber.LinkCrawlerJob.Crawling.get -> bool?
+MyJdownloader.LinkGrabber.LinkCrawlerJob.Crawling.init -> void
+MyJdownloader.LinkGrabber.LinkCrawlerJob.Equals(MyJdownloader.LinkGrabber.LinkCrawlerJob? other) -> bool
+MyJdownloader.LinkGrabber.LinkCrawlerJob.Filtered.get -> int?
+MyJdownloader.LinkGrabber.LinkCrawlerJob.Filtered.init -> void
+MyJdownloader.LinkGrabber.LinkCrawlerJob.JobId.get -> long?
+MyJdownloader.LinkGrabber.LinkCrawlerJob.JobId.init -> void
+MyJdownloader.LinkGrabber.LinkCrawlerJob.LinkCrawlerJob() -> void
+MyJdownloader.LinkGrabber.LinkCrawlerJob.Unhandled.get -> int?
+MyJdownloader.LinkGrabber.LinkCrawlerJob.Unhandled.init -> void
+MyJdownloader.LinkGrabber.LinkCrawlerJobQuery
+MyJdownloader.LinkGrabber.LinkCrawlerJobQuery.<Clone>$() -> MyJdownloader.LinkGrabber.LinkCrawlerJobQuery!
+MyJdownloader.LinkGrabber.LinkCrawlerJobQuery.CollectorInfo.get -> bool
+MyJdownloader.LinkGrabber.LinkCrawlerJobQuery.CollectorInfo.init -> void
+MyJdownloader.LinkGrabber.LinkCrawlerJobQuery.Equals(MyJdownloader.LinkGrabber.LinkCrawlerJobQuery? other) -> bool
+MyJdownloader.LinkGrabber.LinkCrawlerJobQuery.JobIds.get -> System.Collections.Generic.IReadOnlyList<long>?
+MyJdownloader.LinkGrabber.LinkCrawlerJobQuery.JobIds.init -> void
+MyJdownloader.LinkGrabber.LinkCrawlerJobQuery.LinkCrawlerJobQuery() -> void
 MyJdownloader.LinkGrabber.LinkGrabberApi
+MyJdownloader.LinkGrabber.LinkGrabberApi.AbortAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.LinkGrabber.LinkGrabberApi.AbortAsync(long jobId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.LinkGrabber.LinkGrabberApi.AddLinksAsync(MyJdownloader.LinkGrabber.AddLinksRequest! request, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.LinkGrabber.LinkCollectingJob!>!
 MyJdownloader.LinkGrabber.LinkGrabberApi.AddVariantCopyAsync(long linkId, long afterLinkId, long destinationPackageId, string! variantId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.LinkGrabber.LinkGrabberApi.CleanupAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, MyJdownloader.CleanupAction action, MyJdownloader.CleanupMode mode, MyJdownloader.SelectionType selectionType, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.LinkGrabber.LinkGrabberApi.ClearListAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.LinkGrabber.LinkGrabberApi.GetChildrenChangedAsync(long structureWatermark, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<long>!
+MyJdownloader.LinkGrabber.LinkGrabberApi.GetDownloadFolderHistoryAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<string!>!>!
 MyJdownloader.LinkGrabber.LinkGrabberApi.GetDownloadUrlsAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Collections.Generic.IReadOnlyList<MyJdownloader.UrlDisplayType>! urlDisplayTypes, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyDictionary<string!, System.Collections.Generic.IReadOnlyList<long>!>!>!
 MyJdownloader.LinkGrabber.LinkGrabberApi.GetPackageCountAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<int>!
 MyJdownloader.LinkGrabber.LinkGrabberApi.GetVariantsAsync(long linkId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.LinkGrabber.LinkVariant!>!>!
@@ -222,6 +254,7 @@ MyJdownloader.LinkGrabber.LinkGrabberApi.MoveLinksAsync(System.Collections.Gener
 MyJdownloader.LinkGrabber.LinkGrabberApi.MovePackagesAsync(System.Collections.Generic.IReadOnlyList<long>! packageIds, long afterPackageId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.LinkGrabber.LinkGrabberApi.MoveToDownloadListAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.LinkGrabber.LinkGrabberApi.MoveToNewPackageAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, string! newPackageName, string! downloadPath, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.LinkGrabber.LinkGrabberApi.QueryLinkCrawlerJobsAsync(MyJdownloader.LinkGrabber.LinkCrawlerJobQuery? query = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.LinkGrabber.LinkCrawlerJob!>!>!
 MyJdownloader.LinkGrabber.LinkGrabberApi.QueryLinksAsync(MyJdownloader.LinkGrabber.LinkQuery? query = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.LinkGrabber.CrawledLink!>!>!
 MyJdownloader.LinkGrabber.LinkGrabberApi.QueryPackagesAsync(MyJdownloader.LinkGrabber.PackageQuery? query = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.LinkGrabber.CrawledPackage!>!>!
 MyJdownloader.LinkGrabber.LinkGrabberApi.RemoveLinksAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
@@ -414,6 +447,12 @@ override MyJdownloader.LinkGrabber.CrawledPackage.ToString() -> string!
 override MyJdownloader.LinkGrabber.LinkCollectingJob.Equals(object? obj) -> bool
 override MyJdownloader.LinkGrabber.LinkCollectingJob.GetHashCode() -> int
 override MyJdownloader.LinkGrabber.LinkCollectingJob.ToString() -> string!
+override MyJdownloader.LinkGrabber.LinkCrawlerJob.Equals(object? obj) -> bool
+override MyJdownloader.LinkGrabber.LinkCrawlerJob.GetHashCode() -> int
+override MyJdownloader.LinkGrabber.LinkCrawlerJob.ToString() -> string!
+override MyJdownloader.LinkGrabber.LinkCrawlerJobQuery.Equals(object? obj) -> bool
+override MyJdownloader.LinkGrabber.LinkCrawlerJobQuery.GetHashCode() -> int
+override MyJdownloader.LinkGrabber.LinkCrawlerJobQuery.ToString() -> string!
 override MyJdownloader.LinkGrabber.LinkQuery.Equals(object? obj) -> bool
 override MyJdownloader.LinkGrabber.LinkQuery.GetHashCode() -> int
 override MyJdownloader.LinkGrabber.LinkQuery.ToString() -> string!
@@ -440,6 +479,10 @@ static MyJdownloader.LinkGrabber.CrawledPackage.operator !=(MyJdownloader.LinkGr
 static MyJdownloader.LinkGrabber.CrawledPackage.operator ==(MyJdownloader.LinkGrabber.CrawledPackage? left, MyJdownloader.LinkGrabber.CrawledPackage? right) -> bool
 static MyJdownloader.LinkGrabber.LinkCollectingJob.operator !=(MyJdownloader.LinkGrabber.LinkCollectingJob? left, MyJdownloader.LinkGrabber.LinkCollectingJob? right) -> bool
 static MyJdownloader.LinkGrabber.LinkCollectingJob.operator ==(MyJdownloader.LinkGrabber.LinkCollectingJob? left, MyJdownloader.LinkGrabber.LinkCollectingJob? right) -> bool
+static MyJdownloader.LinkGrabber.LinkCrawlerJob.operator !=(MyJdownloader.LinkGrabber.LinkCrawlerJob? left, MyJdownloader.LinkGrabber.LinkCrawlerJob? right) -> bool
+static MyJdownloader.LinkGrabber.LinkCrawlerJob.operator ==(MyJdownloader.LinkGrabber.LinkCrawlerJob? left, MyJdownloader.LinkGrabber.LinkCrawlerJob? right) -> bool
+static MyJdownloader.LinkGrabber.LinkCrawlerJobQuery.operator !=(MyJdownloader.LinkGrabber.LinkCrawlerJobQuery? left, MyJdownloader.LinkGrabber.LinkCrawlerJobQuery? right) -> bool
+static MyJdownloader.LinkGrabber.LinkCrawlerJobQuery.operator ==(MyJdownloader.LinkGrabber.LinkCrawlerJobQuery? left, MyJdownloader.LinkGrabber.LinkCrawlerJobQuery? right) -> bool
 static MyJdownloader.LinkGrabber.LinkQuery.operator !=(MyJdownloader.LinkGrabber.LinkQuery? left, MyJdownloader.LinkGrabber.LinkQuery? right) -> bool
 static MyJdownloader.LinkGrabber.LinkQuery.operator ==(MyJdownloader.LinkGrabber.LinkQuery? left, MyJdownloader.LinkGrabber.LinkQuery? right) -> bool
 static MyJdownloader.LinkGrabber.LinkVariant.operator !=(MyJdownloader.LinkGrabber.LinkVariant? left, MyJdownloader.LinkGrabber.LinkVariant? right) -> bool
