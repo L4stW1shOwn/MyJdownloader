@@ -54,6 +54,22 @@ public sealed class DownloadEventsApiTests
         });
     }
 
+    [Test]
+    public void SetStatusEventIntervalAsync_BelowOneMillisecond_MessageOmitsValue()
+    {
+        var (_, api) = Create(true);
+
+        var thrown = Assert.Throws<ArgumentOutOfRangeException>(() =>
+            api.SetStatusEventIntervalAsync(1, TimeSpan.FromMilliseconds(-987654)));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.ParamName, Is.EqualTo("interval"));
+            Assert.That(thrown.Message, Does.Not.Contain("987654"));
+            Assert.That(thrown.ActualValue, Is.Null);
+        });
+    }
+
     [TestCase(0L)]
     [TestCase(-10000L)]
     public void SetStatusEventIntervalAsync_ZeroOrNegativeInterval_ThrowsWithoutCall(long ticks)

@@ -35,7 +35,11 @@ public sealed class DownloadEventsApi
     public Task<bool> SetStatusEventIntervalAsync(long subscriptionId, TimeSpan interval, CancellationToken cancellationToken = default)
     {
         var milliseconds = (long)interval.TotalMilliseconds;
-        ArgumentOutOfRangeException.ThrowIfLessThan(milliseconds, 1L, nameof(interval));
+        if (milliseconds < 1)
+        {
+            throw new ArgumentOutOfRangeException(nameof(interval), "The interval must be at least 1 millisecond.");
+        }
+
         JsonElement[] args =
         [
             JsonSerializer.SerializeToElement(subscriptionId, FacadeJsonContext.Default.Int64),
