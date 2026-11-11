@@ -268,6 +268,7 @@ public sealed class PluginsApiTests
         Assert.Multiple(() =>
         {
             Assert.That(ex!.ParamName, Is.EqualTo("value"));
+            Assert.That(ex.Message, Does.StartWith("The value must not exceed 1048576 characters."));
             Assert.That(channel.ReceivedCalls(), Is.Empty);
         });
     }
