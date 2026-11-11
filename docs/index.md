@@ -24,6 +24,7 @@ Task-oriented guides, one per use case.
 - [Events](guides/events.md): subscribe to device events and run the long-polling loop you own, with cancellation.
 - [Error handling](guides/error-handling.md): the `MyJdException` hierarchy, what to catch, rate limits, device offline, and retry policies.
 - [Logging and security](guides/logging-and-security.md): what is sensitive, how to protect the session, and how to configure logging without leaking tokens.
+- [Live tests](guides/live-tests.md): run the opt-in tests against the real service and your device, what they change and restore, and how to share the masked output.
 
 ## API reference
 
