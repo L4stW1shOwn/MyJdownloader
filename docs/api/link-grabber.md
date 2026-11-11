@@ -2,7 +2,7 @@
 
 The link grabber is JDownloader's staging area: links that have been accepted but not yet moved to the download list. Use it to add links, review the collected links and packages, rename or prioritize them, and then move them to the download list (see [Downloads](downloads.md)).
 
-**Coverage:** 12/29 actions of `/linkgrabberv2` — not yet typed: `abort`, `addContainer`, `addVariantCopy`, `cleanup`, `getChildrenChanged`, `getDownloadFolderHistorySelectionBase`, `getDownloadUrls`, `getVariants`, `moveLinks`, `movePackages`, `movetoNewPackage`, `queryLinkCrawlerJobs`, `setDownloadDirectory`, `setDownloadPassword`, `setVariant`, `splitPackageByHoster`, `startOnlineStatusCheck`. See [API coverage](../api-coverage.md).
+**Coverage:** 28/29 actions of `/linkgrabberv2` — not yet typed: `addContainer` (deferred to backlog T-065). See [API coverage](../api-coverage.md).
 
 Reach it as `device.LinkGrabber`, which returns a `LinkGrabberApi`. The C# namespace is `MyJdownloader.LinkGrabber`, and the device API path is `/linkgrabberv2`.
 
@@ -28,8 +28,32 @@ Typed facade over the `/linkgrabberv2` namespace of one device (links collected 
 | `RenamePackageAsync` | `Task RenamePackageAsync(long packageId, string newName, CancellationToken cancellationToken = default)` | Renames a package (`/linkgrabberv2/renamePackage`). Same argument rules as `RenameLinkAsync`. |
 | `SetEnabledAsync` | `Task SetEnabledAsync(bool enabled, IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)` | Enables or disables links and packages (`/linkgrabberv2/setEnabled`). |
 | `SetPriorityAsync` | `Task SetPriorityAsync(Priority priority, IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)` | Sets the priority of links and packages (`/linkgrabberv2/setPriority`). `Priority.Unknown` or an undefined value throws `ArgumentException`. |
+| `CleanupAsync` | `Task CleanupAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CleanupAction action, CleanupMode mode, SelectionType selectionType, CancellationToken cancellationToken = default)` | Cleans up links and packages of the list (`/linkgrabberv2/cleanup`). Destructive; see the remarks below. `Unknown` or an undefined `action`, `mode` or `selectionType` throws `ArgumentException`. |
+| `MoveLinksAsync` | `Task MoveLinksAsync(IReadOnlyList<long> linkIds, long afterLinkId, long destinationPackageId, CancellationToken cancellationToken = default)` | Moves links after a given link, into a destination package (`/linkgrabberv2/moveLinks`). `linkIds` must contain at least one (`ArgumentException` otherwise); a negative `afterLinkId` or `destinationPackageId` throws `ArgumentOutOfRangeException`. The meaning of `0` for `afterLinkId` is to be confirmed by live tests. |
+| `MovePackagesAsync` | `Task MovePackagesAsync(IReadOnlyList<long> packageIds, long afterPackageId, CancellationToken cancellationToken = default)` | Moves packages after a given package (`/linkgrabberv2/movePackages`). `packageIds` must contain at least one; a negative `afterPackageId` throws `ArgumentOutOfRangeException`. The meaning of `0` for `afterPackageId` is to be confirmed by live tests. |
+| `MoveToNewPackageAsync` | `Task MoveToNewPackageAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, string newPackageName, string downloadPath, CancellationToken cancellationToken = default)` | Moves links and packages to a new package (`/linkgrabberv2/movetoNewPackage`). `downloadPath` is a path on the device. A null text throws `ArgumentNullException`; a blank text, one with control characters or lone surrogates, or one longer than its allowed length throws `ArgumentException` (see [Argument validation](../guides/error-handling.md#argument-validation)). The name and path are not filtered. |
+| `SplitPackageByHosterAsync` | `Task SplitPackageByHosterAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)` | Splits the selected packages by hoster (`/linkgrabberv2/splitPackageByHoster`). |
+| `SetDownloadDirectoryAsync` | `Task SetDownloadDirectoryAsync(string directory, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)` | Sets the download directory of packages (`/linkgrabberv2/setDownloadDirectory`). `directory` is a path on the device, not filtered by the library; same argument rules as `MoveToNewPackageAsync`. |
+| `StartOnlineStatusCheckAsync` | `Task StartOnlineStatusCheckAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)` | Starts an online status check of the selected links and packages (`/linkgrabberv2/startOnlineStatusCheck`). |
+| `SetDownloadPasswordAsync` | `Task<bool> SetDownloadPasswordAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, string? password, CancellationToken cancellationToken = default)` | Sets or clears the download password of links and packages (`/linkgrabberv2/setDownloadPassword`). `null` clears it, and a blank password throws `ArgumentException`, so only `null` clears. Returns `true` when the device applied the change; an empty answer fails with `MyJdException`. The effect of `null` is to be confirmed by live tests. |
+| `GetDownloadUrlsAsync` | `Task<IReadOnlyDictionary<string, IReadOnlyList<long>>> GetDownloadUrlsAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, IReadOnlyList<UrlDisplayType> urlDisplayTypes, CancellationToken cancellationToken = default)` | Gets the link identifiers by download URL (`/linkgrabberv2/getDownloadUrls`). `urlDisplayTypes` must contain at least one value, without duplicates, `Unknown` or undefined values (`ArgumentException`). Empty when the device answers nothing. The accepted `UrlDisplayType` values are to be confirmed by live tests. |
+| `GetVariantsAsync` | `Task<IReadOnlyList<LinkVariant>> GetVariantsAsync(long linkId, CancellationToken cancellationToken = default)` | Lists the variants of a link (`/linkgrabberv2/getVariants`). Empty when the device answers nothing. A negative `linkId` throws `ArgumentOutOfRangeException`. |
+| `SetVariantAsync` | `Task SetVariantAsync(long linkId, string variantId, CancellationToken cancellationToken = default)` | Selects the variant of a link (`/linkgrabberv2/setVariant`). `variantId` is returned by `GetVariantsAsync`; it throws `ArgumentNullException` when null and `ArgumentException` when blank, with control characters or lone surrogates, or too long. |
+| `AddVariantCopyAsync` | `Task AddVariantCopyAsync(long linkId, long afterLinkId, long destinationPackageId, string variantId, CancellationToken cancellationToken = default)` | Adds a copy of a link with another variant (`/linkgrabberv2/addVariantCopy`). Same `variantId` rules as `SetVariantAsync`; a negative identifier throws `ArgumentOutOfRangeException`. |
+| `QueryLinkCrawlerJobsAsync` | `Task<IReadOnlyList<LinkCrawlerJob>> QueryLinkCrawlerJobsAsync(LinkCrawlerJobQuery? query = null, CancellationToken cancellationToken = default)` | Lists the link crawler jobs (`/linkgrabberv2/queryLinkCrawlerJobs`). A `null` query returns all jobs. Empty when the device answers nothing. A negative job identifier in the query throws `ArgumentOutOfRangeException`. |
+| `AbortAsync` | `Task<bool> AbortAsync(CancellationToken cancellationToken = default)` | Aborts the link crawler jobs (`/linkgrabberv2/abort`). Stops every running crawl job (to be confirmed by live tests). Returns the value reported by the device. |
+| `AbortAsync` | `Task<bool> AbortAsync(long jobId, CancellationToken cancellationToken = default)` | Aborts one link crawler job (`/linkgrabberv2/abort`). A negative `jobId` throws `ArgumentOutOfRangeException`. Returns the value reported by the device. |
+| `GetChildrenChangedAsync` | `Task<long> GetChildrenChangedAsync(long structureWatermark, CancellationToken cancellationToken = default)` | Gets the children change counter of the link grabber (`/linkgrabberv2/getChildrenChanged`). A negative watermark throws `ArgumentOutOfRangeException`. The exact semantics of the watermark and of the result are to be confirmed by live tests. |
+| `GetDownloadFolderHistoryAsync` | `Task<IReadOnlyList<string>> GetDownloadFolderHistoryAsync(CancellationToken cancellationToken = default)` | Lists the download folder history (`/linkgrabberv2/getDownloadFolderHistorySelectionBase`). Empty when the device answers nothing. Entries are untrusted device paths. |
 
 Remarks:
+
+- `CleanupAsync`, `MoveLinksAsync`, `MovePackagesAsync`, `MoveToNewPackageAsync`, `SplitPackageByHosterAsync`, `SetDownloadDirectoryAsync`, `StartOnlineStatusCheckAsync`, `SetDownloadPasswordAsync`, `SetVariantAsync`, `AddVariantCopyAsync` and both `AbortAsync` overloads are applied without confirmation. On a timeout or a network error the action may have been executed.
+- `CleanupAsync` can delete files on the device, and the library adds no confirmation step: callers are responsible for confirming with the user. With `CleanupMode.RemoveLinksAndDeleteFiles` the files are deleted, with `CleanupMode.RemoveLinksAndRecycleFiles` they are moved to the recycle bin. With `SelectionType.All` the identifiers are ignored, and with `SelectionType.Unselected` every item except the given ones is targeted: combined with `RemoveLinksAndDeleteFiles` this can delete every downloaded file on the device. The enums are described in [common types](common-types.md#cleanupaction) ([`CleanupMode`](common-types.md#cleanupmode), [`SelectionType`](common-types.md#selectiontype)).
+- The download password given to `SetDownloadPasswordAsync` is a secret: it is sent as a call argument, never retained or logged by the library. Do not log it either.
+- The URL keys returned by `GetDownloadUrlsAsync` are untrusted device URLs that may embed credentials: never log them. `UrlDisplayType` is described in [common types](common-types.md#urldisplaytype).
+- Variant names and identifiers, and the folders returned by `GetDownloadFolderHistoryAsync`, are untrusted device data.
+- The package name and the paths given to `MoveToNewPackageAsync` and `SetDownloadDirectoryAsync` are paths on the device and are not filtered: callers handling untrusted input must allow-list them.
 
 - Arguments are validated synchronously, before any request is sent. Exception messages never contain argument values.
 - Links and URLs may embed credentials, and packages can carry a download password. Do not log whole `AddLinksRequest`, `CrawledLink` or `CrawledPackage` values.
@@ -51,6 +75,16 @@ var job = await device.LinkGrabber.AddLinksAsync(new AddLinksRequest
 var packages = await device.LinkGrabber.QueryPackagesAsync(new PackageQuery { StartAt = 0, MaxResults = 100 });
 
 await device.LinkGrabber.MoveToDownloadListAsync([], [.. packages.Select(p => p.Uuid)]);
+
+// Pick another variant of a link, then follow the crawler jobs.
+var variants = await device.LinkGrabber.GetVariantsAsync(linkId);
+if (variants.Count > 0 && variants[0].Id is { } variantId)
+{
+    await device.LinkGrabber.SetVariantAsync(linkId, variantId);
+}
+
+var jobs = await device.LinkGrabber.QueryLinkCrawlerJobsAsync(new LinkCrawlerJobQuery { JobIds = [job.Id] });
+await device.LinkGrabber.AbortAsync(job.Id);
 ```
 
 ## AddLinksRequest
@@ -215,6 +249,40 @@ Selects the fields and range returned by `QueryPackagesAsync`. Every field flag 
 | `PackageUuids` | `IReadOnlyList<long>?` | `null` | Restricts the query to these packages. `null` means all. |
 | `MaxResults` | `int` | `-1` | Maximum number of results. `-1` means no limit. Values below `-1` throw `ArgumentException`. |
 | `StartAt` | `int` | `0` | Index of the first result. Negative values throw `ArgumentException`. |
+
+## LinkCrawlerJob
+
+`public sealed record LinkCrawlerJob`
+
+The state of a link crawler job, as reported by `QueryLinkCrawlerJobsAsync`. Every property is nullable: the device may omit it.
+
+| Property | Type | Description |
+|---|---|---|
+| `JobId` | `long?` | Identifier of the collecting job. |
+| `CrawlerId` | `long?` | Identifier of the crawler. |
+| `Crawling` | `bool?` | Whether the job is still crawling. |
+| `Checking` | `bool?` | Whether the job is checking the online status. |
+| `Crawled` | `int?` | Number of crawled links. |
+| `Broken` | `int?` | Number of broken links. |
+| `Filtered` | `int?` | Number of filtered links. |
+| `Unhandled` | `int?` | Number of unhandled links. |
+
+## LinkCrawlerJobQuery
+
+`public sealed record LinkCrawlerJobQuery`
+
+Selects the jobs returned by `QueryLinkCrawlerJobsAsync`.
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `JobIds` | `IReadOnlyList<long>?` | `null` | Restricts the query to these jobs. `null` means all. A negative identifier throws `ArgumentOutOfRangeException`. |
+| `CollectorInfo` | `bool` | `false` | Returns the collector information. Omitted from the request when `false`. |
+
+### Example
+
+```csharp
+var jobs = await device.LinkGrabber.QueryLinkCrawlerJobsAsync(new LinkCrawlerJobQuery { CollectorInfo = true });
+```
 
 See also:
 
