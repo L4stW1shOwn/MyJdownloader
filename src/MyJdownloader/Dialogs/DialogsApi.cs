@@ -19,7 +19,7 @@ public sealed class DialogsApi
     internal DialogsApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Lists the identifiers of the dialogs currently open (<c>/dialogs/list</c>).</summary>
@@ -31,7 +31,7 @@ public sealed class DialogsApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public async Task<IReadOnlyList<long>> ListAsync(CancellationToken cancellationToken = default)
-        => await this._channel.CallAsync(Base + "list", FacadeJsonContext.Default.Int64Array, [], cancellationToken).ConfigureAwait(false) ?? [];
+        => await _channel.CallAsync(Base + "list", FacadeJsonContext.Default.Int64Array, [], cancellationToken).ConfigureAwait(false) ?? [];
 
     /// <summary>Gets an open dialog (<c>/dialogs/get</c>).</summary>
     /// <param name="id">The dialog identifier, as returned by <see cref="ListAsync"/>.</param>
@@ -47,7 +47,7 @@ public sealed class DialogsApi
     public Task<DialogInfo> GetAsync(long id, bool includeIcon = false, bool includeProperties = true, CancellationToken cancellationToken = default)
     {
         var args = new[] { Id(id), Flag(includeIcon), Flag(includeProperties) };
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "get", DialogsJsonContext.Default.DialogInfo, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "get", DialogsJsonContext.Default.DialogInfo, args, cancellationToken));
     }
 
     /// <summary>Describes the properties of a dialog type (<c>/dialogs/getTypeInfo</c>).</summary>
@@ -65,7 +65,7 @@ public sealed class DialogsApi
     {
         FacadeGuard.ValidateText(dialogType, nameof(dialogType), FacadeGuard.MaxIdentifierLength);
         var args = new[] { JsonSerializer.SerializeToElement(dialogType, FacadeJsonContext.Default.String) };
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "getTypeInfo", DialogsJsonContext.Default.DialogTypeInfo, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "getTypeInfo", DialogsJsonContext.Default.DialogTypeInfo, args, cancellationToken));
     }
 
     /// <summary>Answers an open dialog (<c>/dialogs/answer</c>).</summary>
@@ -97,7 +97,7 @@ public sealed class DialogsApi
         }
 
         var args = new[] { Id(id), JsonSerializer.SerializeToElement(copy, DialogsJsonContext.Default.DictionaryStringJsonElement) };
-        return this._channel.CallAsync(Base + "answer", args, cancellationToken);
+        return _channel.CallAsync(Base + "answer", args, cancellationToken);
     }
 
     private static JsonElement Id(long value)

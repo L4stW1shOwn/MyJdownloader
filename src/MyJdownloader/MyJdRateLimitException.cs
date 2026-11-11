@@ -43,7 +43,7 @@ public sealed class MyJdRateLimitException : MyJdException
         string errorType,
         HttpStatusCode statusCode,
         TimeSpan? retryAfter)
-        : base(message, errorSource, errorType, statusCode) => this.RetryAfter = retryAfter;
+        : base(message, errorSource, errorType, statusCode) => RetryAfter = retryAfter;
 
     /// <summary>Gets the delay after which the request may be retried, or <see langword="null"/> when not provided.</summary>
     public TimeSpan? RetryAfter { get; }

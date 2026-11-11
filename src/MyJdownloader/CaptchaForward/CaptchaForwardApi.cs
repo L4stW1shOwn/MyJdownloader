@@ -17,7 +17,7 @@ public sealed class CaptchaForwardApi
     internal CaptchaForwardApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Queues a reCAPTCHA v2 challenge on the device (<c>/captchaforward/createJobRecaptchaV2</c>).</summary>
@@ -53,7 +53,7 @@ public sealed class CaptchaForwardApi
 
         FacadeGuard.ValidateOptionalText(reason, nameof(reason), FacadeGuard.MaxLongTextLength);
         var args = new[] { Text(siteKey), Text(stoken ?? string.Empty), Text(domain), Text(reason ?? string.Empty) };
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "createJobRecaptchaV2", FacadeJsonContext.Default.NullableInt64, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "createJobRecaptchaV2", FacadeJsonContext.Default.NullableInt64, args, cancellationToken));
     }
 
     /// <summary>Reads the token of a finished job (<c>/captchaforward/getResult</c>).</summary>
@@ -72,7 +72,7 @@ public sealed class CaptchaForwardApi
     public Task<string?> GetResultAsync(long jobId, CancellationToken cancellationToken = default)
     {
         var args = new[] { JsonSerializer.SerializeToElement(jobId, FacadeJsonContext.Default.Int64) };
-        return this._channel.CallAsync(Base + "getResult", FacadeJsonContext.Default.String, args, cancellationToken);
+        return _channel.CallAsync(Base + "getResult", FacadeJsonContext.Default.String, args, cancellationToken);
     }
 
     private static JsonElement Text(string value)

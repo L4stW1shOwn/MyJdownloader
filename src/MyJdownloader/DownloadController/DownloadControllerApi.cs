@@ -13,7 +13,7 @@ public sealed class DownloadControllerApi
     internal DownloadControllerApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Starts the downloads (<c>/downloadcontroller/start</c>).</summary>
@@ -25,7 +25,7 @@ public sealed class DownloadControllerApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task<bool> StartAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "start", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "start", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
 
     /// <summary>Stops the downloads (<c>/downloadcontroller/stop</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -36,7 +36,7 @@ public sealed class DownloadControllerApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task<bool> StopAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "stop", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "stop", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
 
     /// <summary>Pauses or resumes the downloads (<c>/downloadcontroller/pause</c>).</summary>
     /// <param name="paused"><see langword="true"/> to pause the downloads, <see langword="false"/> to resume them.</param>
@@ -50,7 +50,7 @@ public sealed class DownloadControllerApi
     public Task<bool> PauseAsync(bool paused, CancellationToken cancellationToken = default)
     {
         var args = new[] { JsonSerializer.SerializeToElement(paused, FacadeJsonContext.Default.Boolean) };
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "pause", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "pause", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }
 
     /// <summary>Gets the state of the download controller (<c>/downloadcontroller/getCurrentState</c>).</summary>
@@ -63,7 +63,7 @@ public sealed class DownloadControllerApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<DownloadState> GetCurrentStateAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "getCurrentState", DownloadControllerJsonContext.Default.NullableDownloadState, [], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "getCurrentState", DownloadControllerJsonContext.Default.NullableDownloadState, [], cancellationToken));
 
     /// <summary>Gets the current download speed (<c>/downloadcontroller/getSpeedInBps</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -74,5 +74,5 @@ public sealed class DownloadControllerApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<int> GetSpeedAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "getSpeedInBps", FacadeJsonContext.Default.NullableInt32, [], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "getSpeedInBps", FacadeJsonContext.Default.NullableInt32, [], cancellationToken));
 }

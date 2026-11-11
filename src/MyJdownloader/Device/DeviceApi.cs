@@ -13,7 +13,7 @@ public sealed class DeviceApi
     internal DeviceApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Checks that the device answers (<c>/device/ping</c>).</summary>
@@ -25,5 +25,5 @@ public sealed class DeviceApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<bool> PingAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "ping", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "ping", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
 }

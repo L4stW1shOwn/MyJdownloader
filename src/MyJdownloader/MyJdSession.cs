@@ -52,13 +52,13 @@ public sealed class MyJdSession
         ValidateToken(sessionToken, nameof(sessionToken));
         ValidateToken(regainToken, nameof(regainToken));
 
-        this.Email = email;
-        this._loginSecret = CopyKey(loginSecret, nameof(loginSecret));
-        this._deviceSecret = CopyKey(deviceSecret, nameof(deviceSecret));
-        this.SessionToken = sessionToken;
-        this.RegainToken = regainToken;
-        this._serverEncryptionToken = CopyKey(serverEncryptionToken, nameof(serverEncryptionToken));
-        this._deviceEncryptionToken = CopyKey(deviceEncryptionToken, nameof(deviceEncryptionToken));
+        Email = email;
+        _loginSecret = CopyKey(loginSecret, nameof(loginSecret));
+        _deviceSecret = CopyKey(deviceSecret, nameof(deviceSecret));
+        SessionToken = sessionToken;
+        RegainToken = regainToken;
+        _serverEncryptionToken = CopyKey(serverEncryptionToken, nameof(serverEncryptionToken));
+        _deviceEncryptionToken = CopyKey(deviceEncryptionToken, nameof(deviceEncryptionToken));
     }
 
     /// <summary>Gets the account e-mail address.</summary>
@@ -67,16 +67,16 @@ public sealed class MyJdSession
     public string Email { get; }
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    internal ReadOnlySpan<byte> LoginSecret => this._loginSecret;
+    internal ReadOnlySpan<byte> LoginSecret => _loginSecret;
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    internal ReadOnlySpan<byte> DeviceSecret => this._deviceSecret;
+    internal ReadOnlySpan<byte> DeviceSecret => _deviceSecret;
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    internal ReadOnlySpan<byte> ServerEncryptionToken => this._serverEncryptionToken;
+    internal ReadOnlySpan<byte> ServerEncryptionToken => _serverEncryptionToken;
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    internal ReadOnlySpan<byte> DeviceEncryptionToken => this._deviceEncryptionToken;
+    internal ReadOnlySpan<byte> DeviceEncryptionToken => _deviceEncryptionToken;
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     [field: DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -88,7 +88,7 @@ public sealed class MyJdSession
 
     /// <summary>Returns a representation of the session with a masked e-mail and no secret.</summary>
     /// <returns>A string such as <c>MyJdSession { Email = u***@example.com }</c>.</returns>
-    public override string ToString() => $"MyJdSession {{ Email = {MaskEmail(this.Email)} }}";
+    public override string ToString() => $"MyJdSession {{ Email = {MaskEmail(Email)} }}";
 
     /// <summary>Exports the session as versioned JSON.</summary>
     /// <returns>A JSON document that <see cref="FromJson(string)"/> can restore.</returns>
@@ -101,13 +101,13 @@ public sealed class MyJdSession
         var document = new MyJdSessionDocument
         {
             Version = CurrentVersion,
-            Email = this.Email,
-            LoginSecret = this._loginSecret,
-            DeviceSecret = this._deviceSecret,
-            SessionToken = this.SessionToken,
-            RegainToken = this.RegainToken,
-            ServerEncryptionToken = this._serverEncryptionToken,
-            DeviceEncryptionToken = this._deviceEncryptionToken,
+            Email = Email,
+            LoginSecret = _loginSecret,
+            DeviceSecret = _deviceSecret,
+            SessionToken = SessionToken,
+            RegainToken = RegainToken,
+            ServerEncryptionToken = _serverEncryptionToken,
+            DeviceEncryptionToken = _deviceEncryptionToken,
         };
 
         return JsonSerializer.Serialize(document, MyJdJsonContext.Default.MyJdSessionDocument);

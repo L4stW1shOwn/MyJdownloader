@@ -15,7 +15,7 @@ public sealed partial class DownloadsApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<long?> GetStopMarkAsync(CancellationToken cancellationToken = default)
-        => MapStopMarkAsync(FacadeResults.RequireAsync(this._channel.CallAsync(Base + "getStopMark", FacadeJsonContext.Default.NullableInt64, [], cancellationToken)));
+        => MapStopMarkAsync(FacadeResults.RequireAsync(_channel.CallAsync(Base + "getStopMark", FacadeJsonContext.Default.NullableInt64, [], cancellationToken)));
 
     /// <summary>Gets the stop-marked link (<c>/downloadsV2/getStopMarkedLink</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -27,7 +27,7 @@ public sealed partial class DownloadsApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<DownloadLink?> GetStopMarkedLinkAsync(CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "getStopMarkedLink", DownloadsJsonContext.Default.DownloadLink, [], cancellationToken);
+        => _channel.CallAsync(Base + "getStopMarkedLink", DownloadsJsonContext.Default.DownloadLink, [], cancellationToken);
 
     /// <summary>Sets the stop mark on a link (<c>/downloadsV2/setStopMark</c>).</summary>
     /// <param name="linkId">The identifier of the link.</param>
@@ -50,7 +50,7 @@ public sealed partial class DownloadsApi
             JsonSerializer.SerializeToElement(linkId, FacadeJsonContext.Default.Int64),
             JsonSerializer.SerializeToElement(packageId, FacadeJsonContext.Default.Int64),
         };
-        return this._channel.CallAsync(Base + "setStopMark", args, cancellationToken);
+        return _channel.CallAsync(Base + "setStopMark", args, cancellationToken);
     }
 
     /// <summary>Removes the stop mark (<c>/downloadsV2/removeStopMark</c>).</summary>
@@ -63,7 +63,7 @@ public sealed partial class DownloadsApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task RemoveStopMarkAsync(CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "removeStopMark", [], cancellationToken);
+        => _channel.CallAsync(Base + "removeStopMark", [], cancellationToken);
 
     /// <summary>Gets the structure change counter of the download list (<c>/downloadsV2/getStructureChangeCounter</c>).</summary>
     /// <param name="oldCounterValue">The counter value previously observed by the caller.</param>
@@ -78,7 +78,7 @@ public sealed partial class DownloadsApi
     public Task<long> GetStructureChangeCounterAsync(long oldCounterValue, CancellationToken cancellationToken = default)
     {
         var args = new[] { JsonSerializer.SerializeToElement(oldCounterValue, FacadeJsonContext.Default.Int64) };
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "getStructureChangeCounter", FacadeJsonContext.Default.NullableInt64, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "getStructureChangeCounter", FacadeJsonContext.Default.NullableInt64, args, cancellationToken));
     }
 
     private static async Task<long?> MapStopMarkAsync(Task<long> answer)

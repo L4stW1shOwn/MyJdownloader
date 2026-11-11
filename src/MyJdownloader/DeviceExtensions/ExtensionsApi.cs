@@ -14,7 +14,7 @@ public sealed class ExtensionsApi
     internal ExtensionsApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Lists the extensions (<c>/extensions/list</c>).</summary>
@@ -34,7 +34,7 @@ public sealed class ExtensionsApi
         FacadeGuard.ValidateOptionalText(query.Pattern, nameof(query), FacadeGuard.MaxLongTextLength);
         var args = new[] { JsonSerializer.SerializeToElement(query, ExtensionsJsonContext.Default.ExtensionQuery) };
         return FacadeResults.ListAsync(
-            this._channel.CallAsync(Base + "list", ExtensionsJsonContext.Default.ListExtension, args, cancellationToken),
+            _channel.CallAsync(Base + "list", ExtensionsJsonContext.Default.ListExtension, args, cancellationToken),
             static item => item is null);
     }
 
@@ -54,7 +54,7 @@ public sealed class ExtensionsApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task<bool> InstallAsync(string id, CancellationToken cancellationToken = default)
-        => this.CallBoolAsync("install", id, nameof(id), null, cancellationToken);
+        => CallBoolAsync("install", id, nameof(id), null, cancellationToken);
 
     /// <summary>Tells whether an extension is installed (<c>/extensions/isInstalled</c>).</summary>
     /// <param name="id">The extension identifier (<see cref="Extension.Id"/>).</param>
@@ -68,7 +68,7 @@ public sealed class ExtensionsApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<bool> IsInstalledAsync(string id, CancellationToken cancellationToken = default)
-        => this.CallBoolAsync("isInstalled", id, nameof(id), null, cancellationToken);
+        => CallBoolAsync("isInstalled", id, nameof(id), null, cancellationToken);
 
     /// <summary>Tells whether an extension is enabled (<c>/extensions/isEnabled</c>).</summary>
     /// <param name="className">The extension class name (<see cref="Extension.Id"/>).</param>
@@ -82,7 +82,7 @@ public sealed class ExtensionsApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<bool> IsEnabledAsync(string className, CancellationToken cancellationToken = default)
-        => this.CallBoolAsync("isEnabled", className, nameof(className), null, cancellationToken);
+        => CallBoolAsync("isEnabled", className, nameof(className), null, cancellationToken);
 
     /// <summary>Enables or disables an extension (<c>/extensions/setEnabled</c>).</summary>
     /// <param name="className">The extension class name (<see cref="Extension.Id"/>).</param>
@@ -98,7 +98,7 @@ public sealed class ExtensionsApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task<bool> SetEnabledAsync(string className, bool enabled, CancellationToken cancellationToken = default)
-        => this.CallBoolAsync("setEnabled", className, nameof(className), enabled, cancellationToken);
+        => CallBoolAsync("setEnabled", className, nameof(className), enabled, cancellationToken);
 
     private Task<bool> CallBoolAsync(string action, string text, string paramName, bool? flag, CancellationToken cancellationToken)
     {
@@ -107,6 +107,6 @@ public sealed class ExtensionsApi
         JsonElement[] args = flag is { } value
             ? [first, JsonSerializer.SerializeToElement(value, FacadeJsonContext.Default.Boolean)]
             : [first];
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + action, FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + action, FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }
 }

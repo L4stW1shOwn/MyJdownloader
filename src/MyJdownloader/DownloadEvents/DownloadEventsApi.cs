@@ -17,7 +17,7 @@ public sealed class DownloadEventsApi
     internal DownloadEventsApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Sets the push interval of the <c>downloads.*</c> interval events for one events subscription (<c>/downloadevents/setStatusEventInterval</c>).</summary>
@@ -45,6 +45,6 @@ public sealed class DownloadEventsApi
             JsonSerializer.SerializeToElement(subscriptionId, FacadeJsonContext.Default.Int64),
             JsonSerializer.SerializeToElement(milliseconds, FacadeJsonContext.Default.Int64),
         ];
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "setStatusEventInterval", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "setStatusEventInterval", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }
 }

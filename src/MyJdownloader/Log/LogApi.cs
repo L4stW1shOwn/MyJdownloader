@@ -14,7 +14,7 @@ public sealed class LogApi
     internal LogApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Lists the log folders available on the device (<c>/log/getAvailableLogs</c>).</summary>
@@ -29,7 +29,7 @@ public sealed class LogApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<IReadOnlyList<LogFolder>> GetAvailableLogsAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.ListAsync(this._channel.CallAsync(Base + "getAvailableLogs", LogJsonContext.Default.ListLogFolder, [], cancellationToken));
+        => FacadeResults.ListAsync(_channel.CallAsync(Base + "getAvailableLogs", LogJsonContext.Default.ListLogFolder, [], cancellationToken));
 
     /// <summary>Uploads the selected log folders of the device to JDownloader's support servers (<c>/log/sendLogFile</c>).</summary>
     /// <param name="logFolders">The folders to send, typically taken from <see cref="GetAvailableLogsAsync"/>; each needs its <see cref="LogFolder.Created"/> and <see cref="LogFolder.LastModified"/> dates.</param>
@@ -64,6 +64,6 @@ public sealed class LogApi
         }
 
         var args = new[] { JsonSerializer.SerializeToElement([.. logFolders], LogJsonContext.Default.LogFolderArray) };
-        return this._channel.CallAsync(Base + "sendLogFile", FacadeJsonContext.Default.String, args, cancellationToken);
+        return _channel.CallAsync(Base + "sendLogFile", FacadeJsonContext.Default.String, args, cancellationToken);
     }
 }

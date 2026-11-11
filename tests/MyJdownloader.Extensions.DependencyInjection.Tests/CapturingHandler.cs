@@ -8,7 +8,7 @@ internal sealed class CapturingHandler : DelegatingHandler
 
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        this.Requests.Add(request.RequestUri!);
+        Requests.Add(request.RequestUri!);
         return Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));
     }
 }

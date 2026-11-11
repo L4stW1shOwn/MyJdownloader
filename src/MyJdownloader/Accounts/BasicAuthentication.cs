@@ -40,14 +40,14 @@ public sealed record BasicAuthentication
     [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Invoked by the compiler-generated ToString.")]
     private bool PrintMembers(StringBuilder builder)
     {
-        builder.Append("Id = ").Append(this.Id)
-            .Append(", Type = ").Append(this.Type)
-            .Append(", Hostmask = ").Append(this.Hostmask)
-            .Append(", Username = ").Append(this.Username)
-            .Append(", Password = ").Append(this.Password is null ? null : "***")
-            .Append(", Enabled = ").Append(this.Enabled)
-            .Append(", Created = ").Append(this.Created)
-            .Append(", LastValidated = ").Append(this.LastValidated);
+        builder.Append("Id = ").Append(Id)
+            .Append(", Type = ").Append(Type)
+            .Append(", Hostmask = ").Append(Hostmask)
+            .Append(", Username = ").Append(Username)
+            .Append(", Password = ").Append(Password is null ? null : "***")
+            .Append(", Enabled = ").Append(Enabled)
+            .Append(", Created = ").Append(Created)
+            .Append(", LastValidated = ").Append(LastValidated);
         return true;
     }
 }

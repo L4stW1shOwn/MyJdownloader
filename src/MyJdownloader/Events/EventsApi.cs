@@ -17,7 +17,7 @@ public sealed class EventsApi
     internal EventsApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Creates an event subscription (<c>/events/subscribe</c>).</summary>
@@ -36,7 +36,7 @@ public sealed class EventsApi
     public Task<EventSubscription> SubscribeAsync(IReadOnlyList<string> subscriptions, IReadOnlyList<string>? exclusions = null, CancellationToken cancellationToken = default)
     {
         var args = ListArgs(subscriptions, exclusions);
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "subscribe", EventsJsonContext.Default.EventSubscription, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "subscribe", EventsJsonContext.Default.EventSubscription, args, cancellationToken));
     }
 
     /// <summary>Waits for and returns the queued events of a subscription (<c>/events/listen</c>).</summary>
@@ -56,7 +56,7 @@ public sealed class EventsApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<IReadOnlyList<DeviceEvent>> ListenAsync(long subscriptionId, CancellationToken cancellationToken = default)
-        => FacadeResults.ListAsync(this._channel.CallAsync(Base + "listen", EventsJsonContext.Default.ListDeviceEvent, [Id(subscriptionId)], cancellationToken));
+        => FacadeResults.ListAsync(_channel.CallAsync(Base + "listen", EventsJsonContext.Default.ListDeviceEvent, [Id(subscriptionId)], cancellationToken));
 
     /// <summary>Gets a subscription (<c>/events/getsubscription</c>).</summary>
     /// <param name="subscriptionId">The subscription identifier (<see cref="EventSubscription.SubscriptionId"/>).</param>
@@ -68,7 +68,7 @@ public sealed class EventsApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<EventSubscription> GetSubscriptionAsync(long subscriptionId, CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "getsubscription", EventsJsonContext.Default.EventSubscription, [Id(subscriptionId)], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "getsubscription", EventsJsonContext.Default.EventSubscription, [Id(subscriptionId)], cancellationToken));
 
     /// <summary>Gets the status of a subscription (<c>/events/getsubscriptionstatus</c>).</summary>
     /// <param name="subscriptionId">The subscription identifier (<see cref="EventSubscription.SubscriptionId"/>).</param>
@@ -80,7 +80,7 @@ public sealed class EventsApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<EventSubscriptionStatus> GetSubscriptionStatusAsync(long subscriptionId, CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "getsubscriptionstatus", EventsJsonContext.Default.EventSubscriptionStatus, [Id(subscriptionId)], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "getsubscriptionstatus", EventsJsonContext.Default.EventSubscriptionStatus, [Id(subscriptionId)], cancellationToken));
 
     /// <summary>Adds patterns to a subscription (<c>/events/addsubscription</c>).</summary>
     /// <remarks>Each pattern is a regular expression evaluated on the device.</remarks>
@@ -99,7 +99,7 @@ public sealed class EventsApi
     public Task<EventSubscription> AddSubscriptionAsync(long subscriptionId, IReadOnlyList<string> subscriptions, IReadOnlyList<string>? exclusions = null, CancellationToken cancellationToken = default)
     {
         var args = ListArgs(Id(subscriptionId), subscriptions, exclusions);
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "addsubscription", EventsJsonContext.Default.EventSubscription, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "addsubscription", EventsJsonContext.Default.EventSubscription, args, cancellationToken));
     }
 
     /// <summary>Removes patterns from a subscription (<c>/events/removesubscription</c>).</summary>
@@ -119,7 +119,7 @@ public sealed class EventsApi
     public Task<EventSubscription> RemoveSubscriptionAsync(long subscriptionId, IReadOnlyList<string> subscriptions, IReadOnlyList<string>? exclusions = null, CancellationToken cancellationToken = default)
     {
         var args = ListArgs(Id(subscriptionId), subscriptions, exclusions);
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "removesubscription", EventsJsonContext.Default.EventSubscription, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "removesubscription", EventsJsonContext.Default.EventSubscription, args, cancellationToken));
     }
 
     /// <summary>Replaces the patterns of a subscription (<c>/events/setsubscription</c>).</summary>
@@ -139,7 +139,7 @@ public sealed class EventsApi
     public Task<EventSubscription> SetSubscriptionAsync(long subscriptionId, IReadOnlyList<string> subscriptions, IReadOnlyList<string>? exclusions = null, CancellationToken cancellationToken = default)
     {
         var args = ListArgs(Id(subscriptionId), subscriptions, exclusions);
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "setsubscription", EventsJsonContext.Default.EventSubscription, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "setsubscription", EventsJsonContext.Default.EventSubscription, args, cancellationToken));
     }
 
     /// <summary>Changes the timeouts of a subscription (<c>/events/changesubscriptiontimeouts</c>).</summary>
@@ -160,7 +160,7 @@ public sealed class EventsApi
         var pollMs = Milliseconds(pollTimeout, nameof(pollTimeout));
         var keepaliveMs = Milliseconds(maxKeepalive, nameof(maxKeepalive));
         JsonElement[] args = [Id(subscriptionId), Id(pollMs), Id(keepaliveMs)];
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "changesubscriptiontimeouts", EventsJsonContext.Default.EventSubscription, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "changesubscriptiontimeouts", EventsJsonContext.Default.EventSubscription, args, cancellationToken));
     }
 
     /// <summary>Cancels a subscription (<c>/events/unsubscribe</c>).</summary>
@@ -173,7 +173,7 @@ public sealed class EventsApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<EventSubscription> UnsubscribeAsync(long subscriptionId, CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "unsubscribe", EventsJsonContext.Default.EventSubscription, [Id(subscriptionId)], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "unsubscribe", EventsJsonContext.Default.EventSubscription, [Id(subscriptionId)], cancellationToken));
 
     /// <summary>Lists the event publishers and the events they emit (<c>/events/listpublisher</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -184,7 +184,7 @@ public sealed class EventsApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<IReadOnlyList<EventPublisher>> ListPublishersAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.ListAsync(this._channel.CallAsync(Base + "listpublisher", EventsJsonContext.Default.ListEventPublisher, [], cancellationToken));
+        => FacadeResults.ListAsync(_channel.CallAsync(Base + "listpublisher", EventsJsonContext.Default.ListEventPublisher, [], cancellationToken));
 
     /// <summary>Follows the events of the device as an asynchronous stream, owning the whole subscription lifecycle.</summary>
     /// <remarks>
@@ -238,7 +238,7 @@ public sealed class EventsApi
 
     internal static readonly TimeSpan CleanupTimeout = TimeSpan.FromSeconds(10);
 
-    internal Task UnsubscribeQuietlyAsync(long subscriptionId) => this.UnsubscribeQuietlyAsync(subscriptionId, CleanupTimeout);
+    internal Task UnsubscribeQuietlyAsync(long subscriptionId) => UnsubscribeQuietlyAsync(subscriptionId, CleanupTimeout);
 
     internal async Task UnsubscribeQuietlyAsync(long subscriptionId, TimeSpan cleanupTimeout)
     {
@@ -248,7 +248,7 @@ public sealed class EventsApi
         try
         {
             // WaitAsync bounds the wait itself: a session reconnect inside the channel ignores the token (ADR-004).
-            call = this.UnsubscribeAsync(subscriptionId, cleanup.Token);
+            call = UnsubscribeAsync(subscriptionId, cleanup.Token);
             _ = await call.WaitAsync(cleanupTimeout).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is MyJdException or TimeoutException or HttpRequestException or IOException or OperationCanceledException or InvalidOperationException)

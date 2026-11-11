@@ -20,7 +20,7 @@ public sealed partial class LinkGrabberApi
     {
         FacadeGuard.ThrowIfNegative(linkId, nameof(linkId));
         var args = new[] { JsonSerializer.SerializeToElement(linkId, FacadeJsonContext.Default.Int64) };
-        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "getVariants", LinkGrabberJsonContext.Default.ListLinkVariant, args, cancellationToken));
+        return FacadeResults.ListAsync(_channel.CallAsync(Base + "getVariants", LinkGrabberJsonContext.Default.ListLinkVariant, args, cancellationToken));
     }
 
     /// <summary>Selects the variant of a link (<c>/linkgrabberv2/setVariant</c>).</summary>
@@ -46,7 +46,7 @@ public sealed partial class LinkGrabberApi
             JsonSerializer.SerializeToElement(linkId, FacadeJsonContext.Default.Int64),
             JsonSerializer.SerializeToElement(variantId, FacadeJsonContext.Default.String),
         };
-        return this._channel.CallAsync(Base + "setVariant", args, cancellationToken);
+        return _channel.CallAsync(Base + "setVariant", args, cancellationToken);
     }
 
     /// <summary>Adds a copy of a link with another variant (<c>/linkgrabberv2/addVariantCopy</c>).</summary>
@@ -78,6 +78,6 @@ public sealed partial class LinkGrabberApi
             JsonSerializer.SerializeToElement(destinationPackageId, FacadeJsonContext.Default.Int64),
             JsonSerializer.SerializeToElement(variantId, FacadeJsonContext.Default.String),
         };
-        return this._channel.CallAsync(Base + "addVariantCopy", args, cancellationToken);
+        return _channel.CallAsync(Base + "addVariantCopy", args, cancellationToken);
     }
 }

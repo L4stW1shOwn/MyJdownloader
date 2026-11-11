@@ -261,21 +261,21 @@ public sealed partial class DeviceChannelTests
 
         public List<Sent> Sent { get; } = [];
 
-        public Task FirstAttemptEntered => this._entered.Task;
+        public Task FirstAttemptEntered => _entered.Task;
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             var path = request.RequestUri!.PathAndQuery;
             if (path.StartsWith(ReconnectPath, StringComparison.Ordinal))
             {
-                this.Sent.Add(new Sent(path, string.Empty, 0));
+                Sent.Add(new Sent(path, string.Empty, 0));
                 return FakeMyJdServer.EncryptedJson(Key(3), ReconnectBody(FakeMyJdServer.RidOf(request)));
             }
 
             if (path.StartsWith("/t_" + SessionToken + "_", StringComparison.Ordinal))
             {
-                this.Sent.Add(Capture(request, DeviceKey()));
-                this._entered.TrySetResult();
+                Sent.Add(Capture(request, DeviceKey()));
+                _entered.TrySetResult();
                 if (gate is not null)
                 {
                     await gate.WaitAsync(cancellationToken);
@@ -286,7 +286,7 @@ public sealed partial class DeviceChannelTests
 
             var newKey = MyJdCrypto.DeriveToken(Key(2), NewSessionToken);
             var sent = Capture(request, newKey);
-            this.Sent.Add(sent);
+            Sent.Add(sent);
             return FakeMyJdServer.EncryptedJson(newKey, DataBody(sent.Rid, /*lang=json,strict*/ "{\"count\":3}"));
         }
     }

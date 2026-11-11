@@ -17,7 +17,7 @@ public sealed class ExtractionApi
     internal ExtractionApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Adds a password to the list of archive passwords of the device (<c>/extraction/addArchivePassword</c>).</summary>
@@ -37,7 +37,7 @@ public sealed class ExtractionApi
     public Task AddArchivePasswordAsync(string password, CancellationToken cancellationToken = default)
     {
         FacadeGuard.ValidateText(password, nameof(password), FacadeGuard.MaxLongTextLength);
-        return this._channel.CallAsync(Base + "addArchivePassword", [Str(password)], cancellationToken);
+        return _channel.CallAsync(Base + "addArchivePassword", [Str(password)], cancellationToken);
     }
 
     /// <summary>Cancels a running extraction (<c>/extraction/cancelExtraction</c>).</summary>
@@ -54,7 +54,7 @@ public sealed class ExtractionApi
     {
         FacadeGuard.ThrowIfNegative(controllerId, nameof(controllerId));
         var args = new[] { JsonSerializer.SerializeToElement(controllerId, FacadeJsonContext.Default.Int64) };
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "cancelExtraction", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "cancelExtraction", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }
 
     /// <summary>Gets the archive status of links and packages (<c>/extraction/getArchiveInfo</c>).</summary>
@@ -72,7 +72,7 @@ public sealed class ExtractionApi
     public Task<IReadOnlyList<ArchiveStatus>> GetArchiveInfoAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)
     {
         var args = FacadeGuard.IdArgs(linkIds, packageIds);
-        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "getArchiveInfo", ExtractionJsonContext.Default.ListArchiveStatus, args, cancellationToken));
+        return FacadeResults.ListAsync(_channel.CallAsync(Base + "getArchiveInfo", ExtractionJsonContext.Default.ListArchiveStatus, args, cancellationToken));
     }
 
     /// <summary>Gets the extraction settings of archives (<c>/extraction/getArchiveSettings</c>).</summary>
@@ -96,7 +96,7 @@ public sealed class ExtractionApi
         }
 
         var args = new[] { JsonSerializer.SerializeToElement([.. archiveIds], ExtractionJsonContext.Default.StringArray) };
-        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "getArchiveSettings", ExtractionJsonContext.Default.ListArchiveSettings, args, cancellationToken));
+        return FacadeResults.ListAsync(_channel.CallAsync(Base + "getArchiveSettings", ExtractionJsonContext.Default.ListArchiveSettings, args, cancellationToken));
     }
 
     /// <summary>Gets the extraction queue (<c>/extraction/getQueue</c>).</summary>
@@ -108,7 +108,7 @@ public sealed class ExtractionApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<IReadOnlyList<ArchiveStatus>> GetQueueAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.ListAsync(this._channel.CallAsync(Base + "getQueue", ExtractionJsonContext.Default.ListArchiveStatus, [], cancellationToken));
+        => FacadeResults.ListAsync(_channel.CallAsync(Base + "getQueue", ExtractionJsonContext.Default.ListArchiveStatus, [], cancellationToken));
 
     /// <summary>Changes the extraction settings of an archive (<c>/extraction/setArchiveSettings</c>).</summary>
     /// <param name="archiveId">The archive identifier (<see cref="ArchiveStatus.ArchiveId"/>).</param>
@@ -148,7 +148,7 @@ public sealed class ExtractionApi
         }
 
         var args = new[] { Str(archiveId), JsonSerializer.SerializeToElement(settings, ExtractionJsonContext.Default.ArchiveSettings) };
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "setArchiveSettings", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "setArchiveSettings", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }
 
     /// <summary>Starts the extraction of links and packages immediately (<c>/extraction/startExtractionNow</c>).</summary>
@@ -167,7 +167,7 @@ public sealed class ExtractionApi
     public Task<IReadOnlyDictionary<string, bool?>> StartExtractionNowAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)
     {
         var args = FacadeGuard.IdArgs(linkIds, packageIds);
-        return ToResultsAsync(this._channel.CallAsync(Base + "startExtractionNow", ExtractionJsonContext.Default.DictionaryStringNullableBoolean, args, cancellationToken));
+        return ToResultsAsync(_channel.CallAsync(Base + "startExtractionNow", ExtractionJsonContext.Default.DictionaryStringNullableBoolean, args, cancellationToken));
     }
 
     private static async Task<IReadOnlyDictionary<string, bool?>> ToResultsAsync(Task<Dictionary<string, bool?>?> call)

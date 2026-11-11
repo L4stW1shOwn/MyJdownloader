@@ -16,7 +16,7 @@ public sealed class CaptchaApi
     internal CaptchaApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Lists the pending captcha jobs (<c>/captcha/list</c>).</summary>
@@ -28,7 +28,7 @@ public sealed class CaptchaApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<IReadOnlyList<CaptchaJob>> ListAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.ListAsync(this._channel.CallAsync(Base + "list", CaptchaJsonContext.Default.ListCaptchaJob, [], cancellationToken));
+        => FacadeResults.ListAsync(_channel.CallAsync(Base + "list", CaptchaJsonContext.Default.ListCaptchaJob, [], cancellationToken));
 
     /// <summary>Gets a pending captcha job (<c>/captcha/getCaptchaJob</c>).</summary>
     /// <param name="id">The captcha job identifier (<see cref="CaptchaJob.Id"/>).</param>
@@ -40,7 +40,7 @@ public sealed class CaptchaApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<CaptchaJob> GetJobAsync(long id, CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "getCaptchaJob", CaptchaJsonContext.Default.CaptchaJob, [Id(id)], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "getCaptchaJob", CaptchaJsonContext.Default.CaptchaJob, [Id(id)], cancellationToken));
 
     /// <summary>Gets the image of a captcha job (<c>/captcha/get</c>).</summary>
     /// <remarks>The returned text is supplied by the device and must be treated as untrusted: check the <c>data:image/</c> prefix and decode the Base64 before rendering, and HTML-encode it when embedding it in a page.</remarks>
@@ -58,7 +58,7 @@ public sealed class CaptchaApi
     {
         FacadeGuard.ValidateOptionalText(format, nameof(format), FacadeGuard.MaxIdentifierLength);
         JsonElement[] args = format is null ? [Id(id)] : [Id(id), Str(format)];
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "get", FacadeJsonContext.Default.String, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "get", FacadeJsonContext.Default.String, args, cancellationToken));
     }
 
     /// <summary>Skips a captcha job (<c>/captcha/skip</c>).</summary>
@@ -80,7 +80,7 @@ public sealed class CaptchaApi
         }
 
         var args = new[] { Id(id), JsonSerializer.SerializeToElement(type, CaptchaJsonContext.Default.CaptchaSkipRequest) };
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "skip", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "skip", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }
 
     /// <summary>Solves a captcha job (<c>/captcha/solve</c>).</summary>
@@ -101,7 +101,7 @@ public sealed class CaptchaApi
         FacadeGuard.ValidateText(result, nameof(result), FacadeGuard.MaxLongTextLength);
         FacadeGuard.ValidateOptionalText(resultFormat, nameof(resultFormat), FacadeGuard.MaxIdentifierLength);
         JsonElement[] args = resultFormat is null ? [Id(id), Str(result)] : [Id(id), Str(result), Str(resultFormat)];
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "solve", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "solve", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }
 
     private static JsonElement Id(long value)

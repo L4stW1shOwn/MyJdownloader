@@ -68,22 +68,22 @@ public sealed record CrawledPackage
     [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Invoked by the compiler-generated ToString.")]
     private bool PrintMembers(StringBuilder builder)
     {
-        builder.Append("Uuid = ").Append(this.Uuid)
-            .Append(", Name = ").Append(this.Name)
-            .Append(", BytesTotal = ").Append(this.BytesTotal)
-            .Append(", ChildCount = ").Append(this.ChildCount)
-            .Append(", Comment = ").Append(this.Comment)
-            .Append(", DownloadPassword = ").Append(this.DownloadPassword is null ? null : "***")
-            .Append(", Enabled = ").Append(this.Enabled)
-            .Append(", Hosts = ").Append(this.Hosts is null ? null : string.Join(',', this.Hosts))
-            .Append(", OnlineCount = ").Append(this.OnlineCount)
-            .Append(", OfflineCount = ").Append(this.OfflineCount)
-            .Append(", TempUnknownCount = ").Append(this.TempUnknownCount)
-            .Append(", UnknownCount = ").Append(this.UnknownCount)
-            .Append(", Priority = ").Append(this.Priority)
-            .Append(", SaveTo = ").Append(this.SaveTo)
-            .Append(", Status = ").Append(this.Status)
-            .Append(", StatusIconKey = ").Append(this.StatusIconKey);
+        builder.Append("Uuid = ").Append(Uuid)
+            .Append(", Name = ").Append(Name)
+            .Append(", BytesTotal = ").Append(BytesTotal)
+            .Append(", ChildCount = ").Append(ChildCount)
+            .Append(", Comment = ").Append(Comment)
+            .Append(", DownloadPassword = ").Append(DownloadPassword is null ? null : "***")
+            .Append(", Enabled = ").Append(Enabled)
+            .Append(", Hosts = ").Append(Hosts is null ? null : string.Join(',', Hosts))
+            .Append(", OnlineCount = ").Append(OnlineCount)
+            .Append(", OfflineCount = ").Append(OfflineCount)
+            .Append(", TempUnknownCount = ").Append(TempUnknownCount)
+            .Append(", UnknownCount = ").Append(UnknownCount)
+            .Append(", Priority = ").Append(Priority)
+            .Append(", SaveTo = ").Append(SaveTo)
+            .Append(", Status = ").Append(Status)
+            .Append(", StatusIconKey = ").Append(StatusIconKey);
         return true;
     }
 }

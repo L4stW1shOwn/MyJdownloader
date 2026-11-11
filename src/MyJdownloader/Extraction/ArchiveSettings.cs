@@ -41,13 +41,13 @@ public sealed record ArchiveSettings
     [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Invoked by the compiler-generated ToString.")]
     private bool PrintMembers(StringBuilder builder)
     {
-        builder.Append("ArchiveId = ").Append(this.ArchiveId)
-            .Append(", AutoExtract = ").Append(this.AutoExtract)
-            .Append(", ExtractPath = ").Append(this.ExtractPath)
-            .Append(", FinalPassword = ").Append(this.FinalPassword is null ? null : "***")
-            .Append(", Passwords = ").Append(this.Passwords?.Count)
-            .Append(", RemoveDownloadLinksAfterExtraction = ").Append(this.RemoveDownloadLinksAfterExtraction)
-            .Append(", RemoveFilesAfterExtraction = ").Append(this.RemoveFilesAfterExtraction);
+        builder.Append("ArchiveId = ").Append(ArchiveId)
+            .Append(", AutoExtract = ").Append(AutoExtract)
+            .Append(", ExtractPath = ").Append(ExtractPath)
+            .Append(", FinalPassword = ").Append(FinalPassword is null ? null : "***")
+            .Append(", Passwords = ").Append(Passwords?.Count)
+            .Append(", RemoveDownloadLinksAfterExtraction = ").Append(RemoveDownloadLinksAfterExtraction)
+            .Append(", RemoveFilesAfterExtraction = ").Append(RemoveFilesAfterExtraction);
         return true;
     }
 }

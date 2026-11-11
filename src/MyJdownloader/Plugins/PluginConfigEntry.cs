@@ -48,16 +48,16 @@ public sealed record PluginConfigEntry
     [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Invoked by the compiler-generated ToString.")]
     private bool PrintMembers(StringBuilder builder)
     {
-        builder.Append("InterfaceName = ").Append(this.InterfaceName)
-            .Append(", Storage = ").Append(this.Storage)
-            .Append(", Key = ").Append(this.Key)
-            .Append(", Type = ").Append(this.Type)
-            .Append(", AbstractType = ").Append(this.AbstractType)
-            .Append(", Docs = ").Append(this.Docs)
-            .Append(", EnumLabel = ").Append(this.EnumLabel)
-            .Append(", Value = ").Append(KindOf(this.Value))
-            .Append(", DefaultValue = ").Append(KindOf(this.DefaultValue))
-            .Append(", EnumOptions = ").Append(this.EnumOptions?.Count);
+        builder.Append("InterfaceName = ").Append(InterfaceName)
+            .Append(", Storage = ").Append(Storage)
+            .Append(", Key = ").Append(Key)
+            .Append(", Type = ").Append(Type)
+            .Append(", AbstractType = ").Append(AbstractType)
+            .Append(", Docs = ").Append(Docs)
+            .Append(", EnumLabel = ").Append(EnumLabel)
+            .Append(", Value = ").Append(KindOf(Value))
+            .Append(", DefaultValue = ").Append(KindOf(DefaultValue))
+            .Append(", EnumOptions = ").Append(EnumOptions?.Count);
         return true;
     }
 

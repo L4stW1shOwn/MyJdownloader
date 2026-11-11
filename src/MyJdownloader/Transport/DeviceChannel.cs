@@ -40,11 +40,11 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
             throw new ArgumentException("The device id is not valid.", nameof(deviceId));
         }
 
-        this._client = client;
-        this._transport = transport;
-        this._options = options;
-        this._requestIds = requestIds;
-        this._escapedDeviceId = Uri.EscapeDataString(deviceId);
+        _client = client;
+        _transport = transport;
+        _options = options;
+        _requestIds = requestIds;
+        _escapedDeviceId = Uri.EscapeDataString(deviceId);
     }
 
     public Task<T?> CallAsync<T>(string path, JsonTypeInfo<T> responseType, IReadOnlyList<JsonElement> args, CancellationToken cancellationToken = default)
@@ -52,21 +52,21 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
         ValidatePath(path);
         ArgumentNullException.ThrowIfNull(responseType);
         var snapshot = SnapshotArgs(args);
-        return this.CallCoreAsync(path, snapshot, responseType, cancellationToken);
+        return CallCoreAsync(path, snapshot, responseType, cancellationToken);
     }
 
     public Task CallAsync(string path, IReadOnlyList<JsonElement> args, CancellationToken cancellationToken = default)
     {
         ValidatePath(path);
         var snapshot = SnapshotArgs(args);
-        return this.CallCoreAsync<object>(path, snapshot, null, cancellationToken);
+        return CallCoreAsync<object>(path, snapshot, null, cancellationToken);
     }
 
     public Task<byte[]> CallBinaryAsync(string path, IReadOnlyList<JsonElement> args, CancellationToken cancellationToken = default)
     {
         ValidatePath(path);
         var snapshot = SnapshotArgs(args);
-        return this._client.ExecuteAsync((session, ct) => this.SendBinaryAsync(session, path, snapshot, ct), cancellationToken);
+        return _client.ExecuteAsync((session, ct) => SendBinaryAsync(session, path, snapshot, ct), cancellationToken);
     }
 
     [GeneratedRegex(@"\A(?:/[A-Za-z0-9_]+)+\z", RegexOptions.CultureInvariant)]
@@ -176,36 +176,36 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
     }
 
     private Task<T?> CallCoreAsync<T>(string path, string[] args, JsonTypeInfo<T>? responseType, CancellationToken cancellationToken) =>
-        this._client.ExecuteAsync((session, ct) => this.SendAsync(session, path, args, responseType, ct), cancellationToken);
+        _client.ExecuteAsync((session, ct) => SendAsync(session, path, args, responseType, ct), cancellationToken);
 
     private async Task<T?> SendAsync<T>(MyJdSession session, string path, string[] args, JsonTypeInfo<T>? responseType, CancellationToken cancellationToken)
     {
-        var rid = this._requestIds.Next();
-        var json = await this.ExchangeAsync(
+        var rid = _requestIds.Next();
+        var json = await ExchangeAsync(
             session,
             path,
             args,
             rid,
-            (request, key) => this._transport.ExchangeAsync(request, key, MyJdErrorSource.Device, cancellationToken)).ConfigureAwait(false);
+            (request, key) => _transport.ExchangeAsync(request, key, MyJdErrorSource.Device, cancellationToken)).ConfigureAwait(false);
         return ReadResponse(json, rid, responseType);
     }
 
     private Task<byte[]> SendBinaryAsync(MyJdSession session, string path, string[] args, CancellationToken cancellationToken) =>
-        this.ExchangeAsync(
+        ExchangeAsync(
             session,
             path,
             args,
-            this._requestIds.Next(),
-            (request, key) => this._transport.ExchangeBinaryAsync(request, key, MyJdErrorSource.Device, cancellationToken));
+            _requestIds.Next(),
+            (request, key) => _transport.ExchangeBinaryAsync(request, key, MyJdErrorSource.Device, cancellationToken));
 
     // Builds the encrypted request, runs the exchange and clears the key copy whatever the outcome.
     private async Task<TResult> ExchangeAsync<TResult>(MyJdSession session, string path, string[] args, long rid, Func<HttpRequestMessage, byte[], Task<TResult>> exchange)
     {
-        var url = this._options.BaseAddress.AbsoluteUri.TrimEnd('/') + "/t_" + session.SessionToken + "_" + this._escapedDeviceId + path;
+        var url = _options.BaseAddress.AbsoluteUri.TrimEnd('/') + "/t_" + session.SessionToken + "_" + _escapedDeviceId + path;
         var key = session.DeviceEncryptionToken.ToArray();
         try
         {
-            using var content = new StringContent(EncryptBody(key, path, args, rid, this._options.ApiVersion), Encoding.UTF8);
+            using var content = new StringContent(EncryptBody(key, path, args, rid, _options.ApiVersion), Encoding.UTF8);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/aesjson-jd") { CharSet = "utf-8" };
             using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(url, UriKind.Absolute)) { Content = content };
             return await exchange(request, key).ConfigureAwait(false);
@@ -256,42 +256,42 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
         private byte[] _buffer = ArrayPool<byte>.Shared.Rent(512);
         private int _written;
 
-        public ReadOnlySpan<byte> WrittenSpan => this._buffer.AsSpan(0, this._written);
+        public ReadOnlySpan<byte> WrittenSpan => _buffer.AsSpan(0, _written);
 
-        public void Advance(int count) => this._written += count;
+        public void Advance(int count) => _written += count;
 
         public Memory<byte> GetMemory(int sizeHint = 0)
         {
-            this.Ensure(sizeHint);
-            return this._buffer.AsMemory(this._written);
+            Ensure(sizeHint);
+            return _buffer.AsMemory(_written);
         }
 
         public Span<byte> GetSpan(int sizeHint = 0)
         {
-            this.Ensure(sizeHint);
-            return this._buffer.AsSpan(this._written);
+            Ensure(sizeHint);
+            return _buffer.AsSpan(_written);
         }
 
         public void Dispose()
         {
-            CryptographicOperations.ZeroMemory(this._buffer);
-            ArrayPool<byte>.Shared.Return(this._buffer);
-            this._buffer = [];
+            CryptographicOperations.ZeroMemory(_buffer);
+            ArrayPool<byte>.Shared.Return(_buffer);
+            _buffer = [];
         }
 
         private void Ensure(int sizeHint)
         {
             var needed = Math.Max(sizeHint, 1);
-            if (this._buffer.Length - this._written >= needed)
+            if (_buffer.Length - _written >= needed)
             {
                 return;
             }
 
-            var bigger = ArrayPool<byte>.Shared.Rent(Math.Max(this._buffer.Length * 2, this._written + needed));
-            this._buffer.AsSpan(0, this._written).CopyTo(bigger);
-            CryptographicOperations.ZeroMemory(this._buffer);
-            ArrayPool<byte>.Shared.Return(this._buffer);
-            this._buffer = bigger;
+            var bigger = ArrayPool<byte>.Shared.Rent(Math.Max(_buffer.Length * 2, _written + needed));
+            _buffer.AsSpan(0, _written).CopyTo(bigger);
+            CryptographicOperations.ZeroMemory(_buffer);
+            ArrayPool<byte>.Shared.Return(_buffer);
+            _buffer = bigger;
         }
     }
 }

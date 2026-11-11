@@ -17,7 +17,7 @@ public sealed class AccountsApi
     internal AccountsApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Adds a premium hoster account (<c>/accountsV2/addAccount</c>).</summary>
@@ -41,7 +41,7 @@ public sealed class AccountsApi
         FacadeGuard.ValidateText(premiumHoster, nameof(premiumHoster), FacadeGuard.MaxIdentifierLength);
         FacadeGuard.ValidateText(username, nameof(username), FacadeGuard.MaxIdentifierLength);
         ArgumentNullException.ThrowIfNull(password);
-        return this._channel.CallAsync(Base + "addAccount", [Str(premiumHoster), Str(username), Str(password)], cancellationToken);
+        return _channel.CallAsync(Base + "addAccount", [Str(premiumHoster), Str(username), Str(password)], cancellationToken);
     }
 
     /// <summary>Lists the premium hoster accounts (<c>/accountsV2/listAccounts</c>).</summary>
@@ -61,7 +61,7 @@ public sealed class AccountsApi
         FacadeGuard.ValidateRange(query.MaxResults, query.StartAt, nameof(query));
         var uuids = FacadeGuard.OptionalIds(query.Uuids, nameof(query));
         var args = new[] { JsonSerializer.SerializeToElement(query with { Uuids = uuids }, AccountsJsonContext.Default.AccountQuery) };
-        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "listAccounts", AccountsJsonContext.Default.ListAccount, args, cancellationToken));
+        return FacadeResults.ListAsync(_channel.CallAsync(Base + "listAccounts", AccountsJsonContext.Default.ListAccount, args, cancellationToken));
     }
 
     /// <summary>Enables premium hoster accounts (<c>/accountsV2/enableAccounts</c>).</summary>
@@ -76,7 +76,7 @@ public sealed class AccountsApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task EnableAccountsAsync(IReadOnlyList<long> ids, CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "enableAccounts", [FacadeGuard.Ids(ids, nameof(ids))], cancellationToken);
+        => _channel.CallAsync(Base + "enableAccounts", [FacadeGuard.Ids(ids, nameof(ids))], cancellationToken);
 
     /// <summary>Disables premium hoster accounts (<c>/accountsV2/disableAccounts</c>).</summary>
     /// <param name="ids">The identifiers of the accounts (<see cref="Account.Uuid"/>); an empty list sends an empty array.</param>
@@ -90,7 +90,7 @@ public sealed class AccountsApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task DisableAccountsAsync(IReadOnlyList<long> ids, CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "disableAccounts", [FacadeGuard.Ids(ids, nameof(ids))], cancellationToken);
+        => _channel.CallAsync(Base + "disableAccounts", [FacadeGuard.Ids(ids, nameof(ids))], cancellationToken);
 
     /// <summary>Refreshes premium hoster accounts (<c>/accountsV2/refreshAccounts</c>).</summary>
     /// <param name="ids">The identifiers of the accounts (<see cref="Account.Uuid"/>); an empty list sends an empty array.</param>
@@ -104,7 +104,7 @@ public sealed class AccountsApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task RefreshAccountsAsync(IReadOnlyList<long> ids, CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "refreshAccounts", [FacadeGuard.Ids(ids, nameof(ids))], cancellationToken);
+        => _channel.CallAsync(Base + "refreshAccounts", [FacadeGuard.Ids(ids, nameof(ids))], cancellationToken);
 
     /// <summary>Removes premium hoster accounts (<c>/accountsV2/removeAccounts</c>).</summary>
     /// <param name="ids">The identifiers of the accounts (<see cref="Account.Uuid"/>); an empty list sends an empty array.</param>
@@ -121,7 +121,7 @@ public sealed class AccountsApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task RemoveAccountsAsync(IReadOnlyList<long> ids, CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "removeAccounts", [FacadeGuard.Ids(ids, nameof(ids))], cancellationToken);
+        => _channel.CallAsync(Base + "removeAccounts", [FacadeGuard.Ids(ids, nameof(ids))], cancellationToken);
 
     /// <summary>Changes the user name and password of an account (<c>/accountsV2/setUserNameAndPassword</c>).</summary>
     /// <param name="accountId">The account identifier (<see cref="Account.Uuid"/>).</param>
@@ -144,7 +144,7 @@ public sealed class AccountsApi
         FacadeGuard.ValidateText(username, nameof(username), FacadeGuard.MaxIdentifierLength);
         ArgumentNullException.ThrowIfNull(password);
         var args = new[] { JsonSerializer.SerializeToElement(accountId, FacadeJsonContext.Default.Int64), Str(username), Str(password) };
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "setUserNameAndPassword", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "setUserNameAndPassword", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }
 
     /// <summary>Lists the premium hosters supported by the device (<c>/accountsV2/listPremiumHoster</c>).</summary>
@@ -156,7 +156,7 @@ public sealed class AccountsApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<IReadOnlyList<string>> ListPremiumHostersAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.ListAsync(this._channel.CallAsync(Base + "listPremiumHoster", AccountsJsonContext.Default.ListString, [], cancellationToken));
+        => FacadeResults.ListAsync(_channel.CallAsync(Base + "listPremiumHoster", AccountsJsonContext.Default.ListString, [], cancellationToken));
 
     /// <summary>Lists the account page URL of each premium hoster (<c>/accountsV2/listPremiumHosterUrls</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -167,7 +167,7 @@ public sealed class AccountsApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<IReadOnlyDictionary<string, string>> ListPremiumHosterUrlsAsync(CancellationToken cancellationToken = default)
-        => ToUrlsAsync(this._channel.CallAsync(Base + "listPremiumHosterUrls", AccountsJsonContext.Default.DictionaryStringString, [], cancellationToken));
+        => ToUrlsAsync(_channel.CallAsync(Base + "listPremiumHosterUrls", AccountsJsonContext.Default.DictionaryStringString, [], cancellationToken));
 
     /// <summary>Gets the account page URL of a premium hoster (<c>/accountsV2/getPremiumHosterUrl</c>).</summary>
     /// <param name="hoster">The hoster name.</param>
@@ -183,7 +183,7 @@ public sealed class AccountsApi
     public Task<string?> GetPremiumHosterUrlAsync(string hoster, CancellationToken cancellationToken = default)
     {
         FacadeGuard.ValidateText(hoster, nameof(hoster), FacadeGuard.MaxIdentifierLength);
-        return this._channel.CallAsync(Base + "getPremiumHosterUrl", FacadeJsonContext.Default.String, [Str(hoster)], cancellationToken);
+        return _channel.CallAsync(Base + "getPremiumHosterUrl", FacadeJsonContext.Default.String, [Str(hoster)], cancellationToken);
     }
 
     /// <summary>Adds a basic authentication entry (<c>/accountsV2/addBasicAuth</c>).</summary>
@@ -210,7 +210,7 @@ public sealed class AccountsApi
         FacadeGuard.ValidateText(username, nameof(username), FacadeGuard.MaxIdentifierLength);
         ArgumentNullException.ThrowIfNull(password);
         var args = new[] { JsonSerializer.SerializeToElement(type, AccountsJsonContext.Default.BasicAuthType), Str(hostmask), Str(username), Str(password) };
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "addBasicAuth", FacadeJsonContext.Default.NullableInt64, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "addBasicAuth", FacadeJsonContext.Default.NullableInt64, args, cancellationToken));
     }
 
     /// <summary>Lists the basic authentication entries (<c>/accountsV2/listBasicAuth</c>).</summary>
@@ -225,7 +225,7 @@ public sealed class AccountsApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<IReadOnlyList<BasicAuthentication>> ListBasicAuthAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.ListAsync(this._channel.CallAsync(Base + "listBasicAuth", AccountsJsonContext.Default.ListBasicAuthentication, [], cancellationToken));
+        => FacadeResults.ListAsync(_channel.CallAsync(Base + "listBasicAuth", AccountsJsonContext.Default.ListBasicAuthentication, [], cancellationToken));
 
     /// <summary>Updates a basic authentication entry (<c>/accountsV2/updateBasicAuth</c>).</summary>
     /// <param name="updatedEntry">The entry to store, identified by <see cref="BasicAuthentication.Id"/>.</param>
@@ -249,7 +249,7 @@ public sealed class AccountsApi
         FacadeGuard.ValidateOptionalText(updatedEntry.Hostmask, nameof(updatedEntry), FacadeGuard.MaxIdentifierLength);
         FacadeGuard.ValidateOptionalText(updatedEntry.Username, nameof(updatedEntry), FacadeGuard.MaxIdentifierLength);
         var args = new[] { JsonSerializer.SerializeToElement(updatedEntry, AccountsJsonContext.Default.BasicAuthentication) };
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "updateBasicAuth", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "updateBasicAuth", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }
 
     /// <summary>Removes basic authentication entries (<c>/accountsV2/removeBasicAuths</c>).</summary>
@@ -267,7 +267,7 @@ public sealed class AccountsApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task<bool> RemoveBasicAuthsAsync(IReadOnlyList<long> ids, CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "removeBasicAuths", FacadeJsonContext.Default.NullableBoolean, [FacadeGuard.Ids(ids, nameof(ids))], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "removeBasicAuths", FacadeJsonContext.Default.NullableBoolean, [FacadeGuard.Ids(ids, nameof(ids))], cancellationToken));
 
     private static async Task<IReadOnlyDictionary<string, string>> ToUrlsAsync(Task<Dictionary<string, string>?> call)
     {

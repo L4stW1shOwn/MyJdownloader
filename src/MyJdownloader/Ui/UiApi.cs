@@ -19,7 +19,7 @@ public sealed class UiApi
     internal UiApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Gets the menu of a user interface context (<c>/ui/getMenu</c>).</summary>
@@ -38,7 +38,7 @@ public sealed class UiApi
     public Task<MenuItem> GetMenuAsync(MenuContext context, CancellationToken cancellationToken = default)
     {
         var args = new[] { ContextArg(context) };
-        return ToMenuAsync(this._channel.CallAsync(Base + "getMenu", UiJsonContext.Default.MenuItem, args, cancellationToken));
+        return ToMenuAsync(_channel.CallAsync(Base + "getMenu", UiJsonContext.Default.MenuItem, args, cancellationToken));
     }
 
     /// <summary>Runs a menu action on the selected links and packages (<c>/ui/invokeAction</c>).</summary>
@@ -66,7 +66,7 @@ public sealed class UiApi
         FacadeGuard.ValidateText(id, nameof(id), FacadeGuard.MaxIdentifierLength);
         var ids = FacadeGuard.IdArgs(linkIds, packageIds);
         var args = new[] { contextArg, JsonSerializer.SerializeToElement(id, FacadeJsonContext.Default.String), ids[0], ids[1] };
-        return ToValueAsync(this._channel.CallAsync(Base + "invokeAction", UiJsonContext.Default.NullableJsonElement, args, cancellationToken));
+        return ToValueAsync(_channel.CallAsync(Base + "invokeAction", UiJsonContext.Default.NullableJsonElement, args, cancellationToken));
     }
 
     private static JsonElement ContextArg(MenuContext context)

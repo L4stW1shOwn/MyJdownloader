@@ -28,10 +28,10 @@ public sealed record IconDescriptor
     [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Invoked by the compiler-generated ToString.")]
     private bool PrintMembers(StringBuilder builder)
     {
-        builder.Append("Cls = ").Append(this.Cls)
-            .Append(", Key = ").Append(this.Key)
-            .Append(", Prps = ").Append(this.Prps is null ? null : "<" + this.Prps.Value.ValueKind + ">")
-            .Append(", Rsc = ").Append(this.Rsc?.Count);
+        builder.Append("Cls = ").Append(Cls)
+            .Append(", Key = ").Append(Key)
+            .Append(", Prps = ").Append(Prps is null ? null : "<" + Prps.Value.ValueKind + ">")
+            .Append(", Rsc = ").Append(Rsc?.Count);
         return true;
     }
 }

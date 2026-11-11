@@ -59,9 +59,9 @@ public abstract class MyJdException : Exception
         Exception? innerException)
         : base(message, innerException)
     {
-        this.ErrorSource = errorSource;
-        this.ErrorType = errorType;
-        this.StatusCode = statusCode;
+        ErrorSource = errorSource;
+        ErrorType = errorType;
+        StatusCode = statusCode;
     }
 
     /// <summary>Gets the side that reported the error, or <see langword="null"/> when unknown.</summary>

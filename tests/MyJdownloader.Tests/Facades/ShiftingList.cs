@@ -9,14 +9,14 @@ internal sealed class ShiftingList : IReadOnlyList<long>
 
     public int Count => 1;
 
-    public long this[int index] => index == 0 ? this.Current() : throw new ArgumentOutOfRangeException(nameof(index));
+    public long this[int index] => index == 0 ? Current() : throw new ArgumentOutOfRangeException(nameof(index));
 
     public IEnumerator<long> GetEnumerator()
     {
-        yield return this.Current();
+        yield return Current();
     }
 
-    IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    private long Current() => this._enumerations++ == 0 ? 1 : -1;
+    private long Current() => _enumerations++ == 0 ? 1 : -1;
 }

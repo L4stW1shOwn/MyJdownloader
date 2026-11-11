@@ -19,8 +19,8 @@ public sealed record PollingResult
     [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Invoked by the compiler-generated ToString.")]
     private bool PrintMembers(StringBuilder builder)
     {
-        builder.Append("EventName = ").Append(this.EventName)
-            .Append(", EventData = ").Append(this.EventData is null ? null : "<" + this.EventData.Value.ValueKind + ">");
+        builder.Append("EventName = ").Append(EventName)
+            .Append(", EventData = ").Append(EventData is null ? null : "<" + EventData.Value.ValueKind + ">");
         return true;
     }
 }

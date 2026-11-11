@@ -24,7 +24,7 @@ public sealed partial class LinkGrabberApi
     internal LinkGrabberApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Adds links to the link grabber (<c>/linkgrabberv2/addLinks</c>).</summary>
@@ -63,7 +63,7 @@ public sealed partial class LinkGrabberApi
         }
 
         var args = new[] { JsonSerializer.SerializeToElement(AddLinksQueryDto.From(request, links), LinkGrabberJsonContext.Default.AddLinksQueryDto) };
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "addLinks", LinkGrabberJsonContext.Default.LinkCollectingJob, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "addLinks", LinkGrabberJsonContext.Default.LinkCollectingJob, args, cancellationToken));
     }
 
     /// <summary>Lists the collected links (<c>/linkgrabberv2/queryLinks</c>).</summary>
@@ -88,7 +88,7 @@ public sealed partial class LinkGrabberApi
         var packageUuids = FacadeGuard.OptionalIds(query.PackageUuids, nameof(query));
         var jobUuids = FacadeGuard.OptionalIds(query.JobUuids, nameof(query));
         var args = new[] { JsonSerializer.SerializeToElement(query with { PackageUuids = packageUuids, JobUuids = jobUuids }, LinkGrabberJsonContext.Default.LinkQuery) };
-        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "queryLinks", LinkGrabberJsonContext.Default.ListCrawledLink, args, cancellationToken));
+        return FacadeResults.ListAsync(_channel.CallAsync(Base + "queryLinks", LinkGrabberJsonContext.Default.ListCrawledLink, args, cancellationToken));
     }
 
     /// <summary>Lists the collected packages (<c>/linkgrabberv2/queryPackages</c>).</summary>
@@ -112,7 +112,7 @@ public sealed partial class LinkGrabberApi
         FacadeGuard.ValidateRange(query.MaxResults, query.StartAt, nameof(query));
         var packageUuids = FacadeGuard.OptionalIds(query.PackageUuids, nameof(query));
         var args = new[] { JsonSerializer.SerializeToElement(query with { PackageUuids = packageUuids }, LinkGrabberJsonContext.Default.PackageQuery) };
-        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "queryPackages", LinkGrabberJsonContext.Default.ListCrawledPackage, args, cancellationToken), static package => package.Hosts?.Contains(null!) == true);
+        return FacadeResults.ListAsync(_channel.CallAsync(Base + "queryPackages", LinkGrabberJsonContext.Default.ListCrawledPackage, args, cancellationToken), static package => package.Hosts?.Contains(null!) == true);
     }
 
     /// <summary>Moves links and packages to the download list (<c>/linkgrabberv2/moveToDownloadlist</c>).</summary>
@@ -128,7 +128,7 @@ public sealed partial class LinkGrabberApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task MoveToDownloadListAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "moveToDownloadlist", FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken);
+        => _channel.CallAsync(Base + "moveToDownloadlist", FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken);
 
     /// <summary>Removes links and packages from the link grabber (<c>/linkgrabberv2/removeLinks</c>).</summary>
     /// <param name="linkIds">The identifiers of the links to remove.</param>
@@ -143,7 +143,7 @@ public sealed partial class LinkGrabberApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task RemoveLinksAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "removeLinks", FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken);
+        => _channel.CallAsync(Base + "removeLinks", FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken);
 
     /// <summary>Clears the whole link grabber list (<c>/linkgrabberv2/clearList</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -154,7 +154,7 @@ public sealed partial class LinkGrabberApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task<bool> ClearListAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "clearList", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "clearList", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
 
     /// <summary>Tells whether the link grabber is still collecting links (<c>/linkgrabberv2/isCollecting</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -165,7 +165,7 @@ public sealed partial class LinkGrabberApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<bool> IsCollectingAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "isCollecting", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "isCollecting", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
 
     /// <summary>Gets the number of packages in the link grabber (<c>/linkgrabberv2/getPackageCount</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -176,7 +176,7 @@ public sealed partial class LinkGrabberApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<int> GetPackageCountAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "getPackageCount", FacadeJsonContext.Default.NullableInt32, [], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "getPackageCount", FacadeJsonContext.Default.NullableInt32, [], cancellationToken));
 
     /// <summary>Renames a link (<c>/linkgrabberv2/renameLink</c>).</summary>
     /// <param name="linkId">The identifier of the link.</param>
@@ -192,7 +192,7 @@ public sealed partial class LinkGrabberApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task RenameLinkAsync(long linkId, string newName, CancellationToken cancellationToken = default)
-        => this.RenameAsync("renameLink", linkId, newName, cancellationToken);
+        => RenameAsync("renameLink", linkId, newName, cancellationToken);
 
     /// <summary>Renames a package (<c>/linkgrabberv2/renamePackage</c>).</summary>
     /// <param name="packageId">The identifier of the package.</param>
@@ -208,7 +208,7 @@ public sealed partial class LinkGrabberApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task RenamePackageAsync(long packageId, string newName, CancellationToken cancellationToken = default)
-        => this.RenameAsync("renamePackage", packageId, newName, cancellationToken);
+        => RenameAsync("renamePackage", packageId, newName, cancellationToken);
 
     /// <summary>Enables or disables links and packages (<c>/linkgrabberv2/setEnabled</c>).</summary>
     /// <param name="enabled">The new enabled state.</param>
@@ -227,7 +227,7 @@ public sealed partial class LinkGrabberApi
     {
         var ids = FacadeGuard.IdArgs(linkIds, packageIds);
         var args = new[] { JsonSerializer.SerializeToElement(enabled, FacadeJsonContext.Default.Boolean), ids[0], ids[1] };
-        return this._channel.CallAsync(Base + "setEnabled", args, cancellationToken);
+        return _channel.CallAsync(Base + "setEnabled", args, cancellationToken);
     }
 
     /// <summary>Sets the priority of links and packages (<c>/linkgrabberv2/setPriority</c>).</summary>
@@ -253,7 +253,7 @@ public sealed partial class LinkGrabberApi
 
         var ids = FacadeGuard.IdArgs(linkIds, packageIds);
         var args = new[] { JsonSerializer.SerializeToElement(priority, LinkGrabberJsonContext.Default.Priority), ids[0], ids[1] };
-        return this._channel.CallAsync(Base + "setPriority", args, cancellationToken);
+        return _channel.CallAsync(Base + "setPriority", args, cancellationToken);
     }
 
     private static void ValidateLink(string link, string paramName)
@@ -291,6 +291,6 @@ public sealed partial class LinkGrabberApi
             JsonSerializer.SerializeToElement(id, FacadeJsonContext.Default.Int64),
             JsonSerializer.SerializeToElement(newName, FacadeJsonContext.Default.String),
         };
-        return this._channel.CallAsync(Base + action, args, cancellationToken);
+        return _channel.CallAsync(Base + action, args, cancellationToken);
     }
 }

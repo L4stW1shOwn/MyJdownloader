@@ -66,21 +66,21 @@ public sealed record CrawledLink
     [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Invoked by the compiler-generated ToString.")]
     private bool PrintMembers(StringBuilder builder)
     {
-        builder.Append("Uuid = ").Append(this.Uuid)
-            .Append(", PackageUuid = ").Append(this.PackageUuid)
-            .Append(", Name = ").Append(this.Name)
-            .Append(", Url = ").Append(this.Url)
-            .Append(", Host = ").Append(this.Host)
-            .Append(", BytesTotal = ").Append(this.BytesTotal)
-            .Append(", Availability = ").Append(this.Availability)
-            .Append(", Enabled = ").Append(this.Enabled)
-            .Append(", Priority = ").Append(this.Priority)
-            .Append(", Comment = ").Append(this.Comment)
-            .Append(", DownloadPassword = ").Append(this.DownloadPassword is null ? null : "***")
-            .Append(", Variants = ").Append(this.Variants)
-            .Append(", Variant = ").Append(this.Variant)
-            .Append(", Status = ").Append(this.Status)
-            .Append(", StatusIconKey = ").Append(this.StatusIconKey);
+        builder.Append("Uuid = ").Append(Uuid)
+            .Append(", PackageUuid = ").Append(PackageUuid)
+            .Append(", Name = ").Append(Name)
+            .Append(", Url = ").Append(Url)
+            .Append(", Host = ").Append(Host)
+            .Append(", BytesTotal = ").Append(BytesTotal)
+            .Append(", Availability = ").Append(Availability)
+            .Append(", Enabled = ").Append(Enabled)
+            .Append(", Priority = ").Append(Priority)
+            .Append(", Comment = ").Append(Comment)
+            .Append(", DownloadPassword = ").Append(DownloadPassword is null ? null : "***")
+            .Append(", Variants = ").Append(Variants)
+            .Append(", Variant = ").Append(Variant)
+            .Append(", Status = ").Append(Status)
+            .Append(", StatusIconKey = ").Append(StatusIconKey);
         return true;
     }
 }

@@ -21,7 +21,7 @@ public sealed partial class LinkGrabberApi
         query ??= new LinkCrawlerJobQuery();
         var copy = FacadeGuard.OptionalIds(query.JobIds, nameof(query));
         var args = new[] { JsonSerializer.SerializeToElement(query with { JobIds = copy }, LinkGrabberJsonContext.Default.LinkCrawlerJobQuery) };
-        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "queryLinkCrawlerJobs", LinkGrabberJsonContext.Default.ListLinkCrawlerJob, args, cancellationToken));
+        return FacadeResults.ListAsync(_channel.CallAsync(Base + "queryLinkCrawlerJobs", LinkGrabberJsonContext.Default.ListLinkCrawlerJob, args, cancellationToken));
     }
 
     /// <summary>Aborts the link crawler jobs (<c>/linkgrabberv2/abort</c>).</summary>
@@ -35,7 +35,7 @@ public sealed partial class LinkGrabberApi
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     [SuppressMessage("ApiDesign", "RS0026", Justification = "The overloads cannot be ambiguous: they differ by the mandatory jobId parameter")]
     public Task<bool> AbortAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "abort", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "abort", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
 
     /// <summary>Aborts one link crawler job (<c>/linkgrabberv2/abort</c>).</summary>
     /// <param name="jobId">The identifier of the job to abort.</param>
@@ -53,7 +53,7 @@ public sealed partial class LinkGrabberApi
     {
         FacadeGuard.ThrowIfNegative(jobId, nameof(jobId));
         var args = new[] { JsonSerializer.SerializeToElement(jobId, FacadeJsonContext.Default.Int64) };
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "abort", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "abort", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }
 
     /// <summary>Gets the children change counter of the link grabber (<c>/linkgrabberv2/getChildrenChanged</c>).</summary>
@@ -71,7 +71,7 @@ public sealed partial class LinkGrabberApi
     {
         FacadeGuard.ThrowIfNegative(structureWatermark, nameof(structureWatermark));
         var args = new[] { JsonSerializer.SerializeToElement(structureWatermark, FacadeJsonContext.Default.Int64) };
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "getChildrenChanged", FacadeJsonContext.Default.NullableInt64, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "getChildrenChanged", FacadeJsonContext.Default.NullableInt64, args, cancellationToken));
     }
 
     /// <summary>Lists the download folder history (<c>/linkgrabberv2/getDownloadFolderHistorySelectionBase</c>).</summary>
@@ -84,5 +84,5 @@ public sealed partial class LinkGrabberApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<IReadOnlyList<string>> GetDownloadFolderHistoryAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.ListAsync(this._channel.CallAsync(Base + "getDownloadFolderHistorySelectionBase", LinkGrabberJsonContext.Default.ListString, [], cancellationToken));
+        => FacadeResults.ListAsync(_channel.CallAsync(Base + "getDownloadFolderHistorySelectionBase", LinkGrabberJsonContext.Default.ListString, [], cancellationToken));
 }

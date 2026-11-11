@@ -19,7 +19,7 @@ public sealed class ConfigApi
     internal ConfigApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Gets the current value of a configuration entry (<c>/config/get</c>).</summary>
@@ -37,7 +37,7 @@ public sealed class ConfigApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<JsonElement> GetAsync(string interfaceName, string? storage, string key, CancellationToken cancellationToken = default)
-        => this.GetValueAsync("get", interfaceName, storage, key, cancellationToken);
+        => GetValueAsync("get", interfaceName, storage, key, cancellationToken);
 
     /// <summary>Gets the default value of a configuration entry (<c>/config/getDefault</c>).</summary>
     /// <param name="interfaceName">The configuration interface name.</param>
@@ -54,7 +54,7 @@ public sealed class ConfigApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<JsonElement> GetDefaultAsync(string interfaceName, string? storage, string key, CancellationToken cancellationToken = default)
-        => this.GetValueAsync("getDefault", interfaceName, storage, key, cancellationToken);
+        => GetValueAsync("getDefault", interfaceName, storage, key, cancellationToken);
 
     /// <summary>Sets the value of a configuration entry (<c>/config/set</c>).</summary>
     /// <param name="interfaceName">The configuration interface name.</param>
@@ -89,7 +89,7 @@ public sealed class ConfigApi
         }
 
         var valueArg = JsonSerializer.SerializeToElement(value.GetRawText(), FacadeJsonContext.Default.String);
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "set", FacadeJsonContext.Default.NullableBoolean, [.. args, valueArg], cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "set", FacadeJsonContext.Default.NullableBoolean, [.. args, valueArg], cancellationToken));
     }
 
     /// <summary>Resets a configuration entry to its default value (<c>/config/reset</c>).</summary>
@@ -109,7 +109,7 @@ public sealed class ConfigApi
     public Task<bool> ResetAsync(string interfaceName, string? storage, string key, CancellationToken cancellationToken = default)
     {
         var args = IdentifierArgs(interfaceName, storage, key);
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "reset", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "reset", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }
 
     /// <summary>Lists configuration entries (<c>/config/query</c>).</summary>
@@ -134,7 +134,7 @@ public sealed class ConfigApi
         FacadeGuard.ValidateOptionalText(query.ConfigInterface, nameof(query), FacadeGuard.MaxIdentifierLength);
         FacadeGuard.ValidateOptionalText(query.Pattern, nameof(query), FacadeGuard.MaxLongTextLength);
         var args = new[] { JsonSerializer.SerializeToElement(query, ConfigJsonContext.Default.ConfigQuery) };
-        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "query", ConfigJsonContext.Default.ListConfigEntry, args, cancellationToken));
+        return FacadeResults.ListAsync(_channel.CallAsync(Base + "query", ConfigJsonContext.Default.ListConfigEntry, args, cancellationToken));
     }
 
     /// <summary>Lists the options of an enumeration type (<c>/config/listEnum</c>).</summary>
@@ -152,7 +152,7 @@ public sealed class ConfigApi
     {
         FacadeGuard.ValidateText(type, nameof(type), FacadeGuard.MaxIdentifierLength);
         var args = new[] { JsonSerializer.SerializeToElement(type, FacadeJsonContext.Default.String) };
-        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "listEnum", ConfigJsonContext.Default.ListConfigEnumOption, args, cancellationToken));
+        return FacadeResults.ListAsync(_channel.CallAsync(Base + "listEnum", ConfigJsonContext.Default.ListConfigEnumOption, args, cancellationToken));
     }
 
     private static JsonElement[] IdentifierArgs(string interfaceName, string? storage, string key)
@@ -174,6 +174,6 @@ public sealed class ConfigApi
     private Task<JsonElement> GetValueAsync(string action, string interfaceName, string? storage, string key, CancellationToken cancellationToken)
     {
         var args = IdentifierArgs(interfaceName, storage, key);
-        return ToValueAsync(this._channel.CallAsync(Base + action, ConfigJsonContext.Default.NullableJsonElement, args, cancellationToken));
+        return ToValueAsync(_channel.CallAsync(Base + action, ConfigJsonContext.Default.NullableJsonElement, args, cancellationToken));
     }
 }

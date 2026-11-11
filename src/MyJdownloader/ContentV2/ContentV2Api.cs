@@ -20,7 +20,7 @@ public sealed class ContentV2Api
     internal ContentV2Api(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Gets the favicon of a hoster (<c>/contentV2/getFavIcon</c>).</summary>
@@ -39,7 +39,7 @@ public sealed class ContentV2Api
     public Task<byte[]> GetFavIconAsync(string hosterName, CancellationToken cancellationToken = default)
     {
         FacadeGuard.ValidateText(hosterName, nameof(hosterName), FacadeGuard.MaxIdentifierLength);
-        return this.CallBinaryAsync("getFavIcon", [Str(hosterName)], cancellationToken);
+        return CallBinaryAsync("getFavIcon", [Str(hosterName)], cancellationToken);
     }
 
     /// <summary>Gets the icon of a file type, derived from the file name (<c>/contentV2/getFileIcon</c>).</summary>
@@ -57,7 +57,7 @@ public sealed class ContentV2Api
     public Task<byte[]> GetFileIconAsync(string fileName, CancellationToken cancellationToken = default)
     {
         FacadeGuard.ValidateText(fileName, nameof(fileName), FacadeGuard.MaxIdentifierLength);
-        return this.CallBinaryAsync("getFileIcon", [Str(fileName)], cancellationToken);
+        return CallBinaryAsync("getFileIcon", [Str(fileName)], cancellationToken);
     }
 
     /// <summary>Gets an icon by its key at a given size (<c>/contentV2/getIcon</c>).</summary>
@@ -85,7 +85,7 @@ public sealed class ContentV2Api
 
         // The facade context has no Int32 metadata, so the size goes through its Int64 one.
         var sizeArg = JsonSerializer.SerializeToElement(size, FacadeJsonContext.Default.Int64);
-        return this.CallBinaryAsync("getIcon", [Str(key), sizeArg], cancellationToken);
+        return CallBinaryAsync("getIcon", [Str(key), sizeArg], cancellationToken);
     }
 
     /// <summary>Gets the description of an icon (<c>/contentV2/getIconDescription</c>).</summary>
@@ -103,7 +103,7 @@ public sealed class ContentV2Api
     public Task<IconDescriptor?> GetIconDescriptionAsync(string key, CancellationToken cancellationToken = default)
     {
         FacadeGuard.ValidateText(key, nameof(key), FacadeGuard.MaxIdentifierLength);
-        return this._channel.CallAsync(Base + "getIconDescription", ContentV2JsonContext.Default.IconDescriptor, [Str(key)], cancellationToken);
+        return _channel.CallAsync(Base + "getIconDescription", ContentV2JsonContext.Default.IconDescriptor, [Str(key)], cancellationToken);
     }
 
     private static JsonElement Str(string value)
@@ -111,7 +111,7 @@ public sealed class ContentV2Api
 
     private Task<byte[]> CallBinaryAsync(string action, JsonElement[] args, CancellationToken cancellationToken)
     {
-        if (this._channel is not IBinaryDeviceChannel binary)
+        if (_channel is not IBinaryDeviceChannel binary)
         {
             throw new NotSupportedException("The channel of this device does not support binary answers.");
         }

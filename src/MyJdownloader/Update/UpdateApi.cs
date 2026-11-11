@@ -13,7 +13,7 @@ public sealed class UpdateApi
     internal UpdateApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Tells whether an update is available (<c>/update/isUpdateAvailable</c>).</summary>
@@ -25,7 +25,7 @@ public sealed class UpdateApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<bool> IsUpdateAvailableAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "isUpdateAvailable", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "isUpdateAvailable", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
 
     /// <summary>Starts an update check on the device (<c>/update/runUpdateCheck</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -37,7 +37,7 @@ public sealed class UpdateApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task RunUpdateCheckAsync(CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "runUpdateCheck", [], cancellationToken);
+        => _channel.CallAsync(Base + "runUpdateCheck", [], cancellationToken);
 
     /// <summary>Restarts JDownloader on the device to install pending updates (<c>/update/restartAndUpdate</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -52,5 +52,5 @@ public sealed class UpdateApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task RestartAndUpdateAsync(CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "restartAndUpdate", [], cancellationToken);
+        => _channel.CallAsync(Base + "restartAndUpdate", [], cancellationToken);
 }

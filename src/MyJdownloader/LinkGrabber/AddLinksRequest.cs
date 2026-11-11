@@ -53,17 +53,17 @@ public sealed record AddLinksRequest
     [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Invoked by the compiler-generated ToString.")]
     private bool PrintMembers(StringBuilder builder)
     {
-        builder.Append("Links = [").Append(this.Links?.Count ?? 0).Append(" item(s)]")
-            .Append(", PackageName = ").Append(this.PackageName)
-            .Append(", DestinationFolder = ").Append(this.DestinationFolder)
-            .Append(", ExtractPassword = ").Append(this.ExtractPassword is null ? null : "***")
-            .Append(", DownloadPassword = ").Append(this.DownloadPassword is null ? null : "***")
-            .Append(", Priority = ").Append(this.Priority)
-            .Append(", Autostart = ").Append(this.Autostart)
-            .Append(", AutoExtract = ").Append(this.AutoExtract)
-            .Append(", DeepDecrypt = ").Append(this.DeepDecrypt)
-            .Append(", OverwritePackagizerRules = ").Append(this.OverwritePackagizerRules)
-            .Append(", AssignJobId = ").Append(this.AssignJobId);
+        builder.Append("Links = [").Append(Links?.Count ?? 0).Append(" item(s)]")
+            .Append(", PackageName = ").Append(PackageName)
+            .Append(", DestinationFolder = ").Append(DestinationFolder)
+            .Append(", ExtractPassword = ").Append(ExtractPassword is null ? null : "***")
+            .Append(", DownloadPassword = ").Append(DownloadPassword is null ? null : "***")
+            .Append(", Priority = ").Append(Priority)
+            .Append(", Autostart = ").Append(Autostart)
+            .Append(", AutoExtract = ").Append(AutoExtract)
+            .Append(", DeepDecrypt = ").Append(DeepDecrypt)
+            .Append(", OverwritePackagizerRules = ").Append(OverwritePackagizerRules)
+            .Append(", AssignJobId = ").Append(AssignJobId);
         return true;
     }
 }

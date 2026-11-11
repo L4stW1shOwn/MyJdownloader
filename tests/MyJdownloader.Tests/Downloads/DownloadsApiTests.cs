@@ -360,7 +360,7 @@ public sealed class DownloadsApiTests
 
         public IEnumerator<long> GetEnumerator() => Enumerable.Empty<long>().GetEnumerator();
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => this.GetEnumerator();
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     [Test]

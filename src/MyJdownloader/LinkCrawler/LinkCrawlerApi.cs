@@ -12,7 +12,7 @@ public sealed class LinkCrawlerApi
     internal LinkCrawlerApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Tells whether the link crawler of the device is running (<c>/linkcrawler/isCrawling</c>).</summary>
@@ -24,5 +24,5 @@ public sealed class LinkCrawlerApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<bool> IsCrawlingAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "isCrawling", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "isCrawling", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
 }

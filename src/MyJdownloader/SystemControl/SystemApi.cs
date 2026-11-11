@@ -19,7 +19,7 @@ public sealed class SystemApi
     internal SystemApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Restarts JDownloader on the device (<c>/system/restartJD</c>).</summary>
@@ -31,7 +31,7 @@ public sealed class SystemApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task RestartAsync(CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "restartJD", [], cancellationToken);
+        => _channel.CallAsync(Base + "restartJD", [], cancellationToken);
 
     /// <summary>Exits JDownloader on the device (<c>/system/exitJD</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -42,7 +42,7 @@ public sealed class SystemApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task ExitAsync(CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "exitJD", [], cancellationToken);
+        => _channel.CallAsync(Base + "exitJD", [], cancellationToken);
 
     /// <summary>Shuts down the operating system of the device (<c>/system/shutdownOS</c>).</summary>
     /// <param name="force"><see langword="true"/> to force the shutdown even if applications block it; unsaved data may be lost.</param>
@@ -54,7 +54,7 @@ public sealed class SystemApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task ShutdownOsAsync(bool force, CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "shutdownOS", [JsonSerializer.SerializeToElement(force, FacadeJsonContext.Default.Boolean)], cancellationToken);
+        => _channel.CallAsync(Base + "shutdownOS", [JsonSerializer.SerializeToElement(force, FacadeJsonContext.Default.Boolean)], cancellationToken);
 
     /// <summary>Puts the operating system of the device on standby (<c>/system/standbyOS</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -65,7 +65,7 @@ public sealed class SystemApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task StandbyOsAsync(CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "standbyOS", [], cancellationToken);
+        => _channel.CallAsync(Base + "standbyOS", [], cancellationToken);
 
     /// <summary>Hibernates the operating system of the device (<c>/system/hibernateOS</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -76,5 +76,5 @@ public sealed class SystemApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task HibernateOsAsync(CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "hibernateOS", [], cancellationToken);
+        => _channel.CallAsync(Base + "hibernateOS", [], cancellationToken);
 }

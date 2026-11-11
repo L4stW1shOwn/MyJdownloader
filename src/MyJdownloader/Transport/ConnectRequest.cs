@@ -15,9 +15,9 @@ internal sealed class ConnectRequest : IDisposable
         ArgumentNullException.ThrowIfNull(email);
         ArgumentNullException.ThrowIfNull(loginSecret);
         ArgumentNullException.ThrowIfNull(deviceSecret);
-        this.Email = email;
-        this.LoginSecret = [.. loginSecret];
-        this.DeviceSecret = [.. deviceSecret];
+        Email = email;
+        LoginSecret = [.. loginSecret];
+        DeviceSecret = [.. deviceSecret];
     }
 
     /// <summary>Gets the account email.</summary>
@@ -35,7 +35,7 @@ internal sealed class ConnectRequest : IDisposable
     /// <exception cref="InvalidOperationException">The request has already been used.</exception>
     public void MarkUsed()
     {
-        if (Interlocked.Exchange(ref this._used, 1) != 0)
+        if (Interlocked.Exchange(ref _used, 1) != 0)
         {
             throw new InvalidOperationException("The connect request has already been used.");
         }
@@ -44,8 +44,8 @@ internal sealed class ConnectRequest : IDisposable
     /// <summary>Marks the request as used and zeroes the secrets; safe to call several times.</summary>
     public void Dispose()
     {
-        Interlocked.Exchange(ref this._used, 1);
-        CryptographicOperations.ZeroMemory(this.LoginSecret);
-        CryptographicOperations.ZeroMemory(this.DeviceSecret);
+        Interlocked.Exchange(ref _used, 1);
+        CryptographicOperations.ZeroMemory(LoginSecret);
+        CryptographicOperations.ZeroMemory(DeviceSecret);
     }
 }

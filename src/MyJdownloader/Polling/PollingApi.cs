@@ -15,7 +15,7 @@ public sealed class PollingApi
     internal PollingApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Polls the requested state events of the device (<c>/polling/poll</c>).</summary>
@@ -40,7 +40,7 @@ public sealed class PollingApi
 
         var packageUuids = FacadeGuard.OptionalIds(query.DownloadProgressPackageUuids, nameof(query));
         var args = new[] { BuildArgument(query with { DownloadProgressPackageUuids = packageUuids }) };
-        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "poll", PollingJsonContext.Default.ListPollingResult, args, cancellationToken));
+        return FacadeResults.ListAsync(_channel.CallAsync(Base + "poll", PollingJsonContext.Default.ListPollingResult, args, cancellationToken));
     }
 
     private static JsonElement BuildArgument(PollingQuery query)

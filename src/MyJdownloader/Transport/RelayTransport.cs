@@ -36,8 +36,8 @@ internal sealed class RelayTransport
     {
         ArgumentNullException.ThrowIfNull(httpClient);
         ArgumentNullException.ThrowIfNull(timeProvider);
-        this._httpClient = httpClient;
-        this._timeProvider = timeProvider;
+        _httpClient = httpClient;
+        _timeProvider = timeProvider;
     }
 
     internal static string UnreadableMessageFor(MyJdErrorSource source) =>
@@ -53,7 +53,7 @@ internal sealed class RelayTransport
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The decrypted JSON answer.</returns>
     public Task<string> ExchangeAsync(HttpRequestMessage request, byte[] key, MyJdErrorSource source, CancellationToken cancellationToken) =>
-        this.ExchangeWithTimeoutAsync(request, key, source, DecryptBody, cancellationToken);
+        ExchangeWithTimeoutAsync(request, key, source, DecryptBody, cancellationToken);
 
     /// <summary>
     /// Sends the request and returns the raw PNG body of a successful answer; the request stays owned by the caller.
@@ -65,7 +65,7 @@ internal sealed class RelayTransport
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The PNG bytes, signature included.</returns>
     public Task<byte[]> ExchangeBinaryAsync(HttpRequestMessage request, byte[] key, MyJdErrorSource source, CancellationToken cancellationToken) =>
-        this.ExchangeWithTimeoutAsync(request, key, source, ReadPng, cancellationToken);
+        ExchangeWithTimeoutAsync(request, key, source, ReadPng, cancellationToken);
 
     private static string DecryptBody(HttpResponseMessage response, byte[] body, byte[] key, MyJdErrorSource source)
     {
@@ -94,14 +94,14 @@ internal sealed class RelayTransport
     {
         // HttpClient.Timeout stops applying once the headers are read: bound the whole exchange, body included.
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        if (this._httpClient.Timeout != Timeout.InfiniteTimeSpan)
+        if (_httpClient.Timeout != Timeout.InfiniteTimeSpan)
         {
-            linked.CancelAfter(this._httpClient.Timeout);
+            linked.CancelAfter(_httpClient.Timeout);
         }
 
         try
         {
-            return await this.ExchangeCoreAsync(request, key, source, convert, linked.Token).ConfigureAwait(false);
+            return await ExchangeCoreAsync(request, key, source, convert, linked.Token).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
@@ -182,7 +182,7 @@ internal sealed class RelayTransport
     private TimeSpan? ParseRetryAfter(HttpResponseMessage response)
     {
         var header = response.Headers.RetryAfter;
-        var delay = header?.Delta ?? (header?.Date - this._timeProvider.GetUtcNow());
+        var delay = header?.Delta ?? (header?.Date - _timeProvider.GetUtcNow());
         if (delay is null)
         {
             return null;
@@ -193,14 +193,14 @@ internal sealed class RelayTransport
 
     private async Task<T> ExchangeCoreAsync<T>(HttpRequestMessage request, byte[] key, MyJdErrorSource source, Func<HttpResponseMessage, byte[], byte[], MyJdErrorSource, T> convert, CancellationToken cancellationToken)
     {
-        using var response = await this._httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+        using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
         if (response.StatusCode != HttpStatusCode.OK)
         {
             var (error, decrypted) = await ReadErrorAsync(response.Content, key, source, cancellationToken).ConfigureAwait(false);
 
             // Only the relay can answer in plain text: an encrypted device error cannot claim to come from the server.
             var src = decrypted && source == MyJdErrorSource.Device ? "DEVICE" : error?.Src;
-            throw MyJdErrorMapper.Map(source, src, error?.Type, response.StatusCode, this.ParseRetryAfter(response));
+            throw MyJdErrorMapper.Map(source, src, error?.Type, response.StatusCode, ParseRetryAfter(response));
         }
 
         var body = await ReadBodyAsync(response.Content, source, cancellationToken).ConfigureAwait(false);

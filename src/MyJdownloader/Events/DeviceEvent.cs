@@ -30,9 +30,9 @@ public sealed record DeviceEvent
     [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Invoked by the compiler-generated ToString.")]
     private bool PrintMembers(StringBuilder builder)
     {
-        builder.Append("Publisher = ").Append(this.Publisher)
-            .Append(", EventId = ").Append(this.EventId)
-            .Append(", Data = ").Append(this.Data is null ? null : "<" + this.Data.Value.ValueKind + ">");
+        builder.Append("Publisher = ").Append(Publisher)
+            .Append(", EventId = ").Append(EventId)
+            .Append(", Data = ").Append(Data is null ? null : "<" + Data.Value.ValueKind + ">");
         return true;
     }
 }

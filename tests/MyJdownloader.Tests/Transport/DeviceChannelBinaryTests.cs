@@ -276,7 +276,7 @@ public sealed class DeviceChannelBinaryTests
         {
         }
 
-        public override int Read(byte[] buffer, int offset, int count) => this._inner.Read(buffer, offset, count);
+        public override int Read(byte[] buffer, int offset, int count) => _inner.Read(buffer, offset, count);
 
         public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
 
@@ -288,7 +288,7 @@ public sealed class DeviceChannelBinaryTests
         {
             if (disposing)
             {
-                this._inner.Dispose();
+                _inner.Dispose();
             }
 
             base.Dispose(disposing);

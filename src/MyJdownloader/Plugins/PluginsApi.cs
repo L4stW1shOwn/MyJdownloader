@@ -22,7 +22,7 @@ public sealed class PluginsApi
     internal PluginsApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Gets the current value of a plugin setting (<c>/plugins/get</c>).</summary>
@@ -42,7 +42,7 @@ public sealed class PluginsApi
     public Task<JsonElement> GetAsync(string interfaceName, string displayName, string key, CancellationToken cancellationToken = default)
     {
         var args = IdentifierArgs(interfaceName, displayName, key);
-        return ToValueAsync(this._channel.CallAsync(Base + "get", PluginsJsonContext.Default.NullableJsonElement, args, cancellationToken));
+        return ToValueAsync(_channel.CallAsync(Base + "get", PluginsJsonContext.Default.NullableJsonElement, args, cancellationToken));
     }
 
     /// <summary>Sets the value of a plugin setting (<c>/plugins/set</c>).</summary>
@@ -78,7 +78,7 @@ public sealed class PluginsApi
         }
 
         var valueArg = JsonSerializer.SerializeToElement(value.GetRawText(), FacadeJsonContext.Default.String);
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "set", FacadeJsonContext.Default.NullableBoolean, [.. args, valueArg], cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "set", FacadeJsonContext.Default.NullableBoolean, [.. args, valueArg], cancellationToken));
     }
 
     /// <summary>Resets a plugin setting to its default value (<c>/plugins/reset</c>).</summary>
@@ -98,7 +98,7 @@ public sealed class PluginsApi
     public Task<bool> ResetAsync(string interfaceName, string displayName, string key, CancellationToken cancellationToken = default)
     {
         var args = IdentifierArgs(interfaceName, displayName, key);
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "reset", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "reset", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }
 
     /// <summary>Lists the plugins and their settings (<c>/plugins/list</c>).</summary>
@@ -119,7 +119,7 @@ public sealed class PluginsApi
     {
         query ??= new PluginsQuery();
         var args = new[] { JsonSerializer.SerializeToElement(query, PluginsJsonContext.Default.PluginsQuery) };
-        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "list", PluginsJsonContext.Default.ListPluginInfo, args, cancellationToken));
+        return FacadeResults.ListAsync(_channel.CallAsync(Base + "list", PluginsJsonContext.Default.ListPluginInfo, args, cancellationToken));
     }
 
     /// <summary>Lists plugin configuration entries (<c>/plugins/query</c>).</summary>
@@ -144,7 +144,7 @@ public sealed class PluginsApi
         FacadeGuard.ValidateOptionalText(query.ConfigInterface, nameof(query), FacadeGuard.MaxIdentifierLength);
         FacadeGuard.ValidateOptionalText(query.Pattern, nameof(query), FacadeGuard.MaxLongTextLength);
         var args = new[] { JsonSerializer.SerializeToElement(query, PluginsJsonContext.Default.ConfigQuery) };
-        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "query", PluginsJsonContext.Default.ListPluginConfigEntry, args, cancellationToken));
+        return FacadeResults.ListAsync(_channel.CallAsync(Base + "query", PluginsJsonContext.Default.ListPluginConfigEntry, args, cancellationToken));
     }
 
     /// <summary>Gets the URL patterns of all plugins (<c>/plugins/getAllPluginRegex</c>).</summary>
@@ -158,7 +158,7 @@ public sealed class PluginsApi
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public async Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetAllPluginRegexAsync(CancellationToken cancellationToken = default)
     {
-        var raw = await this._channel.CallAsync(Base + "getAllPluginRegex", PluginsJsonContext.Default.DictionaryStringListString, [], cancellationToken).ConfigureAwait(false) ?? [];
+        var raw = await _channel.CallAsync(Base + "getAllPluginRegex", PluginsJsonContext.Default.DictionaryStringListString, [], cancellationToken).ConfigureAwait(false) ?? [];
         var result = new Dictionary<string, IReadOnlyList<string>>(raw.Count);
         foreach (var (plugin, patterns) in raw)
         {
@@ -190,7 +190,7 @@ public sealed class PluginsApi
     {
         FacadeGuard.ValidateText(url, nameof(url), FacadeGuard.MaxLongTextLength);
         var args = new[] { JsonSerializer.SerializeToElement(url, FacadeJsonContext.Default.String) };
-        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "getPluginRegex", PluginsJsonContext.Default.ListString, args, cancellationToken));
+        return FacadeResults.ListAsync(_channel.CallAsync(Base + "getPluginRegex", PluginsJsonContext.Default.ListString, args, cancellationToken));
     }
 
     private static JsonElement[] IdentifierArgs(string interfaceName, string displayName, string key)

@@ -23,7 +23,7 @@ public sealed partial class DownloadsApi
     internal DownloadsApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Lists the downloads (<c>/downloadsV2/queryLinks</c>).</summary>
@@ -48,7 +48,7 @@ public sealed partial class DownloadsApi
         var packageUuids = FacadeGuard.OptionalIds(query.PackageUuids, nameof(query));
         var jobUuids = FacadeGuard.OptionalIds(query.JobUuids, nameof(query));
         var args = new[] { JsonSerializer.SerializeToElement(query with { PackageUuids = packageUuids, JobUuids = jobUuids }, DownloadsJsonContext.Default.DownloadLinkQuery) };
-        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "queryLinks", DownloadsJsonContext.Default.ListDownloadLink, args, cancellationToken));
+        return FacadeResults.ListAsync(_channel.CallAsync(Base + "queryLinks", DownloadsJsonContext.Default.ListDownloadLink, args, cancellationToken));
     }
 
     /// <summary>Lists the download packages (<c>/downloadsV2/queryPackages</c>).</summary>
@@ -72,7 +72,7 @@ public sealed partial class DownloadsApi
         FacadeGuard.ValidateRange(query.MaxResults, query.StartAt, nameof(query));
         var packageUuids = FacadeGuard.OptionalIds(query.PackageUuids, nameof(query));
         var args = new[] { JsonSerializer.SerializeToElement(query with { PackageUuids = packageUuids }, DownloadsJsonContext.Default.DownloadPackageQuery) };
-        return FacadeResults.ListAsync(this._channel.CallAsync(Base + "queryPackages", DownloadsJsonContext.Default.ListDownloadPackage, args, cancellationToken), static package => package.Hosts?.Contains(null!) == true);
+        return FacadeResults.ListAsync(_channel.CallAsync(Base + "queryPackages", DownloadsJsonContext.Default.ListDownloadPackage, args, cancellationToken), static package => package.Hosts?.Contains(null!) == true);
     }
 
     /// <summary>Gets the number of packages in the download list (<c>/downloadsV2/packageCount</c>).</summary>
@@ -84,7 +84,7 @@ public sealed partial class DownloadsApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<int> GetPackageCountAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "packageCount", FacadeJsonContext.Default.NullableInt32, [], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "packageCount", FacadeJsonContext.Default.NullableInt32, [], cancellationToken));
 
     /// <summary>Removes links and packages from the download list (<c>/downloadsV2/removeLinks</c>).</summary>
     /// <param name="linkIds">The identifiers of the links to remove.</param>
@@ -100,7 +100,7 @@ public sealed partial class DownloadsApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task RemoveLinksAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "removeLinks", FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken);
+        => _channel.CallAsync(Base + "removeLinks", FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken);
 
     /// <summary>Cleans up links and packages of the download list (<c>/downloadsV2/cleanup</c>).</summary>
     /// <param name="linkIds">The identifiers of the links to clean up.</param>
@@ -156,7 +156,7 @@ public sealed partial class DownloadsApi
             JsonSerializer.SerializeToElement(mode, DownloadsJsonContext.Default.CleanupMode),
             JsonSerializer.SerializeToElement(selectionType, DownloadsJsonContext.Default.SelectionType),
         };
-        return this._channel.CallAsync(Base + "cleanup", args, cancellationToken);
+        return _channel.CallAsync(Base + "cleanup", args, cancellationToken);
     }
 
     /// <summary>Enables or disables links and packages (<c>/downloadsV2/setEnabled</c>).</summary>
@@ -176,7 +176,7 @@ public sealed partial class DownloadsApi
     {
         var ids = FacadeGuard.IdArgs(linkIds, packageIds);
         var args = new[] { JsonSerializer.SerializeToElement(enabled, FacadeJsonContext.Default.Boolean), ids[0], ids[1] };
-        return this._channel.CallAsync(Base + "setEnabled", args, cancellationToken);
+        return _channel.CallAsync(Base + "setEnabled", args, cancellationToken);
     }
 
     /// <summary>Sets the priority of links and packages (<c>/downloadsV2/setPriority</c>).</summary>
@@ -202,7 +202,7 @@ public sealed partial class DownloadsApi
 
         var ids = FacadeGuard.IdArgs(linkIds, packageIds);
         var args = new[] { JsonSerializer.SerializeToElement(priority, DownloadsJsonContext.Default.Priority), ids[0], ids[1] };
-        return this._channel.CallAsync(Base + "setPriority", args, cancellationToken);
+        return _channel.CallAsync(Base + "setPriority", args, cancellationToken);
     }
 
     /// <summary>Renames a link (<c>/downloadsV2/renameLink</c>).</summary>
@@ -219,7 +219,7 @@ public sealed partial class DownloadsApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task RenameLinkAsync(long linkId, string newName, CancellationToken cancellationToken = default)
-        => this.RenameAsync("renameLink", linkId, newName, cancellationToken);
+        => RenameAsync("renameLink", linkId, newName, cancellationToken);
 
     /// <summary>Renames a package (<c>/downloadsV2/renamePackage</c>).</summary>
     /// <param name="packageId">The identifier of the package.</param>
@@ -235,7 +235,7 @@ public sealed partial class DownloadsApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task RenamePackageAsync(long packageId, string newName, CancellationToken cancellationToken = default)
-        => this.RenameAsync("renamePackage", packageId, newName, cancellationToken);
+        => RenameAsync("renamePackage", packageId, newName, cancellationToken);
 
     /// <summary>Forces the download of links and packages (<c>/downloadsV2/forceDownload</c>).</summary>
     /// <param name="linkIds">The identifiers of the links to force.</param>
@@ -250,7 +250,7 @@ public sealed partial class DownloadsApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task<bool> ForceDownloadAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "forceDownload", FacadeJsonContext.Default.NullableBoolean, FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "forceDownload", FacadeJsonContext.Default.NullableBoolean, FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken));
 
     /// <summary>Resets links and packages (downloaded data is discarded) (<c>/downloadsV2/resetLinks</c>).</summary>
     /// <param name="linkIds">The identifiers of the links to reset.</param>
@@ -265,7 +265,7 @@ public sealed partial class DownloadsApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task ResetLinksAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "resetLinks", FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken);
+        => _channel.CallAsync(Base + "resetLinks", FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken);
 
     /// <summary>Resumes links and packages (<c>/downloadsV2/resumeLinks</c>).</summary>
     /// <param name="linkIds">The identifiers of the links to resume.</param>
@@ -280,7 +280,7 @@ public sealed partial class DownloadsApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task ResumeLinksAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "resumeLinks", FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken);
+        => _channel.CallAsync(Base + "resumeLinks", FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken);
 
     /// <summary>Sets the download directory of packages (<c>/downloadsV2/setDownloadDirectory</c>).</summary>
     /// <param name="directory">The destination directory, a path on the device.</param>
@@ -304,7 +304,7 @@ public sealed partial class DownloadsApi
             JsonSerializer.SerializeToElement(directory, FacadeJsonContext.Default.String),
             FacadeGuard.Ids(packageIds, nameof(packageIds)),
         };
-        return this._channel.CallAsync(Base + "setDownloadDirectory", args, cancellationToken);
+        return _channel.CallAsync(Base + "setDownloadDirectory", args, cancellationToken);
     }
 
     /// <summary>Moves links and packages to a new package (<c>/downloadsV2/movetoNewPackage</c>).</summary>
@@ -335,7 +335,7 @@ public sealed partial class DownloadsApi
             JsonSerializer.SerializeToElement(newPackageName, FacadeJsonContext.Default.String),
             JsonSerializer.SerializeToElement(downloadPath, FacadeJsonContext.Default.String),
         };
-        return this._channel.CallAsync(Base + "movetoNewPackage", args, cancellationToken);
+        return _channel.CallAsync(Base + "movetoNewPackage", args, cancellationToken);
     }
 
     private Task RenameAsync(string action, long id, string newName, CancellationToken cancellationToken)
@@ -346,6 +346,6 @@ public sealed partial class DownloadsApi
             JsonSerializer.SerializeToElement(id, FacadeJsonContext.Default.Int64),
             JsonSerializer.SerializeToElement(newName, FacadeJsonContext.Default.String),
         };
-        return this._channel.CallAsync(Base + action, args, cancellationToken);
+        return _channel.CallAsync(Base + action, args, cancellationToken);
     }
 }

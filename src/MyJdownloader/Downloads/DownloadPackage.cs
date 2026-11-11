@@ -72,24 +72,24 @@ public sealed record DownloadPackage
     [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Invoked by the compiler-generated ToString.")]
     private bool PrintMembers(StringBuilder builder)
     {
-        builder.Append("Uuid = ").Append(this.Uuid)
-            .Append(", Name = ").Append(this.Name)
-            .Append(", ActiveTask = ").Append(this.ActiveTask)
-            .Append(", BytesLoaded = ").Append(this.BytesLoaded)
-            .Append(", BytesTotal = ").Append(this.BytesTotal)
-            .Append(", Speed = ").Append(this.Speed)
-            .Append(", Eta = ").Append(this.Eta)
-            .Append(", ChildCount = ").Append(this.ChildCount)
-            .Append(", Comment = ").Append(this.Comment)
-            .Append(", DownloadPassword = ").Append(this.DownloadPassword is null ? null : "***")
-            .Append(", Enabled = ").Append(this.Enabled)
-            .Append(", Finished = ").Append(this.Finished)
-            .Append(", Running = ").Append(this.Running)
-            .Append(", Hosts = ").Append(this.Hosts is null ? null : string.Join(',', this.Hosts))
-            .Append(", Priority = ").Append(this.Priority)
-            .Append(", SaveTo = ").Append(this.SaveTo)
-            .Append(", Status = ").Append(this.Status)
-            .Append(", StatusIconKey = ").Append(this.StatusIconKey);
+        builder.Append("Uuid = ").Append(Uuid)
+            .Append(", Name = ").Append(Name)
+            .Append(", ActiveTask = ").Append(ActiveTask)
+            .Append(", BytesLoaded = ").Append(BytesLoaded)
+            .Append(", BytesTotal = ").Append(BytesTotal)
+            .Append(", Speed = ").Append(Speed)
+            .Append(", Eta = ").Append(Eta)
+            .Append(", ChildCount = ").Append(ChildCount)
+            .Append(", Comment = ").Append(Comment)
+            .Append(", DownloadPassword = ").Append(DownloadPassword is null ? null : "***")
+            .Append(", Enabled = ").Append(Enabled)
+            .Append(", Finished = ").Append(Finished)
+            .Append(", Running = ").Append(Running)
+            .Append(", Hosts = ").Append(Hosts is null ? null : string.Join(',', Hosts))
+            .Append(", Priority = ").Append(Priority)
+            .Append(", SaveTo = ").Append(SaveTo)
+            .Append(", Status = ").Append(Status)
+            .Append(", StatusIconKey = ").Append(StatusIconKey);
         return true;
     }
 }

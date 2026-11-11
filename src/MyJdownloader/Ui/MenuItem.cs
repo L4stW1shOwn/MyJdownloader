@@ -33,11 +33,11 @@ public sealed record MenuItem
     [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Invoked by the compiler-generated ToString.")]
     private bool PrintMembers(StringBuilder builder)
     {
-        builder.Append("Type = ").Append(this.Type)
-            .Append(", Id = ").Append(this.Id)
-            .Append(", Name = ").Append(this.Name)
-            .Append(", Icon = ").Append(this.Icon)
-            .Append(", Children = ").Append(this.Children.Count);
+        builder.Append("Type = ").Append(Type)
+            .Append(", Id = ").Append(Id)
+            .Append(", Name = ").Append(Name)
+            .Append(", Icon = ").Append(Icon)
+            .Append(", Children = ").Append(Children.Count);
         return true;
     }
 }

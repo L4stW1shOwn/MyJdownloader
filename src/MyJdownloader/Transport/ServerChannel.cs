@@ -41,9 +41,9 @@ internal sealed class ServerChannel
         ArgumentNullException.ThrowIfNull(transport);
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(requestIds);
-        this._transport = transport;
-        this._options = options;
-        this._requestIds = requestIds;
+        _transport = transport;
+        _options = options;
+        _requestIds = requestIds;
     }
 
     /// <summary>Validates the credentials and derives the secrets of a <c>/my/connect</c> call.</summary>
@@ -101,9 +101,9 @@ internal sealed class ServerChannel
         request.MarkUsed();
         try
         {
-            var response = await this.SendAsync(
+            var response = await SendAsync(
                 "/my/connect",
-                [("email", request.Email), ("appkey", this._options.AppKey)],
+                [("email", request.Email), ("appkey", _options.AppKey)],
                 request.LoginSecret,
                 MyJdJsonContext.Default.ConnectResponse,
                 cancellationToken).ConfigureAwait(false);
@@ -130,7 +130,7 @@ internal sealed class ServerChannel
         var loginSecret = session.LoginSecret.ToArray();
         try
         {
-            var response = await this.SendAsync(
+            var response = await SendAsync(
                 "/my/reconnect",
                 [("sessiontoken", session.SessionToken), ("regaintoken", session.RegainToken)],
                 key,
@@ -159,7 +159,7 @@ internal sealed class ServerChannel
         var key = session.ServerEncryptionToken.ToArray();
         try
         {
-            await this.SendAsync(
+            await SendAsync(
                 "/my/disconnect",
                 [("sessiontoken", session.SessionToken)],
                 key,
@@ -185,7 +185,7 @@ internal sealed class ServerChannel
         ListDevicesResponse response;
         try
         {
-            response = await this.SendAsync(
+            response = await SendAsync(
                 "/my/listdevices",
                 [("sessiontoken", session.SessionToken)],
                 key,
@@ -312,12 +312,12 @@ internal sealed class ServerChannel
         CancellationToken cancellationToken)
         where T : class
     {
-        var rid = this._requestIds.Next();
+        var rid = _requestIds.Next();
         var signed = BuildQuery(path, parameters, rid);
-        var url = this._options.BaseAddress.AbsoluteUri.TrimEnd('/') + signed + "&signature=" + MyJdCrypto.Sign(key, signed);
+        var url = _options.BaseAddress.AbsoluteUri.TrimEnd('/') + signed + "&signature=" + MyJdCrypto.Sign(key, signed);
 
         using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(url, UriKind.Absolute));
-        var json = await this._transport.ExchangeAsync(request, key, MyJdErrorSource.Server, cancellationToken).ConfigureAwait(false);
+        var json = await _transport.ExchangeAsync(request, key, MyJdErrorSource.Server, cancellationToken).ConfigureAwait(false);
 
         bool ridMatches;
         T? result;

@@ -545,19 +545,19 @@ public sealed partial class MyJDownloaderClientLifecycleTests
         private readonly Dictionary<string, Route> _routes = [];
         private readonly ConcurrentQueue<string> _calls = new();
 
-        public IReadOnlyCollection<string> Calls => this._calls;
+        public IReadOnlyCollection<string> Calls => _calls;
 
         public ScriptedServer On(string path, Route route)
         {
-            this._routes[path] = route;
+            _routes[path] = route;
             return this;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            this._calls.Enqueue(request.RequestUri!.PathAndQuery);
-            return await this._routes[request.RequestUri.AbsolutePath](request, cancellationToken);
+            _calls.Enqueue(request.RequestUri!.PathAndQuery);
+            return await _routes[request.RequestUri.AbsolutePath](request, cancellationToken);
         }
     }
 }

@@ -15,7 +15,7 @@ public sealed class JdApi
     internal JdApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Gets the time elapsed since the device started (<c>/jd/uptime</c>).</summary>
@@ -27,7 +27,7 @@ public sealed class JdApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<TimeSpan> GetUptimeAsync(CancellationToken cancellationToken = default)
-        => ToUptimeAsync(FacadeResults.RequireAsync(this._channel.CallAsync(Base + "uptime", FacadeJsonContext.Default.NullableInt64, [], cancellationToken)));
+        => ToUptimeAsync(FacadeResults.RequireAsync(_channel.CallAsync(Base + "uptime", FacadeJsonContext.Default.NullableInt64, [], cancellationToken)));
 
     /// <summary>Gets the version reported by the device (<c>/jd/version</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -38,7 +38,7 @@ public sealed class JdApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<long> GetVersionAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "version", FacadeJsonContext.Default.NullableInt64, [], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "version", FacadeJsonContext.Default.NullableInt64, [], cancellationToken));
 
     /// <summary>Gets the core revision of the device (<c>/jd/getCoreRevision</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -49,7 +49,7 @@ public sealed class JdApi
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
     public Task<int> GetCoreRevisionAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "getCoreRevision", FacadeJsonContext.Default.NullableInt32, [], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "getCoreRevision", FacadeJsonContext.Default.NullableInt32, [], cancellationToken));
 
     /// <summary>Asks the device to refresh its plugins (<c>/jd/refreshPlugins</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
@@ -60,7 +60,7 @@ public sealed class JdApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task<bool> RefreshPluginsAsync(CancellationToken cancellationToken = default)
-        => FacadeResults.RequireAsync(this._channel.CallAsync(Base + "refreshPlugins", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
+        => FacadeResults.RequireAsync(_channel.CallAsync(Base + "refreshPlugins", FacadeJsonContext.Default.NullableBoolean, [], cancellationToken));
 
     private static async Task<TimeSpan> ToUptimeAsync(Task<long> call)
     {

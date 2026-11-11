@@ -38,8 +38,8 @@ public sealed class JDownloaderDevice
     {
         ArgumentNullException.ThrowIfNull(id);
         ArgumentNullException.ThrowIfNull(channel);
-        this.Id = id;
-        this.Channel = channel;
+        Id = id;
+        Channel = channel;
     }
 
     /// <summary>Gets the device identifier, as supplied to <see cref="MyJDownloaderClient.GetDevice"/>.</summary>
@@ -50,97 +50,97 @@ public sealed class JDownloaderDevice
 
     /// <summary>Gets the typed facade over the <c>/linkgrabberv2</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public LinkGrabberApi LinkGrabber => field ??= new LinkGrabberApi(this.Channel);
+    public LinkGrabberApi LinkGrabber => field ??= new LinkGrabberApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/downloadsV2</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public DownloadsApi Downloads => field ??= new DownloadsApi(this.Channel);
+    public DownloadsApi Downloads => field ??= new DownloadsApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/downloadcontroller</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public DownloadControllerApi DownloadController => field ??= new DownloadControllerApi(this.Channel);
+    public DownloadControllerApi DownloadController => field ??= new DownloadControllerApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/jd</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public JdApi Jd => field ??= new JdApi(this.Channel);
+    public JdApi Jd => field ??= new JdApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/system</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public SystemApi System => field ??= new SystemApi(this.Channel);
+    public SystemApi System => field ??= new SystemApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/config</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public ConfigApi Config => field ??= new ConfigApi(this.Channel);
+    public ConfigApi Config => field ??= new ConfigApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/plugins</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public PluginsApi Plugins => field ??= new PluginsApi(this.Channel);
+    public PluginsApi Plugins => field ??= new PluginsApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/accountsV2</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public AccountsApi Accounts => field ??= new AccountsApi(this.Channel);
+    public AccountsApi Accounts => field ??= new AccountsApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/captcha</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public CaptchaApi Captcha => field ??= new CaptchaApi(this.Channel);
+    public CaptchaApi Captcha => field ??= new CaptchaApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/dialogs</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public DialogsApi Dialogs => field ??= new DialogsApi(this.Channel);
+    public DialogsApi Dialogs => field ??= new DialogsApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/events</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public EventsApi Events => field ??= new EventsApi(this.Channel);
+    public EventsApi Events => field ??= new EventsApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/extensions</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public ExtensionsApi Extensions => field ??= new ExtensionsApi(this.Channel);
+    public ExtensionsApi Extensions => field ??= new ExtensionsApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/extraction</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public ExtractionApi Extraction => field ??= new ExtractionApi(this.Channel);
+    public ExtractionApi Extraction => field ??= new ExtractionApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/update</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public UpdateApi Update => field ??= new UpdateApi(this.Channel);
+    public UpdateApi Update => field ??= new UpdateApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/device</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public DeviceApi Device => field ??= new DeviceApi(this.Channel);
+    public DeviceApi Device => field ??= new DeviceApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/linkcrawler</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public LinkCrawlerApi LinkCrawler => field ??= new LinkCrawlerApi(this.Channel);
+    public LinkCrawlerApi LinkCrawler => field ??= new LinkCrawlerApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/reconnect</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public ReconnectApi Reconnect => field ??= new ReconnectApi(this.Channel);
+    public ReconnectApi Reconnect => field ??= new ReconnectApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/polling</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public PollingApi Polling => field ??= new PollingApi(this.Channel);
+    public PollingApi Polling => field ??= new PollingApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/log</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public LogApi Log => field ??= new LogApi(this.Channel);
+    public LogApi Log => field ??= new LogApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/contentV2</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public ContentV2Api ContentV2 => field ??= new ContentV2Api(this.Channel);
+    public ContentV2Api ContentV2 => field ??= new ContentV2Api(Channel);
 
     /// <summary>Gets the typed facade over the <c>/ui</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public UiApi Ui => field ??= new UiApi(this.Channel);
+    public UiApi Ui => field ??= new UiApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/captchaforward</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public CaptchaForwardApi CaptchaForward => field ??= new CaptchaForwardApi(this.Channel);
+    public CaptchaForwardApi CaptchaForward => field ??= new CaptchaForwardApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/toolbar</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public ToolbarApi Toolbar => field ??= new ToolbarApi(this.Channel);
+    public ToolbarApi Toolbar => field ??= new ToolbarApi(Channel);
 
     /// <summary>Gets the typed facade over the <c>/downloadevents</c> namespace of this device.</summary>
     /// <remarks>The facade is stateless and created on first access; concurrent first accesses may create more than one instance, which is harmless.</remarks>
-    public DownloadEventsApi DownloadEvents => field ??= new DownloadEventsApi(this.Channel);
+    public DownloadEventsApi DownloadEvents => field ??= new DownloadEventsApi(Channel);
 }

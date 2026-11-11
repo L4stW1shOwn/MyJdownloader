@@ -14,10 +14,10 @@ internal sealed class FakeMyJdServer : HttpMessageHandler
     public FakeMyJdServer(Func<HttpRequestMessage, HttpResponseMessage> responder)
     {
         ArgumentNullException.ThrowIfNull(responder);
-        this._responder = responder;
+        _responder = responder;
     }
 
-    public IReadOnlyList<HttpRequestMessage> Requests => this._requests;
+    public IReadOnlyList<HttpRequestMessage> Requests => _requests;
 
     public static HttpResponseMessage EncryptedJson(byte[] key, string json, HttpStatusCode status = HttpStatusCode.OK)
     {
@@ -107,7 +107,7 @@ internal sealed class FakeMyJdServer : HttpMessageHandler
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        this._requests.Add(request);
-        return Task.FromResult(this._responder(request));
+        _requests.Add(request);
+        return Task.FromResult(_responder(request));
     }
 }

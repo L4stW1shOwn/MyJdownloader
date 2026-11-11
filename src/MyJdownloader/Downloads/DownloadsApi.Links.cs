@@ -32,7 +32,7 @@ public sealed partial class DownloadsApi
             JsonSerializer.SerializeToElement(afterLinkId, FacadeJsonContext.Default.Int64),
             JsonSerializer.SerializeToElement(destinationPackageId, FacadeJsonContext.Default.Int64),
         };
-        return this._channel.CallAsync(Base + "moveLinks", args, cancellationToken);
+        return _channel.CallAsync(Base + "moveLinks", args, cancellationToken);
     }
 
     /// <summary>Moves packages after a given package (<c>/downloadsV2/movePackages</c>).</summary>
@@ -59,7 +59,7 @@ public sealed partial class DownloadsApi
             FacadeGuard.Ids(packageIds, nameof(packageIds)),
             JsonSerializer.SerializeToElement(afterPackageId, FacadeJsonContext.Default.Int64),
         };
-        return this._channel.CallAsync(Base + "movePackages", args, cancellationToken);
+        return _channel.CallAsync(Base + "movePackages", args, cancellationToken);
     }
 
     /// <summary>Splits packages by hoster (<c>/downloadsV2/splitPackageByHoster</c>).</summary>
@@ -76,7 +76,7 @@ public sealed partial class DownloadsApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task SplitPackageByHosterAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "splitPackageByHoster", FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken);
+        => _channel.CallAsync(Base + "splitPackageByHoster", FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken);
 
     /// <summary>Starts an online status check (<c>/downloadsV2/startOnlineStatusCheck</c>).</summary>
     /// <param name="linkIds">The identifiers of the links to check.</param>
@@ -92,7 +92,7 @@ public sealed partial class DownloadsApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task StartOnlineStatusCheckAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "startOnlineStatusCheck", FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken);
+        => _channel.CallAsync(Base + "startOnlineStatusCheck", FacadeGuard.IdArgs(linkIds, packageIds), cancellationToken);
 
     /// <summary>Sets or clears the download password of links and packages (<c>/downloadsV2/setDownloadPassword</c>).</summary>
     /// <param name="linkIds">The identifiers of the links to change.</param>
@@ -121,7 +121,7 @@ public sealed partial class DownloadsApi
         }
 
         var args = new[] { ids[0], ids[1], JsonSerializer.SerializeToElement(password, FacadeJsonContext.Default.String) };
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "setDownloadPassword", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "setDownloadPassword", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }
 
     /// <summary>Clears the skipped state of links and packages (<c>/downloadsV2/unskip</c>).</summary>
@@ -154,7 +154,7 @@ public sealed partial class DownloadsApi
 
         // The protocol sends package ids first; this order must not be normalized.
         var args = new[] { ids[1], ids[0], reasonArg };
-        return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "unskip", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
+        return FacadeResults.RequireAsync(_channel.CallAsync(Base + "unskip", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }
 
     /// <summary>Gets the download URLs of links and packages (<c>/downloadsV2/getDownloadUrls</c>).</summary>
@@ -182,6 +182,6 @@ public sealed partial class DownloadsApi
         var types = FacadeGuard.UrlDisplayTypeArg(urlDisplayTypes, nameof(urlDisplayTypes));
         var ids = FacadeGuard.IdArgs(linkIds, packageIds);
         var args = new[] { ids[0], ids[1], types };
-        return FacadeResults.UrlMapAsync(this._channel.CallAsync(Base + "getDownloadUrls", FacadeJsonContext.Default.DictionaryStringListInt64, args, cancellationToken));
+        return FacadeResults.UrlMapAsync(_channel.CallAsync(Base + "getDownloadUrls", FacadeJsonContext.Default.DictionaryStringListInt64, args, cancellationToken));
     }
 }

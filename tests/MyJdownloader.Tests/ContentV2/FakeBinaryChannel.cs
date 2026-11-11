@@ -11,7 +11,7 @@ internal sealed class FakeBinaryChannel(byte[] bytes) : IDeviceChannel, IBinaryD
 
     public Task<byte[]> CallBinaryAsync(string path, IReadOnlyList<JsonElement> args, CancellationToken cancellationToken = default)
     {
-        this.Calls.Add((path, args, cancellationToken));
+        Calls.Add((path, args, cancellationToken));
         return Task.FromResult(bytes);
     }
 

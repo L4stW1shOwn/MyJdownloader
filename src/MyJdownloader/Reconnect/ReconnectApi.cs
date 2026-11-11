@@ -10,7 +10,7 @@ public sealed class ReconnectApi
     internal ReconnectApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
-        this._channel = channel;
+        _channel = channel;
     }
 
     /// <summary>Asks the device to reconnect its internet connection (<c>/reconnect/doReconnect</c>).</summary>
@@ -25,5 +25,5 @@ public sealed class ReconnectApi
     /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task DoReconnectAsync(CancellationToken cancellationToken = default)
-        => this._channel.CallAsync(Base + "doReconnect", [], cancellationToken);
+        => _channel.CallAsync(Base + "doReconnect", [], cancellationToken);
 }
