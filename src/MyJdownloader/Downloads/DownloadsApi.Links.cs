@@ -174,13 +174,9 @@ public sealed partial class DownloadsApi
     {
         ArgumentNullException.ThrowIfNull(linkIds);
         ArgumentNullException.ThrowIfNull(packageIds);
+        var types = FacadeGuard.UrlDisplayTypeArg(urlDisplayTypes, nameof(urlDisplayTypes));
         var ids = FacadeGuard.IdArgs(linkIds, packageIds);
-        var args = new[]
-        {
-            ids[0],
-            ids[1],
-            FacadeGuard.UrlDisplayTypeArg(urlDisplayTypes, nameof(urlDisplayTypes)),
-        };
+        var args = new[] { ids[0], ids[1], types };
         return FacadeResults.UrlMapAsync(this._channel.CallAsync(Base + "getDownloadUrls", FacadeJsonContext.Default.DictionaryStringListInt64, args, cancellationToken));
     }
 }
