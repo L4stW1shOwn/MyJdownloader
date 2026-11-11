@@ -74,11 +74,12 @@ public sealed class DownloadsApiTests
         yield return Case("MoveLinksAsync_EmptyLinkIds_Throws", a => a.MoveLinksAsync(_noIds, 0, 0));
         yield return Case("MoveLinksAsync_NegativeAfterLinkId_Throws", a => a.MoveLinksAsync(_ids, -1, 0));
         yield return Case("MoveLinksAsync_NegativeDestinationPackageId_Throws", a => a.MoveLinksAsync(_ids, 0, -1));
+        yield return Case("MovePackagesAsync_NullPackageIds_Throws", a => a.MovePackagesAsync(null!, 0));
         yield return Case("MovePackagesAsync_EmptyPackageIds_Throws", a => a.MovePackagesAsync(_noIds, 0));
         yield return Case("MovePackagesAsync_NegativeAfterPackageId_Throws", a => a.MovePackagesAsync(_packageIds, -1));
         yield return Case("SplitPackageByHosterAsync_NullLinkIds_Throws", a => a.SplitPackageByHosterAsync(null!, _packageIds));
         yield return Case("StartOnlineStatusCheckAsync_NullPackageIds_Throws", a => a.StartOnlineStatusCheckAsync(_ids, null!));
-        yield return Case("SetDownloadPasswordAsync_Password_TooLong_Throws", a => a.SetDownloadPasswordAsync(_noIds, _noIds, new string('x', 65_537)));
+        yield return Case("SetDownloadPasswordAsync_Password_TooLong_Throws", a => a.SetDownloadPasswordAsync(_noIds, _noIds, TextCaps.LongTextOver));
         yield return Case("SetDownloadPasswordAsync_NullLinkIds_Throws", a => a.SetDownloadPasswordAsync(null!, _noIds, "pw"));
         yield return Case("SetDownloadPasswordAsync_NullPackageIds_Throws", a => a.SetDownloadPasswordAsync(_noIds, null!, "pw"));
         yield return Case("UnskipAsync_NullLinkIds_Throws", a => a.UnskipAsync(null!, _noIds, SkipReason.DiskFull));
@@ -821,15 +822,45 @@ public sealed class DownloadsApiTests
         AssertDeviceUnreadable(thrown);
     }
 
-    [Test]
-    public void GetDownloadUrlsAsync_InvalidTypes_ReportsUrlDisplayTypesParam()
+    private static IEnumerable<TestCaseData> InvalidUrlDisplayTypes()
+    {
+        yield return new TestCaseData((UrlDisplayType[]?)null).SetName("GetDownloadUrlsAsync_NullTypes_ReportsUrlDisplayTypesParam");
+        yield return new TestCaseData(Array.Empty<UrlDisplayType>()).SetName("GetDownloadUrlsAsync_EmptyTypes_ReportsUrlDisplayTypesParam");
+        yield return new TestCaseData(new[] { UrlDisplayType.Custom, UrlDisplayType.Custom }).SetName("GetDownloadUrlsAsync_DuplicateTypes_ReportsUrlDisplayTypesParam");
+        yield return new TestCaseData(new[] { UrlDisplayType.Unknown }).SetName("GetDownloadUrlsAsync_UnknownType_ReportsUrlDisplayTypesParam");
+        yield return new TestCaseData(new[] { (UrlDisplayType)99 }).SetName("GetDownloadUrlsAsync_UndefinedType_ReportsUrlDisplayTypesParam");
+    }
+
+    [TestCaseSource(nameof(InvalidUrlDisplayTypes))]
+    public void GetDownloadUrlsAsync_InvalidTypes_ReportsUrlDisplayTypesParam(UrlDisplayType[]? types)
     {
         var (_, api) = Create();
 
-        Assert.That(Assert.Throws<ArgumentNullException>(() => api.GetDownloadUrlsAsync(_ids, _packageIds, null!))!.ParamName, Is.EqualTo("urlDisplayTypes"));
-        Assert.That(Assert.Throws<ArgumentException>(() => api.GetDownloadUrlsAsync(_ids, _packageIds, []))!.ParamName, Is.EqualTo("urlDisplayTypes"));
-        Assert.That(Assert.Throws<ArgumentException>(() => api.GetDownloadUrlsAsync(_ids, _packageIds, [UrlDisplayType.Custom, UrlDisplayType.Custom]))!.ParamName, Is.EqualTo("urlDisplayTypes"));
-        Assert.That(Assert.Throws<ArgumentException>(() => api.GetDownloadUrlsAsync(_ids, _packageIds, [UrlDisplayType.Unknown]))!.ParamName, Is.EqualTo("urlDisplayTypes"));
-        Assert.That(Assert.Throws<ArgumentException>(() => api.GetDownloadUrlsAsync(_ids, _packageIds, [(UrlDisplayType)99]))!.ParamName, Is.EqualTo("urlDisplayTypes"));
+        var thrown = Assert.Catch<ArgumentException>(() => api.GetDownloadUrlsAsync(_ids, _packageIds, types!));
+
+        Assert.That(thrown!.ParamName, Is.EqualTo("urlDisplayTypes"));
+    }
+
+    [Test]
+    public void SetDownloadPasswordAsync_PasswordAtMax_Sends()
+    {
+        var (channel, api) = Create();
+
+        TextCaps.AssertSent(channel, () => api.SetDownloadPasswordAsync(_ids, _packageIds, TextCaps.LongText));
+    }
+
+    [Test]
+    public void SetStopMarkAsync_NegativeLinkId_MessageOmitsValue()
+    {
+        var (_, api) = Create();
+
+        var thrown = Assert.Throws<ArgumentOutOfRangeException>(() => api.SetStopMarkAsync(-123456789, 0));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.ParamName, Is.EqualTo("linkId"));
+            Assert.That(thrown.Message, Does.Not.Contain("123456789"));
+            Assert.That(thrown.ActualValue, Is.Null);
+        });
     }
 }

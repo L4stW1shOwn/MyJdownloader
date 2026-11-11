@@ -43,8 +43,8 @@ public sealed partial class DownloadsApi
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task SetStopMarkAsync(long linkId, long packageId, CancellationToken cancellationToken = default)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(linkId);
-        ArgumentOutOfRangeException.ThrowIfNegative(packageId);
+        FacadeGuard.ThrowIfNegative(linkId, nameof(linkId));
+        FacadeGuard.ThrowIfNegative(packageId, nameof(packageId));
         var args = new[]
         {
             JsonSerializer.SerializeToElement(linkId, FacadeJsonContext.Default.Int64),

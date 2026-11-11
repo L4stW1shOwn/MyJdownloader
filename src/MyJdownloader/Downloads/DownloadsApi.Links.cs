@@ -24,8 +24,8 @@ public sealed partial class DownloadsApi
     {
         ArgumentNullException.ThrowIfNull(linkIds);
         RequireNotEmpty(linkIds, nameof(linkIds));
-        ArgumentOutOfRangeException.ThrowIfNegative(afterLinkId);
-        ArgumentOutOfRangeException.ThrowIfNegative(destinationPackageId);
+        FacadeGuard.ThrowIfNegative(afterLinkId, nameof(afterLinkId));
+        FacadeGuard.ThrowIfNegative(destinationPackageId, nameof(destinationPackageId));
         var args = new[]
         {
             FacadeGuard.Ids(linkIds, nameof(linkIds)),
@@ -53,7 +53,7 @@ public sealed partial class DownloadsApi
     {
         ArgumentNullException.ThrowIfNull(packageIds);
         RequireNotEmpty(packageIds, nameof(packageIds));
-        ArgumentOutOfRangeException.ThrowIfNegative(afterPackageId);
+        FacadeGuard.ThrowIfNegative(afterPackageId, nameof(afterPackageId));
         var args = new[]
         {
             FacadeGuard.Ids(packageIds, nameof(packageIds)),
@@ -143,10 +143,12 @@ public sealed partial class DownloadsApi
             throw new ArgumentException("The skip reason is not valid.", nameof(reason));
         }
 
-        // The protocol sends package ids first; this order must not be normalized.
+        // JSON null: no typed null for the enum; the device reads it as "all reasons".
         var reasonArg = reason is { } known
             ? JsonSerializer.SerializeToElement(known, DownloadsJsonContext.Default.SkipReason)
             : JsonSerializer.SerializeToElement(null, FacadeJsonContext.Default.String);
+
+        // The protocol sends package ids first; this order must not be normalized.
         var args = new[] { ids[1], ids[0], reasonArg };
         return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "unskip", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }

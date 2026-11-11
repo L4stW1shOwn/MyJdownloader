@@ -19,6 +19,14 @@ internal static class FacadeGuard
         where TEnum : struct, Enum
         => !value.Equals(default(TEnum)) && Enum.IsDefined(value);
 
+    internal static void ThrowIfNegative(long value, string paramName)
+    {
+        if (value < 0)
+        {
+            throw new ArgumentOutOfRangeException(paramName, "The identifier must not be negative.");
+        }
+    }
+
     internal static JsonElement[] IdArgs(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds)
     {
         ArgumentNullException.ThrowIfNull(linkIds);
