@@ -301,6 +301,15 @@ public sealed class DownloadsApiTests
     }
 
     [Test]
+    public void RemoveLinksAsync_NegativeLinkId_Throws()
+    {
+        var (channel, api) = Create();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() => api.RemoveLinksAsync([-1], _noIds));
+        Assert.That(channel.ReceivedCalls(), Is.Empty);
+    }
+
+    [Test]
     public async Task RemoveLinksAsync_EmptyLists_SendsEmptyArrays()
     {
         var (channel, api) = Create();

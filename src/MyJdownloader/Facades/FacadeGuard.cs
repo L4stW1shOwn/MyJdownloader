@@ -69,7 +69,16 @@ internal static class FacadeGuard
     internal static JsonElement Ids(IReadOnlyList<long> ids, string paramName)
     {
         ArgumentNullException.ThrowIfNull(ids, paramName);
-        return JsonSerializer.SerializeToElement([.. ids], FacadeJsonContext.Default.Int64Array);
+        long[] copy = [.. ids];
+        foreach (var id in copy)
+        {
+            if (id < 0)
+            {
+                throw new ArgumentOutOfRangeException(paramName, "An identifier must not be negative.");
+            }
+        }
+
+        return JsonSerializer.SerializeToElement(copy, FacadeJsonContext.Default.Int64Array);
     }
 
     internal static void ValidateOptionalText(string? text, string paramName, int maxLength)

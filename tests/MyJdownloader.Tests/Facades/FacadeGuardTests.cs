@@ -111,6 +111,35 @@ public sealed class FacadeGuardTests
     }
 
     [Test]
+    public void Ids_NegativeElement_Throws()
+    {
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => FacadeGuard.Ids([1, -987654], "p"));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ParamName, Is.EqualTo("p"));
+            Assert.That(ex.Message, Does.Not.Contain("987654"));
+            Assert.That(ex.ActualValue, Is.Null);
+        });
+    }
+
+    [Test]
+    public void Ids_ZeroElement_IsAccepted()
+        => Assert.That(FacadeGuard.Ids([0], "p").GetRawText(), Is.EqualTo("[0]"));
+
+    [Test]
+    public void Ids_EmptyList_IsAccepted()
+        => Assert.That(FacadeGuard.Ids([], "p").GetRawText(), Is.EqualTo("[]"));
+
+    [Test]
+    public void IdArgs_NegativePackageId_ThrowsNamingPackageIds()
+    {
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => FacadeGuard.IdArgs([], [-1]));
+
+        Assert.That(ex!.ParamName, Is.EqualTo("packageIds"));
+    }
+
+    [Test]
     public void RequireNotEmpty_Empty_Throws()
     {
         var ex = Assert.Throws<ArgumentException>(() => FacadeGuard.RequireNotEmpty([], "p"));
