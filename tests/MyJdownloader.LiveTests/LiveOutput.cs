@@ -40,7 +40,7 @@ public static class LiveOutput
                 writer.WriteStartObject();
                 foreach (var property in element.EnumerateObject())
                 {
-                    writer.WritePropertyName(property.Name);
+                    writer.WritePropertyName(MaskUrl(property.Name));
                     if (IsSensitive(property.Name))
                     {
                         writer.WriteStringValue(MaskedValue);
@@ -99,8 +99,7 @@ public static class LiveOutput
                 : value;
         }
 
-        if ((uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
-            || (uri.UserInfo.Length == 0 && uri.Query.Length == 0))
+        if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
         {
             return value;
         }

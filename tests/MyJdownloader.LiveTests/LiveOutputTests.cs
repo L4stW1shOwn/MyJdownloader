@@ -153,4 +153,22 @@ public sealed class LiveOutputTests
 
         Assert.That(result, Does.Contain("https://example.com/a"));
     }
+
+    [Test]
+    public void Mask_UrlAsPropertyName_IsStripped()
+    {
+        var result = Mask("""{"https://u:p@h/x?t=1#k":[1]}""");
+
+        Assert.That(result, Does.Not.Contain("u:p"));
+        Assert.That(result, Does.Not.Contain("t=1"));
+        Assert.That(result, Does.Not.Contain("#k"));
+    }
+
+    [Test]
+    public void Mask_UrlFragment_IsDropped()
+    {
+        var result = Mask("\"https://h/x#secret\"");
+
+        Assert.That(result, Does.Not.Contain("secret"));
+    }
 }

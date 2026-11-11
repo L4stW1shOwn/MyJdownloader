@@ -27,7 +27,15 @@ public sealed class EventsLiveTests
         }
         finally
         {
-            await events.UnsubscribeAsync(subscription.SubscriptionId, CancellationToken.None);
+            using var cleanup = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            try
+            {
+                await events.UnsubscribeAsync(subscription.SubscriptionId, cleanup.Token);
+            }
+            catch (Exception ex) when (ex is MyJdException or OperationCanceledException)
+            {
+                await TestContext.Out.WriteLineAsync("WARNING: unsubscribe cleanup failed");
+            }
         }
     }
 }
