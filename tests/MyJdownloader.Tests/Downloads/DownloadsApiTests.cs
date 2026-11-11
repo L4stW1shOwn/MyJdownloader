@@ -15,6 +15,7 @@ public sealed class DownloadsApiTests
     private static readonly long[] _ids = [1, 2];
     private static readonly long[] _packageIds = [3];
     private static readonly long[] _noIds = [];
+    private static readonly UrlDisplayType[] _contentTypes = [UrlDisplayType.Content];
 
     private static IEnumerable<string?> BadTexts()
     {
@@ -84,6 +85,13 @@ public sealed class DownloadsApiTests
         yield return Case("UnskipAsync_NullPackageIds_Throws", a => a.UnskipAsync(_noIds, null!, SkipReason.DiskFull));
         yield return Case("UnskipAsync_UnknownReason_Throws", a => a.UnskipAsync(_noIds, _noIds, SkipReason.Unknown));
         yield return Case("UnskipAsync_UndefinedReason_Throws", a => a.UnskipAsync(_noIds, _noIds, (SkipReason)99));
+        yield return Case("GetDownloadUrlsAsync_NullLinkIds_Throws", a => a.GetDownloadUrlsAsync(null!, _noIds, _contentTypes));
+        yield return Case("GetDownloadUrlsAsync_NullPackageIds_Throws", a => a.GetDownloadUrlsAsync(_noIds, null!, _contentTypes));
+        yield return Case("GetDownloadUrlsAsync_NullTypes_Throws", a => a.GetDownloadUrlsAsync(_noIds, _noIds, null!));
+        yield return Case("GetDownloadUrlsAsync_EmptyTypes_Throws", a => a.GetDownloadUrlsAsync(_noIds, _noIds, []));
+        yield return Case("GetDownloadUrlsAsync_DuplicateType_Throws", a => a.GetDownloadUrlsAsync(_noIds, _noIds, [UrlDisplayType.Content, UrlDisplayType.Content]));
+        yield return Case("GetDownloadUrlsAsync_UnknownType_Throws", a => a.GetDownloadUrlsAsync(_noIds, _noIds, [UrlDisplayType.Unknown]));
+        yield return Case("GetDownloadUrlsAsync_UndefinedType_Throws", a => a.GetDownloadUrlsAsync(_noIds, _noIds, [(UrlDisplayType)99]));
         yield return Case("SetPriorityAsync_UnknownPriority_Throws", a => a.SetPriorityAsync(Priority.Unknown, _noIds, _noIds));
         yield return Case("SetPriorityAsync_UndefinedPriority_Throws", a => a.SetPriorityAsync((Priority)42, _noIds, _noIds));
         yield return Case("CleanupAsync_UnknownAction_Throws", a => a.CleanupAsync(_noIds, _noIds, CleanupAction.Unknown, CleanupMode.RemoveLinksOnly, SelectionType.All));
@@ -762,5 +770,66 @@ public sealed class DownloadsApiTests
         var api = new DownloadsApi(channel);
 
         TextCaps.AssertRejected(channel, () => api.RenameLinkAsync(1, TextCaps.IdentifierOver), "newName");
+    }
+
+    [Test]
+    public async Task GetDownloadUrlsAsync_Args_SendsPathAndArgs()
+    {
+        var (channel, api) = Create();
+        channel.CallAsync(Base + "getDownloadUrls", Arg.Any<JsonTypeInfo<Dictionary<string, List<long>>>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Dictionary<string, List<long>>?>([]));
+
+        await api.GetDownloadUrlsAsync(_ids, _packageIds, [UrlDisplayType.Content, UrlDisplayType.Origin]);
+
+        AssertSent(channel, "getDownloadUrls", "[1,2]", "[3]", "[\"CONTENT\",\"ORIGIN\"]");
+    }
+
+    [Test]
+    public async Task GetDownloadUrlsAsync_Map_ReturnsDictionary()
+    {
+        var (channel, api) = Create();
+        channel.CallAsync(Base + "getDownloadUrls", Arg.Any<JsonTypeInfo<Dictionary<string, List<long>>>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Dictionary<string, List<long>>?>(new Dictionary<string, List<long>> { ["https://h/a"] = [1, 2] }));
+
+        var result = await api.GetDownloadUrlsAsync(_ids, _packageIds, _contentTypes);
+
+        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result["https://h/a"], Is.EqualTo(new long[] { 1, 2 }));
+    }
+
+    [Test]
+    public async Task GetDownloadUrlsAsync_NullAnswer_ReturnsEmpty()
+    {
+        var (channel, api) = Create();
+        channel.CallAsync(Base + "getDownloadUrls", Arg.Any<JsonTypeInfo<Dictionary<string, List<long>>>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Dictionary<string, List<long>>?>(null));
+
+        var result = await api.GetDownloadUrlsAsync(_ids, _packageIds, _contentTypes);
+
+        Assert.That(result, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetDownloadUrlsAsync_NullList_ThrowsUnreadable()
+    {
+        var (channel, api) = Create();
+        channel.CallAsync(Base + "getDownloadUrls", Arg.Any<JsonTypeInfo<Dictionary<string, List<long>>>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult<Dictionary<string, List<long>>?>(new Dictionary<string, List<long>> { ["u"] = null! }));
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.GetDownloadUrlsAsync(_ids, _packageIds, _contentTypes));
+
+        AssertDeviceUnreadable(thrown);
+    }
+
+    [Test]
+    public void GetDownloadUrlsAsync_InvalidTypes_ReportsUrlDisplayTypesParam()
+    {
+        var (_, api) = Create();
+
+        Assert.That(Assert.Throws<ArgumentNullException>(() => api.GetDownloadUrlsAsync(_ids, _packageIds, null!))!.ParamName, Is.EqualTo("urlDisplayTypes"));
+        Assert.That(Assert.Throws<ArgumentException>(() => api.GetDownloadUrlsAsync(_ids, _packageIds, []))!.ParamName, Is.EqualTo("urlDisplayTypes"));
+        Assert.That(Assert.Throws<ArgumentException>(() => api.GetDownloadUrlsAsync(_ids, _packageIds, [UrlDisplayType.Custom, UrlDisplayType.Custom]))!.ParamName, Is.EqualTo("urlDisplayTypes"));
+        Assert.That(Assert.Throws<ArgumentException>(() => api.GetDownloadUrlsAsync(_ids, _packageIds, [UrlDisplayType.Unknown]))!.ParamName, Is.EqualTo("urlDisplayTypes"));
+        Assert.That(Assert.Throws<ArgumentException>(() => api.GetDownloadUrlsAsync(_ids, _packageIds, [(UrlDisplayType)99]))!.ParamName, Is.EqualTo("urlDisplayTypes"));
     }
 }

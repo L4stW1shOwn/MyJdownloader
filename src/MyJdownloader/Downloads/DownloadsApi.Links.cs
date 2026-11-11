@@ -151,6 +151,67 @@ public sealed partial class DownloadsApi
         return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "unskip", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }
 
+    /// <summary>Gets the download URLs of links and packages (<c>/downloadsV2/getDownloadUrls</c>).</summary>
+    /// <param name="linkIds">The identifiers of the links to select.</param>
+    /// <param name="packageIds">The identifiers of the packages to select.</param>
+    /// <param name="urlDisplayTypes">The kinds of URL to return; must contain at least one, without duplicates.</param>
+    /// <param name="cancellationToken">A token to cancel the call.</param>
+    /// <returns>The link identifiers by URL; empty when the device answers nothing.</returns>
+    /// <remarks>
+    /// The keys are untrusted device URLs that may embed credentials: never log them.
+    /// The accepted <see cref="UrlDisplayType"/> values are to be confirmed by live tests.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="linkIds"/>, <paramref name="packageIds"/> or <paramref name="urlDisplayTypes"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="urlDisplayTypes"/> is empty, contains a duplicate, <see cref="UrlDisplayType.Unknown"/> or an undefined value.</exception>
+    /// <exception cref="InvalidOperationException">The client is not connected.</exception>
+    /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
+    /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
+    /// <exception cref="TimeoutException">The request timed out.</exception>
+    /// <exception cref="HttpRequestException">A network error occurred.</exception>
+    public Task<IReadOnlyDictionary<string, IReadOnlyList<long>>> GetDownloadUrlsAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, IReadOnlyList<UrlDisplayType> urlDisplayTypes, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(linkIds);
+        ArgumentNullException.ThrowIfNull(packageIds);
+        ArgumentNullException.ThrowIfNull(urlDisplayTypes);
+        if (urlDisplayTypes.Count == 0)
+        {
+            throw new ArgumentException("The list must contain at least one URL display type.", nameof(urlDisplayTypes));
+        }
+
+        var seen = new HashSet<UrlDisplayType>();
+        foreach (var type in urlDisplayTypes)
+        {
+            if (!FacadeGuard.IsKnown(type) || !seen.Add(type))
+            {
+                throw new ArgumentException("The URL display types must be valid and distinct.", nameof(urlDisplayTypes));
+            }
+        }
+
+        var ids = FacadeGuard.IdArgs(linkIds, packageIds);
+        var args = new[]
+        {
+            ids[0],
+            ids[1],
+            JsonSerializer.SerializeToElement([.. urlDisplayTypes], DownloadsJsonContext.Default.UrlDisplayTypeArray),
+        };
+        return MapDownloadUrlsAsync(this._channel.CallAsync(Base + "getDownloadUrls", DownloadsJsonContext.Default.DictionaryStringListInt64, args, cancellationToken));
+    }
+
+    private static async Task<IReadOnlyDictionary<string, IReadOnlyList<long>>> MapDownloadUrlsAsync(Task<Dictionary<string, List<long>>?> answer)
+    {
+        var map = await answer.ConfigureAwait(false);
+        var result = new Dictionary<string, IReadOnlyList<long>>(map?.Count ?? 0, StringComparer.Ordinal);
+        if (map is not null)
+        {
+            foreach (var (url, list) in map)
+            {
+                result.Add(url, list ?? throw FacadeResults.Unreadable());
+            }
+        }
+
+        return result;
+    }
+
     private static void RequireNotEmpty(IReadOnlyList<long> ids, string paramName)
     {
         if (ids.Count == 0)
