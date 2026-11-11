@@ -1,6 +1,7 @@
 namespace MyJdownloader.LiveTests.Live;
 
 using System.Globalization;
+using System.Text.Json;
 using MyJdownloader.LinkGrabber;
 
 [TestFixture]
@@ -16,6 +17,27 @@ public sealed class LinkGrabberLiveTests
     // The server-side jobUUIDs filter is not trusted: only a link whose Url is exactly TestLink may be
     // inspected, modified or removed, so a user's own link can never be touched by this test.
     private static bool IsTestLink(CrawledLink link) => string.Equals(link.Url, TestLink, StringComparison.Ordinal);
+
+    // The jobUUIDs filter is not trusted here either: keep only raw entries whose url is exactly TestLink.
+    private static JsonElement KeepTestLinkEntries(JsonElement rawLinks)
+    {
+        var kept = new List<JsonElement>();
+        if (rawLinks.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var entry in rawLinks.EnumerateArray())
+            {
+                if (entry.ValueKind == JsonValueKind.Object
+                    && entry.TryGetProperty("url", out var url)
+                    && url.ValueKind == JsonValueKind.String
+                    && string.Equals(url.GetString(), TestLink, StringComparison.Ordinal))
+                {
+                    kept.Add(entry);
+                }
+            }
+        }
+
+        return JsonSerializer.SerializeToElement(kept, LiveJsonContext.Default.ListJsonElement);
+    }
 
     private static async Task<CrawledLink?> WaitForLinkAsync(long jobId, CancellationToken cancellationToken)
     {
@@ -138,6 +160,7 @@ public sealed class LinkGrabberLiveTests
     [CancelAfter(60_000)]
     public async Task TestLink_AddInspectRemove(CancellationToken cancellationToken)
     {
+        // A TimeoutException from AddLinksAsync leaves no job id to clean up: check for the test link manually.
         var job = await LiveGuard.RunAsync(() => LinkGrabber.AddLinksAsync(new AddLinksRequest { Links = [TestLink], Autostart = false, AssignJobId = true }, cancellationToken));
         if (job.Id <= 0)
         {
@@ -145,7 +168,6 @@ public sealed class LinkGrabberLiveTests
             Assert.Inconclusive("Unexpected link collecting job id");
         }
 
-        // A TimeoutException from AddLinksAsync leaves no job id to clean up: check for the test link manually.
         long? linkId = null;
         bool cleanedUp;
         try
@@ -171,9 +193,9 @@ public sealed class LinkGrabberLiveTests
             await LiveGuard.RunAsync(() => LinkGrabber.SetDownloadPasswordAsync([link.Uuid], [], FakePassword, cancellationToken));
             await LiveGuard.RunAsync(() => LinkGrabber.SetDownloadPasswordAsync([link.Uuid], [], null, cancellationToken));
 
-            var jobArg = LiveGuard.Json("{\"jobUUIDs\":[" + job.Id.ToString(CultureInfo.InvariantCulture) + "],\"password\":true}");
+            var jobArg = LiveGuard.Json("{\"jobUUIDs\":[" + job.Id.ToString(CultureInfo.InvariantCulture) + "],\"password\":true,\"url\":true}");
             var rawLinks = await LiveGuard.RunAsync(() => LiveGuard.RawAsync(BasePath + "queryLinks", [jobArg], cancellationToken));
-            LiveOutput.Dump("queryLinks after clearing the password", rawLinks);
+            LiveOutput.Dump("queryLinks after clearing the password", KeepTestLinkEntries(rawLinks));
 
             var urls = await LiveGuard.RunAsync(() => LinkGrabber.GetDownloadUrlsAsync([link.Uuid], [], [UrlDisplayType.Content], cancellationToken));
             Assert.That(urls.ContainsKey(TestLink), Is.True);
