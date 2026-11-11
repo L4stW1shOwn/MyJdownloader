@@ -154,6 +154,21 @@ public sealed class ExtractionApiTests
     }
 
     [Test]
+    public void CancelExtractionAsync_NegativeId_MessageOmitsValue()
+    {
+        var (_, api) = Create();
+
+        var thrown = Assert.Throws<ArgumentOutOfRangeException>(() => api.CancelExtractionAsync(-987654));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.ParamName, Is.EqualTo("controllerId"));
+            Assert.That(thrown.Message, Does.Not.Contain("987654"));
+            Assert.That(thrown.ActualValue, Is.Null);
+        });
+    }
+
+    [Test]
     public void CancelExtractionAsync_NegativeId_ThrowsOutOfRange()
     {
         var (channel, api) = Create();

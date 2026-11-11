@@ -52,7 +52,7 @@ public sealed class ExtractionApi
     /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
     public Task<bool> CancelExtractionAsync(long controllerId, CancellationToken cancellationToken = default)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(controllerId);
+        FacadeGuard.ThrowIfNegative(controllerId, nameof(controllerId));
         var args = new[] { JsonSerializer.SerializeToElement(controllerId, FacadeJsonContext.Default.Int64) };
         return FacadeResults.RequireAsync(this._channel.CallAsync(Base + "cancelExtraction", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }
