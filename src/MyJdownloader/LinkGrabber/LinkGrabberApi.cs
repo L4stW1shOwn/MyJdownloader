@@ -12,6 +12,7 @@ using MyJdownloader.Facades;
 /// Links and URLs may embed credentials: do not log whole <see cref="AddLinksRequest"/>, <see cref="CrawledLink"/> or <see cref="CrawledPackage"/> values.
 /// The library does not filter URL schemes nor destination paths: the device fetches the links from its own network and
 /// <see cref="AddLinksRequest.DestinationFolder"/> is a path on the device, so callers handling untrusted input must allow-list both.
+/// <see cref="CleanupAsync"/> can delete files on the device and the library adds no confirmation step.
 /// </para>
 /// </remarks>
 public sealed partial class LinkGrabberApi

@@ -38,7 +38,7 @@ Typed facade over the `/linkgrabberv2` namespace of one device (links collected 
 | `SetDownloadPasswordAsync` | `Task<bool> SetDownloadPasswordAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, string? password, CancellationToken cancellationToken = default)` | Sets or clears the download password of links and packages (`/linkgrabberv2/setDownloadPassword`). `null` clears it, and a blank password throws `ArgumentException`, so only `null` clears. Returns `true` when the device applied the change; an empty answer fails with `MyJdException`. The effect of `null` is to be confirmed by live tests. |
 | `GetDownloadUrlsAsync` | `Task<IReadOnlyDictionary<string, IReadOnlyList<long>>> GetDownloadUrlsAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, IReadOnlyList<UrlDisplayType> urlDisplayTypes, CancellationToken cancellationToken = default)` | Gets the link identifiers by download URL (`/linkgrabberv2/getDownloadUrls`). `urlDisplayTypes` must contain at least one value, without duplicates, `Unknown` or undefined values (`ArgumentException`). Empty when the device answers nothing. The accepted `UrlDisplayType` values are to be confirmed by live tests. |
 | `GetVariantsAsync` | `Task<IReadOnlyList<LinkVariant>> GetVariantsAsync(long linkId, CancellationToken cancellationToken = default)` | Lists the variants of a link (`/linkgrabberv2/getVariants`). Empty when the device answers nothing. A negative `linkId` throws `ArgumentOutOfRangeException`. |
-| `SetVariantAsync` | `Task SetVariantAsync(long linkId, string variantId, CancellationToken cancellationToken = default)` | Selects the variant of a link (`/linkgrabberv2/setVariant`). `variantId` is returned by `GetVariantsAsync`; it throws `ArgumentNullException` when null and `ArgumentException` when blank, with control characters or lone surrogates, or too long. |
+| `SetVariantAsync` | `Task SetVariantAsync(long linkId, string variantId, CancellationToken cancellationToken = default)` | Selects the variant of a link (`/linkgrabberv2/setVariant`). `variantId` is returned by `GetVariantsAsync`; it throws `ArgumentNullException` when null and `ArgumentException` when blank, with control characters or lone surrogates, or too long. A negative `linkId` throws `ArgumentOutOfRangeException`. |
 | `AddVariantCopyAsync` | `Task AddVariantCopyAsync(long linkId, long afterLinkId, long destinationPackageId, string variantId, CancellationToken cancellationToken = default)` | Adds a copy of a link with another variant (`/linkgrabberv2/addVariantCopy`). Same `variantId` rules as `SetVariantAsync`; a negative identifier throws `ArgumentOutOfRangeException`. |
 | `QueryLinkCrawlerJobsAsync` | `Task<IReadOnlyList<LinkCrawlerJob>> QueryLinkCrawlerJobsAsync(LinkCrawlerJobQuery? query = null, CancellationToken cancellationToken = default)` | Lists the link crawler jobs (`/linkgrabberv2/queryLinkCrawlerJobs`). A `null` query returns all jobs. Empty when the device answers nothing. A negative job identifier in the query throws `ArgumentOutOfRangeException`. |
 | `AbortAsync` | `Task<bool> AbortAsync(CancellationToken cancellationToken = default)` | Aborts the link crawler jobs (`/linkgrabberv2/abort`). Stops every running crawl job (to be confirmed by live tests). Returns the value reported by the device. |
@@ -53,8 +53,7 @@ Remarks:
 - The download password given to `SetDownloadPasswordAsync` is a secret: it is sent as a call argument, never retained or logged by the library. Do not log it either.
 - The URL keys returned by `GetDownloadUrlsAsync` are untrusted device URLs that may embed credentials: never log them. `UrlDisplayType` is described in [common types](common-types.md#urldisplaytype).
 - Variant names and identifiers, and the folders returned by `GetDownloadFolderHistoryAsync`, are untrusted device data.
-- The package name and the paths given to `MoveToNewPackageAsync` and `SetDownloadDirectoryAsync` are paths on the device and are not filtered: callers handling untrusted input must allow-list them.
-
+- The package name and the paths given to `MoveToNewPackageAsync` and `SetDownloadDirectoryAsync` are not filtered: callers handling untrusted input must allow-list them.
 - Arguments are validated synchronously, before any request is sent. Exception messages never contain argument values.
 - Links and URLs may embed credentials, and packages can carry a download password. Do not log whole `AddLinksRequest`, `CrawledLink` or `CrawledPackage` values.
 - The library does not filter URL schemes or destination paths. The device fetches the links from its own network, and `AddLinksRequest.DestinationFolder` is a path on the device. Callers handling untrusted input must allow-list both.
@@ -276,7 +275,7 @@ Selects the jobs returned by `QueryLinkCrawlerJobsAsync`.
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `JobIds` | `IReadOnlyList<long>?` | `null` | Restricts the query to these jobs. `null` means all. A negative identifier throws `ArgumentOutOfRangeException`. |
-| `CollectorInfo` | `bool` | `false` | Returns the collector information. Omitted from the request when `false`. |
+| `CollectorInfo` | `bool` | `false` | Asks the device to fill the collector counters of each job (`Crawled`, `Broken`, `Filtered`, `Unhandled`; expected, to be confirmed by live tests). `false` is omitted from the request, which assumes the device default is `false` (to be confirmed by live tests). |
 
 ### Example
 

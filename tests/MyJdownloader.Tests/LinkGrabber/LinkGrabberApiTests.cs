@@ -961,6 +961,28 @@ public sealed class LinkGrabberApiTests
     }
 
     [Test]
+    public async Task QueryLinkCrawlerJobsAsync_NullAnswer_ReturnsEmpty()
+    {
+        var (channel, api) = Create();
+        ReturnsCrawlerJobs(channel, null);
+
+        var result = await api.QueryLinkCrawlerJobsAsync();
+
+        Assert.That(result, Is.Empty);
+    }
+
+    [Test]
+    public void QueryLinkCrawlerJobsAsync_NegativeJobId_ThrowsOutOfRangeNamingQuery()
+    {
+        var (channel, api) = Create();
+
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => api.QueryLinkCrawlerJobsAsync(new LinkCrawlerJobQuery { JobIds = [-1] }));
+
+        Assert.That(ex!.ParamName, Is.EqualTo("query"));
+        Assert.That(channel.ReceivedCalls(), Is.Empty);
+    }
+
+    [Test]
     public async Task AbortAsync_NoJob_SendsNoArgs()
     {
         var (channel, api) = Create();
