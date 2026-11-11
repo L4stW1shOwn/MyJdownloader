@@ -57,6 +57,10 @@ public sealed class DownloadsApiTests
             yield return Case($"SetDownloadDirectoryAsync_Directory_{label}_Throws", a => a.SetDownloadDirectoryAsync(bad!, _noIds));
             yield return Case($"MoveToNewPackageAsync_NewPackageName_{label}_Throws", a => a.MoveToNewPackageAsync(_noIds, _noIds, bad!, "/dl"));
             yield return Case($"MoveToNewPackageAsync_DownloadPath_{label}_Throws", a => a.MoveToNewPackageAsync(_noIds, _noIds, "pkg", bad!));
+            if (bad is not null)
+            {
+                yield return Case($"SetDownloadPasswordAsync_Password_{label}_Throws", a => a.SetDownloadPasswordAsync(_noIds, _noIds, bad));
+            }
         }
 
         yield return Case("QueryLinksAsync_MaxResultsBelowMinusOne_Throws", a => a.QueryLinksAsync(new DownloadLinkQuery { MaxResults = -2 }));
@@ -73,6 +77,13 @@ public sealed class DownloadsApiTests
         yield return Case("MovePackagesAsync_NegativeAfterPackageId_Throws", a => a.MovePackagesAsync(_packageIds, -1));
         yield return Case("SplitPackageByHosterAsync_NullLinkIds_Throws", a => a.SplitPackageByHosterAsync(null!, _packageIds));
         yield return Case("StartOnlineStatusCheckAsync_NullPackageIds_Throws", a => a.StartOnlineStatusCheckAsync(_ids, null!));
+        yield return Case("SetDownloadPasswordAsync_Password_TooLong_Throws", a => a.SetDownloadPasswordAsync(_noIds, _noIds, new string('x', 65_537)));
+        yield return Case("SetDownloadPasswordAsync_NullLinkIds_Throws", a => a.SetDownloadPasswordAsync(null!, _noIds, "pw"));
+        yield return Case("SetDownloadPasswordAsync_NullPackageIds_Throws", a => a.SetDownloadPasswordAsync(_noIds, null!, "pw"));
+        yield return Case("UnskipAsync_NullLinkIds_Throws", a => a.UnskipAsync(null!, _noIds, SkipReason.DiskFull));
+        yield return Case("UnskipAsync_NullPackageIds_Throws", a => a.UnskipAsync(_noIds, null!, SkipReason.DiskFull));
+        yield return Case("UnskipAsync_UnknownReason_Throws", a => a.UnskipAsync(_noIds, _noIds, SkipReason.Unknown));
+        yield return Case("UnskipAsync_UndefinedReason_Throws", a => a.UnskipAsync(_noIds, _noIds, (SkipReason)99));
         yield return Case("SetPriorityAsync_UnknownPriority_Throws", a => a.SetPriorityAsync(Priority.Unknown, _noIds, _noIds));
         yield return Case("SetPriorityAsync_UndefinedPriority_Throws", a => a.SetPriorityAsync((Priority)42, _noIds, _noIds));
         yield return Case("CleanupAsync_UnknownAction_Throws", a => a.CleanupAsync(_noIds, _noIds, CleanupAction.Unknown, CleanupMode.RemoveLinksOnly, SelectionType.All));
@@ -567,6 +578,88 @@ public sealed class DownloadsApiTests
         await api.StartOnlineStatusCheckAsync(_ids, _packageIds);
 
         AssertSent(channel, "startOnlineStatusCheck", "[1,2]", "[3]");
+    }
+
+    [Test]
+    public async Task SetDownloadPasswordAsync_Password_SendsPathAndArgs()
+    {
+        var (channel, api) = Create();
+        ReturnsBool(channel, "setDownloadPassword", true);
+
+        var result = await api.SetDownloadPasswordAsync(_ids, _packageIds, "pw");
+
+        Assert.That(result, Is.True);
+        AssertSent(channel, "setDownloadPassword", "[1,2]", "[3]", "\"pw\"");
+    }
+
+    [Test]
+    public async Task SetDownloadPasswordAsync_NullPassword_SendsJsonNull()
+    {
+        var (channel, api) = Create();
+        ReturnsBool(channel, "setDownloadPassword", true);
+
+        await api.SetDownloadPasswordAsync(_ids, _packageIds, null);
+
+        var (_, args) = Sent(channel);
+        Assert.That(args[2].GetRawText(), Is.EqualTo("null"));
+    }
+
+    [Test]
+    public async Task SetDownloadPasswordAsync_EmptyAnswer_ThrowsUnreadable()
+    {
+        var (channel, api) = Create();
+        ReturnsBool(channel, "setDownloadPassword", null);
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.SetDownloadPasswordAsync(_ids, _packageIds, "pw"));
+
+        AssertDeviceUnreadable(thrown);
+    }
+
+    [Test]
+    public void SetDownloadPasswordAsync_InvalidPassword_MessageOmitsPassword()
+    {
+        var (_, api) = Create();
+
+        var ex = Assert.Throws<ArgumentException>(() => api.SetDownloadPasswordAsync(_ids, _packageIds, "Zq7\u0001Xv9"));
+
+        Assert.That(ex!.ParamName, Is.EqualTo("password"));
+        Assert.That(ex.Message, Does.Not.Contain("Zq7").And.Not.Contain("Xv9"));
+        Assert.That(ex.ToString(), Does.Not.Contain("Zq7").And.Not.Contain("Xv9"));
+    }
+
+    [Test]
+    public async Task UnskipAsync_Reason_SendsPackagesFirst()
+    {
+        var (channel, api) = Create();
+        ReturnsBool(channel, "unskip", true);
+
+        var result = await api.UnskipAsync(_ids, _packageIds, SkipReason.DiskFull);
+
+        Assert.That(result, Is.True);
+        AssertSent(channel, "unskip", "[3]", "[1,2]", "\"DISK_FULL\"");
+    }
+
+    [Test]
+    public async Task UnskipAsync_NullReason_SendsJsonNull()
+    {
+        var (channel, api) = Create();
+        ReturnsBool(channel, "unskip", true);
+
+        await api.UnskipAsync(_ids, _packageIds, null);
+
+        var (_, args) = Sent(channel);
+        Assert.That(args[2].GetRawText(), Is.EqualTo("null"));
+    }
+
+    [Test]
+    public async Task UnskipAsync_EmptyAnswer_ThrowsUnreadable()
+    {
+        var (channel, api) = Create();
+        ReturnsBool(channel, "unskip", null);
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.UnskipAsync(_ids, _packageIds, null));
+
+        AssertDeviceUnreadable(thrown);
     }
 
     [Test]
