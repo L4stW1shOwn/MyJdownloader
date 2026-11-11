@@ -142,8 +142,11 @@ Length caps (amendment, T-060):
 
 Empty selections on destructive actions (amendment, 2026-11-11, T-066):
 
-- **An empty selection never silently means "everything"** on a
-  selection-based destructive action (T-042 audit, finding L2, CWE-1188).
+- **In the typed facades, an empty selection never silently means
+  "everything"** on a selection-based destructive action (T-042 audit,
+  finding L2, CWE-1188). The rule is enforced by the facades only: a raw
+  `IDeviceChannel.CallAsync` call is not guarded, and `SelectionType.All`
+  with empty lists still targets every item by design.
   With `CleanupMode.RemoveLinksAndDeleteFiles`, `Unselected` with no
   identifier deletes every file on the device, and the library adds no
   confirmation step: an accidental empty selection must fail fast.
