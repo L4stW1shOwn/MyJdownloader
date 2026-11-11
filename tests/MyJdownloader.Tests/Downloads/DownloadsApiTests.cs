@@ -65,6 +65,14 @@ public sealed class DownloadsApiTests
         yield return Case("QueryPackagesAsync_NegativeStartAt_Throws", a => a.QueryPackagesAsync(new DownloadPackageQuery { StartAt = -1 }));
         yield return Case("SetStopMarkAsync_NegativeLinkId_Throws", a => a.SetStopMarkAsync(-1, 0));
         yield return Case("SetStopMarkAsync_NegativePackageId_Throws", a => a.SetStopMarkAsync(0, -1));
+        yield return Case("MoveLinksAsync_NullLinkIds_Throws", a => a.MoveLinksAsync(null!, 0, 0));
+        yield return Case("MoveLinksAsync_EmptyLinkIds_Throws", a => a.MoveLinksAsync(_noIds, 0, 0));
+        yield return Case("MoveLinksAsync_NegativeAfterLinkId_Throws", a => a.MoveLinksAsync(_ids, -1, 0));
+        yield return Case("MoveLinksAsync_NegativeDestinationPackageId_Throws", a => a.MoveLinksAsync(_ids, 0, -1));
+        yield return Case("MovePackagesAsync_EmptyPackageIds_Throws", a => a.MovePackagesAsync(_noIds, 0));
+        yield return Case("MovePackagesAsync_NegativeAfterPackageId_Throws", a => a.MovePackagesAsync(_packageIds, -1));
+        yield return Case("SplitPackageByHosterAsync_NullLinkIds_Throws", a => a.SplitPackageByHosterAsync(null!, _packageIds));
+        yield return Case("StartOnlineStatusCheckAsync_NullPackageIds_Throws", a => a.StartOnlineStatusCheckAsync(_ids, null!));
         yield return Case("SetPriorityAsync_UnknownPriority_Throws", a => a.SetPriorityAsync(Priority.Unknown, _noIds, _noIds));
         yield return Case("SetPriorityAsync_UndefinedPriority_Throws", a => a.SetPriorityAsync((Priority)42, _noIds, _noIds));
         yield return Case("CleanupAsync_UnknownAction_Throws", a => a.CleanupAsync(_noIds, _noIds, CleanupAction.Unknown, CleanupMode.RemoveLinksOnly, SelectionType.All));
@@ -519,6 +527,56 @@ public sealed class DownloadsApiTests
         var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.GetStructureChangeCounterAsync(3));
 
         AssertDeviceUnreadable(thrown);
+    }
+
+    [Test]
+    public async Task MoveLinksAsync_Args_SendsPathAndArgs()
+    {
+        var (channel, api) = Create();
+
+        await api.MoveLinksAsync(_ids, 3, 4);
+
+        AssertSent(channel, "moveLinks", "[1,2]", "3", "4");
+    }
+
+    [Test]
+    public async Task MovePackagesAsync_Args_SendsPathAndArgs()
+    {
+        var (channel, api) = Create();
+
+        await api.MovePackagesAsync(_packageIds, 0);
+
+        AssertSent(channel, "movePackages", "[3]", "0");
+    }
+
+    [Test]
+    public async Task SplitPackageByHosterAsync_Ids_SendsPathAndArgs()
+    {
+        var (channel, api) = Create();
+
+        await api.SplitPackageByHosterAsync(_ids, _packageIds);
+
+        AssertSent(channel, "splitPackageByHoster", "[1,2]", "[3]");
+    }
+
+    [Test]
+    public async Task StartOnlineStatusCheckAsync_Ids_SendsPathAndArgs()
+    {
+        var (channel, api) = Create();
+
+        await api.StartOnlineStatusCheckAsync(_ids, _packageIds);
+
+        AssertSent(channel, "startOnlineStatusCheck", "[1,2]", "[3]");
+    }
+
+    [Test]
+    public void MoveLinksAsync_EmptyLinkIds_ReportsParamName()
+    {
+        var (_, api) = Create();
+
+        var thrown = Assert.Throws<ArgumentException>(() => api.MoveLinksAsync(_noIds, 0, 0));
+
+        Assert.That(thrown!.ParamName, Is.EqualTo("linkIds"));
     }
 
     [TestCaseSource(nameof(InvalidCalls))]
