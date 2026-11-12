@@ -57,6 +57,9 @@ public sealed class LinkGrabberLiveTests
         return null;
     }
 
+    private static bool IsVariantsUnsupported(MyJdApiException ex) =>
+        ex.ErrorSource == MyJdErrorSource.Device && ex.ErrorType == "INTERNAL_SERVER_ERROR";
+
     private static bool IsCleanupFailure(Exception ex) =>
         ex is MyJdException or OperationCanceledException or TimeoutException or HttpRequestException;
 
@@ -193,14 +196,21 @@ public sealed class LinkGrabberLiveTests
             linkId = link.Uuid;
             var uuid = link.Uuid.ToString(CultureInfo.InvariantCulture);
 
-            var variants = await LiveGuard.RunAsync(() => LinkGrabber.GetVariantsAsync(link.Uuid, cancellationToken));
-            foreach (var variant in variants)
+            try
             {
-                await TestContext.Out.WriteLineAsync($"Variant id length: {variant.Id?.Length ?? 0}");
-            }
+                var variants = await LiveGuard.RunAsync(() => LinkGrabber.GetVariantsAsync(link.Uuid, cancellationToken));
+                foreach (var variant in variants)
+                {
+                    await TestContext.Out.WriteLineAsync($"Variant id length: {variant.Id?.Length ?? 0}");
+                }
 
-            var rawVariants = await LiveGuard.RunAsync(() => LiveGuard.RawAsync(BasePath + "getVariants", [LiveGuard.Json(uuid)], cancellationToken));
-            LiveOutput.Dump("getVariants", rawVariants);
+                var rawVariants = await LiveGuard.RunAsync(() => LiveGuard.RawAsync(BasePath + "getVariants", [LiveGuard.Json(uuid)], cancellationToken));
+                LiveOutput.Dump("getVariants", rawVariants);
+            }
+            catch (MyJdApiException ex) when (IsVariantsUnsupported(ex))
+            {
+                await TestContext.Out.WriteLineAsync("getVariants: not supported for this link (INTERNAL_SERVER_ERROR)");
+            }
 
             await LiveGuard.RunAsync(() => LinkGrabber.SetDownloadPasswordAsync([link.Uuid], [], FakePassword, cancellationToken));
             await LiveGuard.RunAsync(() => LinkGrabber.SetDownloadPasswordAsync([link.Uuid], [], null, cancellationToken));
