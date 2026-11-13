@@ -4,7 +4,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Facades;
 using MyJdownloader.SystemControl;
-using MyJdownloader.Transport;
 using NSubstitute;
 
 [TestFixture]
@@ -54,6 +53,8 @@ public sealed class SystemApiTests
 
     private static IEnumerable<string> InvalidPaths()
     {
+        yield return string.Empty;
+        yield return "   ";
         yield return "/tmp/\u0001x";
         yield return new string('a', FacadeGuard.MaxPathLength + 1);
     }
