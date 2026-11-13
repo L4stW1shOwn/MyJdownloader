@@ -9,6 +9,9 @@
     <PackageProjectUrl>https://github.com/L4stW1shOwn/MyJdownloader</PackageProjectUrl>
     <RepositoryUrl>https://github.com/L4stW1shOwn/MyJdownloader</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <!-- Package validation compares each pack with the last release published on nuget.org (breaking changes).
+         Update after each release. -->
+    <PackageValidationBaselineVersion>0.1.0</PackageValidationBaselineVersion>
   </PropertyGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)../README.md" Pack="true" PackagePath="/" />
