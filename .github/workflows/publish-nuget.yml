@@ -7,6 +7,12 @@ on:
         description: 'Tag to publish (e.g. v1.0.1)'
         required: true
         type: string
+    # A reusable workflow only sees the secrets its caller passes, environment secrets included:
+    # without this, secrets.NUGET_USER is empty in the nuget-org job.
+    secrets:
+      NUGET_USER:
+        description: 'nuget.org account name used by NuGet/login (trusted publishing)'
+        required: false
 
 permissions:
   contents: read

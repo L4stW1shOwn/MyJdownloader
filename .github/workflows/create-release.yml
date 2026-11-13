@@ -132,6 +132,10 @@ jobs:
     uses: ./.github/workflows/publish-nuget.yml
     with:
       tag: v${{ inputs.version }}
+    # Passed by name, not with inherit: the called workflow gets only this secret. It may exist only in the
+    # nuget-org environment; it is resolved in the called job that declares that environment.
+    secrets:
+      NUGET_USER: ${{ secrets.NUGET_USER }}
     permissions:
       contents: write
       packages: write
