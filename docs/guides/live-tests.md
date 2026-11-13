@@ -80,10 +80,12 @@ Every write is reversible and restored in a `finally` block of the same test.
   removed. The test acts only on a link whose URL is exactly that one; it never
   empties the list.
 - **Variant link** (only with `MYJD_VARIANT_URL`): the link is added with
-  Autostart off, its variants are read (typed and raw), and it is removed. As the
-  crawler may rewrite the URL, the test owns the links of its own crawl job whose
-  plugin host or URL host matches the URL host (a leading `www.` ignored); it
-  never empties the list. The crawl is awaited up to 90 seconds. The URL and the link names are not written to the output.
+  Autostart off, its variants are read (typed and raw), and it is removed. The
+  test owns every link of its own crawl job, whatever its host: the crawler may
+  rewrite the URL (a `youtu.be` link becomes a `youtube.com` link with a plugin
+  scheme). It never touches links of other jobs and never empties the list. The
+  crawl is awaited up to 90 seconds. The URL and the link names are not written
+  to the output.
 - **Container** (only with `MYJD_LIVE_WRITES=1`): a crawljob container (with
   confirmation and Autostart off) and a Metalink 4 container, each holding only
   the test link, are added to the link grabber. Container links are collected

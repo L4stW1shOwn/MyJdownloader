@@ -263,13 +263,10 @@ public sealed class LinkGrabberLiveTests
             Assert.Ignore("No variant link (set MYJD_VARIANT_URL to an http(s) link with variants)");
         }
 
-        // The crawler may rewrite the URL (a plugin-specific scheme for example): own only the links of this job
-        // whose plugin host or URL host is the host of the variant URL.
-        var host = StripWww(variantUri.Host);
-        bool IsVariantLink(CrawledLink link) =>
-            (link.Host is { } linkHost && string.Equals(StripWww(linkHost), host, StringComparison.OrdinalIgnoreCase))
-            || (Uri.TryCreate(link.Url, UriKind.Absolute, out var uri)
-                && string.Equals(StripWww(uri.Host), host, StringComparison.OrdinalIgnoreCase));
+        // Every link of this job comes from the variant URL added below: the job id alone proves ownership. The host is
+        // not compared because the crawler may rewrite the URL (youtu.be becomes youtube.com with a plugin scheme), and
+        // a link it did not recognize would then be neither probed nor cleaned up.
+        static bool IsVariantLink(CrawledLink _) => true;
 
         // The URL is user data: never write it, nor the link names, to the test output.
         var job = await LiveGuard.RunAsync(() => LinkGrabber.AddLinksAsync(new AddLinksRequest { Links = [variantUri.AbsoluteUri], Autostart = false, AssignJobId = true }, cancellationToken));
@@ -418,7 +415,4 @@ public sealed class LinkGrabberLiveTests
 
         await TestContext.Out.WriteLineAsync($"Crawler jobs for this job id: {crawlerJobs.Count}");
     }
-
-    private static string StripWww(string host) =>
-        host.StartsWith("www.", StringComparison.OrdinalIgnoreCase) ? host[4..] : host;
 }
