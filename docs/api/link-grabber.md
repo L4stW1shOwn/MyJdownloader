@@ -2,7 +2,7 @@
 
 The link grabber is JDownloader's staging area: links that have been accepted but not yet moved to the download list. Use it to add links, review the collected links and packages, rename or prioritize them, and then move them to the download list (see [Downloads](downloads.md)).
 
-**Coverage:** 28/29 actions of `/linkgrabberv2` — not yet typed: `addContainer` (deferred to backlog T-065). See [API coverage](../api-coverage.md).
+**Coverage:** 29/29 actions of `/linkgrabberv2` (complete).
 
 Reach it as `device.LinkGrabber`, which returns a `LinkGrabberApi`. The C# namespace is `MyJdownloader.LinkGrabber`, and the device API path is `/linkgrabberv2`.
 
@@ -17,6 +17,7 @@ Typed facade over the `/linkgrabberv2` namespace of one device (links collected 
 | Member | Signature | Description |
 |---|---|---|
 | `AddLinksAsync` | `Task<LinkCollectingJob> AddLinksAsync(AddLinksRequest request, CancellationToken cancellationToken = default)` | Adds links to the link grabber (`/linkgrabberv2/addLinks`) and returns the collecting job. Throws `ArgumentNullException` for a null request or link, and `ArgumentException` for a missing link, a link that is blank or contains whitespace, control characters or lone surrogates, a text option (`PackageName`, `DestinationFolder`, `SourceUrl`) that is blank, contains control characters or is longer than its allowed length (see [Argument validation](../guides/error-handling.md#argument-validation)) (the links themselves have no per-link length cap), or `Priority.Unknown` (or an undefined priority). A timeout means the action may have been executed. |
+| `AddContainerAsync` | `Task<LinkCollectingJob?> AddContainerAsync(ContainerType type, ReadOnlyMemory<byte> content, CancellationToken cancellationToken = default)` | Adds the links of a container file (DLC, CCF, RSDF, NZB, crawljob, SFT, SFDL, Metalink) to the link grabber (`/linkgrabberv2/addContainer`) and returns the collecting job, or `null` when the device could not store the container. `ContainerType.Unknown` or an undefined value throws `ArgumentException`, and so does `content` that is empty or larger than 524 288 bytes (512 KiB); both are checked before any request. The library encodes the bytes as a base64 data URL. A timeout means the action may have been executed. |
 | `QueryLinksAsync` | `Task<IReadOnlyList<CrawledLink>> QueryLinksAsync(LinkQuery? query = null, CancellationToken cancellationToken = default)` | Lists the collected links (`/linkgrabberv2/queryLinks`). A `null` query returns all links with all fields except the download password. Pages larger than 1 MiB fail with `MyJdProtocolException`: page with `LinkQuery.StartAt` and `LinkQuery.MaxResults`. |
 | `QueryPackagesAsync` | `Task<IReadOnlyList<CrawledPackage>> QueryPackagesAsync(PackageQuery? query = null, CancellationToken cancellationToken = default)` | Lists the collected packages (`/linkgrabberv2/queryPackages`). A `null` query returns all fields of all packages. The same 1 MiB limit applies: page with `PackageQuery.StartAt` and `PackageQuery.MaxResults`. |
 | `MoveToDownloadListAsync` | `Task MoveToDownloadListAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, CancellationToken cancellationToken = default)` | Moves links and packages to the download list (`/linkgrabberv2/moveToDownloadlist`). A timeout may still have moved them. |
@@ -48,7 +49,8 @@ Typed facade over the `/linkgrabberv2` namespace of one device (links collected 
 
 Remarks:
 
-- `CleanupAsync`, `MoveLinksAsync`, `MovePackagesAsync`, `MoveToNewPackageAsync`, `SplitPackageByHosterAsync`, `SetDownloadDirectoryAsync`, `StartOnlineStatusCheckAsync`, `SetDownloadPasswordAsync`, `SetVariantAsync`, `AddVariantCopyAsync` and both `AbortAsync` overloads are applied without confirmation. On a timeout or a network error the action may have been executed.
+- `CleanupAsync`, `MoveLinksAsync`, `MovePackagesAsync`, `MoveToNewPackageAsync`, `SplitPackageByHosterAsync`, `SetDownloadDirectoryAsync`, `StartOnlineStatusCheckAsync`, `SetDownloadPasswordAsync`, `SetVariantAsync`, `AddVariantCopyAsync`, `AddContainerAsync` and both `AbortAsync` overloads are applied without confirmation. On a timeout or a network error the action may have been executed.
+- `AddContainerAsync` parses the container on the device, which treats its content as untrusted. A container may hold credentials (links of a DLC or CCF, servers of an NZB): never log it, nor the `content` argument. The links are added without confirmation, and whether they start follows the device settings or the keys of the container (`autoStart` in a crawljob). A corrupt container still starts a job, which yields no links. Only send containers from a trusted source: a crawljob can set the destination folder, extraction passwords and autostart on the device. The enum is described in [ContainerType](#containertype).
 - `CleanupAsync` can delete files on the device, and the library adds no confirmation step: callers are responsible for confirming with the user. With `CleanupMode.RemoveLinksAndDeleteFiles` the files are deleted, with `CleanupMode.RemoveLinksAndRecycleFiles` they are moved to the recycle bin. With `SelectionType.All` the identifiers are ignored, and with `SelectionType.Unselected` every item except the given ones is targeted: combined with `RemoveLinksAndDeleteFiles` this can delete every downloaded file on the device. Targeting every item requires `SelectionType.All`: `Unselected` with both identifier lists empty is rejected. The enums are described in [common types](common-types.md#cleanupaction) ([`CleanupMode`](common-types.md#cleanupmode), [`SelectionType`](common-types.md#selectiontype)).
 - The download password given to `SetDownloadPasswordAsync` is a secret: it is sent as a call argument, never retained or logged by the library. Do not log it either.
 - The URL keys returned by `GetDownloadUrlsAsync` are untrusted device URLs that may embed credentials: never log them. `UrlDisplayType` is described in [common types](common-types.md#urldisplaytype).
@@ -127,6 +129,38 @@ A link collecting job started by `AddLinksAsync`.
 | Property | Type | Description |
 |---|---|---|
 | `Id` | `long` | Job identifier. |
+
+## ContainerType
+
+`public enum ContainerType`
+
+The format of a container file that the device can import, as used by the JDownloader API. Passed to `AddContainerAsync`, which sends the lowercase extension of the member as the format.
+
+| Member | Signature | Description |
+|---|---|---|
+| `Unknown` | `Unknown = 0` | The value is missing or not recognized. It cannot be sent: `AddContainerAsync` rejects it. |
+| `Dlc` | `Dlc = 1` | DLC container (`dlc`). |
+| `Ccf` | `Ccf = 2` | CryptLoad CCF container (`ccf`). |
+| `Rsdf` | `Rsdf = 3` | RSDF container (`rsdf`). |
+| `Nzb` | `Nzb = 4` | NZB Usenet index (`nzb`). |
+| `CrawlJob` | `CrawlJob = 5` | JDownloader folder watch crawljob (`crawljob`). |
+| `Sft` | `Sft = 6` | SFT container (`sft`). |
+| `Sfdl` | `Sfdl = 7` | SFDL container (`sfdl`). |
+| `Metalink` | `Metalink = 8` | Metalink 3 document (`metalink`). |
+| `Meta4` | `Meta4 = 9` | Metalink 4 document (`meta4`). |
+
+**Remarks**
+
+- The JDownloader backup formats are not exposed. Values outside this list cannot be sent.
+- The format is fixed by the library: the caller never supplies a file extension, so no free text reaches the device as a file name.
+
+### Example
+
+```csharp
+// A crawljob with autostart off: the link is added but not started.
+var crawlJob = System.Text.Encoding.UTF8.GetBytes("text=https://host.example/file1\nautoStart=FALSE\n");
+var job = await device.LinkGrabber.AddContainerAsync(ContainerType.CrawlJob, crawlJob);
+```
 
 ## CrawledLink
 

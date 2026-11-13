@@ -70,11 +70,11 @@ shows both setups.
 
 ## API coverage
 
-The typed facades cover 157 of the 169 official device actions; the others stay reachable through `IDeviceChannel`.
+The typed facades cover 158 of the 169 official device actions; the others stay reachable through `IDeviceChannel`.
 
 | Facade | Coverage |
 |---|---|
-| LinkGrabber | 28/29 |
+| LinkGrabber | ✅ 29/29 |
 | Downloads | ✅ 26/26 |
 | DownloadController | 5/6 |
 | Jd | 4/6 |

@@ -6,7 +6,7 @@ Each row compares two counts for one device namespace. The first is the number o
 
 | Facade | Namespace | Coverage | Not yet typed |
 |---|---|---|---|
-| [LinkGrabber](api/link-grabber.md) | `/linkgrabberv2` | 28/29 | `addContainer` (deferred, T-065) |
+| [LinkGrabber](api/link-grabber.md) | `/linkgrabberv2` | ✅ 29/29 | — |
 | [Downloads](api/downloads.md) | `/downloadsV2` | ✅ 26/26 | — |
 | [DownloadController](api/download-controller.md) | `/downloadcontroller` | 5/6 | `forceDownload` |
 | [Jd](api/jd.md) | `/jd` | 4/6 | `doSomethingCool`, `sum` (test endpoints, not planned) |
@@ -31,7 +31,7 @@ Each row compares two counts for one device namespace. The first is the number o
 | [Toolbar](api/toolbar.md) | `/toolbar` | 11/15 | `addLinksFromDOM`, `checkLinksFromDOM`, `pollCheckedLinksFromDOM` (browser-extension DOM protocol with named HTTP parameters, not sendable through `IDeviceChannel`), `specialURLHandling` (returns JavaScript for a browser) |
 | [DownloadEvents](api/downloadevents.md) | `/downloadevents` | 1/2 | `queryLinks` (always fails with "Not Implemented" on the device) |
 
-Subtotal for the typed facades: 157/169 actions.
+Subtotal for the typed facades: 158/169 actions.
 
 ## Out of scope
 
@@ -43,4 +43,4 @@ The following namespaces are not planned:
 
 ## Totals
 
-Across all official namespaces, 157 of the 169 actions have a typed method (`157/169`).
+Across all official namespaces, 158 of the 169 actions have a typed method (`158/169`).
