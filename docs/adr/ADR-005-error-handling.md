@@ -3,6 +3,7 @@
 - **Status**: Accepted
 - **Date**: 2026-11-02
 - Amended 2026-11-05 (T-002)
+- Amended 2026-11-13 (public error types in the `MyJdownloader.Errors` namespace)
 
 ## Context
 
@@ -38,6 +39,20 @@ Rules:
 - No exception message or log contains a token, secret, encrypted body, or full
   email address.
 
+Namespace (amendment, 2026-11-13):
+
+- **The public error types live in the public namespace
+  `MyJdownloader.Errors`**: `MyJdException`, its five subclasses and
+  `MyJdErrorSource`. Source folder `src/MyJdownloader/Errors/`, next to the
+  internal `MyJdErrorMapper`. They are no longer in the root `MyJdownloader`
+  namespace.
+- **Why**: one place to find every error type. The cost is one
+  `using MyJdownloader.Errors;` in caller code that names them (a `catch` on a
+  specific exception, a check on `ErrorSource`).
+- Decided before the first release: no consumer is affected, so the move needs
+  no major version.
+- Every new public error type goes into `MyJdownloader.Errors`.
+
 ## Considered alternatives
 
 | Alternative | Reason for rejection |
@@ -46,6 +61,8 @@ Rules:
 | A single exception with a code | Forces the caller to compare strings; the hierarchy allows a targeted `catch` on actionable cases (auth, offline, rate limit). |
 | Wrapping network errors and cancellation in `MyJdException` | Breaks .NET conventions and standard resilience policies that filter on these types. |
 | Built-in retry | Duplicates and conflicts with the caller's resilience; the retry policy is a choice specific to each context. |
+| Error types in the root `MyJdownloader` namespace (namespace) | Follows the .NET convention of keeping exceptions next to the types that throw them, but mixes the error types with the client, device and session types; rejected in favour of discoverability. |
+| Error types in a `MyJdownloader.Exceptions` namespace (namespace) | Namespaces are not named after a kind of type; the `Errors/` folder already existed. |
 
 ## Consequences
 
@@ -54,6 +71,7 @@ Positive:
 - Targeted `catch` on actionable cases; raw `ErrorType` kept for unmapped cases.
 - Natural interoperability with standard resilience handlers.
 - Centralized, testable mapping.
+- Every error type is found in one namespace, `MyJdownloader.Errors`.
 
 Negative:
 
@@ -63,3 +81,5 @@ Negative:
   for callers' `catch` blocks.
 - Messages deliberately poor in context (no secret, truncated email), which
   limits diagnostics.
+- Caller code that names an error type needs `using MyJdownloader.Errors;`.
+  Once shipped, moving the types to another namespace is a major version.

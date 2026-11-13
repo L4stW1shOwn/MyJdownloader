@@ -1,9 +1,9 @@
 # Error handling
 
-Errors raised by the relay or by the device derive from `MyJdException`, which
-lets you handle the service errors in one place. Network errors, timeouts and
-cancellation keep their standard .NET types, so standard resilience policies
-keep working on them
+Errors raised by the relay or by the device derive from `MyJdException`, in the
+`MyJdownloader.Errors` namespace, which lets you handle the service errors in one
+place. Network errors, timeouts and cancellation keep their standard .NET types,
+so standard resilience policies keep working on them
 ([ADR-005](../adr/ADR-005-error-handling.md)). The library never retries a call.
 
 ## The exception hierarchy
@@ -119,6 +119,7 @@ silently.
 ```csharp
 using System.Net;
 using MyJdownloader;
+using MyJdownloader.Errors;
 
 try
 {
@@ -186,6 +187,7 @@ A small retry for `MyJdRateLimitException`, limited to idempotent reads:
 
 ```csharp
 using MyJdownloader;
+using MyJdownloader.Errors;
 
 static async Task<T> RetryReadAsync<T>(Func<CancellationToken, Task<T>> read, CancellationToken ct)
 {

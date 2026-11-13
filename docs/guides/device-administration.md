@@ -44,6 +44,7 @@ can run it twice.
 
 ```csharp
 using MyJdownloader;
+using MyJdownloader.Errors;
 
 // Drops the internet connection of the device at once. Ask the user first.
 if (AskUser("Reconnect the internet connection of the device now?"))
@@ -159,6 +160,7 @@ bool skipped = await device.Captcha.SkipAsync(jobs[0].Id, CaptchaSkipRequest.Sin
 ```csharp
 using System.Net;
 using MyJdownloader;
+using MyJdownloader.Errors;
 
 // A person at the device, or a solving service, answers the challenge. Ask the end user first.
 long jobId = await device.CaptchaForward.CreateJobRecaptchaV2Async(

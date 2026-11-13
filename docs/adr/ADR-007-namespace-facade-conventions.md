@@ -7,6 +7,7 @@
 - **Amended**: 2026-11-11 (T-066, no implicit "everything" on empty selections)
 - **Amended**: 2026-11-11 (T-064, no negative element in identifier lists)
 - **Amended**: 2026-11-13 (public facade constructors over any `IDeviceChannel`)
+- **Amended**: 2026-11-13 (facade sources under `Namespaces/`, C# namespace unchanged)
 
 ## Context
 
@@ -216,6 +217,27 @@ Public facade constructors (amendment, 2026-11-13):
 - Additive public API: a **minor** version. Once shipped, the constructors
   cannot be removed nor made internal again without a major version.
 
+Source folders (amendment, 2026-11-13):
+
+- **The source of each facade lives in
+  `src/MyJdownloader/Namespaces/<Namespace>/`**, its tests in
+  `tests/MyJdownloader.Tests/Namespaces/<Namespace>/`. Its C# namespace stays
+  `MyJdownloader.<Namespace>` (see "Structure" above): the folder is for
+  navigation only.
+- **Why**: the `Namespaces/` folder separates the 24 facades from the
+  infrastructure folders (`Crypto`, `Errors`, `Facades`, `Json`, `Sessions`,
+  `Transport`). A `.Namespaces` segment in the public C# namespace would
+  lengthen every consumer `using` without adding meaning, and would mix up C#
+  namespaces with JDownloader device namespaces.
+- `.editorconfig` turns `dotnet_style_namespace_match_folder` (IDE0130) off
+  for these two folders only; everywhere else, folders still match
+  namespaces.
+- **Every new facade follows the rule**: sources under
+  `src/MyJdownloader/Namespaces/<Namespace>/`, tests under
+  `tests/MyJdownloader.Tests/Namespaces/<Namespace>/`, C# namespace
+  `MyJdownloader.<Namespace>`.
+- No public API change: the public namespaces are unchanged.
+
 Documentation, tests and delivery:
 
 - Each public method's XML doc cites the original API path
@@ -247,6 +269,7 @@ Documentation, tests and delivery:
 | Interface per facade (`ILinkGrabberApi`, ...) or on `MyJDownloaderClient` (public constructors) | Doubles the public surface to stabilize; adding a member to a public interface is a breaking change, which would freeze every facade; a public constructor over the existing `IDeviceChannel` gives the same testability. |
 | Public `JDownloaderDevice` constructor (public constructors) | Requires a decision on device identifier validation; not needed, since a consumer can substitute at the facade level. |
 | Public `IBinaryDeviceChannel` to lift the `ContentV2Api` exception (public constructors) | Freezes a binary public API without a current need (ADR-011); can still be added later as a minor change. |
+| `MyJdownloader.Namespaces.<Namespace>` C# namespaces, matching the folder (source folders) | Lengthens every consumer `using` without adding meaning; mixes up C# namespaces with JDownloader device namespaces. |
 
 ## Consequences
 
@@ -267,6 +290,8 @@ Positive:
 - Consumers can unit-test their own code that uses a facade, by building it
   over a substitute `IDeviceChannel`, without network and without access to
   the library's internals.
+- The facades are grouped in one source folder, apart from the infrastructure
+  folders, while consumer `using` directives stay short.
 
 Negative:
 
@@ -293,3 +318,6 @@ Negative:
 - `ContentV2Api` is only partially usable over a substitute channel: its three
   icon methods throw `NotSupportedException`, so consumer code calling them
   cannot be unit-tested through the facade.
+- Under `Namespaces/`, folders no longer match C# namespaces: the folder path
+  of a facade does not give its namespace, and the IDE0130 exception in
+  `.editorconfig` must be kept.

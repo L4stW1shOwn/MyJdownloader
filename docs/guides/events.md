@@ -113,6 +113,7 @@ device, not by this library.
 ```csharp
 using System.Net;
 using MyJdownloader;
+using MyJdownloader.Errors;
 using MyJdownloader.Events;
 
 EventSubscription subscription = await device.Events.SubscribeAsync(

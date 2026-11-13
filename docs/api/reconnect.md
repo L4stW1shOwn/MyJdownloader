@@ -31,6 +31,7 @@ Remarks:
 
 ```csharp
 using MyJdownloader;
+using MyJdownloader.Errors;
 
 // Ask the user first: the connection drops at once and downloads are interrupted.
 if (AskUser("Reconnect the internet connection of the device now?"))

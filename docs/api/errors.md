@@ -1,6 +1,6 @@
 # Errors
 
-> Package `MyJdownloader` · namespace `MyJdownloader`
+> Package `MyJdownloader` · namespace `MyJdownloader.Errors`
 
 Every error that the library raises for a service or device answer derives from `MyJdException`. Catching this base type is enough to handle "the MyJD call failed"; catching a subtype lets you react differently to an expired login, an offline device or a rate limit. The library performs **no network retry**: resilience (retry, backoff, circuit breaking) is the caller's responsibility, and the exception types carry the information needed to decide.
 
@@ -157,6 +157,7 @@ The library never retries a failed call on its own, for three reasons: a device 
 ```csharp
 using Microsoft.Extensions.Logging;
 using MyJdownloader;
+using MyJdownloader.Errors;
 
 try
 {

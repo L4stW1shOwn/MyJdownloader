@@ -71,7 +71,7 @@ long? version = await device.Channel.CallAsync(
 For an action with arguments, build one `JsonElement` per argument, in the order
 the action expects. The argument list is defined by the action itself: copy the
 path and the order from the typed facade that wraps the same action, for example
-[`ConfigApi`](https://github.com/L4stW1shOwn/MyJdownloader/blob/main/src/MyJdownloader/Config/ConfigApi.cs).
+[`ConfigApi`](https://github.com/L4stW1shOwn/MyJdownloader/blob/main/src/MyJdownloader/Namespaces/Config/ConfigApi.cs).
 
 ```csharp
 using System.Text.Json;

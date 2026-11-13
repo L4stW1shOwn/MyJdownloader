@@ -62,6 +62,7 @@ Remarks:
 using System.IO;
 using MyJdownloader;
 using MyJdownloader.ContentV2;
+using MyJdownloader.Errors;
 
 // 1. Fetch the favicon of a hoster. The bytes are untrusted and unauthenticated (ADR-011).
 byte[]? png = null;

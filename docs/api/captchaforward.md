@@ -52,6 +52,7 @@ Create a job, then poll for the token with a delay. The loop gives up after abou
 using System.Net;
 using MyJdownloader;
 using MyJdownloader.CaptchaForward;
+using MyJdownloader.Errors;
 
 // Ask the user first: a person at the device, or a solving service, answers the challenge.
 long jobId = await device.CaptchaForward.CreateJobRecaptchaV2Async(
