@@ -4,6 +4,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-13
+
+First public release.
+
 ### Added
 
 - `MyJDownloaderOptions.MaxResponseBodyLength`: configurable maximum size of an HTTP response body, as received (encrypted Base64 form), default 1 048 576 bytes, at least 1 024 and without upper bound, validated at client construction. It applies to server calls, device calls and binary (PNG) answers, so a large list can be fetched by raising the limit instead of paging.
@@ -49,10 +53,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 - `AddMyJDownloader` named HTTP client registration.
 - Exception hierarchy in the `MyJdownloader.Errors` namespace: MyJdException, MyJdAuthenticationException, MyJdDeviceOfflineException, MyJdRateLimitException, MyJdApiException, MyJdProtocolException, MyJdErrorSource; the service-reported `ErrorType` is capped at 256 characters and its control, format, line and paragraph separator characters and unpaired surrogates are replaced with `?`.
 - MyJdSession: immutable session with masked ToString() and versioned ToJson()/FromJson() export.
-
-### Changed
-
-- A response over the size limit now reports "The MyJD server response exceeds the configured size limit." or "The MyJD device response exceeds the configured size limit." instead of "could not be read"; the exception type (`MyJdProtocolException`) is unchanged.
+- A response over the size limit raises `MyJdProtocolException` with "The MyJD server response exceeds the configured size limit." or "The MyJD device response exceeds the configured size limit.".
 - `CleanupAsync` (Downloads and LinkGrabber) rejects `SelectionType.Unselected` with both identifier lists empty, which would target every item; use `SelectionType.All` explicitly (ADR-007).
-- Identifier lists (`linkIds`, `packageIds`, …) now reject negative elements with `ArgumentOutOfRangeException`, like single identifiers; the identifier filters of query objects (`PackageUuids`, `JobUuids`, `Uuids`, `DownloadProgressPackageUuids`) follow the same rule (ParamName `query`) (ADR-007).
-- Caller strings validated by the facades and the arguments of a device call now have documented maximum lengths (1 024, 32 767 or 65 536 UTF-16 code units by category, 1 048 576 in total and at most 1 024 arguments per call); the `ConnectAsync` password is limited to 65 536 and a `Config`/`Plugins` `SetAsync` value to 1 048 576 characters of JSON text; longer values throw `ArgumentException` before any request (CWE-1284).
+- Identifier lists (`linkIds`, `packageIds`, …) reject negative elements with `ArgumentOutOfRangeException`, like single identifiers; the identifier filters of query objects (`PackageUuids`, `JobUuids`, `Uuids`, `DownloadProgressPackageUuids`) follow the same rule (ParamName `query`) (ADR-007).
+- Caller strings validated by the facades and the arguments of a device call have documented maximum lengths (1 024, 32 767 or 65 536 UTF-16 code units by category, 1 048 576 in total and at most 1 024 arguments per call); the `ConnectAsync` password is limited to 65 536 and a `Config`/`Plugins` `SetAsync` value to 1 048 576 characters of JSON text; longer values throw `ArgumentException` before any request (CWE-1284).
+
+[Unreleased]: https://github.com/L4stW1shOwn/MyJdownloader/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/L4stW1shOwn/MyJdownloader/releases/tag/v0.1.0
