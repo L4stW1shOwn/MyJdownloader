@@ -3,7 +3,10 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <!-- Kept on so that IDE0005 (unnecessary usings) runs at build time: recent 10.0 SDKs fail the build
+         (EnableGenerateDocumentationFile) when it is off. Test code is not documented, hence CS1591 off. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
     <EnablePackageValidation>false</EnablePackageValidation>
   </PropertyGroup>
   <ItemGroup>

@@ -80,7 +80,7 @@ public sealed partial class DownloadsApi
         FacadeGuard.ValidateRange(query.MaxResults, query.StartAt, nameof(query));
         var packageUuids = FacadeGuard.OptionalIds(query.PackageUuids, nameof(query));
         var args = new[] { JsonSerializer.SerializeToElement(query with { PackageUuids = packageUuids }, DownloadsJsonContext.Default.DownloadPackageQuery) };
-        return FacadeResults.ListAsync(_channel.CallAsync(Base + "queryPackages", DownloadsJsonContext.Default.ListDownloadPackage, args, cancellationToken), static package => package.Hosts?.Contains(null!) == true);
+        return FacadeResults.ListAsync(_channel.CallAsync(Base + "queryPackages", DownloadsJsonContext.Default.ListDownloadPackage, args, cancellationToken), static package => package.Hosts?.Any(static host => host is null) == true);
     }
 
     /// <summary>Gets the number of packages in the download list (<c>/downloadsV2/packageCount</c>).</summary>
