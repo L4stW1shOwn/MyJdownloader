@@ -51,6 +51,27 @@ public sealed class LinkGrabberEndToEndTests
     }
 
     [Test]
+    public async Task AddContainerAsync_EndToEnd_SendsExtensionAndDataUrl()
+    {
+        var (device, bodies) = CreateRig(rid => FakeMyJdServer.EncryptedJson(
+            Key(4),
+            string.Create(CultureInfo.InvariantCulture, $"{{\"data\":{{\"id\":9}},\"rid\":{rid}}}")));
+        byte[] bytes = [1, 2, 3, 250];
+
+        var job = await device.LinkGrabber.AddContainerAsync(ContainerType.Dlc, bytes).WaitAsync(_waitTimeout);
+
+        using var document = JsonDocument.Parse(bodies.Single());
+        var root = document.RootElement;
+        Assert.Multiple(() =>
+        {
+            Assert.That(root.GetProperty("url").GetString(), Is.EqualTo("/linkgrabberv2/addContainer"));
+            Assert.That(root.GetProperty("params")[0].GetString(), Is.EqualTo("dlc"));
+            Assert.That(root.GetProperty("params")[1].GetString(), Is.EqualTo("data:application/octet-stream;base64," + Convert.ToBase64String(bytes)));
+            Assert.That(job!.Id, Is.EqualTo(9L));
+        });
+    }
+
+    [Test]
     public async Task QueryLinksAsync_ResponseOverOneMebibyte_ThrowsProtocol()
     {
         // A valid answer whose encrypted (Base64) body is 1_048_600 characters, 24 above the cap:

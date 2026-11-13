@@ -1183,4 +1183,108 @@ public sealed class LinkGrabberApiTests
             Assert.That(channel.ReceivedCalls(), Is.Empty);
         });
     }
+
+    [TestCase(ContainerType.Dlc, "dlc")]
+    [TestCase(ContainerType.Ccf, "ccf")]
+    [TestCase(ContainerType.Rsdf, "rsdf")]
+    [TestCase(ContainerType.Nzb, "nzb")]
+    [TestCase(ContainerType.CrawlJob, "crawljob")]
+    [TestCase(ContainerType.Sft, "sft")]
+    [TestCase(ContainerType.Sfdl, "sfdl")]
+    [TestCase(ContainerType.Metalink, "metalink")]
+    [TestCase(ContainerType.Meta4, "meta4")]
+    public async Task AddContainerAsync_EachType_SendsWireExtensionAndDataUrl(ContainerType type, string extension)
+    {
+        var (channel, api) = Create();
+        ReturnsContainerJob(channel, new LinkCollectingJob { Id = 1 });
+        byte[] bytes = [1, 2, 3, 250, 255];
+
+        await api.AddContainerAsync(type, bytes);
+
+        AssertSent(
+            channel,
+            "addContainer",
+            JsonSerializer.Serialize(extension),
+            JsonSerializer.Serialize("data:application/octet-stream;base64," + Convert.ToBase64String(bytes)));
+    }
+
+    [Test]
+    public async Task AddContainerAsync_ReturnsJob()
+    {
+        var (channel, api) = Create();
+        ReturnsContainerJob(channel, new LinkCollectingJob { Id = 42 });
+
+        var job = await api.AddContainerAsync(ContainerType.Dlc, new byte[] { 1 });
+
+        Assert.That(job!.Id, Is.EqualTo(42L));
+    }
+
+    [Test]
+    public async Task AddContainerAsync_NullAnswer_ReturnsNull()
+    {
+        var (channel, api) = Create();
+        ReturnsContainerJob(channel, null);
+
+        var job = await api.AddContainerAsync(ContainerType.Dlc, new byte[] { 1 });
+
+        Assert.That(job, Is.Null);
+    }
+
+    [TestCase(ContainerType.Unknown)]
+    [TestCase((ContainerType)99)]
+    public void AddContainerAsync_UnsendableType_ThrowsWithoutCallingChannel(ContainerType type)
+    {
+        var (channel, api) = Create();
+
+        var ex = Assert.Throws<ArgumentException>(() => api.AddContainerAsync(type, new byte[] { 1 }));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ParamName, Is.EqualTo("type"));
+            Assert.That(channel.ReceivedCalls(), Is.Empty);
+        });
+    }
+
+    [Test]
+    public void AddContainerAsync_EmptyContent_ThrowsWithoutCallingChannel()
+    {
+        var (channel, api) = Create();
+
+        var ex = Assert.Throws<ArgumentException>(() => api.AddContainerAsync(ContainerType.Dlc, ReadOnlyMemory<byte>.Empty));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ParamName, Is.EqualTo("content"));
+            Assert.That(channel.ReceivedCalls(), Is.Empty);
+        });
+    }
+
+    [Test]
+    public async Task AddContainerAsync_ContentAtMaxSize_IsSent()
+    {
+        var (channel, api) = Create();
+        ReturnsContainerJob(channel, new LinkCollectingJob { Id = 1 });
+
+        await api.AddContainerAsync(ContainerType.Dlc, new byte[524_288]);
+
+        Assert.That(channel.ReceivedCalls().Count(), Is.EqualTo(1));
+    }
+
+    [Test]
+    public void AddContainerAsync_ContentOverMaxSize_ThrowsWithoutCallingChannel()
+    {
+        var (channel, api) = Create();
+
+        var ex = Assert.Throws<ArgumentException>(() => api.AddContainerAsync(ContainerType.Dlc, new byte[524_289]));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex!.ParamName, Is.EqualTo("content"));
+            Assert.That(channel.ReceivedCalls(), Is.Empty);
+        });
+    }
+
+    private static void ReturnsContainerJob(IDeviceChannel channel, LinkCollectingJob? value)
+        => channel.CallAsync(Base + "addContainer", Arg.Any<JsonTypeInfo<LinkCollectingJob>>(), Arg.Any<IReadOnlyList<JsonElement>>(), Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(value));
 }

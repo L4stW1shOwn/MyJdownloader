@@ -237,9 +237,21 @@ MyJdownloader.LinkGrabber.LinkCrawlerJobQuery.Equals(MyJdownloader.LinkGrabber.L
 MyJdownloader.LinkGrabber.LinkCrawlerJobQuery.JobIds.get -> System.Collections.Generic.IReadOnlyList<long>?
 MyJdownloader.LinkGrabber.LinkCrawlerJobQuery.JobIds.init -> void
 MyJdownloader.LinkGrabber.LinkCrawlerJobQuery.LinkCrawlerJobQuery() -> void
+MyJdownloader.LinkGrabber.ContainerType
+MyJdownloader.LinkGrabber.ContainerType.Unknown = 0 -> MyJdownloader.LinkGrabber.ContainerType
+MyJdownloader.LinkGrabber.ContainerType.Dlc = 1 -> MyJdownloader.LinkGrabber.ContainerType
+MyJdownloader.LinkGrabber.ContainerType.Ccf = 2 -> MyJdownloader.LinkGrabber.ContainerType
+MyJdownloader.LinkGrabber.ContainerType.Rsdf = 3 -> MyJdownloader.LinkGrabber.ContainerType
+MyJdownloader.LinkGrabber.ContainerType.Nzb = 4 -> MyJdownloader.LinkGrabber.ContainerType
+MyJdownloader.LinkGrabber.ContainerType.CrawlJob = 5 -> MyJdownloader.LinkGrabber.ContainerType
+MyJdownloader.LinkGrabber.ContainerType.Sft = 6 -> MyJdownloader.LinkGrabber.ContainerType
+MyJdownloader.LinkGrabber.ContainerType.Sfdl = 7 -> MyJdownloader.LinkGrabber.ContainerType
+MyJdownloader.LinkGrabber.ContainerType.Metalink = 8 -> MyJdownloader.LinkGrabber.ContainerType
+MyJdownloader.LinkGrabber.ContainerType.Meta4 = 9 -> MyJdownloader.LinkGrabber.ContainerType
 MyJdownloader.LinkGrabber.LinkGrabberApi
 MyJdownloader.LinkGrabber.LinkGrabberApi.AbortAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.LinkGrabber.LinkGrabberApi.AbortAsync(long jobId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.LinkGrabber.LinkGrabberApi.AddContainerAsync(MyJdownloader.LinkGrabber.ContainerType type, System.ReadOnlyMemory<byte> content, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.LinkGrabber.LinkCollectingJob?>!
 MyJdownloader.LinkGrabber.LinkGrabberApi.AddLinksAsync(MyJdownloader.LinkGrabber.AddLinksRequest! request, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.LinkGrabber.LinkCollectingJob!>!
 MyJdownloader.LinkGrabber.LinkGrabberApi.AddVariantCopyAsync(long linkId, long afterLinkId, long destinationPackageId, string! variantId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.LinkGrabber.LinkGrabberApi.CleanupAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, MyJdownloader.CleanupAction action, MyJdownloader.CleanupMode mode, MyJdownloader.SelectionType selectionType, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
