@@ -74,8 +74,8 @@ The typed facades cover 157 of the 169 official device actions; the others stay 
 
 | Facade | Coverage |
 |---|---|
-| LinkGrabber | 12/29 |
-| Downloads | 14/26 |
+| LinkGrabber | 28/29 |
+| Downloads | ✅ 26/26 |
 | DownloadController | 5/6 |
 | Jd | 4/6 |
 | System | ✅ 7/7 |
