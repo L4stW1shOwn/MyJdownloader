@@ -109,9 +109,9 @@ public sealed class MyJdSessionTests
 
     private static IEnumerable<TestCaseData> KeyFactories()
     {
-        yield return new TestCaseData("loginSecret", (Func<byte[], MyJdSession>)(k => new MyJdSession(Email, k!, Key(2), SessionToken, RegainToken, Key(3), Key(4))));
-        yield return new TestCaseData("deviceSecret", (Func<byte[], MyJdSession>)(k => new MyJdSession(Email, Key(1), k!, SessionToken, RegainToken, Key(3), Key(4))));
-        yield return new TestCaseData("serverEncryptionToken", (Func<byte[], MyJdSession>)(k => new MyJdSession(Email, Key(1), Key(2), SessionToken, RegainToken, k!, Key(4))));
+        yield return new TestCaseData("loginSecret", (Func<byte[], MyJdSession>)(k => new MyJdSession(Email, k, Key(2), SessionToken, RegainToken, Key(3), Key(4))));
+        yield return new TestCaseData("deviceSecret", (Func<byte[], MyJdSession>)(k => new MyJdSession(Email, Key(1), k, SessionToken, RegainToken, Key(3), Key(4))));
+        yield return new TestCaseData("serverEncryptionToken", (Func<byte[], MyJdSession>)(k => new MyJdSession(Email, Key(1), Key(2), SessionToken, RegainToken, k, Key(4))));
         yield return new TestCaseData("deviceEncryptionToken", (Func<byte[], MyJdSession>)(k => new MyJdSession(Email, Key(1), Key(2), SessionToken, RegainToken, Key(3), k)));
     }
 
