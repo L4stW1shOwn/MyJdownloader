@@ -17,6 +17,7 @@ public sealed partial class LinkGrabberApi
     /// <remarks>
     /// The bytes are sent as is and parsed by the device. A container may hold credentials (links of a DLC or CCF, servers of an NZB): never log it.
     /// The links are added without confirmation. A corrupt container still starts a job, which yields no links.
+    /// The links are collected under other link collecting jobs: do not use the returned job identifier to find them (live-confirmed).
     /// Only send containers from a trusted source: a crawljob can set the destination folder, extraction passwords and autostart on the device.
     /// </remarks>
     /// <exception cref="ArgumentException"><paramref name="type"/> is <see cref="ContainerType.Unknown"/> or not a defined value, or <paramref name="content"/> is empty or larger than 524288 bytes.</exception>
