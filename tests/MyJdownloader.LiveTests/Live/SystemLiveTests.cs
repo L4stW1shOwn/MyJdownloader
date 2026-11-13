@@ -6,19 +6,19 @@ public sealed class SystemLiveTests
 {
     [Test]
     [CancelAfter(60_000)]
-    public async Task SystemInfos_Probe(CancellationToken cancellationToken)
+    public async Task GetSystemInfoAsync_ReturnsInfo(CancellationToken cancellationToken)
     {
-        var raw = await LiveGuard.RunAsync(() => LiveGuard.RawAsync("/system/getSystemInfos", [], cancellationToken));
+        var info = await LiveGuard.RunAsync(() => LiveSession.Device.System.GetSystemInfoAsync(cancellationToken));
 
-        LiveOutput.Dump("getSystemInfos", raw);
+        Assert.That(info.HeapMax, Is.GreaterThan(0));
     }
 
     [Test]
     [CancelAfter(60_000)]
-    public async Task StorageInfos_Probe(CancellationToken cancellationToken)
+    public async Task GetStorageInfosAsync_NullPath_ReturnsRoots(CancellationToken cancellationToken)
     {
-        var raw = await LiveGuard.RunAsync(() => LiveGuard.RawAsync("/system/getStorageInfos", [LiveGuard.Json("null")], cancellationToken));
+        var storages = await LiveGuard.RunAsync(() => LiveSession.Device.System.GetStorageInfosAsync(cancellationToken: cancellationToken));
 
-        LiveOutput.Dump("getStorageInfos", raw);
+        Assert.That(storages, Is.Not.Null);
     }
 }

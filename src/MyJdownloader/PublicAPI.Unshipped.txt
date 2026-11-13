@@ -1426,3 +1426,71 @@ MyJdownloader.SkipReason.FileExists = 8 -> MyJdownloader.SkipReason
 MyJdownloader.SkipReason.UpdateRestartRequired = 9 -> MyJdownloader.SkipReason
 MyJdownloader.SkipReason.FfmpegMissing = 10 -> MyJdownloader.SkipReason
 MyJdownloader.SkipReason.FfprobeMissing = 11 -> MyJdownloader.SkipReason
+MyJdownloader.SystemControl.StorageInfo
+MyJdownloader.SystemControl.StorageInfo.Error.get -> string?
+MyJdownloader.SystemControl.StorageInfo.Error.init -> void
+MyJdownloader.SystemControl.StorageInfo.Free.get -> long
+MyJdownloader.SystemControl.StorageInfo.Free.init -> void
+MyJdownloader.SystemControl.StorageInfo.Path.get -> string?
+MyJdownloader.SystemControl.StorageInfo.Path.init -> void
+MyJdownloader.SystemControl.StorageInfo.Size.get -> long
+MyJdownloader.SystemControl.StorageInfo.Size.init -> void
+MyJdownloader.SystemControl.SystemApi.GetStorageInfosAsync(string? path = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.SystemControl.StorageInfo!>!>!
+MyJdownloader.SystemControl.SystemApi.GetSystemInfoAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.SystemControl.SystemInfo!>!
+MyJdownloader.SystemControl.SystemInfo
+MyJdownloader.SystemControl.SystemInfo.ArchFamily.get -> string?
+MyJdownloader.SystemControl.SystemInfo.ArchFamily.init -> void
+MyJdownloader.SystemControl.SystemInfo.ArchString.get -> string?
+MyJdownloader.SystemControl.SystemInfo.ArchString.init -> void
+MyJdownloader.SystemControl.SystemInfo.Hardware.get -> string?
+MyJdownloader.SystemControl.SystemInfo.Hardware.init -> void
+MyJdownloader.SystemControl.SystemInfo.JavaName.get -> string?
+MyJdownloader.SystemControl.SystemInfo.JavaName.init -> void
+MyJdownloader.SystemControl.SystemInfo.JavaVendor.get -> string?
+MyJdownloader.SystemControl.SystemInfo.JavaVendor.init -> void
+MyJdownloader.SystemControl.SystemInfo.JavaVersionString.get -> string?
+MyJdownloader.SystemControl.SystemInfo.JavaVersionString.init -> void
+MyJdownloader.SystemControl.SystemInfo.OperatingSystem.get -> string?
+MyJdownloader.SystemControl.SystemInfo.OperatingSystem.init -> void
+MyJdownloader.SystemControl.SystemInfo.OsFamily.get -> string?
+MyJdownloader.SystemControl.SystemInfo.OsFamily.init -> void
+MyJdownloader.SystemControl.SystemInfo.OsString.get -> string?
+MyJdownloader.SystemControl.SystemInfo.OsString.init -> void
+MyJdownloader.SystemControl.SystemInfo.HeapCommitted.get -> long
+MyJdownloader.SystemControl.SystemInfo.HeapCommitted.init -> void
+MyJdownloader.SystemControl.SystemInfo.HeapMax.get -> long
+MyJdownloader.SystemControl.SystemInfo.HeapMax.init -> void
+MyJdownloader.SystemControl.SystemInfo.HeapUsed.get -> long
+MyJdownloader.SystemControl.SystemInfo.HeapUsed.init -> void
+MyJdownloader.SystemControl.SystemInfo.JavaVersion.get -> long
+MyJdownloader.SystemControl.SystemInfo.JavaVersion.init -> void
+MyJdownloader.SystemControl.SystemInfo.StartupTime.get -> System.DateTimeOffset?
+MyJdownloader.SystemControl.SystemInfo.StartupTime.init -> void
+MyJdownloader.SystemControl.SystemInfo.Arch64Bit.get -> bool
+MyJdownloader.SystemControl.SystemInfo.Arch64Bit.init -> void
+MyJdownloader.SystemControl.SystemInfo.Docker.get -> bool
+MyJdownloader.SystemControl.SystemInfo.Docker.init -> void
+MyJdownloader.SystemControl.SystemInfo.Headless.get -> bool
+MyJdownloader.SystemControl.SystemInfo.Headless.init -> void
+MyJdownloader.SystemControl.SystemInfo.Jvm64Bit.get -> bool
+MyJdownloader.SystemControl.SystemInfo.Jvm64Bit.init -> void
+MyJdownloader.SystemControl.SystemInfo.Os64Bit.get -> bool
+MyJdownloader.SystemControl.SystemInfo.Os64Bit.init -> void
+MyJdownloader.SystemControl.SystemInfo.Snap.get -> bool
+MyJdownloader.SystemControl.SystemInfo.Snap.init -> void
+MyJdownloader.SystemControl.StorageInfo.<Clone>$() -> MyJdownloader.SystemControl.StorageInfo!
+MyJdownloader.SystemControl.StorageInfo.Equals(MyJdownloader.SystemControl.StorageInfo? other) -> bool
+MyJdownloader.SystemControl.StorageInfo.StorageInfo() -> void
+override MyJdownloader.SystemControl.StorageInfo.Equals(object? obj) -> bool
+override MyJdownloader.SystemControl.StorageInfo.GetHashCode() -> int
+override MyJdownloader.SystemControl.StorageInfo.ToString() -> string!
+static MyJdownloader.SystemControl.StorageInfo.operator !=(MyJdownloader.SystemControl.StorageInfo? left, MyJdownloader.SystemControl.StorageInfo? right) -> bool
+static MyJdownloader.SystemControl.StorageInfo.operator ==(MyJdownloader.SystemControl.StorageInfo? left, MyJdownloader.SystemControl.StorageInfo? right) -> bool
+MyJdownloader.SystemControl.SystemInfo.<Clone>$() -> MyJdownloader.SystemControl.SystemInfo!
+MyJdownloader.SystemControl.SystemInfo.Equals(MyJdownloader.SystemControl.SystemInfo? other) -> bool
+MyJdownloader.SystemControl.SystemInfo.SystemInfo() -> void
+override MyJdownloader.SystemControl.SystemInfo.Equals(object? obj) -> bool
+override MyJdownloader.SystemControl.SystemInfo.GetHashCode() -> int
+override MyJdownloader.SystemControl.SystemInfo.ToString() -> string!
+static MyJdownloader.SystemControl.SystemInfo.operator !=(MyJdownloader.SystemControl.SystemInfo? left, MyJdownloader.SystemControl.SystemInfo? right) -> bool
+static MyJdownloader.SystemControl.SystemInfo.operator ==(MyJdownloader.SystemControl.SystemInfo? left, MyJdownloader.SystemControl.SystemInfo? right) -> bool

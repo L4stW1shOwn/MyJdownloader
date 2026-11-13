@@ -41,4 +41,44 @@ public sealed class SystemEndToEndTests
         using var document = JsonDocument.Parse(bodies.Single());
         Assert.That(document.RootElement.GetProperty("url").GetString(), Is.EqualTo("/system/restartJD"));
     }
+
+    [Test]
+    public async Task GetSystemInfoAsync_EndToEnd_ReturnsInfo()
+    {
+        var (device, bodies) = CreateRig(rid => FakeMyJdServer.EncryptedJson(
+            Key(4),
+            string.Create(CultureInfo.InvariantCulture, $"{{\"data\":{{\"osString\":\"Linux 6.1\",\"heapMax\":1073741824,\"startupTimeStamp\":1762000000000,\"os64Bit\":true}},\"rid\":{rid}}}")));
+
+        var info = await device.System.GetSystemInfoAsync().WaitAsync(_waitTimeout);
+
+        using var document = JsonDocument.Parse(bodies.Single());
+        Assert.Multiple(() =>
+        {
+            Assert.That(document.RootElement.GetProperty("url").GetString(), Is.EqualTo("/system/getSystemInfos"));
+            Assert.That(info.OsString, Is.EqualTo("Linux 6.1"));
+            Assert.That(info.HeapMax, Is.EqualTo(1073741824));
+            Assert.That(info.StartupTime, Is.EqualTo(DateTimeOffset.FromUnixTimeMilliseconds(1762000000000)));
+            Assert.That(info.Os64Bit, Is.True);
+        });
+    }
+
+    [Test]
+    public async Task GetStorageInfosAsync_EndToEnd_ReturnsStorages()
+    {
+        var (device, bodies) = CreateRig(rid => FakeMyJdServer.EncryptedJson(
+            Key(4),
+            string.Create(CultureInfo.InvariantCulture, $"{{\"data\":[{{\"path\":\"/\",\"size\":100,\"free\":40,\"error\":null}}],\"rid\":{rid}}}")));
+
+        var storages = await device.System.GetStorageInfosAsync().WaitAsync(_waitTimeout);
+
+        using var document = JsonDocument.Parse(bodies.Single());
+        Assert.Multiple(() =>
+        {
+            Assert.That(document.RootElement.GetProperty("url").GetString(), Is.EqualTo("/system/getStorageInfos"));
+            Assert.That(document.RootElement.GetProperty("params").GetRawText(), Is.EqualTo(/*lang=json,strict*/ """["null"]"""));
+            Assert.That(storages.Single().Path, Is.EqualTo("/"));
+            Assert.That(storages.Single().Size, Is.EqualTo(100));
+            Assert.That(storages.Single().Error, Is.Null);
+        });
+    }
 }
