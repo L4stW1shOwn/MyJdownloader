@@ -12,6 +12,9 @@ public sealed class LinkGrabberLiveTests
     private const string TestLink = "https://example.com/myjdownloader-live-test.bin";
     private const string FakePassword = "live-test-fake";
 
+    // A site crawl (a video page for example) is slower than a direct link: wait up to 90 s.
+    private const int VariantWaitAttempts = 180;
+
     private static LinkGrabberApi LinkGrabber => LiveSession.Device.LinkGrabber;
 
     // The server-side jobUUIDs filter is not trusted: only a link whose Url is exactly TestLink may be
@@ -40,12 +43,12 @@ public sealed class LinkGrabberLiveTests
     }
 
     private static Task<CrawledLink?> WaitForLinkAsync(long jobId, CancellationToken cancellationToken)
-        => WaitForLinkAsync(jobId, IsTestLink, cancellationToken);
+        => WaitForLinkAsync(jobId, IsTestLink, 40, cancellationToken);
 
-    private static async Task<CrawledLink?> WaitForLinkAsync(long jobId, Func<CrawledLink, bool> isOwned, CancellationToken cancellationToken)
+    private static async Task<CrawledLink?> WaitForLinkAsync(long jobId, Func<CrawledLink, bool> isOwned, int attempts, CancellationToken cancellationToken)
     {
         var query = new LinkQuery { JobUuids = [jobId] };
-        for (var attempt = 0; attempt < 40; attempt++)
+        for (var attempt = 0; attempt < attempts; attempt++)
         {
             var links = await LiveGuard.RunAsync(() => LinkGrabber.QueryLinksAsync(query, cancellationToken));
             var match = links.FirstOrDefault(isOwned);
@@ -244,7 +247,7 @@ public sealed class LinkGrabberLiveTests
     }
 
     [Test]
-    [CancelAfter(60_000)]
+    [CancelAfter(120_000)]
     public async Task VariantLink_GetVariants(CancellationToken cancellationToken)
     {
         if (Environment.GetEnvironmentVariable("MYJD_LIVE_WRITES") != "1")
@@ -259,11 +262,13 @@ public sealed class LinkGrabberLiveTests
             Assert.Ignore("No variant link (set MYJD_VARIANT_URL to an http(s) link with variants)");
         }
 
-        // The crawler may rewrite the URL: own only the links of this job on the same host as the variant URL.
+        // The crawler may rewrite the URL (a plugin-specific scheme for example): own only the links of this job
+        // whose plugin host or URL host is the host of the variant URL.
         var host = StripWww(variantUri.Host);
         bool IsVariantLink(CrawledLink link) =>
-            Uri.TryCreate(link.Url, UriKind.Absolute, out var uri)
-            && string.Equals(StripWww(uri.Host), host, StringComparison.OrdinalIgnoreCase);
+            (link.Host is { } linkHost && string.Equals(StripWww(linkHost), host, StringComparison.OrdinalIgnoreCase))
+            || (Uri.TryCreate(link.Url, UriKind.Absolute, out var uri)
+                && string.Equals(StripWww(uri.Host), host, StringComparison.OrdinalIgnoreCase));
 
         // The URL is user data: never write it, nor the link names, to the test output.
         var job = await LiveGuard.RunAsync(() => LinkGrabber.AddLinksAsync(new AddLinksRequest { Links = [variantUri.AbsoluteUri], Autostart = false, AssignJobId = true }, cancellationToken));
@@ -275,9 +280,21 @@ public sealed class LinkGrabberLiveTests
         long? linkId = null;
         try
         {
-            var link = await WaitForLinkAsync(job.Id, IsVariantLink, cancellationToken);
+            var link = await WaitForLinkAsync(job.Id, IsVariantLink, VariantWaitAttempts, cancellationToken);
             if (link is null)
             {
+                // Diagnostic without user data: only the number of links of the job, their plugin hosts and URL schemes.
+                var jobLinks = await LiveGuard.RunAsync(() => LinkGrabber.QueryLinksAsync(new LinkQuery { JobUuids = [job.Id] }, cancellationToken));
+                var shapes = jobLinks.Select(l => (l.Host ?? "?") + " " + (Uri.TryCreate(l.Url, UriKind.Absolute, out var u) ? u.Scheme : "?")).Distinct(StringComparer.Ordinal);
+                await TestContext.Out.WriteLineAsync($"Job links: {jobLinks.Count} [{string.Join(", ", shapes)}]");
+                var crawlerJobs = await LiveGuard.RunAsync(() => LinkGrabber.QueryLinkCrawlerJobsAsync(new LinkCrawlerJobQuery { JobIds = [job.Id], CollectorInfo = true }, cancellationToken));
+                foreach (var crawlerJob in crawlerJobs)
+                {
+                    await TestContext.Out.WriteLineAsync(
+                        $"Crawler job: crawling={crawlerJob.Crawling}, checking={crawlerJob.Checking}, crawled={crawlerJob.Crawled}, broken={crawlerJob.Broken}, filtered={crawlerJob.Filtered}, unhandled={crawlerJob.Unhandled}");
+                }
+
+                await TestContext.Out.WriteLineAsync($"Crawler jobs for this job id: {crawlerJobs.Count}");
                 Assert.Inconclusive("Variant link did not appear");
             }
 

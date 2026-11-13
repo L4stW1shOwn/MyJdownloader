@@ -82,8 +82,8 @@ Every write is reversible and restored in a `finally` block of the same test.
 - **Variant link** (only with `MYJD_VARIANT_URL`): the link is added with
   Autostart off, its variants are read (typed and raw), and it is removed. As the
   crawler may rewrite the URL, the test owns the links of its own crawl job whose
-  host matches the URL host (a leading `www.` ignored); it never empties the
-  list. The URL and the link names are not written to the output.
+  plugin host or URL host matches the URL host (a leading `www.` ignored); it
+  never empties the list. The crawl is awaited up to 90 seconds. The URL and the link names are not written to the output.
 - **Events**: a subscription is created, listened to once briefly, and removed.
 
 ## What the tests never call
