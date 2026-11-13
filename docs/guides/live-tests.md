@@ -84,10 +84,15 @@ Every write is reversible and restored in a `finally` block of the same test.
   crawler may rewrite the URL, the test owns the links of its own crawl job whose
   plugin host or URL host matches the URL host (a leading `www.` ignored); it
   never empties the list. The crawl is awaited up to 90 seconds. The URL and the link names are not written to the output.
-- **Container** (only with `MYJD_LIVE_WRITES=1`): a crawljob container holding the
-  test link, with Autostart off, is added to the link grabber. The link is awaited
-  and then removed, as for the test link; the container bytes are not written to
-  the output.
+- **Container** (only with `MYJD_LIVE_WRITES=1`): a crawljob container (with
+  confirmation and Autostart off) and a Metalink 4 container, each holding only
+  the test link, are added to the link grabber. Container links are collected
+  under other jobs, so the probe looks for the test link by its exact URL in the
+  whole link grabber; test links left by an interrupted run are removed first, and
+  the link is removed at the end. Only links whose URL is exactly the test link
+  are touched. A Metalink has no confirmation key: if your device confirms new
+  links automatically, the test link can reach the download list, which the probe
+  reports but does not clean. The container bytes are not written to the output.
 - **Events**: a subscription is created, listened to once briefly, and removed.
 
 ## What the tests never call
@@ -140,5 +145,6 @@ models and settle the open assumptions:
   clearing its password) and the download probes (`getStopMark`,
   `getStructureChangeCounter`, `getDownloadUrls`) settle the assumptions marked
   "to be confirmed by live tests";
-- the container probe (`addContainer` with a crawljob) settles that the device
-  starts a job for a crawljob container and yields the test link.
+- the container probe (`addContainer` with a crawljob and a Metalink 4) settles
+  that the device starts a job and yields the test link, under another job
+  (live-confirmed 2026-11-13).

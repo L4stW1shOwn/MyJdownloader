@@ -283,18 +283,7 @@ public sealed class LinkGrabberLiveTests
             var link = await WaitForLinkAsync(job.Id, IsVariantLink, VariantWaitAttempts, cancellationToken);
             if (link is null)
             {
-                // Diagnostic without user data: only the number of links of the job, their plugin hosts and URL schemes.
-                var jobLinks = await LiveGuard.RunAsync(() => LinkGrabber.QueryLinksAsync(new LinkQuery { JobUuids = [job.Id] }, cancellationToken));
-                var shapes = jobLinks.Select(l => (l.Host ?? "?") + " " + (Uri.TryCreate(l.Url, UriKind.Absolute, out var u) ? u.Scheme : "?")).Distinct(StringComparer.Ordinal);
-                await TestContext.Out.WriteLineAsync($"Job links: {jobLinks.Count} [{string.Join(", ", shapes)}]");
-                var crawlerJobs = await LiveGuard.RunAsync(() => LinkGrabber.QueryLinkCrawlerJobsAsync(new LinkCrawlerJobQuery { JobIds = [job.Id], CollectorInfo = true }, cancellationToken));
-                foreach (var crawlerJob in crawlerJobs)
-                {
-                    await TestContext.Out.WriteLineAsync(
-                        $"Crawler job: crawling={crawlerJob.Crawling}, checking={crawlerJob.Checking}, crawled={crawlerJob.Crawled}, broken={crawlerJob.Broken}, filtered={crawlerJob.Filtered}, unhandled={crawlerJob.Unhandled}");
-                }
-
-                await TestContext.Out.WriteLineAsync($"Crawler jobs for this job id: {crawlerJobs.Count}");
+                await WriteJobDiagnosticAsync(job.Id, cancellationToken);
                 Assert.Inconclusive("Variant link did not appear");
             }
 
@@ -315,54 +304,118 @@ public sealed class LinkGrabberLiveTests
         }
     }
 
-    [Test]
+    [TestCase(ContainerType.CrawlJob)]
+    [TestCase(ContainerType.Meta4)]
     [CancelAfter(60_000)]
-    public async Task CrawlJobContainer_AddThenRemove(CancellationToken cancellationToken)
+    public async Task Container_AddThenRemove(ContainerType type, CancellationToken cancellationToken)
     {
         if (Environment.GetEnvironmentVariable("MYJD_LIVE_WRITES") != "1")
         {
             Assert.Ignore("Live writes not enabled (set MYJD_LIVE_WRITES=1)");
         }
 
-        // A JDownloader folder watch file holding only the fixed test link; confirmation and start are forced off
-        // so the link stays in the link grabber, where the cleanup looks for it.
-        var crawlJob = System.Text.Encoding.UTF8.GetBytes("text=" + TestLink + "\nautoConfirm=FALSE\nautoStart=FALSE\nforcedStart=FALSE\nenabled=TRUE\n");
-        var job = await LiveGuard.RunAsync(() => LinkGrabber.AddContainerAsync(ContainerType.CrawlJob, crawlJob, cancellationToken));
-        if (job is null)
-        {
-            // The device could not store the container: nothing was added.
-            Assert.Inconclusive("The device could not store the container");
-        }
+        // Container links may be collected under another job than the one returned: the probe looks for the fixed
+        // test link in the whole link grabber. Only links whose URL is exactly TestLink are touched; leftovers of an
+        // interrupted run are removed first so they cannot be mistaken for this run's link.
+        Assert.That(await RemoveAllTestLinksAsync(), Is.True, "Could not remove leftover test links");
 
-        if (job.Id <= 0)
-        {
-            await RemoveTestLinkAsync(job.Id, null);
-            Assert.Inconclusive("Unexpected link collecting job id");
-        }
-
-        long? linkId = null;
+        var content = System.Text.Encoding.UTF8.GetBytes(ContainerHoldingTestLink(type));
         bool cleanedUp;
         try
         {
-            var link = await WaitForLinkAsync(job.Id, cancellationToken);
+            var job = await LiveGuard.RunAsync(() => LinkGrabber.AddContainerAsync(type, content, cancellationToken));
+            if (job is null)
+            {
+                Assert.Inconclusive("The device could not store the container");
+            }
+
+            await TestContext.Out.WriteLineAsync($"Job id positive: {job.Id > 0}");
+            var link = await WaitForTestLinkAnywhereAsync(cancellationToken);
             if (link is null)
             {
+                await WriteJobDiagnosticAsync(job.Id, cancellationToken);
+                var downloads = await LiveGuard.RunAsync(() => LiveSession.Device.Downloads.QueryLinksAsync(cancellationToken: cancellationToken));
+                await TestContext.Out.WriteLineAsync($"Test link in the download list: {downloads.Count(d => string.Equals(d.Url, TestLink, StringComparison.Ordinal))}");
                 Assert.Inconclusive("Container link did not appear");
             }
 
-            linkId = link.Uuid;
             await TestContext.Out.WriteLineAsync("Container link found");
         }
         finally
         {
-            cleanedUp = await RemoveTestLinkAsync(job.Id, linkId);
+            cleanedUp = await RemoveAllTestLinksAsync();
         }
 
         if (cleanedUp)
         {
-            var remaining = await LiveGuard.RunAsync(() => LinkGrabber.QueryLinksAsync(new LinkQuery { JobUuids = [job.Id] }, cancellationToken));
+            var remaining = await LiveGuard.RunAsync(() => LinkGrabber.QueryLinksAsync(new LinkQuery(), cancellationToken));
             Assert.That(remaining.Where(IsTestLink), Is.Empty);
         }
+    }
+
+    private static async Task<CrawledLink?> WaitForTestLinkAnywhereAsync(CancellationToken cancellationToken)
+    {
+        for (var attempt = 0; attempt < 40; attempt++)
+        {
+            var links = await LiveGuard.RunAsync(() => LinkGrabber.QueryLinksAsync(new LinkQuery(), cancellationToken));
+            var match = links.FirstOrDefault(IsTestLink);
+            if (match is not null)
+            {
+                return match;
+            }
+
+            await Task.Delay(500, cancellationToken);
+        }
+
+        return null;
+    }
+
+    /// <summary>Removes every link grabber link whose URL is exactly the test link; never lets a cleanup failure replace the test outcome.</summary>
+    private static async Task<bool> RemoveAllTestLinksAsync()
+    {
+        using var cleanup = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        try
+        {
+            var ids = (await LinkGrabber.QueryLinksAsync(new LinkQuery(), cleanup.Token)).Where(IsTestLink).Select(l => l.Uuid).ToArray();
+            if (ids.Length > 0)
+            {
+                await LinkGrabber.RemoveLinksAsync(ids, [], cleanup.Token);
+            }
+
+            return true;
+        }
+        catch (Exception ex) when (IsCleanupFailure(ex))
+        {
+            await TestContext.Out.WriteLineAsync("WARNING: test link cleanup failed");
+            return false;
+        }
+    }
+
+    // Containers holding only the fixed test link. The crawljob forces confirmation and start off so the link stays in
+    // the link grabber, where the cleanup looks for it; a Metalink has no such keys and follows the device settings.
+    private static string ContainerHoldingTestLink(ContainerType type) => type == ContainerType.CrawlJob
+        ? "text=" + TestLink + "\nautoConfirm=FALSE\nautoStart=FALSE\nforcedStart=FALSE\nenabled=TRUE\n"
+        : "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            + "<metalink xmlns=\"urn:ietf:params:xml:ns:metalink\">\n"
+            + "  <file name=\"myjdownloader-live-test.bin\">\n"
+            + "    <url>" + TestLink + "</url>\n"
+            + "  </file>\n"
+            + "</metalink>\n";
+
+    /// <summary>Writes the links and crawler state of a job, without user data (counts, plugin hosts, URL schemes).</summary>
+    private static async Task WriteJobDiagnosticAsync(long jobId, CancellationToken cancellationToken)
+    {
+        var jobLinks = await LiveGuard.RunAsync(() => LinkGrabber.QueryLinksAsync(new LinkQuery { JobUuids = [jobId] }, cancellationToken));
+        var shapes = jobLinks.Select(l => (l.Host ?? "?") + " " + (Uri.TryCreate(l.Url, UriKind.Absolute, out var u) ? u.Scheme : "?")).Distinct(StringComparer.Ordinal);
+        await TestContext.Out.WriteLineAsync($"Job links: {jobLinks.Count} [{string.Join(", ", shapes)}]");
+        var crawlerJobs = await LiveGuard.RunAsync(() => LinkGrabber.QueryLinkCrawlerJobsAsync(new LinkCrawlerJobQuery { JobIds = [jobId], CollectorInfo = true }, cancellationToken));
+        foreach (var crawlerJob in crawlerJobs)
+        {
+            await TestContext.Out.WriteLineAsync(
+                $"Crawler job: crawling={crawlerJob.Crawling}, checking={crawlerJob.Checking}, crawled={crawlerJob.Crawled}, broken={crawlerJob.Broken}, filtered={crawlerJob.Filtered}, unhandled={crawlerJob.Unhandled}");
+        }
+
+        await TestContext.Out.WriteLineAsync($"Crawler jobs for this job id: {crawlerJobs.Count}");
     }
 
     private static string StripWww(string host) =>
