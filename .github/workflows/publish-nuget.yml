@@ -96,7 +96,10 @@ jobs:
             artifacts/*.snupkg
 
   publish-github:
-    needs: [build, attest]
+    # After nuget.org: if that push fails, no feed carries the version and the run can be fixed and re-run.
+    # A pre-release skips nuget.org and is still pushed here.
+    needs: [build, attest, publish-nugetorg]
+    if: ${{ !cancelled() && needs.attest.result == 'success' && (needs.publish-nugetorg.result == 'success' || needs.publish-nugetorg.result == 'skipped') }}
     permissions:
       contents: read
       packages: write
