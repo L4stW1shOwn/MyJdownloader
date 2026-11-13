@@ -14,6 +14,7 @@ ignored; the masking helper tests still run.
 | `MYJD_EMAIL` | yes | MyJDownloader account email. |
 | `MYJD_PASSWORD` | yes | MyJDownloader account password. |
 | `MYJD_DEVICE` | no | Device name (`DeviceInfo.Name`). Without it, the single device is used; with several devices and no name, the setup fails with an explicit message. |
+| `MYJD_VARIANT_URL` | no | An http(s) link that has variants (a video page, for example). With `MYJD_LIVE_WRITES=1`, the variant probe adds it, dumps its variants and removes it; without it, the probe is ignored. |
 
 Set them in your shell only. Never put them in a file of the repository, in a
 `.runsettings` file or in `TestRunParameters`. The password is passed to
@@ -30,16 +31,17 @@ unset MYJD_PASSWORD
 ```
 
 Optionally prefix the `dotnet test` line with `MYJD_LIVE_WRITES=1` (to enable
-the two write tests) and `MYJD_DEVICE='<device name>'`.
+the write tests), `MYJD_DEVICE='<device name>'` and
+`MYJD_VARIANT_URL='<link with variants>'` (for the variant probe).
 
 Do not `export` the password: an exported variable is inherited by every child
 process, including long-lived build servers that outlive the run. Passing it on
 the `dotnet test` command line only scopes it to that process.
 
 **Warning**: `quality.sh` or a solution-level `dotnet test` (no category filter)
-runs the live suite whenever `MYJD_EMAIL` and `MYJD_PASSWORD` are set. The two
-write tests (stop mark and test link, described below) additionally need
-`MYJD_LIVE_WRITES=1`; without it they are ignored. When enabled, they add and
+runs the live suite whenever `MYJD_EMAIL` and `MYJD_PASSWORD` are set. The
+write tests (stop mark, test link and variant link, described below)
+additionally need `MYJD_LIVE_WRITES=1`; without it they are ignored. When enabled, they add and
 remove a test link in the link grabber and set then remove a stop mark on the
 first download.
 
@@ -77,6 +79,11 @@ Every write is reversible and restored in a `finally` block of the same test.
   password is set then cleared, and an online check is started. The link is then
   removed. The test acts only on a link whose URL is exactly that one; it never
   empties the list.
+- **Variant link** (only with `MYJD_VARIANT_URL`): the link is added with
+  Autostart off, its variants are read (typed and raw), and it is removed. As the
+  crawler may rewrite the URL, the test owns the links of its own crawl job whose
+  host matches the URL host (a leading `www.` ignored); it never empties the
+  list. The URL and the link names are not written to the output.
 - **Events**: a subscription is created, listened to once briefly, and removed.
 
 ## What the tests never call

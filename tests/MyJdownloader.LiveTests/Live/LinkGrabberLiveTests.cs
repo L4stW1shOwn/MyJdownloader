@@ -39,13 +39,16 @@ public sealed class LinkGrabberLiveTests
         return JsonSerializer.SerializeToElement(kept, LiveJsonContext.Default.ListJsonElement);
     }
 
-    private static async Task<CrawledLink?> WaitForLinkAsync(long jobId, CancellationToken cancellationToken)
+    private static Task<CrawledLink?> WaitForLinkAsync(long jobId, CancellationToken cancellationToken)
+        => WaitForLinkAsync(jobId, IsTestLink, cancellationToken);
+
+    private static async Task<CrawledLink?> WaitForLinkAsync(long jobId, Func<CrawledLink, bool> isOwned, CancellationToken cancellationToken)
     {
         var query = new LinkQuery { JobUuids = [jobId] };
         for (var attempt = 0; attempt < 40; attempt++)
         {
             var links = await LiveGuard.RunAsync(() => LinkGrabber.QueryLinksAsync(query, cancellationToken));
-            var match = links.FirstOrDefault(IsTestLink);
+            var match = links.FirstOrDefault(isOwned);
             if (match is not null)
             {
                 return match;
@@ -64,7 +67,11 @@ public sealed class LinkGrabberLiveTests
         ex is MyJdException or OperationCanceledException or TimeoutException or HttpRequestException;
 
     /// <summary>Removes only the link created by the test; never lets a cleanup failure replace the test outcome.</summary>
-    private static async Task<bool> RemoveTestLinkAsync(long jobId, long? linkId)
+    private static Task<bool> RemoveTestLinkAsync(long jobId, long? linkId)
+        => RemoveTestLinkAsync(jobId, linkId, IsTestLink);
+
+    /// <summary>Removes only the links of the job accepted by <paramref name="isOwned"/>; never lets a cleanup failure replace the test outcome.</summary>
+    private static async Task<bool> RemoveTestLinkAsync(long jobId, long? linkId, Func<CrawledLink, bool> isOwned)
     {
         using var cleanup = new CancellationTokenSource(TimeSpan.FromSeconds(10));
         try
@@ -79,7 +86,7 @@ public sealed class LinkGrabberLiveTests
             var late = await LinkGrabber.QueryLinksAsync(new LinkQuery { JobUuids = [jobId] }, cleanup.Token);
             // Best effort: a link appearing after this query may remain.
             var success = true;
-            foreach (var link in late.Where(IsTestLink))
+            foreach (var link in late.Where(isOwned))
             {
                 try
                 {
@@ -235,4 +242,62 @@ public sealed class LinkGrabberLiveTests
             Assert.That(remaining.Where(IsTestLink), Is.Empty);
         }
     }
+
+    [Test]
+    [CancelAfter(60_000)]
+    public async Task VariantLink_GetVariants(CancellationToken cancellationToken)
+    {
+        if (Environment.GetEnvironmentVariable("MYJD_LIVE_WRITES") != "1")
+        {
+            Assert.Ignore("Live writes not enabled (set MYJD_LIVE_WRITES=1)");
+        }
+
+        var variantUrl = Environment.GetEnvironmentVariable("MYJD_VARIANT_URL");
+        if (!Uri.TryCreate(variantUrl, UriKind.Absolute, out var variantUri)
+            || (variantUri.Scheme != Uri.UriSchemeHttps && variantUri.Scheme != Uri.UriSchemeHttp))
+        {
+            Assert.Ignore("No variant link (set MYJD_VARIANT_URL to an http(s) link with variants)");
+        }
+
+        // The crawler may rewrite the URL: own only the links of this job on the same host as the variant URL.
+        var host = StripWww(variantUri.Host);
+        bool IsVariantLink(CrawledLink link) =>
+            Uri.TryCreate(link.Url, UriKind.Absolute, out var uri)
+            && string.Equals(StripWww(uri.Host), host, StringComparison.OrdinalIgnoreCase);
+
+        // The URL is user data: never write it, nor the link names, to the test output.
+        var job = await LiveGuard.RunAsync(() => LinkGrabber.AddLinksAsync(new AddLinksRequest { Links = [variantUri.AbsoluteUri], Autostart = false, AssignJobId = true }, cancellationToken));
+        if (job.Id <= 0)
+        {
+            Assert.Inconclusive("Unexpected link collecting job id");
+        }
+
+        long? linkId = null;
+        try
+        {
+            var link = await WaitForLinkAsync(job.Id, IsVariantLink, cancellationToken);
+            if (link is null)
+            {
+                Assert.Inconclusive("Variant link did not appear");
+            }
+
+            linkId = link.Uuid;
+            var uuid = link.Uuid.ToString(CultureInfo.InvariantCulture);
+
+            var rawVariants = await LiveGuard.RunAsync(() => LiveGuard.RawAsync(BasePath + "getVariants", [LiveGuard.Json(uuid)], cancellationToken));
+            LiveOutput.Dump("getVariants (variant link)", rawVariants);
+
+            var variants = await LiveGuard.RunAsync(() => LinkGrabber.GetVariantsAsync(link.Uuid, cancellationToken));
+            await TestContext.Out.WriteLineAsync($"Variants: {variants.Count}");
+            Assert.That(variants, Is.Not.Empty);
+            Assert.That(variants.All(v => !string.IsNullOrEmpty(v.Id)), Is.True);
+        }
+        finally
+        {
+            await RemoveTestLinkAsync(job.Id, linkId, IsVariantLink);
+        }
+    }
+
+    private static string StripWww(string host) =>
+        host.StartsWith("www.", StringComparison.OrdinalIgnoreCase) ? host[4..] : host;
 }
