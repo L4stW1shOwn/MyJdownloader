@@ -34,6 +34,21 @@ Optionally prefix the `dotnet test` line with `MYJD_LIVE_WRITES=1` (to enable
 the write tests), `MYJD_DEVICE='<device name>'` and
 `MYJD_VARIANT_URL='<link with variants>'` (for the variant probe).
 
+Run these commands in an interactive terminal: `read -rs` needs a terminal to
+read the password from. A shell started by another tool (an IDE task, an
+assistant's command runner) cannot prompt you and stops before `dotnet test`.
+
+For `MYJD_VARIANT_URL`, prefer a link without `?` or `=`, such as
+`https://www.youtube.com/embed/<video id>` rather than
+`https://www.youtube.com/watch?v=<video id>`. When you paste a URL, zsh (with
+`url-quote-magic`) inserts a `\` before these characters, and inside single
+quotes the `\` stays in the value: the device then receives a broken link and
+`getVariants` fails with `INTERNAL_SERVER_ERROR`. Check the value before you
+press Enter.
+
+To run a single test, add `--filter "Name=<test name>"` to the `dotnet test`
+line, for example `--filter "Name=VariantLink_GetVariants"`.
+
 Do not `export` the password: an exported variable is inherited by every child
 process, including long-lived build servers that outlive the run. Passing it on
 the `dotnet test` command line only scopes it to that process.
