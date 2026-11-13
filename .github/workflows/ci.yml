@@ -33,3 +33,7 @@ jobs:
 
       - name: Tests
         run: dotnet test MyJdownloader.slnx -c Release --no-build --filter "TestCategory!=Live"
+
+      # Validation only (nothing is uploaded): pack and package validation errors must show up here, not in the release run.
+      - name: Pack
+        run: dotnet pack MyJdownloader.slnx -c Release --no-build -o artifacts
