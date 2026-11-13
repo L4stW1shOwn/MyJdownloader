@@ -2,7 +2,7 @@
 
 > Package `MyJdownloader` · namespace `MyJdownloader`
 
-`IDeviceChannel` is the single public primitive through which every typed facade reaches a JDownloader device. You normally use the facades exposed by `JDownloaderDevice`; use the channel directly to call a device action that has no typed facade yet. The channel reads the client's current session on every call, so it survives session renewals. The call is encrypted and signed by the library before it leaves through the MyJDownloader relay (ADR-006).
+`IDeviceChannel` is the single public primitive through which every typed facade reaches a JDownloader device. You normally use the facades exposed by `JDownloaderDevice`; use the channel directly to call a device action that has no typed facade yet. The channel reads the client's current session on every call, so it survives session renewals. The call is encrypted and signed by the library before it leaves through the MyJDownloader relay (ADR-006). Any `IDeviceChannel` can also back a typed facade, which is how you unit-test code that uses the library (see [Testing your code](../guides/testing-your-code.md)).
 
 ## IDeviceChannel
 

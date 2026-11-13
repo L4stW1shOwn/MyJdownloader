@@ -16,7 +16,14 @@ public sealed class ConfigApi
 
     private readonly IDeviceChannel _channel;
 
-    internal ConfigApi(IDeviceChannel channel)
+    /// <summary>Initializes a new instance of the <see cref="ConfigApi"/> class over a device channel.</summary>
+    /// <remarks>
+    /// <see cref="JDownloaderDevice"/> creates the facade for you; this constructor lets you build one over your own
+    /// <see cref="IDeviceChannel"/>, for example a test double.
+    /// </remarks>
+    /// <param name="channel">The channel the device actions are sent through.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="channel"/> is <see langword="null"/>.</exception>
+    public ConfigApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
         _channel = channel;
@@ -119,7 +126,7 @@ public sealed class ConfigApi
     /// <remarks>
     /// Current values are not requested unless <see cref="ConfigQuery.Values"/> is <see langword="true"/>; they may hold secrets, never log whole entries.
     /// <see cref="ConfigQuery.Pattern"/> is a regular expression evaluated on the device.
-    /// The encrypted response body is limited to 1 MiB (about 768 KiB of JSON): on a large configuration, restrict the query with <see cref="ConfigQuery.ConfigInterface"/> or <see cref="ConfigQuery.Pattern"/>,
+    /// The encrypted response body is limited by <see cref="MyJDownloaderOptions.MaxResponseBodyLength"/> (1 MiB by default, about 768 KiB of JSON): on a large configuration, restrict the query with <see cref="ConfigQuery.ConfigInterface"/> or <see cref="ConfigQuery.Pattern"/>,
     /// otherwise the call fails with a <see cref="MyJdProtocolException"/>.
     /// </remarks>
     /// <exception cref="ArgumentException"><see cref="ConfigQuery.ConfigInterface"/> or <see cref="ConfigQuery.Pattern"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>

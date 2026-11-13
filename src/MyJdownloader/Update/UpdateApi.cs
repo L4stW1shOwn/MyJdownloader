@@ -10,7 +10,14 @@ public sealed class UpdateApi
 
     private readonly IDeviceChannel _channel;
 
-    internal UpdateApi(IDeviceChannel channel)
+    /// <summary>Initializes a new instance of the <see cref="UpdateApi"/> class over a device channel.</summary>
+    /// <remarks>
+    /// <see cref="JDownloaderDevice"/> creates the facade for you; this constructor lets you build one over your own
+    /// <see cref="IDeviceChannel"/>, for example a test double.
+    /// </remarks>
+    /// <param name="channel">The channel the device actions are sent through.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="channel"/> is <see langword="null"/>.</exception>
+    public UpdateApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
         _channel = channel;

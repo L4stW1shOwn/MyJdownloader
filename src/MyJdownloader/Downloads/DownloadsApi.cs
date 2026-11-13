@@ -20,7 +20,14 @@ public sealed partial class DownloadsApi
 
     private readonly IDeviceChannel _channel;
 
-    internal DownloadsApi(IDeviceChannel channel)
+    /// <summary>Initializes a new instance of the <see cref="DownloadsApi"/> class over a device channel.</summary>
+    /// <remarks>
+    /// <see cref="JDownloaderDevice"/> creates the facade for you; this constructor lets you build one over your own
+    /// <see cref="IDeviceChannel"/>, for example a test double.
+    /// </remarks>
+    /// <param name="channel">The channel the device actions are sent through.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="channel"/> is <see langword="null"/>.</exception>
+    public DownloadsApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
         _channel = channel;
@@ -31,7 +38,7 @@ public sealed partial class DownloadsApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The links; empty when the device returns no data.</returns>
     /// <remarks>
-    /// The encrypted response body is limited to 1 MiB (about 768 KiB of JSON): on a large list, page with <see cref="DownloadLinkQuery.StartAt"/> and <see cref="DownloadLinkQuery.MaxResults"/>,
+    /// The encrypted response body is limited by <see cref="MyJDownloaderOptions.MaxResponseBodyLength"/> (1 MiB by default, about 768 KiB of JSON): on a large list, page with <see cref="DownloadLinkQuery.StartAt"/> and <see cref="DownloadLinkQuery.MaxResults"/>,
     /// otherwise the call fails with a <see cref="MyJdProtocolException"/>. Links may embed credentials: do not log whole records.
     /// </remarks>
     /// <exception cref="ArgumentException"><see cref="DownloadLinkQuery.MaxResults"/> is below -1 or <see cref="DownloadLinkQuery.StartAt"/> is negative.</exception>
@@ -56,7 +63,7 @@ public sealed partial class DownloadsApi
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The packages; empty when the device returns no data.</returns>
     /// <remarks>
-    /// The encrypted response body is limited to 1 MiB (about 768 KiB of JSON): on a large list, page with <see cref="DownloadPackageQuery.StartAt"/> and <see cref="DownloadPackageQuery.MaxResults"/>,
+    /// The encrypted response body is limited by <see cref="MyJDownloaderOptions.MaxResponseBodyLength"/> (1 MiB by default, about 768 KiB of JSON): on a large list, page with <see cref="DownloadPackageQuery.StartAt"/> and <see cref="DownloadPackageQuery.MaxResults"/>,
     /// otherwise the call fails with a <see cref="MyJdProtocolException"/>. Do not log whole records: the device may return secrets such as the download password without an opt-out flag.
     /// </remarks>
     /// <exception cref="ArgumentException"><see cref="DownloadPackageQuery.MaxResults"/> is below -1 or <see cref="DownloadPackageQuery.StartAt"/> is negative.</exception>

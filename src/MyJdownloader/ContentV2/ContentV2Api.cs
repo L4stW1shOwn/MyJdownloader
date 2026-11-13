@@ -6,7 +6,7 @@ using MyJdownloader.Transport;
 
 /// <summary>Typed facade over the <c>/contentV2</c> namespace of one device (icons of hosters, files and icon keys).</summary>
 /// <remarks>
-/// <para>The icon bytes are untrusted and unauthenticated: the device answers a PNG in clear, outside the encrypted envelope (ADR-011). The client only checks the HTTP status, the <c>image/png</c> content type, the 1 MiB limit and the PNG signature; decode them in a sandboxed image decoder, never serve the bytes under another content type and never base a security decision on them.</para>
+/// <para>The icon bytes are untrusted and unauthenticated: the device answers a PNG in clear, outside the encrypted envelope (ADR-011). The client only checks the HTTP status, the <c>image/png</c> content type, the <see cref="MyJDownloaderOptions.MaxResponseBodyLength"/> limit (1 MiB by default) and the PNG signature; decode them in a sandboxed image decoder, never serve the bytes under another content type and never base a security decision on them.</para>
 /// <para>The <see cref="IconDescriptor"/> returned by <see cref="GetIconDescriptionAsync"/> is untrusted device data.</para>
 /// </remarks>
 public sealed class ContentV2Api
@@ -17,7 +17,17 @@ public sealed class ContentV2Api
 
     private readonly IDeviceChannel _channel;
 
-    internal ContentV2Api(IDeviceChannel channel)
+    /// <summary>Initializes a new instance of the <see cref="ContentV2Api"/> class over a device channel.</summary>
+    /// <remarks>
+    /// <see cref="JDownloaderDevice"/> creates the facade for you; this constructor lets you build one over your own
+    /// <see cref="IDeviceChannel"/>, for example a test double.
+    /// <see cref="GetFavIconAsync"/>, <see cref="GetFileIconAsync"/> and <see cref="GetIconAsync"/> need the channel provided
+    /// by the library, because the device answers a raw PNG (ADR-011); they throw <see cref="NotSupportedException"/> over any
+    /// other channel. <see cref="GetIconDescriptionAsync"/> works over any channel.
+    /// </remarks>
+    /// <param name="channel">The channel the device actions are sent through.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="channel"/> is <see langword="null"/>.</exception>
+    public ContentV2Api(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
         _channel = channel;
@@ -30,9 +40,9 @@ public sealed class ContentV2Api
     /// <remarks>The device answers 404 FILE_NOT_FOUND (<see cref="MyJdApiException"/>) for a hoster without favicon.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="hosterName"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="hosterName"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters.</exception>
-    /// <exception cref="NotSupportedException">The channel of the device does not support binary answers.</exception>
+    /// <exception cref="NotSupportedException">The channel of this facade is not the one provided by the library.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
-    /// <exception cref="MyJdException">The relay or the device rejected the request, or the answer is not a PNG of at most 1 MiB.</exception>
+    /// <exception cref="MyJdException">The relay or the device rejected the request, or the answer is not a PNG within <see cref="MyJDownloaderOptions.MaxResponseBodyLength"/>.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
@@ -48,9 +58,9 @@ public sealed class ContentV2Api
     /// <returns>The PNG image, signature included. The bytes are untrusted and unauthenticated (ADR-011): never serve them under another content type and never base a security decision on them.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="fileName"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="fileName"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters.</exception>
-    /// <exception cref="NotSupportedException">The channel of the device does not support binary answers.</exception>
+    /// <exception cref="NotSupportedException">The channel of this facade is not the one provided by the library.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
-    /// <exception cref="MyJdException">The relay or the device rejected the request, or the answer is not a PNG of at most 1 MiB.</exception>
+    /// <exception cref="MyJdException">The relay or the device rejected the request, or the answer is not a PNG within <see cref="MyJDownloaderOptions.MaxResponseBodyLength"/>.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
@@ -69,9 +79,9 @@ public sealed class ContentV2Api
     /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="key"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> is not between 1 and 128.</exception>
-    /// <exception cref="NotSupportedException">The channel of the device does not support binary answers.</exception>
+    /// <exception cref="NotSupportedException">The channel of this facade is not the one provided by the library.</exception>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
-    /// <exception cref="MyJdException">The relay or the device rejected the request, or the answer is not a PNG of at most 1 MiB.</exception>
+    /// <exception cref="MyJdException">The relay or the device rejected the request, or the answer is not a PNG within <see cref="MyJDownloaderOptions.MaxResponseBodyLength"/>.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
@@ -113,7 +123,7 @@ public sealed class ContentV2Api
     {
         if (_channel is not IBinaryDeviceChannel binary)
         {
-            throw new NotSupportedException("The channel of this device does not support binary answers.");
+            throw new NotSupportedException("The channel of this facade is not the one provided by the library, which the icon actions require.");
         }
 
         return binary.CallBinaryAsync(Base + action, args, cancellationToken);

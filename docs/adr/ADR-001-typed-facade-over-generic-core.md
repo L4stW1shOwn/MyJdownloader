@@ -4,6 +4,7 @@
 - **Date**: 2026-11-02
 - **Amended**: 2026-11-06 (T-007)
 - **Amended**: 2026-11-06 (T-010)
+- **Amended**: 2026-11-13 (public facade constructors, see ADR-007)
 
 ## Context
 
@@ -32,7 +33,7 @@ Two levels of public API:
    remains `internal`.
 2. **Hand-written typed facade**: `JDownloaderDevice` exposes a lazy property
    per namespace (`LinkGrabber`, `Downloads`, ...). Each namespace is a `sealed`
-   class with an internal constructor, built on top of `IDeviceChannel`.
+   class with a public constructor (ADR-007), built on top of `IDeviceChannel`.
 
 Facade conventions:
 

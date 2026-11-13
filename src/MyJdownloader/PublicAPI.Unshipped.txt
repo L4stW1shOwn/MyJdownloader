@@ -82,6 +82,7 @@ MyJdownloader.Config.ConfigValueType.String = 4 -> MyJdownloader.Config.ConfigVa
 MyJdownloader.Config.ConfigValueType.StringList = 7 -> MyJdownloader.Config.ConfigValueType
 MyJdownloader.Config.ConfigValueType.Unknown = 0 -> MyJdownloader.Config.ConfigValueType
 MyJdownloader.Device.DeviceApi
+MyJdownloader.Device.DeviceApi.DeviceApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.Device.DeviceApi.PingAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.DeviceInfo
 MyJdownloader.DeviceInfo.<Clone>$() -> MyJdownloader.DeviceInfo!
@@ -113,6 +114,7 @@ MyJdownloader.JDownloaderDevice.LinkGrabber.get -> MyJdownloader.LinkGrabber.Lin
 MyJdownloader.JDownloaderDevice.Reconnect.get -> MyJdownloader.Reconnect.ReconnectApi!
 MyJdownloader.LinkCrawler.LinkCrawlerApi
 MyJdownloader.LinkCrawler.LinkCrawlerApi.IsCrawlingAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.LinkCrawler.LinkCrawlerApi.LinkCrawlerApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.LinkGrabber.AddLinksRequest
 MyJdownloader.LinkGrabber.AddLinksRequest.<Clone>$() -> MyJdownloader.LinkGrabber.AddLinksRequest!
 MyJdownloader.LinkGrabber.AddLinksRequest.AddLinksRequest() -> void
@@ -262,6 +264,7 @@ MyJdownloader.LinkGrabber.LinkGrabberApi.GetDownloadUrlsAsync(System.Collections
 MyJdownloader.LinkGrabber.LinkGrabberApi.GetPackageCountAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<int>!
 MyJdownloader.LinkGrabber.LinkGrabberApi.GetVariantsAsync(long linkId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.LinkGrabber.LinkVariant!>!>!
 MyJdownloader.LinkGrabber.LinkGrabberApi.IsCollectingAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.LinkGrabber.LinkGrabberApi.LinkGrabberApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.LinkGrabber.LinkGrabberApi.MoveLinksAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, long afterLinkId, long destinationPackageId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.LinkGrabber.LinkGrabberApi.MovePackagesAsync(System.Collections.Generic.IReadOnlyList<long>! packageIds, long afterPackageId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.LinkGrabber.LinkGrabberApi.MoveToDownloadListAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
@@ -379,6 +382,8 @@ MyJdownloader.MyJDownloaderOptions.AppKey.get -> string!
 MyJdownloader.MyJDownloaderOptions.AppKey.set -> void
 MyJdownloader.MyJDownloaderOptions.BaseAddress.get -> System.Uri!
 MyJdownloader.MyJDownloaderOptions.BaseAddress.set -> void
+MyJdownloader.MyJDownloaderOptions.MaxResponseBodyLength.get -> int
+MyJdownloader.MyJDownloaderOptions.MaxResponseBodyLength.set -> void
 MyJdownloader.MyJDownloaderOptions.MyJDownloaderOptions() -> void
 MyJdownloader.MyJdApiException
 MyJdownloader.MyJdApiException.MyJdApiException() -> void
@@ -435,6 +440,7 @@ MyJdownloader.Priority.Lowest = 7 -> MyJdownloader.Priority
 MyJdownloader.Priority.Unknown = 0 -> MyJdownloader.Priority
 MyJdownloader.Reconnect.ReconnectApi
 MyJdownloader.Reconnect.ReconnectApi.DoReconnectAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Reconnect.ReconnectApi.ReconnectApi(MyJdownloader.IDeviceChannel! channel) -> void
 override MyJdownloader.Config.ConfigEntry.Equals(object? obj) -> bool
 override MyJdownloader.Config.ConfigEntry.GetHashCode() -> int
 override MyJdownloader.Config.ConfigEntry.ToString() -> string!
@@ -694,6 +700,7 @@ MyJdownloader.Downloads.DownloadPackageQuery.Status.get -> bool
 MyJdownloader.Downloads.DownloadPackageQuery.Status.init -> void
 MyJdownloader.Downloads.DownloadsApi
 MyJdownloader.Downloads.DownloadsApi.CleanupAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, MyJdownloader.CleanupAction action, MyJdownloader.CleanupMode mode, MyJdownloader.SelectionType selectionType, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Downloads.DownloadsApi.DownloadsApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.Downloads.DownloadsApi.ForceDownloadAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.Downloads.DownloadsApi.GetDownloadUrlsAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Collections.Generic.IReadOnlyList<MyJdownloader.UrlDisplayType>! urlDisplayTypes, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyDictionary<string!, System.Collections.Generic.IReadOnlyList<long>!>!>!
 MyJdownloader.Downloads.DownloadsApi.GetPackageCountAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<int>!
@@ -746,6 +753,7 @@ static MyJdownloader.Downloads.DownloadPackage.operator ==(MyJdownloader.Downloa
 static MyJdownloader.Downloads.DownloadPackageQuery.operator !=(MyJdownloader.Downloads.DownloadPackageQuery? left, MyJdownloader.Downloads.DownloadPackageQuery? right) -> bool
 static MyJdownloader.Downloads.DownloadPackageQuery.operator ==(MyJdownloader.Downloads.DownloadPackageQuery? left, MyJdownloader.Downloads.DownloadPackageQuery? right) -> bool
 MyJdownloader.DownloadController.DownloadControllerApi
+MyJdownloader.DownloadController.DownloadControllerApi.DownloadControllerApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.DownloadController.DownloadControllerApi.GetCurrentStateAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.DownloadController.DownloadState>!
 MyJdownloader.DownloadController.DownloadControllerApi.GetSpeedAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<int>!
 MyJdownloader.DownloadController.DownloadControllerApi.PauseAsync(bool paused, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
@@ -756,6 +764,7 @@ MyJdownloader.Jd.JdApi
 MyJdownloader.Jd.JdApi.GetCoreRevisionAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<int>!
 MyJdownloader.Jd.JdApi.GetUptimeAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.TimeSpan>!
 MyJdownloader.Jd.JdApi.GetVersionAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<long>!
+MyJdownloader.Jd.JdApi.JdApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.Jd.JdApi.RefreshPluginsAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.JDownloaderDevice.Jd.get -> MyJdownloader.Jd.JdApi!
 MyJdownloader.JDownloaderDevice.System.get -> MyJdownloader.SystemControl.SystemApi!
@@ -766,6 +775,7 @@ MyJdownloader.SystemControl.SystemApi.RestartAsync(System.Threading.Cancellation
 MyJdownloader.SystemControl.SystemApi.ShutdownOsAsync(bool force, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.SystemControl.SystemApi.StandbyOsAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.Config.ConfigApi
+MyJdownloader.Config.ConfigApi.ConfigApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.Config.ConfigApi.GetAsync(string! interfaceName, string? storage, string! key, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Text.Json.JsonElement>!
 MyJdownloader.Config.ConfigApi.GetDefaultAsync(string! interfaceName, string? storage, string! key, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Text.Json.JsonElement>!
 MyJdownloader.Config.ConfigApi.ResetAsync(string! interfaceName, string? storage, string! key, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
@@ -861,6 +871,7 @@ static MyJdownloader.Accounts.AccountQuery.operator ==(MyJdownloader.Accounts.Ac
 static MyJdownloader.Accounts.BasicAuthentication.operator !=(MyJdownloader.Accounts.BasicAuthentication? left, MyJdownloader.Accounts.BasicAuthentication? right) -> bool
 static MyJdownloader.Accounts.BasicAuthentication.operator ==(MyJdownloader.Accounts.BasicAuthentication? left, MyJdownloader.Accounts.BasicAuthentication? right) -> bool
 MyJdownloader.Accounts.AccountsApi
+MyJdownloader.Accounts.AccountsApi.AccountsApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.Accounts.AccountsApi.AddAccountAsync(string! premiumHoster, string! username, string! password, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.Accounts.AccountsApi.AddBasicAuthAsync(MyJdownloader.Accounts.BasicAuthType type, string! hostmask, string! username, string! password, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<long>!
 MyJdownloader.Accounts.AccountsApi.DisableAccountsAsync(System.Collections.Generic.IReadOnlyList<long>! ids, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
@@ -877,6 +888,7 @@ MyJdownloader.Accounts.AccountsApi.SetUserNameAndPasswordAsync(long accountId, s
 MyJdownloader.Accounts.AccountsApi.UpdateBasicAuthAsync(MyJdownloader.Accounts.BasicAuthentication! updatedEntry, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.JDownloaderDevice.Accounts.get -> MyJdownloader.Accounts.AccountsApi!
 MyJdownloader.Captcha.CaptchaApi
+MyJdownloader.Captcha.CaptchaApi.CaptchaApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.Captcha.CaptchaApi.GetImageAsync(long id, string? format = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string!>!
 MyJdownloader.Captcha.CaptchaApi.GetJobAsync(long id, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.Captcha.CaptchaJob!>!
 MyJdownloader.Captcha.CaptchaApi.ListAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Captcha.CaptchaJob!>!>!
@@ -998,6 +1010,7 @@ static MyJdownloader.Events.EventSubscriptionStatus.operator ==(MyJdownloader.Ev
 MyJdownloader.Events.EventsApi
 MyJdownloader.Events.EventsApi.AddSubscriptionAsync(long subscriptionId, System.Collections.Generic.IReadOnlyList<string!>! subscriptions, System.Collections.Generic.IReadOnlyList<string!>? exclusions = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.Events.EventSubscription!>!
 MyJdownloader.Events.EventsApi.ChangeSubscriptionTimeoutsAsync(long subscriptionId, System.TimeSpan pollTimeout, System.TimeSpan maxKeepalive, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.Events.EventSubscription!>!
+MyJdownloader.Events.EventsApi.EventsApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.Events.EventsApi.GetSubscriptionAsync(long subscriptionId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.Events.EventSubscription!>!
 MyJdownloader.Events.EventsApi.GetSubscriptionStatusAsync(long subscriptionId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.Events.EventSubscriptionStatus!>!
 MyJdownloader.Events.EventsApi.ListenAsync(long subscriptionId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Events.DeviceEvent!>!>!
@@ -1045,6 +1058,7 @@ MyJdownloader.DeviceExtensions.ExtensionQuery.Name.init -> void
 MyJdownloader.DeviceExtensions.ExtensionQuery.Pattern.get -> string?
 MyJdownloader.DeviceExtensions.ExtensionQuery.Pattern.init -> void
 MyJdownloader.DeviceExtensions.ExtensionsApi
+MyJdownloader.DeviceExtensions.ExtensionsApi.ExtensionsApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.DeviceExtensions.ExtensionsApi.InstallAsync(string! id, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.DeviceExtensions.ExtensionsApi.IsEnabledAsync(string! className, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.DeviceExtensions.ExtensionsApi.IsInstalledAsync(string! id, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
@@ -1056,6 +1070,7 @@ MyJdownloader.Update.UpdateApi
 MyJdownloader.Update.UpdateApi.IsUpdateAvailableAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.Update.UpdateApi.RestartAndUpdateAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.Update.UpdateApi.RunUpdateCheckAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Update.UpdateApi.UpdateApi(MyJdownloader.IDeviceChannel! channel) -> void
 override MyJdownloader.DeviceExtensions.Extension.Equals(object? obj) -> bool
 override MyJdownloader.DeviceExtensions.Extension.GetHashCode() -> int
 override MyJdownloader.DeviceExtensions.ExtensionQuery.Equals(object? obj) -> bool
@@ -1124,6 +1139,7 @@ MyJdownloader.JDownloaderDevice.Extraction.get -> MyJdownloader.Extraction.Extra
 MyJdownloader.Extraction.ExtractionApi
 MyJdownloader.Extraction.ExtractionApi.AddArchivePasswordAsync(string! password, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
 MyJdownloader.Extraction.ExtractionApi.CancelExtractionAsync(long controllerId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.Extraction.ExtractionApi.ExtractionApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.Extraction.ExtractionApi.GetArchiveInfoAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Extraction.ArchiveStatus!>!>!
 MyJdownloader.Extraction.ExtractionApi.GetArchiveSettingsAsync(System.Collections.Generic.IReadOnlyList<string!>! archiveIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Extraction.ArchiveSettings!>!>!
 MyJdownloader.Extraction.ExtractionApi.GetQueueAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Extraction.ArchiveStatus!>!>!
@@ -1162,6 +1178,7 @@ static MyJdownloader.Dialogs.DialogTypeInfo.operator !=(MyJdownloader.Dialogs.Di
 static MyJdownloader.Dialogs.DialogTypeInfo.operator ==(MyJdownloader.Dialogs.DialogTypeInfo? left, MyJdownloader.Dialogs.DialogTypeInfo? right) -> bool
 MyJdownloader.Dialogs.DialogsApi
 MyJdownloader.Dialogs.DialogsApi.AnswerAsync(long id, System.Collections.Generic.IReadOnlyDictionary<string!, System.Text.Json.JsonElement>! data, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Dialogs.DialogsApi.DialogsApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.Dialogs.DialogsApi.GetAsync(long id, bool includeIcon = false, bool includeProperties = true, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.Dialogs.DialogInfo!>!
 MyJdownloader.Dialogs.DialogsApi.GetTypeInfoAsync(string! dialogType, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.Dialogs.DialogTypeInfo!>!
 MyJdownloader.Dialogs.DialogsApi.ListAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<long>!>!
@@ -1251,12 +1268,14 @@ MyJdownloader.Plugins.PluginsApi.GetAllPluginRegexAsync(System.Threading.Cancell
 MyJdownloader.Plugins.PluginsApi.GetAsync(string! interfaceName, string! displayName, string! key, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Text.Json.JsonElement>!
 MyJdownloader.Plugins.PluginsApi.GetPluginRegexAsync(string! url, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<string!>!>!
 MyJdownloader.Plugins.PluginsApi.ListAsync(MyJdownloader.Plugins.PluginsQuery? query = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Plugins.PluginInfo!>!>!
+MyJdownloader.Plugins.PluginsApi.PluginsApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.Plugins.PluginsApi.QueryAsync(MyJdownloader.Config.ConfigQuery? query = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Plugins.PluginConfigEntry!>!>!
 MyJdownloader.Plugins.PluginsApi.ResetAsync(string! interfaceName, string! displayName, string! key, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.Plugins.PluginsApi.SetAsync(string! interfaceName, string! displayName, string! key, System.Text.Json.JsonElement value, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.JDownloaderDevice.Polling.get -> MyJdownloader.Polling.PollingApi!
 MyJdownloader.Polling.PollingApi
 MyJdownloader.Polling.PollingApi.PollAsync(MyJdownloader.Polling.PollingQuery? query = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Polling.PollingResult!>!>!
+MyJdownloader.Polling.PollingApi.PollingApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.Polling.PollingQuery
 MyJdownloader.Polling.PollingQuery.AggregatedNumbers.get -> bool
 MyJdownloader.Polling.PollingQuery.AggregatedNumbers.init -> void
@@ -1294,6 +1313,7 @@ static MyJdownloader.Polling.PollingResult.operator ==(MyJdownloader.Polling.Pol
 MyJdownloader.JDownloaderDevice.Log.get -> MyJdownloader.Log.LogApi!
 MyJdownloader.Log.LogApi
 MyJdownloader.Log.LogApi.GetAvailableLogsAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.Log.LogFolder!>!>!
+MyJdownloader.Log.LogApi.LogApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.Log.LogApi.SendLogFileAsync(System.Collections.Generic.IReadOnlyList<MyJdownloader.Log.LogFolder!>! logFolders, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string?>!
 MyJdownloader.Log.LogFolder
 MyJdownloader.Log.LogFolder.<Clone>$() -> MyJdownloader.Log.LogFolder!
@@ -1311,6 +1331,7 @@ override MyJdownloader.Log.LogFolder.ToString() -> string!
 static MyJdownloader.Log.LogFolder.operator !=(MyJdownloader.Log.LogFolder? left, MyJdownloader.Log.LogFolder? right) -> bool
 static MyJdownloader.Log.LogFolder.operator ==(MyJdownloader.Log.LogFolder? left, MyJdownloader.Log.LogFolder? right) -> bool
 MyJdownloader.ContentV2.ContentV2Api
+MyJdownloader.ContentV2.ContentV2Api.ContentV2Api(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.ContentV2.ContentV2Api.GetFavIconAsync(string! hosterName, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<byte[]!>!
 MyJdownloader.ContentV2.ContentV2Api.GetFileIconAsync(string! fileName, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<byte[]!>!
 MyJdownloader.ContentV2.ContentV2Api.GetIconAsync(string! key, int size, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<byte[]!>!
@@ -1360,12 +1381,14 @@ MyJdownloader.Ui.MenuItemType.Unknown = 0 -> MyJdownloader.Ui.MenuItemType
 MyJdownloader.Ui.UiApi
 MyJdownloader.Ui.UiApi.GetMenuAsync(MyJdownloader.Ui.MenuContext context, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.Ui.MenuItem!>!
 MyJdownloader.Ui.UiApi.InvokeActionAsync(MyJdownloader.Ui.MenuContext context, string! id, System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Text.Json.JsonElement>!
+MyJdownloader.Ui.UiApi.UiApi(MyJdownloader.IDeviceChannel! channel) -> void
 override MyJdownloader.Ui.MenuItem.Equals(object? obj) -> bool
 override MyJdownloader.Ui.MenuItem.GetHashCode() -> int
 override MyJdownloader.Ui.MenuItem.ToString() -> string!
 static MyJdownloader.Ui.MenuItem.operator !=(MyJdownloader.Ui.MenuItem? left, MyJdownloader.Ui.MenuItem? right) -> bool
 static MyJdownloader.Ui.MenuItem.operator ==(MyJdownloader.Ui.MenuItem? left, MyJdownloader.Ui.MenuItem? right) -> bool
 MyJdownloader.CaptchaForward.CaptchaForwardApi
+MyJdownloader.CaptchaForward.CaptchaForwardApi.CaptchaForwardApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.CaptchaForward.CaptchaForwardApi.CreateJobRecaptchaV2Async(string! siteKey, string! domain, string? stoken = null, string? reason = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<long>!
 MyJdownloader.CaptchaForward.CaptchaForwardApi.GetResultAsync(long jobId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<string?>!
 MyJdownloader.JDownloaderDevice.CaptchaForward.get -> MyJdownloader.CaptchaForward.CaptchaForwardApi!
@@ -1375,6 +1398,7 @@ MyJdownloader.Toolbar.ToolbarApi.GetStatusAsync(System.Threading.CancellationTok
 MyJdownloader.Toolbar.ToolbarApi.IsAvailableAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.Toolbar.ToolbarApi.StartDownloadsAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.Toolbar.ToolbarApi.StopDownloadsAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
+MyJdownloader.Toolbar.ToolbarApi.ToolbarApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.Toolbar.ToolbarApi.TriggerUpdateAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.Toolbar.ToolbarApi.ToggleDownloadSpeedLimitAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.Toolbar.ToolbarApi.TogglePauseDownloadsAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
@@ -1417,6 +1441,7 @@ MyJdownloader.Toolbar.ToolbarStatus.BytesTotal.get -> long
 MyJdownloader.Toolbar.ToolbarStatus.BytesTotal.init -> void
 MyJdownloader.DownloadEvents.DownloadEventsApi
 MyJdownloader.JDownloaderDevice.DownloadEvents.get -> MyJdownloader.DownloadEvents.DownloadEventsApi!
+MyJdownloader.DownloadEvents.DownloadEventsApi.DownloadEventsApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.DownloadEvents.DownloadEventsApi.SetStatusEventIntervalAsync(long subscriptionId, System.TimeSpan interval, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<bool>!
 MyJdownloader.UrlDisplayType
 MyJdownloader.UrlDisplayType.Unknown = 0 -> MyJdownloader.UrlDisplayType
@@ -1449,6 +1474,7 @@ MyJdownloader.SystemControl.StorageInfo.Size.get -> long
 MyJdownloader.SystemControl.StorageInfo.Size.init -> void
 MyJdownloader.SystemControl.SystemApi.GetStorageInfosAsync(string? path = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<System.Collections.Generic.IReadOnlyList<MyJdownloader.SystemControl.StorageInfo!>!>!
 MyJdownloader.SystemControl.SystemApi.GetSystemInfoAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task<MyJdownloader.SystemControl.SystemInfo!>!
+MyJdownloader.SystemControl.SystemApi.SystemApi(MyJdownloader.IDeviceChannel! channel) -> void
 MyJdownloader.SystemControl.SystemInfo
 MyJdownloader.SystemControl.SystemInfo.ArchFamily.get -> string?
 MyJdownloader.SystemControl.SystemInfo.ArchFamily.init -> void
@@ -1506,5 +1532,3 @@ override MyJdownloader.SystemControl.SystemInfo.GetHashCode() -> int
 override MyJdownloader.SystemControl.SystemInfo.ToString() -> string!
 static MyJdownloader.SystemControl.SystemInfo.operator !=(MyJdownloader.SystemControl.SystemInfo? left, MyJdownloader.SystemControl.SystemInfo? right) -> bool
 static MyJdownloader.SystemControl.SystemInfo.operator ==(MyJdownloader.SystemControl.SystemInfo? left, MyJdownloader.SystemControl.SystemInfo? right) -> bool
-MyJdownloader.MyJDownloaderOptions.MaxResponseBodyLength.get -> int
-MyJdownloader.MyJDownloaderOptions.MaxResponseBodyLength.set -> void

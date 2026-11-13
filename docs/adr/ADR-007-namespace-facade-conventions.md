@@ -6,6 +6,7 @@
 - **Amended**: 2026-11-11 (T-060, length caps on caller strings and device-call arguments)
 - **Amended**: 2026-11-11 (T-066, no implicit "everything" on empty selections)
 - **Amended**: 2026-11-11 (T-064, no negative element in identifier lists)
+- **Amended**: 2026-11-13 (public facade constructors over any `IDeviceChannel`)
 
 ## Context
 
@@ -39,8 +40,8 @@ Structure:
 - **One C# namespace per facade**: `MyJdownloader.<Facade>` (e.g.
   `MyJdownloader.LinkGrabber`) holds the facade class and its request/response
   records.
-- **One `sealed` class `<Facade>Api`** with an `internal` constructor taking
-  `IDeviceChannel`; it is stateless.
+- **One `sealed` class `<Facade>Api`** with a `public` constructor taking
+  `IDeviceChannel` (see "Public facade constructors" below); it is stateless.
 - **Lazy property on `JDownloaderDevice`** (`device.LinkGrabber`), created once
   per device on first access.
 - **Cross-facade enums** (e.g. `Priority`, `AvailableLinkState`) live in the root
@@ -185,6 +186,36 @@ Identifier lists (amendment, 2026-11-11, T-064):
   so the behaviour change is free; it is listed in `CHANGELOG.md` under
   `[Unreleased]` / Changed.
 
+Public facade constructors (amendment, 2026-11-13):
+
+- **Every facade has a `public` constructor `<Facade>Api(IDeviceChannel
+  channel)`**, replacing the former `internal` one (same signature). A null
+  `channel` throws `ArgumentNullException`. The constructor is documented (XML
+  doc) like any public member.
+- **Why**: `MyJDownloaderClient` is sealed, `JDownloaderDevice` has an internal
+  constructor and the facades had internal constructors, so a consumer of the
+  library could substitute nothing and could not unit-test its own code that
+  calls a facade. `IDeviceChannel` is already public (ADR-001): with a public
+  facade constructor, a consumer builds a facade over a substitute channel
+  (for example with NSubstitute) and verifies paths, arguments and results
+  without network.
+- **The facade is the unit a consumer substitutes.** `JDownloaderDevice` keeps
+  its internal constructor and `MyJDownloaderClient` stays sealed without an
+  interface. A public device constructor is out of scope: it would require a
+  decision on device identifier validation.
+- **Exception, `ContentV2Api`**: the three icon methods (`GetFavIconAsync`,
+  `GetFileIconAsync`, `GetIconAsync`) need the library's own channel, because
+  the device answers a raw PNG through the internal `IBinaryDeviceChannel`
+  (ADR-011). Over any other `IDeviceChannel` they throw
+  `NotSupportedException`; `GetIconDescriptionAsync` works over any channel.
+  The public constructor and the three methods document this limit. Making
+  `IBinaryDeviceChannel` public is out of scope (ADR-011 keeps it internal).
+- **Every new facade follows the rule**: public constructor taking
+  `IDeviceChannel`, `ArgumentNullException` on null.
+- The library's own tests keep using `InternalsVisibleTo` for internal types.
+- Additive public API: a **minor** version. Once shipped, the constructors
+  cannot be removed nor made internal again without a major version.
+
 Documentation, tests and delivery:
 
 - Each public method's XML doc cites the original API path
@@ -212,6 +243,10 @@ Documentation, tests and delivery:
 | Single 65 536 cap on caller strings (T-060) | Too weak a bound: a 60 000-character config key or identifier would still pass. |
 | Transport cap on request arguments alone (T-060) | Late, generic error that does not name the faulty argument; kept only as a complement. |
 | Optional `maxLength` with a default (T-060) | New call sites would silently inherit a possibly wrong cap; a required parameter forces the decision. |
+| Keep facade constructors `internal` (public constructors) | Consumers cannot unit-test their code that calls a facade: nothing in the client/device/facade chain can be built over a substitute. |
+| Interface per facade (`ILinkGrabberApi`, ...) or on `MyJDownloaderClient` (public constructors) | Doubles the public surface to stabilize; adding a member to a public interface is a breaking change, which would freeze every facade; a public constructor over the existing `IDeviceChannel` gives the same testability. |
+| Public `JDownloaderDevice` constructor (public constructors) | Requires a decision on device identifier validation; not needed, since a consumer can substitute at the facade level. |
+| Public `IBinaryDeviceChannel` to lift the `ContentV2Api` exception (public constructors) | Freezes a binary public API without a current need (ADR-011); can still be added later as a minor change. |
 
 ## Consequences
 
@@ -229,6 +264,9 @@ Positive:
 - Absurdly long caller strings and oversized device calls are rejected early
   with a precise `ArgumentException`, bounding request memory and CPU use
   (T-051 audit, CWE-1284), without rejecting real-world values.
+- Consumers can unit-test their own code that uses a facade, by building it
+  over a substitute `IDeviceChannel`, without network and without access to
+  the library's internals.
 
 Negative:
 
@@ -249,3 +287,9 @@ Negative:
   per-call-site classification table lives in the T-060 spec
   (`docs/superpowers/specs/2026-11-11-t060-text-length-caps-design.md`), not
   in this ADR; each new call site must be classified the same way.
+- The facade constructors are part of the public contract: removing one, making
+  it internal or changing its parameter is a major version. A facade can no
+  longer require another dependency in its constructor without a new overload.
+- `ContentV2Api` is only partially usable over a substitute channel: its three
+  icon methods throw `NotSupportedException`, so consumer code calling them
+  cannot be unit-tested through the facade.

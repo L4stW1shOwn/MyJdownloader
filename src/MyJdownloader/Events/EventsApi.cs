@@ -14,7 +14,14 @@ public sealed class EventsApi
 
     private readonly IDeviceChannel _channel;
 
-    internal EventsApi(IDeviceChannel channel)
+    /// <summary>Initializes a new instance of the <see cref="EventsApi"/> class over a device channel.</summary>
+    /// <remarks>
+    /// <see cref="JDownloaderDevice"/> creates the facade for you; this constructor lets you build one over your own
+    /// <see cref="IDeviceChannel"/>, for example a test double.
+    /// </remarks>
+    /// <param name="channel">The channel the device actions are sent through.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="channel"/> is <see langword="null"/>.</exception>
+    public EventsApi(IDeviceChannel channel)
     {
         ArgumentNullException.ThrowIfNull(channel);
         _channel = channel;
@@ -45,7 +52,7 @@ public sealed class EventsApi
     /// elapses, then answers with the queued events (possibly none). The call is bounded by <c>HttpClient.Timeout</c>
     /// (response body included), which the library neither raises nor bypasses, so keep the poll timeout well below it
     /// (see <see cref="ChangeSubscriptionTimeoutsAsync"/>; for example 25 s for the default 100 s client timeout).
-    /// Responses are capped at 1 MiB. The shape of the events is undocumented (assumption to confirm by live tests).
+    /// Responses are capped at <see cref="MyJDownloaderOptions.MaxResponseBodyLength"/> (1 MiB by default). The shape of the events is undocumented (not verified against a real device).
     /// </remarks>
     /// <param name="subscriptionId">The subscription identifier (<see cref="EventSubscription.SubscriptionId"/>).</param>
     /// <param name="cancellationToken">A token to cancel the call.</param>

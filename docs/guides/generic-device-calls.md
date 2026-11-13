@@ -6,6 +6,8 @@ namespace or action that has no typed facade yet. The typed facades are
 preferred whenever they exist: they check their arguments and map the
 responses to types.
 
+The facades are not tied to the channel of a device: each one can be built over any `IDeviceChannel`, typically a test double. See [Testing your code](testing-your-code.md).
+
 The channel design is described in [ADR-001](../adr/ADR-001-typed-facade-over-generic-core.md)
 and [ADR-008](../adr/ADR-008-untyped-values-as-jsonelement.md).
 
