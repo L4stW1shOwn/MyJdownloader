@@ -13,6 +13,8 @@ public sealed partial class DeviceChannelTests
     private const string NewSessionToken = "4455eeff";
     private const string NewRegainToken = "66778899";
     private const string LeakDeviceId = "devsecret99";
+    private const int SmallCap = 2_048;
+    private const string DeviceTooLargeMessage = "The MyJD device response exceeds the configured size limit.";
 
     private static IEnumerable<TestCaseData> FailureScenarios()
     {
@@ -161,7 +163,124 @@ public sealed partial class DeviceChannelTests
 
         var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.CallAsync(VersionPath, []).WaitAsync(_waitTimeout));
 
-        Assert.That(thrown!.ErrorSource, Is.EqualTo(MyJdErrorSource.Device));
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.ErrorSource, Is.EqualTo(MyJdErrorSource.Device));
+            Assert.That(thrown.Message, Is.EqualTo(DeviceTooLargeMessage));
+        });
+    }
+
+    [Test]
+    public async Task CallAsync_DeclaredLengthOverCustomCap_ThrowsProtocolWithSizeLimitMessage()
+    {
+        var rig = CreateRig(_ => FakeMyJdServer.Raw(new string('A', SmallCap + 1)), new MyJDownloaderOptions { MaxResponseBodyLength = SmallCap });
+        var channel = rig.Client.CreateDeviceChannel("dev1");
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.CallAsync(VersionPath, []).WaitAsync(_waitTimeout));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.ErrorSource, Is.EqualTo(MyJdErrorSource.Device));
+            Assert.That(thrown.Message, Is.EqualTo(DeviceTooLargeMessage));
+        });
+    }
+
+    [Test]
+    public async Task CallAsync_StreamedBodyOverCustomCap_ThrowsProtocolWithSizeLimitMessage()
+    {
+        var rig = CreateRig(
+            _ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new UnknownLengthContent(SmallCap + 1) },
+            new MyJDownloaderOptions { MaxResponseBodyLength = SmallCap });
+        var channel = rig.Client.CreateDeviceChannel("dev1");
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.CallAsync(VersionPath, []).WaitAsync(_waitTimeout));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.ErrorSource, Is.EqualTo(MyJdErrorSource.Device));
+            Assert.That(thrown.Message, Is.EqualTo(DeviceTooLargeMessage));
+        });
+    }
+
+    [Test]
+    public async Task CallAsync_BodyExactlyAtCustomCap_IsNotRejectedForSize()
+    {
+        // Not a valid encrypted payload: it must fail as unreadable, which proves the size check let it through.
+        var rig = CreateRig(_ => FakeMyJdServer.Raw(new string('A', SmallCap)), new MyJDownloaderOptions { MaxResponseBodyLength = SmallCap });
+        var channel = rig.Client.CreateDeviceChannel("dev1");
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.CallAsync(VersionPath, []).WaitAsync(_waitTimeout));
+
+        Assert.That(thrown!.Message, Is.EqualTo(DeviceUnreadable()));
+    }
+
+    [Test]
+    public async Task CallAsync_ResponseOverOneMebibyteWithRaisedCap_ReturnsData()
+    {
+        // The encrypted (Base64) body is about 1.4 MiB: over the default cap, within the raised one.
+        var padding = new string('a', 1_000_000);
+        var rig = CreateRig(
+            call => FakeMyJdServer.EncryptedJson(DeviceKey(), string.Create(CultureInfo.InvariantCulture, $"{{\"data\":{{\"count\":3,\"pad\":\"{padding}\"}},\"rid\":{call.Rid}}}")),
+            new MyJDownloaderOptions { MaxResponseBodyLength = 4 * 1_048_576 });
+        var channel = rig.Client.CreateDeviceChannel("dev1");
+
+        var result = await channel.CallAsync(VersionPath, SampleContext.Default.Sample, []).WaitAsync(_waitTimeout);
+
+        Assert.That(result, Is.EqualTo(new Sample(3)));
+    }
+
+    [Test]
+    public async Task CallAsync_ErrorBodyOverCustomCap_MapsFromStatusOnly()
+    {
+        var rig = CreateRig(
+            _ => new HttpResponseMessage(HttpStatusCode.ServiceUnavailable) { Content = new UnknownLengthContent(SmallCap + 1) },
+            new MyJDownloaderOptions { MaxResponseBodyLength = SmallCap });
+        var channel = rig.Client.CreateDeviceChannel("dev1");
+
+        var thrown = await Assert.ThrowsAsync<MyJdApiException>(() => channel.CallAsync(VersionPath, []).WaitAsync(_waitTimeout));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.StatusCode, Is.EqualTo(HttpStatusCode.ServiceUnavailable));
+            Assert.That(thrown.ErrorType, Is.EqualTo("UNKNOWN"));
+            Assert.That(thrown.Message, Is.Not.EqualTo(DeviceTooLargeMessage));
+        });
+    }
+
+    [Test]
+    public async Task CallAsync_CapAtIntMaxValue_ReturnsData()
+    {
+        var rig = CreateRig(
+            call => new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new UnknownLengthTextContent(MyJdCrypto.Encrypt(DeviceKey(), DataBody(call.Rid, /*lang=json,strict*/ "{\"count\":3}"))),
+            },
+            new MyJDownloaderOptions { MaxResponseBodyLength = int.MaxValue });
+        var channel = rig.Client.CreateDeviceChannel("dev1");
+
+        var result = await channel.CallAsync(VersionPath, SampleContext.Default.Sample, []).WaitAsync(_waitTimeout);
+
+        Assert.That(result, Is.EqualTo(new Sample(3)));
+    }
+
+    [Test]
+    public async Task CallAsync_ErrorBodyOverOneMebibyteWithRaisedCap_MapsFromStatusOnly()
+    {
+        // A syntactically valid OFFLINE error padded past 1 MiB (unknown members are skipped, so it parses today).
+        var padding = new string('a', 1_048_577);
+        var body = string.Create(CultureInfo.InvariantCulture, $"{{\"src\":\"DEVICE\",\"type\":\"OFFLINE\",\"pad\":\"{padding}\"}}");
+        var rig = CreateRig(
+            _ => FakeMyJdServer.Raw(body, HttpStatusCode.ServiceUnavailable),
+            new MyJDownloaderOptions { MaxResponseBodyLength = 4 * 1_048_576 });
+        var channel = rig.Client.CreateDeviceChannel("dev1");
+
+        var thrown = await Assert.ThrowsAsync<MyJdApiException>(() => channel.CallAsync(VersionPath, []).WaitAsync(_waitTimeout));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown!.StatusCode, Is.EqualTo(HttpStatusCode.ServiceUnavailable));
+            Assert.That(thrown.ErrorType, Is.EqualTo("UNKNOWN"));
+        });
     }
 
     [Test]
@@ -229,6 +348,36 @@ public sealed partial class DeviceChannelTests
             Assert.That(thrown!.ParamName, Is.EqualTo("args"));
             Assert.That(rig.Calls, Is.Empty);
         });
+    }
+
+    private sealed class UnknownLengthContent(int size) : HttpContent
+    {
+        protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context)
+        {
+            ArgumentNullException.ThrowIfNull(stream);
+            await stream.WriteAsync(new byte[size]);
+        }
+
+        protected override bool TryComputeLength(out long length)
+        {
+            length = 0;
+            return false;
+        }
+    }
+
+    private sealed class UnknownLengthTextContent(string text) : HttpContent
+    {
+        protected override async Task SerializeToStreamAsync(Stream stream, TransportContext? context)
+        {
+            ArgumentNullException.ThrowIfNull(stream);
+            await stream.WriteAsync(System.Text.Encoding.UTF8.GetBytes(text));
+        }
+
+        protected override bool TryComputeLength(out long length)
+        {
+            length = 0;
+            return false;
+        }
     }
 
     private sealed record Sent(string Path, string Body, long Rid);

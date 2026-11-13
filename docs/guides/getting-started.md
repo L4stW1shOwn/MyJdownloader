@@ -81,13 +81,14 @@ long version = await device.Jd.GetVersionAsync();
 await client.DisconnectAsync();
 ```
 
-`MyJDownloaderOptions` has three properties:
+`MyJDownloaderOptions` has four properties:
 
-| Property      | Default                          | Meaning                                              |
-|---------------|----------------------------------|------------------------------------------------------|
-| `AppKey`      | `"MyJdownloader.NET"`            | Application identifier sent at connection.           |
-| `BaseAddress` | `https://api.jdownloader.org`    | Relay address. Version 1 supports only the default.  |
-| `ApiVersion`  | `1`                              | `apiVer` value used for device calls.                |
+| Property                | Default                          | Meaning                                                                 |
+|-------------------------|----------------------------------|-------------------------------------------------------------------------|
+| `AppKey`                | `"MyJdownloader.NET"`            | Application identifier sent at connection.                              |
+| `BaseAddress`           | `https://api.jdownloader.org`    | Relay address. Version 1 supports only the default.                     |
+| `ApiVersion`            | `1`                              | `apiVer` value used for device calls.                                   |
+| `MaxResponseBodyLength` | `1048576` (1 MiB)                | Maximum size in bytes of an HTTP response body. Must be at least `1024`. |
 
 ## Connect, list devices, first call
 

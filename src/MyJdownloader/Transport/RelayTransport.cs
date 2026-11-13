@@ -21,27 +21,35 @@ using MyJdownloader.Json;
 /// </remarks>
 internal sealed class RelayTransport
 {
-    private const int MaxBodyLength = 1_048_576;
     private const string ServerUnreadableMessage = "The MyJD server returned a response that could not be read.";
     private const string ServerMismatchMessage = "The MyJD server response does not match the request.";
     private const string DeviceUnreadableMessage = "The MyJD device returned a response that could not be read.";
     private const string DeviceMismatchMessage = "The MyJD device response does not match the request.";
+    private const string ServerTooLargeMessage = "The MyJD server response exceeds the configured size limit.";
+    private const string DeviceTooLargeMessage = "The MyJD device response exceeds the configured size limit.";
+    // An error body is small and the status code already carries the information: a raised cap must not make a failing peer cost more.
+    private const int MaxErrorBodyLength = 1_048_576;
     private static readonly byte[] _pngSignature = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
     private static readonly TimeSpan _maxRetryAfter = TimeSpan.FromMinutes(10);
 
     private readonly HttpClient _httpClient;
     private readonly TimeProvider _timeProvider;
+    private readonly int _maxResponseBodyLength;
 
-    public RelayTransport(HttpClient httpClient, TimeProvider timeProvider)
+    public RelayTransport(HttpClient httpClient, TimeProvider timeProvider, int maxResponseBodyLength)
     {
         ArgumentNullException.ThrowIfNull(httpClient);
         ArgumentNullException.ThrowIfNull(timeProvider);
         _httpClient = httpClient;
         _timeProvider = timeProvider;
+        _maxResponseBodyLength = maxResponseBodyLength;
     }
 
     internal static string UnreadableMessageFor(MyJdErrorSource source) =>
         source == MyJdErrorSource.Device ? DeviceUnreadableMessage : ServerUnreadableMessage;
+
+    internal static string TooLargeMessageFor(MyJdErrorSource source) =>
+        source == MyJdErrorSource.Device ? DeviceTooLargeMessage : ServerTooLargeMessage;
 
     internal static string MismatchMessageFor(MyJdErrorSource source) =>
         source == MyJdErrorSource.Device ? DeviceMismatchMessage : ServerMismatchMessage;
@@ -119,11 +127,11 @@ internal sealed class RelayTransport
         return delay > _maxRetryAfter ? _maxRetryAfter : delay;
     }
 
-    private static async Task<byte[]> ReadBodyAsync(HttpContent content, MyJdErrorSource source, CancellationToken cancellationToken)
+    private static async Task<byte[]> ReadBodyAsync(HttpContent content, int limit, MyJdErrorSource source, CancellationToken cancellationToken)
     {
-        if (content.Headers.ContentLength > MaxBodyLength)
+        if (content.Headers.ContentLength > limit)
         {
-            throw new MyJdProtocolException(UnreadableMessageFor(source), source);
+            throw new MyJdProtocolException(TooLargeMessageFor(source), source);
         }
 
         var stream = await content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
@@ -134,9 +142,9 @@ internal sealed class RelayTransport
             int read;
             while ((read = await stream.ReadAsync(chunk, cancellationToken).ConfigureAwait(false)) > 0)
             {
-                if (buffer.WrittenCount + read > MaxBodyLength)
+                if (read > limit - buffer.WrittenCount)
                 {
-                    throw new MyJdProtocolException(UnreadableMessageFor(source), source);
+                    throw new MyJdProtocolException(TooLargeMessageFor(source), source);
                 }
 
                 buffer.Write(chunk.AsSpan(0, read));
@@ -147,12 +155,12 @@ internal sealed class RelayTransport
     }
 
     // Decrypted is true when the body could only be read after decryption (its src claim is then not trustworthy for a device call).
-    private static async Task<(ErrorResponse? Error, bool Decrypted)> ReadErrorAsync(HttpContent content, byte[] key, MyJdErrorSource source, CancellationToken cancellationToken)
+    private async Task<(ErrorResponse? Error, bool Decrypted)> ReadErrorAsync(HttpContent content, byte[] key, MyJdErrorSource source, CancellationToken cancellationToken)
     {
         byte[] body;
         try
         {
-            body = await ReadBodyAsync(content, source, cancellationToken).ConfigureAwait(false);
+            body = await ReadBodyAsync(content, Math.Min(_maxResponseBodyLength, MaxErrorBodyLength), source, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is MyJdProtocolException or IOException)
         {
@@ -203,7 +211,7 @@ internal sealed class RelayTransport
             throw MyJdErrorMapper.Map(source, src, error?.Type, response.StatusCode, ParseRetryAfter(response));
         }
 
-        var body = await ReadBodyAsync(response.Content, source, cancellationToken).ConfigureAwait(false);
+        var body = await ReadBodyAsync(response.Content, _maxResponseBodyLength, source, cancellationToken).ConfigureAwait(false);
         return convert(response, body, key, source);
     }
 }

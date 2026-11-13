@@ -11,7 +11,8 @@ public sealed class ServerChannelErrorTests
 {
     private const string Email = "user@example.com";
     private const string Password = "password";
-    private const string UnreadableMessage = "The MyJD server returned a response that could not be read.";
+    private const string TooLargeMessage = "The MyJD server response exceeds the configured size limit.";
+    private const int SmallCap = 2_048;
 #pragma warning disable JSON002 // Probable JSON string: intentional protocol payloads used as plain string vectors
     private const string AuthFailedBody = """{"src":"SERVER","type":"AUTH_FAILED"}""";
     private const string TooManyRequestsBody = """{"src":"SERVER","type":"TOO_MANY_REQUESTS"}""";
@@ -20,7 +21,7 @@ public sealed class ServerChannelErrorTests
     private static readonly DateTimeOffset _now = new(2026, 11, 5, 0, 0, 0, TimeSpan.Zero);
 
     [SuppressMessage("Reliability", "CA2000", Justification = "The HttpClient lives as long as the test and wraps a disposed fake handler")]
-    private static ServerChannel CreateChannel(FakeMyJdServer server, TimeSpan? timeout = null)
+    private static ServerChannel CreateChannel(FakeMyJdServer server, TimeSpan? timeout = null, MyJDownloaderOptions? options = null)
     {
         var clock = new FakeTimeProvider { UtcNow = _now };
         var httpClient = new HttpClient(server);
@@ -29,7 +30,7 @@ public sealed class ServerChannelErrorTests
             httpClient.Timeout = timeout.Value;
         }
 
-        return new ServerChannel(httpClient, new MyJDownloaderOptions(), new RequestIdGenerator(clock), clock);
+        return new ServerChannel(httpClient, options ?? new MyJDownloaderOptions(), new RequestIdGenerator(clock), clock);
     }
 
     private static HttpResponseMessage TooManyRequests(string? retryAfter)
@@ -179,15 +180,40 @@ public sealed class ServerChannelErrorTests
     }
 
     [Test]
-    public async Task ConnectAsync_BodyOverLimitWithoutContentLength_ThrowsUnreadable()
+    public async Task ConnectAsync_BodyOverLimitWithoutContentLength_ThrowsTooLarge()
     {
         using var server = new FakeMyJdServer(_ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new UnknownLengthContent(1_048_577) });
         var channel = CreateChannel(server);
 
         var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
-        Assert.That(exception!.Message, Is.EqualTo(UnreadableMessage));
+        Assert.That(exception!.Message, Is.EqualTo(TooLargeMessage));
         Assert.That(exception.InnerException, Is.Null);
+    }
+
+    [Test]
+    public async Task ConnectAsync_StreamedBodyOverCustomCap_ThrowsTooLarge()
+    {
+        using var server = new FakeMyJdServer(_ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new UnknownLengthContent(SmallCap + 1) });
+        var channel = CreateChannel(server, options: new MyJDownloaderOptions { MaxResponseBodyLength = SmallCap });
+
+        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
+
+        Assert.That(exception!.Message, Is.EqualTo(TooLargeMessage));
+        Assert.That(exception.ErrorSource, Is.EqualTo(MyJdErrorSource.Server));
+    }
+
+    [Test]
+    public async Task ConnectAsync_ErrorBodyOverCustomCap_MapsFromStatusOnly()
+    {
+        using var server = new FakeMyJdServer(_ => new HttpResponseMessage(HttpStatusCode.ServiceUnavailable) { Content = new UnknownLengthContent(SmallCap + 1) });
+        var channel = CreateChannel(server, options: new MyJDownloaderOptions { MaxResponseBodyLength = SmallCap });
+
+        var exception = await Assert.ThrowsAsync<MyJdApiException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
+
+        Assert.That(exception!.StatusCode, Is.EqualTo(HttpStatusCode.ServiceUnavailable));
+        Assert.That(exception.ErrorType, Is.EqualTo("UNKNOWN"));
+        Assert.That(exception.Message, Is.Not.EqualTo(TooLargeMessage));
     }
 
     [Test]

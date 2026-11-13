@@ -72,6 +72,7 @@ Configuration of the MyJDownloader client. The client copies the values when it 
 | `AppKey` | `string AppKey { get; set; }` | Application identifier sent to the `/my/connect` endpoint. Default `"MyJdownloader.NET"`. Must be non-blank, at most 256 characters, without control characters. |
 | `BaseAddress` | `Uri BaseAddress { get; set; }` | Base address of the relay server. Default `https://api.jdownloader.org`. Must be an absolute `https` URI without user info, query or fragment. |
 | `ApiVersion` | `int ApiVersion { get; set; }` | The `apiVer` value used for device calls. Default `1`. Must be at least `1`. |
+| `MaxResponseBodyLength` | `int MaxResponseBodyLength { get; set; }` | Maximum size, in bytes, of an HTTP response body as received (the encrypted Base64 form). Default `1048576` (1 MiB). Must be at least `1024`. |
 
 **Remarks**
 
@@ -80,6 +81,7 @@ Configuration of the MyJDownloader client. The client copies the values when it 
 - `AppKey` is not trimmed: leading and trailing spaces are kept as they are.
 - `BaseAddress` must not be `null`. HTTPS is required because device-call URL paths carry the session token, and the relay paths are appended to the address.
 - `ApiVersion` has no upper bound; the value is written into the encrypted body of every device call.
+- `MaxResponseBodyLength` applies to server calls, device calls and binary (PNG) answers. The limit is measured on the body as received, so about three quarters of it is JSON. It has no upper bound. A larger body raises `MyJdProtocolException` with the message "The MyJD server response exceeds the configured size limit." or "The MyJD device response exceeds the configured size limit.". For large lists, page the query or raise the limit.
 
 ### Example
 

@@ -40,7 +40,9 @@ The error code decides the type:
 | `MyJdDeviceOfflineException`       | `OFFLINE`                                                                   |
 | `MyJdRateLimitException`           | `TOO_MANY_REQUESTS`, `OVERLOAD`, `MAINTENANCE`                              |
 | `MyJdApiException`                 | Any other code, including `NOT_AVAILABLE` (for example an unknown captcha id). |
-| `MyJdProtocolException`            | No service code: the answer is missing, unreadable, does not match the request, or is over 1 MiB. |
+| `MyJdProtocolException`            | No service code: the answer is missing, unreadable, does not match the request, or is over `MyJDownloaderOptions.MaxResponseBodyLength` (1 MiB by default). |
+
+A successful answer over the limit raises `MyJdProtocolException` with the message "The MyJD server response exceeds the configured size limit." (server calls) or "The MyJD device response exceeds the configured size limit." (device calls and binary answers). To accept larger answers, raise `MaxResponseBodyLength` when you build the client; the value is measured on the encrypted body, about three quarters of which is JSON. Otherwise, narrow the query (paging with `StartAt` and `MaxResults`, or a filter) so the answer fits.
 
 `TOKEN_INVALID` is normally handled by the client itself: it renews the session
 once and replays the call. You see it as a `MyJdAuthenticationException` only when

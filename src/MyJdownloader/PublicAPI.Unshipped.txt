@@ -1506,3 +1506,5 @@ override MyJdownloader.SystemControl.SystemInfo.GetHashCode() -> int
 override MyJdownloader.SystemControl.SystemInfo.ToString() -> string!
 static MyJdownloader.SystemControl.SystemInfo.operator !=(MyJdownloader.SystemControl.SystemInfo? left, MyJdownloader.SystemControl.SystemInfo? right) -> bool
 static MyJdownloader.SystemControl.SystemInfo.operator ==(MyJdownloader.SystemControl.SystemInfo? left, MyJdownloader.SystemControl.SystemInfo? right) -> bool
+MyJdownloader.MyJDownloaderOptions.MaxResponseBodyLength.get -> int
+MyJdownloader.MyJDownloaderOptions.MaxResponseBodyLength.set -> void

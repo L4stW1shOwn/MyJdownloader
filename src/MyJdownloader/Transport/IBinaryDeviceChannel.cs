@@ -13,6 +13,6 @@ internal interface IBinaryDeviceChannel
     /// <param name="cancellationToken">A token to cancel the call.</param>
     /// <returns>The PNG bytes, signature included.</returns>
     /// <exception cref="ArgumentException"><paramref name="path"/> or an argument is not valid.</exception>
-    /// <exception cref="MyJdProtocolException">The answer is not a PNG of at most 1 MiB.</exception>
+    /// <exception cref="MyJdProtocolException">The answer is not a PNG within <see cref="MyJDownloaderOptions.MaxResponseBodyLength"/>.</exception>
     public Task<byte[]> CallBinaryAsync(string path, IReadOnlyList<JsonElement> args, CancellationToken cancellationToken = default);
 }

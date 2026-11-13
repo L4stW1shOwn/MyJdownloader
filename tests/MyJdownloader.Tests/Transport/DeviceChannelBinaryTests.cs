@@ -14,6 +14,8 @@ public sealed class DeviceChannelBinaryTests
     private const string NewRegainToken = "66778899";
     private const string IconPath = "/contentV2/getIcon";
     private const int OneMebibyte = 1_048_576;
+    private const int SmallCap = 2_048;
+    private const string DeviceTooLargeMessage = "The MyJD device response exceeds the configured size limit.";
     private static readonly TimeSpan _waitTimeout = TimeSpan.FromSeconds(5);
     private static readonly byte[] _pngSignature = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
     private static readonly byte[] _png = [.. _pngSignature, 0x01, 0x02];
@@ -40,7 +42,7 @@ public sealed class DeviceChannelBinaryTests
     }
 
     [SuppressMessage("Reliability", "CA2000", Justification = "The HttpClient lives as long as the test and wraps a handler disposed by the test")]
-    private static IBinaryDeviceChannel Channel(HttpMessageHandler handler, TimeSpan? timeout = null)
+    private static IBinaryDeviceChannel Channel(HttpMessageHandler handler, TimeSpan? timeout = null, MyJDownloaderOptions? options = null)
     {
         var httpClient = new HttpClient(handler, disposeHandler: false);
         if (timeout is not null)
@@ -48,7 +50,7 @@ public sealed class DeviceChannelBinaryTests
             httpClient.Timeout = timeout.Value;
         }
 
-        var client = new MyJDownloaderClient(httpClient);
+        var client = new MyJDownloaderClient(httpClient, options);
         client.RestoreSession(CreateSession());
         return (IBinaryDeviceChannel)client.CreateDeviceChannel("dev1");
     }
@@ -57,6 +59,13 @@ public sealed class DeviceChannelBinaryTests
         Assert.Multiple(() =>
         {
             Assert.That(thrown.Message, Is.EqualTo(DeviceUnreadable()));
+            Assert.That(thrown.ErrorSource, Is.EqualTo(MyJdErrorSource.Device));
+        });
+
+    private static void AssertDeviceTooLarge(MyJdProtocolException thrown) =>
+        Assert.Multiple(() =>
+        {
+            Assert.That(thrown.Message, Is.EqualTo(DeviceTooLargeMessage));
             Assert.That(thrown.ErrorSource, Is.EqualTo(MyJdErrorSource.Device));
         });
 
@@ -144,7 +153,7 @@ public sealed class DeviceChannelBinaryTests
 
         var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.CallBinaryAsync(IconPath, []).WaitAsync(_waitTimeout));
 
-        AssertDeviceUnreadable(thrown!);
+        AssertDeviceTooLarge(thrown!);
     }
 
     [Test]
@@ -160,7 +169,63 @@ public sealed class DeviceChannelBinaryTests
 
         var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.CallBinaryAsync(IconPath, []).WaitAsync(_waitTimeout));
 
-        AssertDeviceUnreadable(thrown!);
+        AssertDeviceTooLarge(thrown!);
+    }
+
+    [Test]
+    public async Task CallBinaryAsync_DeclaredLengthOverCustomCap_ThrowsProtocolException()
+    {
+        using var server = new FakeMyJdServer(_ =>
+        {
+            var response = FakeMyJdServer.Png(PngBody(SmallCap + 1));
+            response.Content.Headers.ContentLength = SmallCap + 1;
+            return response;
+        });
+        var channel = Channel(server, options: new MyJDownloaderOptions { MaxResponseBodyLength = SmallCap });
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.CallBinaryAsync(IconPath, []).WaitAsync(_waitTimeout));
+
+        AssertDeviceTooLarge(thrown!);
+    }
+
+    [Test]
+    public async Task CallBinaryAsync_StreamedBodyOverCustomCap_ThrowsProtocolException()
+    {
+        using var server = new FakeMyJdServer(_ =>
+        {
+            var content = new StreamContent(new NonSeekableStream(PngBody(SmallCap + 1)));
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/png");
+            return new HttpResponseMessage(HttpStatusCode.OK) { Content = content };
+        });
+        var channel = Channel(server, options: new MyJDownloaderOptions { MaxResponseBodyLength = SmallCap });
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.CallBinaryAsync(IconPath, []).WaitAsync(_waitTimeout));
+
+        AssertDeviceTooLarge(thrown!);
+    }
+
+    [Test]
+    public async Task CallBinaryAsync_BodyExactlyAtCustomCap_ReturnsBody()
+    {
+        var body = PngBody(SmallCap);
+        using var server = new FakeMyJdServer(_ => FakeMyJdServer.Png(body));
+        var channel = Channel(server, options: new MyJDownloaderOptions { MaxResponseBodyLength = SmallCap });
+
+        var result = await channel.CallBinaryAsync(IconPath, []).WaitAsync(_waitTimeout);
+
+        Assert.That(result, Is.EqualTo(body));
+    }
+
+    [Test]
+    public async Task CallBinaryAsync_BodyOverOneMebibyteWithRaisedCap_ReturnsBody()
+    {
+        var body = PngBody(OneMebibyte + 1);
+        using var server = new FakeMyJdServer(_ => FakeMyJdServer.Png(body));
+        var channel = Channel(server, options: new MyJDownloaderOptions { MaxResponseBodyLength = 2 * OneMebibyte });
+
+        var result = await channel.CallBinaryAsync(IconPath, []).WaitAsync(_waitTimeout);
+
+        Assert.That(result, Is.EqualTo(body));
     }
 
     [Test]
@@ -237,9 +302,11 @@ public sealed class DeviceChannelBinaryTests
         await Assert.ThrowsAsync<TimeoutException>(() => channel.CallBinaryAsync(IconPath, []).WaitAsync(_waitTimeout));
     }
 
-    private static byte[] OversizeBody()
+    private static byte[] OversizeBody() => PngBody(OneMebibyte + 1);
+
+    private static byte[] PngBody(int length)
     {
-        var body = new byte[OneMebibyte + 1];
+        var body = new byte[length];
         _pngSignature.CopyTo(body, 0);
         return body;
     }

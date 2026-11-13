@@ -14,6 +14,8 @@ public sealed class ServerChannelConnectTests
     private const string RegainToken = "ccdd2233";
     private const string MismatchMessage = "The MyJD server response does not match the request.";
     private const string UnreadableMessage = "The MyJD server returned a response that could not be read.";
+    private const string TooLargeMessage = "The MyJD server response exceeds the configured size limit.";
+    private const int SmallCap = 2_048;
 
     private static string ValidBody(long rid) =>
         string.Create(CultureInfo.InvariantCulture, $$"""{"sessiontoken":"{{SessionToken}}","regaintoken":"{{RegainToken}}","rid":{{rid}}}""");
@@ -267,15 +269,52 @@ public sealed class ServerChannelConnectTests
     }
 
     [Test]
-    public async Task ConnectAsync_BodyOver1MiB_ThrowsUnreadable()
+    public async Task ConnectAsync_BodyOver1MiB_ThrowsTooLarge()
     {
         using var server = new FakeMyJdServer(_ => FakeMyJdServer.Raw(new string('A', 1_048_577)));
         var channel = CreateChannel(server);
 
         var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
 
-        Assert.That(exception!.Message, Is.EqualTo(UnreadableMessage));
+        Assert.That(exception!.Message, Is.EqualTo(TooLargeMessage));
         Assert.That(exception.ErrorSource, Is.EqualTo(MyJdErrorSource.Server));
+    }
+
+    [Test]
+    public async Task ConnectAsync_DeclaredLengthOverCustomCap_ThrowsTooLarge()
+    {
+        using var server = new FakeMyJdServer(_ => FakeMyJdServer.Raw(new string('A', SmallCap + 1)));
+        var channel = CreateChannel(server, new MyJDownloaderOptions { MaxResponseBodyLength = SmallCap });
+
+        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
+
+        Assert.That(exception!.Message, Is.EqualTo(TooLargeMessage));
+        Assert.That(exception.ErrorSource, Is.EqualTo(MyJdErrorSource.Server));
+    }
+
+    [Test]
+    public async Task ConnectAsync_BodyExactlyAtCustomCap_IsNotRejectedForSize()
+    {
+        // Not a valid encrypted payload: it must fail as unreadable, which proves the size check let it through.
+        using var server = new FakeMyJdServer(_ => FakeMyJdServer.Raw(new string('A', SmallCap)));
+        var channel = CreateChannel(server, new MyJDownloaderOptions { MaxResponseBodyLength = SmallCap });
+
+        var exception = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.ConnectAsync(channel.CreateConnectRequest(Email, Password), CancellationToken.None));
+
+        Assert.That(exception!.Message, Is.EqualTo(UnreadableMessage));
+    }
+
+    [Test]
+    public async Task ConnectAsync_BodyOver1MiBWithRaisedCap_ReturnsSession()
+    {
+        // The encrypted (Base64) body is about 1.4 MiB: over the default cap, within the raised one.
+        var padding = new string('a', 1_000_000);
+        using var server = ServerReturning(rid => ValidBody(rid).Replace("{\"sessiontoken\"", "{\"pad\":\"" + padding + "\",\"sessiontoken\"", StringComparison.Ordinal));
+        var channel = CreateChannel(server, new MyJDownloaderOptions { MaxResponseBodyLength = 4 * 1_048_576 });
+
+        var session = await ConnectWith(channel);
+
+        Assert.That(session.SessionToken, Is.EqualTo(SessionToken));
     }
 
     [Test]

@@ -37,7 +37,7 @@ Remarks:
 - Values may hold secrets. `ListAsync` returns current values, and `QueryAsync` returns them only when `ConfigQuery.Values` is `true`. Never log whole entries or values.
 - `PluginInfo.Pattern`, `ConfigQuery.Pattern` and the results of `GetAllPluginRegexAsync` and `GetPluginRegexAsync` are regular expressions defined or evaluated on the device. Do not compile device patterns without a match timeout.
 - `GetPluginRegexAsync` sends the URL to the device as is. The URL is not required to be a valid absolute URI.
-- Responses above 1 MiB of encrypted body (about 768 KiB of JSON) fail with `MyJdProtocolException`. The list of all plugins can be large: restrict `QueryAsync` with `ConfigQuery.ConfigInterface` or `ConfigQuery.Pattern`.
+- Responses above `MyJDownloaderOptions.MaxResponseBodyLength` (1 MiB of encrypted body by default, about 768 KiB of JSON) fail with `MyJdProtocolException`. The list of all plugins can be large: restrict `QueryAsync` with `ConfigQuery.ConfigInterface` or `ConfigQuery.Pattern`.
 - The device rejects unknown identifiers and invalid values with `400 BAD_PARAMETERS` or `400 INVALID_VALUE`, which surface as a `MyJdApiException`.
 - All text returned by the device (names, documentation, patterns, enumeration labels) is untrusted: encode it before displaying it.
 

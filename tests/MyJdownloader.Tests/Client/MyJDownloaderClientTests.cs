@@ -134,6 +134,44 @@ public sealed class MyJDownloaderClientTests
         Assert.That(ex!.ParamName, Is.EqualTo(OptionsParamName));
     }
 
+    [TestCase(1_023)]
+    [TestCase(1)]
+    [TestCase(0)]
+    [TestCase(-1)]
+    [TestCase(int.MinValue)]
+    public void Ctor_MaxResponseBodyLengthBelowMinimum_ThrowsArgumentException(int length)
+    {
+        var options = new MyJDownloaderOptions { MaxResponseBodyLength = length };
+
+        var ex = Assert.Throws<ArgumentException>(() => CreateClient(options));
+
+        Assert.That(ex!.ParamName, Is.EqualTo(OptionsParamName));
+    }
+
+    [TestCase(1_024)]
+    [TestCase(int.MaxValue)]
+    public void Ctor_MaxResponseBodyLengthAtMinimumOrAbove_IsAccepted(int length)
+    {
+        var options = new MyJDownloaderOptions { MaxResponseBodyLength = length };
+
+        Assert.DoesNotThrow(() => CreateClient(options));
+    }
+
+    [Test]
+    public async Task CallAsync_OptionsChangedAfterConstruction_KeepsConstructionTimeMaxResponseBodyLength()
+    {
+        var options = new MyJDownloaderOptions { MaxResponseBodyLength = 2_048 };
+        using var server = new FakeMyJdServer(_ => FakeMyJdServer.Raw(new string('A', 3_000)));
+        var client = CreateClient(server, options);
+        client.RestoreSession(CreateSession());
+        var channel = client.CreateDeviceChannel("dev1");
+        options.MaxResponseBodyLength = 10_000_000;
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => channel.CallAsync("/jd/version", []).WaitAsync(TimeSpan.FromSeconds(5)));
+
+        Assert.That(thrown!.Message, Is.EqualTo("The MyJD device response exceeds the configured size limit."));
+    }
+
     [Test]
     public void ExportSession_NewClient_ReturnsNull()
     {

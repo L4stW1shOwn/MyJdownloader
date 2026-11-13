@@ -11,7 +11,7 @@ The same rules apply to all of them:
 - Actions are applied immediately on the device, without confirmation. A timeout
   or network error does not mean the action failed. Check the state before you
   replay a non-idempotent action.
-- Responses are capped at 1 MiB of encrypted body. Restrict large queries.
+- Responses are capped at `MyJDownloaderOptions.MaxResponseBodyLength` (1 MiB by default) of encrypted body. Restrict large queries.
 - Values returned by the device are untrusted text: encode them before you
   display them, and do not log them when they can hold secrets.
 
@@ -301,7 +301,7 @@ Console.WriteLine($"{patterns.Count} pattern(s) match.");
 - An unknown plugin, key or an invalid value answers `400 BAD_PARAMETERS` or
   `400 INVALID_VALUE`, which surface as a `MyJdApiException`.
 - `QueryAsync` takes the `ConfigQuery` of the config facade. Restrict it with
-  `ConfigInterface` or `Pattern` to stay under the 1 MiB response cap.
+  `ConfigInterface` or `Pattern` to stay under the response cap (`MyJDownloaderOptions.MaxResponseBodyLength`, 1 MiB by default).
 
 ## Extensions: list, install, enable
 

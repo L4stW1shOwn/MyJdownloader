@@ -8,7 +8,7 @@ Reach it as `device.ContentV2`, which returns a `ContentV2Api`. The C# namespace
 
 Every method also throws `InvalidOperationException` when the client is not connected, `MyJdException` for relay or device rejections, `OperationCanceledException`, `TimeoutException` and `HttpRequestException`. The error model is described in [errors.md](errors.md).
 
-> **Warning: unauthenticated bytes.** The three icon methods return PNG images that the device sends outside the encrypted envelope. Nothing authenticates the bytes or binds them to your request: only TLS to the relay protects them, and the relay, or anything able to alter its traffic, could substitute them (ADR-011). The library checks the HTTP status, the `image/png` content type, the 1 MiB limit and the PNG signature, and nothing more. Decode the bytes with a robust, sandboxed image decoder, never serve them under another content type, and never base a security decision on them.
+> **Warning: unauthenticated bytes.** The three icon methods return PNG images that the device sends outside the encrypted envelope. Nothing authenticates the bytes or binds them to your request: only TLS to the relay protects them, and the relay, or anything able to alter its traffic, could substitute them (ADR-011). The library checks the HTTP status, the `image/png` content type, the `MyJDownloaderOptions.MaxResponseBodyLength` limit (1 MiB by default) and the PNG signature, and nothing more. Decode the bytes with a robust, sandboxed image decoder, never serve them under another content type, and never base a security decision on them.
 
 ## ContentV2Api
 
@@ -27,8 +27,9 @@ Common remarks:
 
 - The string arguments are validated before any request: `null` throws `ArgumentNullException`, a blank value, one with control characters, or one longer than its allowed length (see [Argument validation](../guides/error-handling.md#argument-validation)) throws `ArgumentException`. The validation messages never repeat the value.
 - The arguments are sent as they are, without escaping or normalization.
-- A successful icon answer that is not a PNG of at most 1 MiB, or whose `Content-Type` is not `image/png`, raises `MyJdProtocolException`. The device errors (for example `FILE_NOT_FOUND`) raise `MyJdApiException`, whose `ErrorType` holds the code.
-- The icon methods throw `NotSupportedException` when the channel of the device does not support binary answers. This cannot happen with a device obtained from `MyJDownloaderClient`.
+- A successful icon answer that is not a PNG within `MyJDownloaderOptions.MaxResponseBodyLength` (1 MiB by default), or whose `Content-Type` is not `image/png`, raises `MyJdProtocolException`. An answer over the limit reports "The MyJD device response exceeds the configured size limit.". The device errors (for example `FILE_NOT_FOUND`) raise `MyJdApiException`, whose `ErrorType` holds the code.
+- `GetFavIconAsync`, `GetFileIconAsync` and `GetIconAsync` throw `NotSupportedException` over any channel other than the one the library provides for binary answers. A device obtained from `MyJDownloaderClient` always has that channel. A facade built over your own `IDeviceChannel` (see the constructor below) throws on these three methods; `GetIconDescriptionAsync` works over any channel.
+- Constructor: `public ContentV2Api(IDeviceChannel channel)` builds the facade over any `IDeviceChannel`, typically a test double; `null` throws `ArgumentNullException`. See [Testing your code](../guides/testing-your-code.md).
 
 ### GetFavIconAsync
 

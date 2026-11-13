@@ -32,7 +32,7 @@ internal sealed class ServerChannel
     private readonly RequestIdGenerator _requestIds;
 
     public ServerChannel(HttpClient httpClient, MyJDownloaderOptions options, RequestIdGenerator requestIds, TimeProvider timeProvider)
-        : this(new RelayTransport(httpClient, timeProvider), options, requestIds)
+        : this(new RelayTransport(httpClient, timeProvider, (options ?? throw new ArgumentNullException(nameof(options))).MaxResponseBodyLength), options, requestIds)
     {
     }
 

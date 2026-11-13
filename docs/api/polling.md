@@ -79,7 +79,7 @@ foreach (PollingResult result in results)
 
 - `PollAsync` throws `ArgumentException` when every flag of the query is `false`: at least one event must be requested.
 - A `null` query is the same as `new PollingQuery()`: every event is requested, with the links of every running package.
-- Large responses are a concern: with all events and many running packages, the response can approach the 1 MiB limit on the encrypted body. Restrict the query with the flags or with `DownloadProgressPackageUuids`. Above the limit, the call fails with `MyJdProtocolException`.
+- Large responses are a concern: with all events and many running packages, the response can approach the limit on the encrypted body, `MyJDownloaderOptions.MaxResponseBodyLength` (1 MiB by default). Restrict the query with the flags or with `DownloadProgressPackageUuids`. Above the limit, the call fails with `MyJdProtocolException`.
 - The device returns no data: the result is an empty list.
 - All text and values are untrusted. Encode them before you display them. Do not log whole `EventData` values: log the event name at most.
 - `PollingResult.ToString()` prints only the JSON kind of `EventData`, never its content.

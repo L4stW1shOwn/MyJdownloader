@@ -73,7 +73,7 @@ public sealed partial class DeviceChannelTests
     }
 
     [SuppressMessage("Reliability", "CA2000", Justification = "The HttpClient lives as long as the test and wraps a disposed fake handler")]
-    private static Rig CreateRig(Func<Call, HttpResponseMessage> reply, bool restoreSession = true)
+    private static Rig CreateRig(Func<Call, HttpResponseMessage> reply, MyJDownloaderOptions? options = null, bool restoreSession = true)
     {
         var calls = new List<Call>();
         var server = new FakeMyJdServer(request =>
@@ -82,7 +82,7 @@ public sealed partial class DeviceChannelTests
             calls.Add(call);
             return reply(call);
         });
-        var client = new MyJDownloaderClient(new HttpClient(server));
+        var client = new MyJDownloaderClient(new HttpClient(server), options);
         if (restoreSession)
         {
             client.RestoreSession(CreateSession());

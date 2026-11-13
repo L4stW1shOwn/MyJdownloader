@@ -232,7 +232,7 @@ bool applied = await device.DownloadEvents.SetStatusEventIntervalAsync(
 - The shape of the events is not documented by the device. It is to be confirmed
   against a live device. The millisecond durations in the subscription are
   assumptions to confirm too.
-- `ListenAsync` responses are capped at 1 MiB.
+- `ListenAsync` responses are capped at `MyJDownloaderOptions.MaxResponseBodyLength` (1 MiB by default).
 
 ## Discover the event names
 

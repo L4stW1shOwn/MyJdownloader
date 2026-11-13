@@ -48,11 +48,12 @@ Do not resolve the client through a service locator in your own code.
 `MyJDownloaderOptions` is read when the client is first resolved. Invalid
 values throw `ArgumentException` at that point.
 
-| Property      | Default                       | Notes                                                   |
-|---------------|-------------------------------|---------------------------------------------------------|
-| `AppKey`      | `"MyJdownloader.NET"`         | Set it to your application name.                        |
-| `BaseAddress` | `https://api.jdownloader.org` | Version 1 uses only the official relay (ADR-006).       |
-| `ApiVersion`  | `1`                           | `apiVer` used for device calls.                         |
+| Property                | Default                       | Notes                                                             |
+|-------------------------|-------------------------------|-------------------------------------------------------------------|
+| `AppKey`                | `"MyJdownloader.NET"`         | Set it to your application name.                                  |
+| `BaseAddress`           | `https://api.jdownloader.org` | Version 1 uses only the official relay (ADR-006).                 |
+| `ApiVersion`            | `1`                           | `apiVer` used for device calls.                                   |
+| `MaxResponseBodyLength` | `1048576` (1 MiB)             | Largest accepted response body, in bytes; at least `1024`. Raise it for large lists. |
 
 ```csharp
 services.AddMyJDownloader(o => o.AppKey = "MyApp");

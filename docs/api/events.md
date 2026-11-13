@@ -35,7 +35,7 @@ Remarks:
 - Subscription patterns and exclusions are regular expressions evaluated on the device, not by this library. Each item must be non-null, non-blank, and free of control characters and lone surrogates, and not longer than its allowed length (see [Argument validation](../guides/error-handling.md#argument-validation)); otherwise `ArgumentException` is thrown.
 - `ListenAsync` is a long poll: the device holds the request until events are queued or the subscription poll timeout elapses, then answers with the queued events, possibly none.
 - The call is bounded by `HttpClient.Timeout`, which covers the response body. The library neither raises nor bypasses it, so keep the poll timeout well below it. For example, use 25 s with the default 100 s client timeout, through `ChangeSubscriptionTimeoutsAsync`.
-- Responses are capped at 1 MiB. The shape of the events is undocumented; it is an assumption to confirm by live tests.
+- Responses are capped at `MyJDownloaderOptions.MaxResponseBodyLength` (1 MiB by default). The shape of the events is undocumented and has not been verified against a real device.
 - `SubscribeAsync`, `UnsubscribeAsync` and the other write methods act on the device immediately. A timeout means the action may have been executed.
 
 `StreamAsync` remarks:
@@ -108,7 +108,7 @@ Options of `StreamAsync`: which events to follow and how the device-side subscri
 
 An event received from the device by listening to a subscription.
 
-The shape of the `listen` items is undocumented; it is an assumption to confirm by live tests. Property names are read case-insensitively. `Data` is untyped and may hold anything, including secrets: do not log it. `Publisher` and `EventId` are device-controlled strings: sanitize or encode them before logging or rendering. `ToString()` prints only the JSON kind of `Data`, never its content.
+The shape of the `listen` items is undocumented and has not been verified against a real device. Property names are read case-insensitively. `Data` is untyped and may hold anything, including secrets: do not log it. `Publisher` and `EventId` are device-controlled strings: sanitize or encode them before logging or rendering. `ToString()` prints only the JSON kind of `Data`, never its content.
 
 | Property | Type | Description |
 |---|---|---|
@@ -139,8 +139,8 @@ An event subscription as reported by the device.
 | `Subscribed` | `bool` | Whether the subscription is active. |
 | `Subscriptions` | `IReadOnlyList<string>?` | Subscribed event patterns, each one a regular expression evaluated on the device. |
 | `Exclusions` | `IReadOnlyList<string>?` | Excluded event patterns, each one a regular expression evaluated on the device. |
-| `MaxPollTimeout` | `TimeSpan?` | Maximum poll timeout, or `null` when unknown (JSON `maxPolltimeout`). Milliseconds on the wire; assumption to confirm by live tests. |
-| `MaxKeepalive` | `TimeSpan?` | Maximum keep-alive duration, or `null` when unknown. Milliseconds on the wire; assumption to confirm by live tests. |
+| `MaxPollTimeout` | `TimeSpan?` | Maximum poll timeout, or `null` when unknown (JSON `maxPolltimeout`). Milliseconds on the wire; the unit is not documented by JDownloader and has not been verified against a real device. |
+| `MaxKeepalive` | `TimeSpan?` | Maximum keep-alive duration, or `null` when unknown. Milliseconds on the wire; the unit is not documented by JDownloader and has not been verified against a real device. |
 
 ## EventSubscriptionStatus
 

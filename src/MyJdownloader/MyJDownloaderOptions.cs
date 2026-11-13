@@ -33,4 +33,16 @@ public sealed class MyJDownloaderOptions
     /// encrypted body of every device call.
     /// </remarks>
     public int ApiVersion { get; set; } = 1;
+
+    /// <summary>Gets or sets the maximum size, in bytes, of an HTTP response body.</summary>
+    /// <remarks>
+    /// The limit applies to the body as received, that is the encrypted Base64 form, so about three quarters of it is JSON. It
+    /// covers server calls, device calls and binary (PNG) answers. Validated at client construction: it must be at least
+    /// <c>1024</c>; no upper bound is enforced. A larger body raises a <see cref="MyJdProtocolException"/>. For queries on large
+    /// lists, raise it instead of, or in addition to, paging.
+    /// Each in-flight call can hold several times this value in memory (copies of the body, its UTF-16 text and the decrypted JSON);
+    /// raising it lets the relay or the device make the client allocate that much per call. Bodies near 1 GiB or above cannot be
+    /// processed whatever the value. Error responses are read up to 1 MiB at most.
+    /// </remarks>
+    public int MaxResponseBodyLength { get; set; } = 1_048_576;
 }

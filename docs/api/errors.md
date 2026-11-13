@@ -86,7 +86,7 @@ Raised when a response violates the MyJDownloader protocol: malformed payload, b
 
 **Remarks**
 
-- Raised when a successful response is larger than 1 MiB, when its body cannot be decrypted or deserialized, when a device answer's request id does not match the request, or when a device answer cannot be read with the response type given by the caller. An oversized body on a non-success response does not raise this exception: the status is mapped as an error of unknown type (`MyJdApiException`, `ErrorType` `UNKNOWN`).
+- Raised when a successful response is larger than `MyJDownloaderOptions.MaxResponseBodyLength` (1 MiB by default), with the message "The MyJD server response exceeds the configured size limit." for server calls or "The MyJD device response exceeds the configured size limit." for device calls and binary answers, when its body cannot be decrypted or deserialized, when a device answer's request id does not match the request, or when a device answer cannot be read with the response type given by the caller. An oversized body on a non-success response does not raise this exception: the status is mapped as an error of unknown type (`MyJdApiException`, `ErrorType` `UNKNOWN`).
 - The library never attaches the inner detail of a decryption or protocol failure, to avoid exposing a padding oracle. Treat this exception as "the response cannot be trusted", not as a diagnostic.
 - Usually a bug or a version mismatch, not a transient condition: retrying rarely helps.
 

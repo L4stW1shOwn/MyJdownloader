@@ -59,7 +59,8 @@ public sealed class MyJDownloaderClient
     /// <exception cref="ArgumentException">
     /// The options are invalid: <see cref="MyJDownloaderOptions.AppKey"/> is blank, longer than 256 characters or contains a control
     /// character; <see cref="MyJDownloaderOptions.BaseAddress"/> is null or not an absolute <c>https</c> URI without user info, query
-    /// or fragment; <see cref="MyJDownloaderOptions.ApiVersion"/> is below 1.
+    /// or fragment; <see cref="MyJDownloaderOptions.ApiVersion"/> is below 1;
+    /// <see cref="MyJDownloaderOptions.MaxResponseBodyLength"/> is below 1 024.
     /// </exception>
     public MyJDownloaderClient(HttpClient httpClient, MyJDownloaderOptions? options = null, TimeProvider? timeProvider = null)
     {
@@ -67,7 +68,7 @@ public sealed class MyJDownloaderClient
         _options = CopyAndValidate(options ?? new MyJDownloaderOptions());
         var time = timeProvider ?? TimeProvider.System;
         _requestIds = new RequestIdGenerator(time);
-        _transport = new RelayTransport(httpClient, time);
+        _transport = new RelayTransport(httpClient, time, _options.MaxResponseBodyLength);
         _serverChannel = new ServerChannel(_transport, _options, _requestIds);
     }
 
@@ -251,7 +252,7 @@ public sealed class MyJDownloaderClient
     /// The id is validated (and escaped in request paths) but no request is sent and the device is not checked to exist.
     /// The session is read on every call made through the device, not when it is obtained: the device can be obtained
     /// before <see cref="RestoreSession"/> and survives session renewals. <see cref="JDownloaderDevice.Channel"/> gives
-    /// access to any device action now; typed namespace properties come later.
+    /// access to any device action, including the ones without a typed method.
     /// </remarks>
     /// <exception cref="ArgumentException"><paramref name="deviceId"/> is blank, too long or contains invalid characters.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="deviceId"/> is <see langword="null"/>.</exception>
@@ -326,7 +327,18 @@ public sealed class MyJDownloaderClient
             throw new ArgumentException("ApiVersion must be greater than or equal to 1.", nameof(options));
         }
 
-        return new MyJDownloaderOptions { AppKey = appKey, BaseAddress = address, ApiVersion = options.ApiVersion };
+        if (options.MaxResponseBodyLength < 1_024)
+        {
+            throw new ArgumentException("MaxResponseBodyLength must be greater than or equal to 1024.", nameof(options));
+        }
+
+        return new MyJDownloaderOptions
+        {
+            AppKey = appKey,
+            BaseAddress = address,
+            ApiVersion = options.ApiVersion,
+            MaxResponseBodyLength = options.MaxResponseBodyLength,
+        };
     }
 
     private async Task<MyJdSession> ConnectCoreAsync(ConnectRequest request, CancellationToken cancellationToken)

@@ -87,6 +87,6 @@ public sealed class LinkGrabberEndToEndTests
         var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => device.LinkGrabber.QueryLinksAsync().WaitAsync(_waitTimeout));
 
         Assert.That(thrown!.ErrorSource, Is.EqualTo(MyJdErrorSource.Device));
-        Assert.That(thrown.Message, Is.EqualTo(MyJdownloader.Transport.RelayTransport.UnreadableMessageFor(MyJdErrorSource.Device)));
+        Assert.That(thrown.Message, Is.EqualTo("The MyJD device response exceeds the configured size limit."));
     }
 }

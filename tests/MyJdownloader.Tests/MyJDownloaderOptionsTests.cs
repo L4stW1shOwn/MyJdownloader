@@ -14,4 +14,8 @@ public sealed class MyJDownloaderOptionsTests
     [Test]
     public void Constructor_Default_ApiVersionIsOne()
         => Assert.That(new MyJDownloaderOptions().ApiVersion, Is.EqualTo(1));
+
+    [Test]
+    public void Constructor_Default_MaxResponseBodyLengthIsOneMebibyte()
+        => Assert.That(new MyJDownloaderOptions().MaxResponseBodyLength, Is.EqualTo(1_048_576));
 }

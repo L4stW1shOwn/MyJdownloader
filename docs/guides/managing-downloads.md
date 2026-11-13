@@ -22,9 +22,10 @@ Links usually go through the link grabber first, then to the download list with
   `CrawledLink`, `CrawledPackage`, `DownloadLink` or `DownloadPackage` values.
 - `DownloadPackage.DownloadPassword` and `DownloadLink.DownloadPassword` are
   returned by the device without an opt-out.
-- Responses are capped at 1 MiB of encrypted body (about 768 KiB of JSON). Page
-  long lists with `StartAt` and `MaxResults`. A larger answer fails with
-  `MyJdProtocolException`.
+- Responses are capped at `MyJDownloaderOptions.MaxResponseBodyLength` (1 MiB by
+  default, about 768 KiB of JSON). Page long lists with `StartAt` and
+  `MaxResults`, or raise the limit when you build the client. A larger answer
+  fails with `MyJdProtocolException`.
 - Each action is applied immediately on the device, without confirmation. A
   timeout does not mean the action failed; check the state before replaying it.
 
