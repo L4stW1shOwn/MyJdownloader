@@ -40,7 +40,7 @@ the `dotnet test` command line only scopes it to that process.
 
 **Warning**: `quality.sh` or a solution-level `dotnet test` (no category filter)
 runs the live suite whenever `MYJD_EMAIL` and `MYJD_PASSWORD` are set. The
-write tests (stop mark, test link and variant link, described below)
+write tests (stop mark, test link, variant link and container, described below)
 additionally need `MYJD_LIVE_WRITES=1`; without it they are ignored. When enabled, they add and
 remove a test link in the link grabber and set then remove a stop mark on the
 first download.
@@ -84,6 +84,10 @@ Every write is reversible and restored in a `finally` block of the same test.
   crawler may rewrite the URL, the test owns the links of its own crawl job whose
   plugin host or URL host matches the URL host (a leading `www.` ignored); it
   never empties the list. The crawl is awaited up to 90 seconds. The URL and the link names are not written to the output.
+- **Container** (only with `MYJD_LIVE_WRITES=1`): a crawljob container holding the
+  test link, with Autostart off, is added to the link grabber. The link is awaited
+  and then removed, as for the test link; the container bytes are not written to
+  the output.
 - **Events**: a subscription is created, listened to once briefly, and removed.
 
 ## What the tests never call
@@ -98,9 +102,10 @@ Every write is reversible and restored in a `finally` block of the same test.
 
 ## If a run is interrupted
 
-If a run is stopped, or `AddLinks` times out, open the link grabber on the device
-and look for the test link `https://example.com/myjdownloader-live-test.bin`; remove
-it manually. Check the download list for a leftover stop mark too, and remove it
+If a run is stopped, or `AddLinks` or `AddContainer` times out, open the link
+grabber on the device and look for the test link
+`https://example.com/myjdownloader-live-test.bin` (the container probe adds the
+same link); remove it manually. Check the download list for a leftover stop mark too, and remove it
 if you did not set it.
 
 ## Output and what to share
@@ -135,4 +140,5 @@ models and settle the open assumptions:
   clearing its password) and the download probes (`getStopMark`,
   `getStructureChangeCounter`, `getDownloadUrls`) settle the assumptions marked
   "to be confirmed by live tests";
-- `addContainer` (T-065) will be covered later.
+- the container probe (`addContainer` with a crawljob) settles that the device
+  starts a job for a crawljob container and yields the test link.

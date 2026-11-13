@@ -315,6 +315,56 @@ public sealed class LinkGrabberLiveTests
         }
     }
 
+    [Test]
+    [CancelAfter(60_000)]
+    public async Task CrawlJobContainer_AddThenRemove(CancellationToken cancellationToken)
+    {
+        if (Environment.GetEnvironmentVariable("MYJD_LIVE_WRITES") != "1")
+        {
+            Assert.Ignore("Live writes not enabled (set MYJD_LIVE_WRITES=1)");
+        }
+
+        // A JDownloader folder watch file holding only the fixed test link; confirmation and start are forced off
+        // so the link stays in the link grabber, where the cleanup looks for it.
+        var crawlJob = System.Text.Encoding.UTF8.GetBytes("text=" + TestLink + "\nautoConfirm=FALSE\nautoStart=FALSE\nforcedStart=FALSE\nenabled=TRUE\n");
+        var job = await LiveGuard.RunAsync(() => LinkGrabber.AddContainerAsync(ContainerType.CrawlJob, crawlJob, cancellationToken));
+        if (job is null)
+        {
+            // The device could not store the container: nothing was added.
+            Assert.Inconclusive("The device could not store the container");
+        }
+
+        if (job.Id <= 0)
+        {
+            await RemoveTestLinkAsync(job.Id, null);
+            Assert.Inconclusive("Unexpected link collecting job id");
+        }
+
+        long? linkId = null;
+        bool cleanedUp;
+        try
+        {
+            var link = await WaitForLinkAsync(job.Id, cancellationToken);
+            if (link is null)
+            {
+                Assert.Inconclusive("Container link did not appear");
+            }
+
+            linkId = link.Uuid;
+            await TestContext.Out.WriteLineAsync("Container link found");
+        }
+        finally
+        {
+            cleanedUp = await RemoveTestLinkAsync(job.Id, linkId);
+        }
+
+        if (cleanedUp)
+        {
+            var remaining = await LiveGuard.RunAsync(() => LinkGrabber.QueryLinksAsync(new LinkQuery { JobUuids = [job.Id] }, cancellationToken));
+            Assert.That(remaining.Where(IsTestLink), Is.Empty);
+        }
+    }
+
     private static string StripWww(string host) =>
         host.StartsWith("www.", StringComparison.OrdinalIgnoreCase) ? host[4..] : host;
 }
