@@ -20,14 +20,14 @@ public sealed record EventSubscription
 
     /// <summary>
     /// Gets the maximum poll timeout, or <see langword="null"/> when unknown. Milliseconds on the wire
-    /// (assumption to confirm by live tests).
+    /// (unit not documented by JDownloader and not verified against a real device).
     /// </summary>
     [JsonPropertyName("maxPolltimeout")]
     public TimeSpan? MaxPollTimeout { get; init; }
 
     /// <summary>
     /// Gets the maximum keep-alive duration, or <see langword="null"/> when unknown. Milliseconds on the wire
-    /// (assumption to confirm by live tests).
+    /// (unit not documented by JDownloader and not verified against a real device).
     /// </summary>
     public TimeSpan? MaxKeepalive { get; init; }
 }

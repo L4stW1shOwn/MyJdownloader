@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 /// <summary>An event received from the device by listening to a subscription.</summary>
 /// <remarks>
-/// The shape of the <c>listen</c> items is undocumented (assumption to confirm by live tests); property names are read
+/// The shape of the <c>listen</c> items is undocumented (not verified against a real device); property names are read
 /// case-insensitively. <see cref="Data"/> is untyped and may hold anything, including secrets: do not log it.
 /// <see cref="Publisher"/> and <see cref="EventId"/> are device-controlled strings: sanitize or encode them before logging or rendering.
 /// <see cref="object.ToString"/> prints only its JSON kind, never its content.
