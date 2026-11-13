@@ -419,3 +419,8 @@ dotnet_naming_symbols.parameters_group.applicable_kinds = parameter
 dotnet_naming_rule.parameters_rule.symbols              = parameters_group
 dotnet_naming_rule.parameters_rule.style                = camel_case_style
 dotnet_naming_rule.parameters_rule.severity             = warning
+
+# Device-namespace facades are grouped under a Namespaces/ folder for navigation only: their C# namespace
+# stays MyJdownloader.<Namespace> (no ".Namespaces" segment in the public API). See ADR-007.
+[{src/MyJdownloader/Namespaces/**.cs,tests/MyJdownloader.Tests/Namespaces/**.cs}]
+dotnet_style_namespace_match_folder = false
