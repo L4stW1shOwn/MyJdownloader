@@ -7,6 +7,10 @@ updates:
     # Wait before proposing a freshly published version (compromised or yanked releases).
     cooldown:
       default-days: 7
+    # A major Microsoft.Extensions.* update would force consumers of the net10.0 packages onto the next major.
+    ignore:
+      - dependency-name: "Microsoft.Extensions.*"
+        update-types: ["version-update:semver-major"]
     groups:
       nuget-minor-patch:
         update-types: [minor, patch]
