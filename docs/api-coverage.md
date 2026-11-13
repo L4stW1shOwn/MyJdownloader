@@ -10,7 +10,7 @@ Each row compares two counts for one device namespace. The first is the number o
 | [Downloads](api/downloads.md) | `/downloadsV2` | ✅ 26/26 | — |
 | [DownloadController](api/download-controller.md) | `/downloadcontroller` | 5/6 | `forceDownload` |
 | [Jd](api/jd.md) | `/jd` | 4/6 | `doSomethingCool`, `sum` (test endpoints, not planned) |
-| [System](api/system.md) | `/system` | 5/7 | `getStorageInfos`, `getSystemInfos` |
+| [System](api/system.md) | `/system` | ✅ 7/7 | — |
 | [Config](api/config.md) | `/config` | 6/7 | `list` |
 | [Accounts](api/accounts.md) | `/accountsV2` | ✅ 14/14 | — |
 | [Captcha](api/captcha.md) | `/captcha` | ✅ 5/5 | — |
@@ -31,7 +31,7 @@ Each row compares two counts for one device namespace. The first is the number o
 | [Toolbar](api/toolbar.md) | `/toolbar` | 11/15 | `addLinksFromDOM`, `checkLinksFromDOM`, `pollCheckedLinksFromDOM` (browser-extension DOM protocol with named HTTP parameters, not sendable through `IDeviceChannel`), `specialURLHandling` (returns JavaScript for a browser) |
 | [DownloadEvents](api/downloadevents.md) | `/downloadevents` | 1/2 | `queryLinks` (always fails with "Not Implemented" on the device) |
 
-Subtotal for the typed facades: 155/169 actions.
+Subtotal for the typed facades: 157/169 actions.
 
 ## Out of scope
 
@@ -43,4 +43,4 @@ The following namespaces are not planned:
 
 ## Totals
 
-Across all official namespaces, 155 of the 169 actions have a typed method (`155/169`).
+Across all official namespaces, 157 of the 169 actions have a typed method (`157/169`).
