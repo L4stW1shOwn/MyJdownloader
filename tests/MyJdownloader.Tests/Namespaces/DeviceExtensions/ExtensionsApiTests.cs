@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.DeviceExtensions;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.DeviceExtensions;
+using MyJdownloader.Errors;
 using MyJdownloader.Tests.Facades;
 using NSubstitute;
 

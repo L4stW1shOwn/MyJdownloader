@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.Accounts;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Accounts;
+using MyJdownloader.Errors;
 using MyJdownloader.Tests.Facades;
 using NSubstitute;
 

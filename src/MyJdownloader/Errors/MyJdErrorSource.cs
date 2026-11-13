@@ -1,4 +1,4 @@
-namespace MyJdownloader;
+namespace MyJdownloader.Errors;
 
 /// <summary>Identifies which side of the MyJDownloader relay reported an error.</summary>
 public enum MyJdErrorSource

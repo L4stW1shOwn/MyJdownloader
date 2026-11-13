@@ -1,5 +1,6 @@
 namespace MyJdownloader.LinkCrawler;
 
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/linkcrawler</c> namespace of one device (link crawler activity).</summary>

@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
 using MyJdownloader.Crypto;
+using MyJdownloader.Errors;
 using MyJdownloader.Tests.Transport;
 
 [TestFixture]

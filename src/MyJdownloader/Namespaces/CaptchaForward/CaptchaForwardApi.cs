@@ -1,6 +1,7 @@
 namespace MyJdownloader.CaptchaForward;
 
 using System.Text.Json;
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/captchaforward</c> namespace of one device (reCAPTCHA v2 challenges solved by the device).</summary>

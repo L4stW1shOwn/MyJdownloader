@@ -1,6 +1,7 @@
 namespace MyJdownloader.Ui;
 
 using System.Text.Json;
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/ui</c> namespace of one device (context menus and their actions).</summary>

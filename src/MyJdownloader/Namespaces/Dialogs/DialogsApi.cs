@@ -1,6 +1,7 @@
 namespace MyJdownloader.Dialogs;
 
 using System.Text.Json;
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/dialogs</c> namespace of one device (dialogs JDownloader is waiting on).</summary>

@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.DownloadEvents;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.DownloadEvents;
+using MyJdownloader.Errors;
 using NSubstitute;
 
 [TestFixture]

@@ -3,6 +3,7 @@ namespace MyJdownloader;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
+using MyJdownloader.Errors;
 
 /// <summary>An encrypted channel to one device, reached through the MyJDownloader relay.</summary>
 /// <remarks>

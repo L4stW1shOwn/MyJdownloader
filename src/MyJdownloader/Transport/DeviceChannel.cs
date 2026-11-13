@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using System.Text.RegularExpressions;
 using MyJdownloader.Crypto;
+using MyJdownloader.Errors;
 
 /// <summary>Encrypted channel to one device through the relay; see <see cref="IDeviceChannel"/>.</summary>
 /// <remarks>No exception raised here carries the path, the device id, the session token or the arguments.</remarks>

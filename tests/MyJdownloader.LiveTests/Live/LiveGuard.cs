@@ -2,6 +2,7 @@ namespace MyJdownloader.LiveTests.Live;
 
 using System.Globalization;
 using System.Text.Json;
+using MyJdownloader.Errors;
 
 /// <summary>Helpers shared by the live tests.</summary>
 internal static class LiveGuard

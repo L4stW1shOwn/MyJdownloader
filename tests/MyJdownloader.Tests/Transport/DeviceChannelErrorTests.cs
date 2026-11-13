@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Crypto;
+using MyJdownloader.Errors;
 
 public sealed partial class DeviceChannelTests
 {

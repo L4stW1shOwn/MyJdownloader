@@ -1,6 +1,7 @@
 namespace MyJdownloader.Captcha;
 
 using System.Text.Json;
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/captcha</c> namespace of one device (pending captcha challenges).</summary>

@@ -3,6 +3,7 @@ namespace MyJdownloader.Plugins;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using MyJdownloader.Config;
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 using MyJdownloader.Transport;
 

@@ -1,5 +1,6 @@
 namespace MyJdownloader.Facades;
 
+using MyJdownloader.Errors;
 using MyJdownloader.Transport;
 
 /// <summary>Result adapters shared by the device namespace facades.</summary>

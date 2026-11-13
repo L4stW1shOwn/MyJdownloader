@@ -1,5 +1,6 @@
 namespace MyJdownloader.Toolbar;
 
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/toolbar</c> namespace of one device (the actions of the browser-extension toolbar).</summary>

@@ -3,6 +3,7 @@ namespace MyJdownloader;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ExceptionServices;
+using MyJdownloader.Errors;
 using MyJdownloader.Transport;
 
 /// <summary>Client for the MyJDownloader relay server.</summary>

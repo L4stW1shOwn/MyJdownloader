@@ -2,6 +2,7 @@ namespace MyJdownloader.Extensions.DependencyInjection.Tests;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using MyJdownloader.Errors;
 
 [TestFixture]
 public sealed class MyJDownloaderClientRegistrationTests

@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using MyJdownloader.Errors;
 using MyJdownloader.Transport;
 
 [TestFixture]

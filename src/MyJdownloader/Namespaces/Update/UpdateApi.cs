@@ -1,5 +1,6 @@
 namespace MyJdownloader.Update;
 
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/update</c> namespace of one device (check for and install JDownloader updates).</summary>

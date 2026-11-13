@@ -1,5 +1,7 @@
 namespace MyJdownloader;
 
+using MyJdownloader.Errors;
+
 /// <summary>Configuration options for the MyJDownloader client.</summary>
 /// <remarks>
 /// <para>

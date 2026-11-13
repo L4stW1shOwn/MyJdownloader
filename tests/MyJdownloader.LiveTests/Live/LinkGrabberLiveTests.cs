@@ -2,6 +2,7 @@ namespace MyJdownloader.LiveTests.Live;
 
 using System.Globalization;
 using System.Text.Json;
+using MyJdownloader.Errors;
 using MyJdownloader.LinkGrabber;
 
 [TestFixture]

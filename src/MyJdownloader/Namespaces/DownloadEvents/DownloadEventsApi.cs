@@ -1,6 +1,7 @@
 namespace MyJdownloader.DownloadEvents;
 
 using System.Text.Json;
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/downloadevents</c> namespace of one device (the push interval of the download events).</summary>

@@ -1,6 +1,7 @@
 namespace MyJdownloader.DeviceExtensions;
 
 using System.Text.Json;
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/extensions</c> namespace of one device (JDownloader extensions).</summary>

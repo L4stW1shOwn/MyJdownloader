@@ -1,5 +1,7 @@
 namespace MyJdownloader.LiveTests.Live;
 
+using MyJdownloader.Errors;
+
 [TestFixture]
 [Category("Live")]
 public sealed class EventsLiveTests

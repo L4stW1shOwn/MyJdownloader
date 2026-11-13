@@ -1,6 +1,7 @@
 namespace MyJdownloader.LinkGrabber;
 
 using System.Text.Json;
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 public sealed partial class LinkGrabberApi

@@ -1,6 +1,7 @@
 namespace MyJdownloader.Transport;
 
 using System.Text.Json;
+using MyJdownloader.Errors;
 
 /// <summary>
 /// Device channel whose successful answer is a raw PNG image instead of an encrypted JSON envelope (ADR-011).

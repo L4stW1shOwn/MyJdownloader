@@ -1,5 +1,7 @@
 namespace MyJdownloader.Reconnect;
 
+using MyJdownloader.Errors;
+
 /// <summary>Typed facade over the <c>/reconnect</c> namespace of one device (internet connection reconnect).</summary>
 public sealed class ReconnectApi
 {

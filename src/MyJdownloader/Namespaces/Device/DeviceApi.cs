@@ -1,5 +1,6 @@
 namespace MyJdownloader.Device;
 
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/device</c> namespace of one device (liveness check).</summary>

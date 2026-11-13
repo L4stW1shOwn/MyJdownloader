@@ -1,5 +1,6 @@
 namespace MyJdownloader.Jd;
 
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/jd</c> namespace of one device (uptime, version, core revision and plugin refresh).</summary>

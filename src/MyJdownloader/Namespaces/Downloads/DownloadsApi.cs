@@ -1,6 +1,7 @@
 namespace MyJdownloader.Downloads;
 
 using System.Text.Json;
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/downloadsV2</c> namespace of one device (the download list).</summary>

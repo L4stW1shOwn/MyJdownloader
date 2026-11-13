@@ -2,6 +2,7 @@ namespace MyJdownloader.Tests.Client;
 
 using System.Net;
 using MyJdownloader.Crypto;
+using MyJdownloader.Errors;
 using MyJdownloader.Tests.Transport;
 
 public sealed partial class MyJDownloaderClientLifecycleTests

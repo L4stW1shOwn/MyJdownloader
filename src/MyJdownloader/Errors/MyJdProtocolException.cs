@@ -1,4 +1,4 @@
-namespace MyJdownloader;
+namespace MyJdownloader.Errors;
 
 /// <summary>
 /// Raised when a response violates the MyJDownloader protocol (malformed payload, bad signature, and so on).

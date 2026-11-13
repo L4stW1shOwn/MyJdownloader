@@ -1,6 +1,7 @@
 namespace MyJdownloader.Accounts;
 
 using System.Text.Json;
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/accountsV2</c> namespace of one device (premium hoster accounts and basic authentication entries).</summary>

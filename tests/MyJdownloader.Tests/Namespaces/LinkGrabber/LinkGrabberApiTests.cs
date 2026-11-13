@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.LinkGrabber;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization.Metadata;
+using MyJdownloader.Errors;
 using MyJdownloader.LinkGrabber;
 using MyJdownloader.Tests.Facades;
 using NSubstitute;

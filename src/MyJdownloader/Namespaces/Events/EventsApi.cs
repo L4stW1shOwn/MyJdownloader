@@ -1,6 +1,7 @@
 namespace MyJdownloader.Events;
 
 using System.Text.Json;
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/events</c> namespace of one device (event subscriptions and long polling).</summary>

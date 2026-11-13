@@ -1,6 +1,7 @@
 namespace MyJdownloader.Log;
 
 using System.Text.Json;
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/log</c> namespace of one device (log folders and support upload).</summary>

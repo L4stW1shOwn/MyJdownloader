@@ -1,6 +1,7 @@
 namespace MyJdownloader.ContentV2;
 
 using System.Text.Json;
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 using MyJdownloader.Transport;
 

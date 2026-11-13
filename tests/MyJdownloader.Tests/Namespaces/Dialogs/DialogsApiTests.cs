@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.Dialogs;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Dialogs;
+using MyJdownloader.Errors;
 using MyJdownloader.Tests.Facades;
 using NSubstitute;
 

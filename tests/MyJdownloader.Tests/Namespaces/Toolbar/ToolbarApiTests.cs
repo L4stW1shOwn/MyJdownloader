@@ -2,6 +2,7 @@ namespace MyJdownloader.Tests.Toolbar;
 
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
+using MyJdownloader.Errors;
 using MyJdownloader.Toolbar;
 using NSubstitute;
 

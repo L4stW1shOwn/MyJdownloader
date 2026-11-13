@@ -2,6 +2,7 @@ namespace MyJdownloader.Events;
 
 using System.Net;
 using System.Runtime.CompilerServices;
+using MyJdownloader.Errors;
 
 /// <summary>The iterator behind <see cref="EventsApi.StreamAsync"/>: subscription lifecycle, long polling and failure policy.</summary>
 /// <remarks>

@@ -1,6 +1,7 @@
 namespace MyJdownloader.Tests.Errors;
 
 using System.Net;
+using MyJdownloader.Errors;
 
 [TestFixture]
 public sealed class MyJdExceptionTests

@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.ContentV2;
 using System.Globalization;
 using System.Text.Json;
 using MyJdownloader.ContentV2;
+using MyJdownloader.Errors;
 using MyJdownloader.Tests.Transport;
 
 [TestFixture]

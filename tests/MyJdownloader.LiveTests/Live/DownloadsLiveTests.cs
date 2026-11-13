@@ -3,6 +3,7 @@ namespace MyJdownloader.LiveTests.Live;
 using System.Globalization;
 using System.Text.Json;
 using MyJdownloader.Downloads;
+using MyJdownloader.Errors;
 
 [TestFixture]
 [Category("Live")]

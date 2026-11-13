@@ -1,6 +1,7 @@
 namespace MyJdownloader.SystemControl;
 
 using System.Text.Json;
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/system</c> namespace of one device (system and storage information; restart or exit JDownloader, shut down, standby or hibernate the operating system).</summary>

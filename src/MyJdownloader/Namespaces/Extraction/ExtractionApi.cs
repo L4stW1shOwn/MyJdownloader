@@ -1,6 +1,7 @@
 namespace MyJdownloader.Extraction;
 
 using System.Text.Json;
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/extraction</c> namespace of one device (archive extraction).</summary>

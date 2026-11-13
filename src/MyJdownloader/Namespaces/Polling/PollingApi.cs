@@ -2,6 +2,7 @@ namespace MyJdownloader.Polling;
 
 using System.Buffers;
 using System.Text.Json;
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/polling</c> namespace of one device (state snapshot events).</summary>

@@ -1,6 +1,7 @@
 namespace MyJdownloader.LinkGrabber;
 
 using System.Text.Json;
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/linkgrabberv2</c> namespace of one device (links collected but not yet in the download list).</summary>

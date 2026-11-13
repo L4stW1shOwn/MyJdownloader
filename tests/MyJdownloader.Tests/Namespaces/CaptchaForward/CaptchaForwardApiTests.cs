@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.CaptchaForward;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.CaptchaForward;
+using MyJdownloader.Errors;
 using MyJdownloader.Tests.Facades;
 using NSubstitute;
 

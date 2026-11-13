@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.Transport;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using MyJdownloader.Crypto;
+using MyJdownloader.Errors;
 using MyJdownloader.Transport;
 
 [TestFixture]

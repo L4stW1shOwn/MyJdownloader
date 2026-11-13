@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Crypto;
+using MyJdownloader.Errors;
 using MyJdownloader.Json;
 
 /// <summary>

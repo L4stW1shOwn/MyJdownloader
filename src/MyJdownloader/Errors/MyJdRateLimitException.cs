@@ -1,4 +1,4 @@
-namespace MyJdownloader;
+namespace MyJdownloader.Errors;
 
 using System.Net;
 

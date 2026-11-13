@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.Extraction;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization.Metadata;
+using MyJdownloader.Errors;
 using MyJdownloader.Extraction;
 using MyJdownloader.Tests.Facades;
 using NSubstitute;

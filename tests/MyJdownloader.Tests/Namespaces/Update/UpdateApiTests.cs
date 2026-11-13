@@ -2,6 +2,7 @@ namespace MyJdownloader.Tests.Update;
 
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
+using MyJdownloader.Errors;
 using MyJdownloader.Update;
 using NSubstitute;
 

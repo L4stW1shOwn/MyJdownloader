@@ -3,6 +3,7 @@ namespace MyJdownloader.Tests.Plugins;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using MyJdownloader.Config;
+using MyJdownloader.Errors;
 using MyJdownloader.Plugins;
 using MyJdownloader.Tests.Facades;
 using NSubstitute;

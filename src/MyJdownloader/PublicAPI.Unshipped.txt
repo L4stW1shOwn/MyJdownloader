@@ -385,44 +385,44 @@ MyJdownloader.MyJDownloaderOptions.BaseAddress.set -> void
 MyJdownloader.MyJDownloaderOptions.MaxResponseBodyLength.get -> int
 MyJdownloader.MyJDownloaderOptions.MaxResponseBodyLength.set -> void
 MyJdownloader.MyJDownloaderOptions.MyJDownloaderOptions() -> void
-MyJdownloader.MyJdApiException
-MyJdownloader.MyJdApiException.MyJdApiException() -> void
-MyJdownloader.MyJdApiException.MyJdApiException(string! message) -> void
-MyJdownloader.MyJdApiException.MyJdApiException(string! message, MyJdownloader.MyJdErrorSource errorSource, string! errorType, System.Net.HttpStatusCode statusCode) -> void
-MyJdownloader.MyJdApiException.MyJdApiException(string! message, System.Exception! innerException) -> void
-MyJdownloader.MyJdAuthenticationException
-MyJdownloader.MyJdAuthenticationException.MyJdAuthenticationException() -> void
-MyJdownloader.MyJdAuthenticationException.MyJdAuthenticationException(string! message) -> void
-MyJdownloader.MyJdAuthenticationException.MyJdAuthenticationException(string! message, MyJdownloader.MyJdErrorSource errorSource, string! errorType, System.Net.HttpStatusCode statusCode) -> void
-MyJdownloader.MyJdAuthenticationException.MyJdAuthenticationException(string! message, System.Exception! innerException) -> void
-MyJdownloader.MyJdDeviceOfflineException
-MyJdownloader.MyJdDeviceOfflineException.MyJdDeviceOfflineException() -> void
-MyJdownloader.MyJdDeviceOfflineException.MyJdDeviceOfflineException(string! message) -> void
-MyJdownloader.MyJdDeviceOfflineException.MyJdDeviceOfflineException(string! message, MyJdownloader.MyJdErrorSource errorSource, string! errorType, System.Net.HttpStatusCode statusCode) -> void
-MyJdownloader.MyJdDeviceOfflineException.MyJdDeviceOfflineException(string! message, System.Exception! innerException) -> void
-MyJdownloader.MyJdErrorSource
-MyJdownloader.MyJdErrorSource.Device = 1 -> MyJdownloader.MyJdErrorSource
-MyJdownloader.MyJdErrorSource.Server = 0 -> MyJdownloader.MyJdErrorSource
-MyJdownloader.MyJdException
-MyJdownloader.MyJdException.ErrorSource.get -> MyJdownloader.MyJdErrorSource?
-MyJdownloader.MyJdException.ErrorType.get -> string?
-MyJdownloader.MyJdException.MyJdException() -> void
-MyJdownloader.MyJdException.MyJdException(string! message) -> void
-MyJdownloader.MyJdException.MyJdException(string! message, MyJdownloader.MyJdErrorSource errorSource, string? errorType, System.Net.HttpStatusCode? statusCode) -> void
-MyJdownloader.MyJdException.MyJdException(string! message, MyJdownloader.MyJdErrorSource errorSource, string? errorType, System.Net.HttpStatusCode? statusCode, System.Exception? innerException) -> void
-MyJdownloader.MyJdException.MyJdException(string! message, System.Exception! innerException) -> void
-MyJdownloader.MyJdException.StatusCode.get -> System.Net.HttpStatusCode?
-MyJdownloader.MyJdProtocolException
-MyJdownloader.MyJdProtocolException.MyJdProtocolException() -> void
-MyJdownloader.MyJdProtocolException.MyJdProtocolException(string! message) -> void
-MyJdownloader.MyJdProtocolException.MyJdProtocolException(string! message, MyJdownloader.MyJdErrorSource errorSource) -> void
-MyJdownloader.MyJdProtocolException.MyJdProtocolException(string! message, System.Exception! innerException) -> void
-MyJdownloader.MyJdRateLimitException
-MyJdownloader.MyJdRateLimitException.MyJdRateLimitException() -> void
-MyJdownloader.MyJdRateLimitException.MyJdRateLimitException(string! message) -> void
-MyJdownloader.MyJdRateLimitException.MyJdRateLimitException(string! message, MyJdownloader.MyJdErrorSource errorSource, string! errorType, System.Net.HttpStatusCode statusCode, System.TimeSpan? retryAfter) -> void
-MyJdownloader.MyJdRateLimitException.MyJdRateLimitException(string! message, System.Exception! innerException) -> void
-MyJdownloader.MyJdRateLimitException.RetryAfter.get -> System.TimeSpan?
+MyJdownloader.Errors.MyJdApiException
+MyJdownloader.Errors.MyJdApiException.MyJdApiException() -> void
+MyJdownloader.Errors.MyJdApiException.MyJdApiException(string! message) -> void
+MyJdownloader.Errors.MyJdApiException.MyJdApiException(string! message, MyJdownloader.Errors.MyJdErrorSource errorSource, string! errorType, System.Net.HttpStatusCode statusCode) -> void
+MyJdownloader.Errors.MyJdApiException.MyJdApiException(string! message, System.Exception! innerException) -> void
+MyJdownloader.Errors.MyJdAuthenticationException
+MyJdownloader.Errors.MyJdAuthenticationException.MyJdAuthenticationException() -> void
+MyJdownloader.Errors.MyJdAuthenticationException.MyJdAuthenticationException(string! message) -> void
+MyJdownloader.Errors.MyJdAuthenticationException.MyJdAuthenticationException(string! message, MyJdownloader.Errors.MyJdErrorSource errorSource, string! errorType, System.Net.HttpStatusCode statusCode) -> void
+MyJdownloader.Errors.MyJdAuthenticationException.MyJdAuthenticationException(string! message, System.Exception! innerException) -> void
+MyJdownloader.Errors.MyJdDeviceOfflineException
+MyJdownloader.Errors.MyJdDeviceOfflineException.MyJdDeviceOfflineException() -> void
+MyJdownloader.Errors.MyJdDeviceOfflineException.MyJdDeviceOfflineException(string! message) -> void
+MyJdownloader.Errors.MyJdDeviceOfflineException.MyJdDeviceOfflineException(string! message, MyJdownloader.Errors.MyJdErrorSource errorSource, string! errorType, System.Net.HttpStatusCode statusCode) -> void
+MyJdownloader.Errors.MyJdDeviceOfflineException.MyJdDeviceOfflineException(string! message, System.Exception! innerException) -> void
+MyJdownloader.Errors.MyJdErrorSource
+MyJdownloader.Errors.MyJdErrorSource.Device = 1 -> MyJdownloader.Errors.MyJdErrorSource
+MyJdownloader.Errors.MyJdErrorSource.Server = 0 -> MyJdownloader.Errors.MyJdErrorSource
+MyJdownloader.Errors.MyJdException
+MyJdownloader.Errors.MyJdException.ErrorSource.get -> MyJdownloader.Errors.MyJdErrorSource?
+MyJdownloader.Errors.MyJdException.ErrorType.get -> string?
+MyJdownloader.Errors.MyJdException.MyJdException() -> void
+MyJdownloader.Errors.MyJdException.MyJdException(string! message) -> void
+MyJdownloader.Errors.MyJdException.MyJdException(string! message, MyJdownloader.Errors.MyJdErrorSource errorSource, string? errorType, System.Net.HttpStatusCode? statusCode) -> void
+MyJdownloader.Errors.MyJdException.MyJdException(string! message, MyJdownloader.Errors.MyJdErrorSource errorSource, string? errorType, System.Net.HttpStatusCode? statusCode, System.Exception? innerException) -> void
+MyJdownloader.Errors.MyJdException.MyJdException(string! message, System.Exception! innerException) -> void
+MyJdownloader.Errors.MyJdException.StatusCode.get -> System.Net.HttpStatusCode?
+MyJdownloader.Errors.MyJdProtocolException
+MyJdownloader.Errors.MyJdProtocolException.MyJdProtocolException() -> void
+MyJdownloader.Errors.MyJdProtocolException.MyJdProtocolException(string! message) -> void
+MyJdownloader.Errors.MyJdProtocolException.MyJdProtocolException(string! message, MyJdownloader.Errors.MyJdErrorSource errorSource) -> void
+MyJdownloader.Errors.MyJdProtocolException.MyJdProtocolException(string! message, System.Exception! innerException) -> void
+MyJdownloader.Errors.MyJdRateLimitException
+MyJdownloader.Errors.MyJdRateLimitException.MyJdRateLimitException() -> void
+MyJdownloader.Errors.MyJdRateLimitException.MyJdRateLimitException(string! message) -> void
+MyJdownloader.Errors.MyJdRateLimitException.MyJdRateLimitException(string! message, MyJdownloader.Errors.MyJdErrorSource errorSource, string! errorType, System.Net.HttpStatusCode statusCode, System.TimeSpan? retryAfter) -> void
+MyJdownloader.Errors.MyJdRateLimitException.MyJdRateLimitException(string! message, System.Exception! innerException) -> void
+MyJdownloader.Errors.MyJdRateLimitException.RetryAfter.get -> System.TimeSpan?
 MyJdownloader.MyJdSession
 MyJdownloader.MyJdSession.Email.get -> string!
 MyJdownloader.MyJdSession.ToJson() -> string!

@@ -1,6 +1,7 @@
 namespace MyJdownloader.DownloadController;
 
 using System.Text.Json;
+using MyJdownloader.Errors;
 using MyJdownloader.Facades;
 
 /// <summary>Typed facade over the <c>/downloadcontroller</c> namespace of one device (start, stop, pause and state of the downloads).</summary>

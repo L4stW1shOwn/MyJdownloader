@@ -2,6 +2,7 @@ namespace MyJdownloader.Tests.Jd;
 
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
+using MyJdownloader.Errors;
 using MyJdownloader.Jd;
 using NSubstitute;
 
