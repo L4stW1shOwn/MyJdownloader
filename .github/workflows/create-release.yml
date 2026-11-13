@@ -12,21 +12,21 @@ permissions:
   contents: read
 
 jobs:
-  create-release-tag:
-    name: Validate and create release tag
+  validate:
+    name: Build, test and pack before tagging
     # Releases start from main only: on another branch, the called publish workflow would be that branch's copy.
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    # Read-only: this job runs repository code, so it never holds the token that pushes the tag.
     permissions:
-      contents: write
-      actions: read
+      contents: read
+    outputs:
+      sha: ${{ steps.sha.outputs.sha }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
-          fetch-depth: 0
-          # Kept: the job pushes the release tag with git push. It runs no repository code (grep, gh api, git tag only).
-          persist-credentials: true
+          persist-credentials: false
 
       - name: Validate version (SemVer)
         env:
@@ -37,6 +37,50 @@ jobs:
             exit 1
           fi
 
+      - name: Record the validated commit
+        id: sha
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      # Same commands as the publish workflow: a failure here stops the release before any tag exists.
+      - name: Restore
+        env:
+          VERSION: ${{ inputs.version }}
+        run: dotnet restore MyJdownloader.slnx --locked-mode "/p:Version=$VERSION"
+
+      - name: Build (Release)
+        env:
+          VERSION: ${{ inputs.version }}
+        run: dotnet build MyJdownloader.slnx -c Release --no-restore "/p:Version=$VERSION"
+
+      - name: Tests
+        run: dotnet test MyJdownloader.slnx -c Release --no-build --filter "TestCategory!=Live"
+
+      - name: Pack
+        env:
+          VERSION: ${{ inputs.version }}
+        run: dotnet pack MyJdownloader.slnx -c Release --no-build "/p:Version=$VERSION" -o artifacts
+
+  create-release-tag:
+    name: Create release tag
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The commit the validate job built: main may have moved since.
+          ref: ${{ needs.validate.outputs.sha }}
+          fetch-depth: 0
+          # Kept: the job pushes the release tag with git push. It runs no repository code (grep, gh api, git tag only).
+          persist-credentials: true
+
+      # The version format was checked by the validate job.
       - name: Check tag does not exist
         env:
           VERSION: ${{ inputs.version }}
@@ -57,19 +101,19 @@ jobs:
             exit 1
           fi
 
-      - name: Check CI is green on main HEAD
+      - name: Check CI is green on the validated commit
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          SHA=$(git rev-parse origin/main)
-          echo "main HEAD: $SHA"
+          SHA=$(git rev-parse HEAD)
+          echo "validated commit: $SHA"
           CONCLUSION=$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs?head_sha=${SHA}&status=completed&per_page=1" \
             --jq '.workflow_runs[0].conclusion // "none"')
           if [ "$CONCLUSION" != "success" ]; then
-            echo "::error::CI is '$CONCLUSION' on main HEAD ($SHA) — see https://github.com/${GITHUB_REPOSITORY}/actions"
+            echo "::error::CI is '$CONCLUSION' on the validated commit ($SHA) — see https://github.com/${GITHUB_REPOSITORY}/actions"
             exit 1
           fi
-          echo "CI on main HEAD: $CONCLUSION"
+          echo "CI on the validated commit: $CONCLUSION"
 
       - name: Create annotated tag
         env:
