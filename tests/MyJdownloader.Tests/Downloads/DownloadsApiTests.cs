@@ -531,6 +531,18 @@ public sealed class DownloadsApiTests
         AssertSent(channel, "getStopMark");
     }
 
+    [TestCase(-2L)]
+    [TestCase(long.MinValue)]
+    public async Task GetStopMarkAsync_NegativeOtherThanMinusOne_ThrowsUnreadable(long answer)
+    {
+        var (channel, api) = Create();
+        ReturnsLong(channel, "getStopMark", answer);
+
+        var thrown = await Assert.ThrowsAsync<MyJdProtocolException>(() => api.GetStopMarkAsync());
+
+        AssertDeviceUnreadable(thrown);
+    }
+
     [Test]
     public async Task GetStopMarkAsync_EmptyAnswer_ThrowsUnreadable()
     {

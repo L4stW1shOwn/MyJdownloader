@@ -7,10 +7,9 @@ public sealed partial class DownloadsApi
 {
     /// <summary>Gets the identifier of the stop-marked link (<c>/downloadsV2/getStopMark</c>).</summary>
     /// <param name="cancellationToken">A token to cancel the call.</param>
-    /// <returns>The identifier of the stop mark, or <see langword="null"/> when no stop mark is set (the device answers -1).</returns>
-    /// <remarks>The exact semantics of the returned identifier are to be confirmed by live tests.</remarks>
+    /// <returns>The identifier of the stop-marked link, or <see langword="null"/> when no stop mark is set (the device answers -1).</returns>
     /// <exception cref="InvalidOperationException">The client is not connected.</exception>
-    /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid or empty.</exception>
+    /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid, empty or a negative value other than -1.</exception>
     /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
     /// <exception cref="TimeoutException">The request timed out.</exception>
     /// <exception cref="HttpRequestException">A network error occurred.</exception>
@@ -84,6 +83,11 @@ public sealed partial class DownloadsApi
     private static async Task<long?> MapStopMarkAsync(Task<long> answer)
     {
         var id = await answer.ConfigureAwait(false);
-        return id == -1 ? null : id;
+        return id switch
+        {
+            -1 => null,
+            < 0 => throw FacadeResults.Unreadable(),
+            _ => id,
+        };
     }
 }
