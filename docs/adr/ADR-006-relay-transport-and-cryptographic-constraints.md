@@ -24,6 +24,7 @@ The MyJD protocol is imposed by a third party. It uses:
   (`MyJDownloaderOptions.BaseAddress` configurable, default
   `https://api.jdownloader.org`). Direct LAN connection is deferred to the
   backlog.
+  The direct LAN connection follow-up is answered by ADR-012 (local API transport); this relay decision stands.
 - **Cryptography**: faithful implementation of the protocol in `MyJdCrypto`
   (internal, pure functions, BCL only). The weaknesses are **documented as an
   accepted risk**, not modifiable on the client side:

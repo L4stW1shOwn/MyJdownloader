@@ -15,5 +15,6 @@ Structural decisions of MyJdownloader.
 | 009 | Events long polling without a built-in loop | Accepted | [ADR-009](ADR-009-events-long-polling-without-built-in-loop.md) |
 | 010 | Opt-in event stream helper | Accepted | [ADR-010](ADR-010-opt-in-event-stream-helper.md) |
 | 011 | Unauthenticated binary device responses | Accepted | [ADR-011](ADR-011-unauthenticated-binary-device-responses.md) |
+| 012 | Local API transport | Accepted | [ADR-012](ADR-012-local-api-transport.md) |
 
 Format: `ADR-NNN-title-in-kebab-case.md` (NNN on 3 digits).
