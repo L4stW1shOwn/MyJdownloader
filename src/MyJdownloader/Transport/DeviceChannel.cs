@@ -1,24 +1,20 @@
 namespace MyJdownloader.Transport;
 
-using System.Buffers;
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
-using System.Text.RegularExpressions;
 using MyJdownloader.Crypto;
 using MyJdownloader.Errors;
 
 /// <summary>Encrypted channel to one device through the relay; see <see cref="IDeviceChannel"/>.</summary>
 /// <remarks>No exception raised here carries the path, the device id, the session token or the arguments.</remarks>
-internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChannel
+internal sealed class DeviceChannel : IDeviceChannel, IBinaryDeviceChannel
 {
-    private const int MaxPathLength = 256;
     private const int MaxDeviceIdLength = 256;
     private const int MaxResponseDepth = 64;
-    private const int MaxRequestArgsCount = 1_024;
     private static readonly string _unreadableMessage = RelayTransport.UnreadableMessageFor(MyJdErrorSource.Device);
     private static readonly string _mismatchMessage = RelayTransport.MismatchMessageFor(MyJdErrorSource.Device);
 
@@ -50,7 +46,7 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
 
     public Task<T?> CallAsync<T>(string path, JsonTypeInfo<T> responseType, IReadOnlyList<JsonElement> args, CancellationToken cancellationToken = default)
     {
-        ValidatePath(path);
+        DeviceCallGuard.ValidatePath(path);
         ArgumentNullException.ThrowIfNull(responseType);
         var snapshot = SnapshotArgs(args);
         return CallCoreAsync(path, snapshot, responseType, cancellationToken);
@@ -58,20 +54,17 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
 
     public Task CallAsync(string path, IReadOnlyList<JsonElement> args, CancellationToken cancellationToken = default)
     {
-        ValidatePath(path);
+        DeviceCallGuard.ValidatePath(path);
         var snapshot = SnapshotArgs(args);
         return CallCoreAsync<object>(path, snapshot, null, cancellationToken);
     }
 
     public Task<byte[]> CallBinaryAsync(string path, IReadOnlyList<JsonElement> args, CancellationToken cancellationToken = default)
     {
-        ValidatePath(path);
+        DeviceCallGuard.ValidatePath(path);
         var snapshot = SnapshotArgs(args);
         return _client.ExecuteAsync((session, ct) => SendBinaryAsync(session, path, snapshot, ct), cancellationToken);
     }
-
-    [GeneratedRegex(@"\A(?:/[A-Za-z0-9_]+)+\z", RegexOptions.CultureInvariant)]
-    private static partial Regex PathPattern();
 
     private static bool IsValidUtf16(string text)
     {
@@ -90,19 +83,10 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
         return true;
     }
 
-    private static void ValidatePath(string path)
-    {
-        ArgumentNullException.ThrowIfNull(path);
-        if (path.Length > MaxPathLength || !PathPattern().IsMatch(path))
-        {
-            throw new ArgumentException("The path is not valid.", nameof(path));
-        }
-    }
-
     private static string[] SnapshotArgs(IReadOnlyList<JsonElement> args)
     {
         ArgumentNullException.ThrowIfNull(args);
-        if (args.Count > MaxRequestArgsCount)
+        if (args.Count > DeviceCallGuard.MaxRequestArgsCount)
         {
             throw new ArgumentException("The number of arguments must not exceed 1024.", nameof(args));
         }
@@ -246,53 +230,6 @@ internal sealed partial class DeviceChannel : IDeviceChannel, IBinaryDeviceChann
         catch (Exception ex) when (ex is JsonException or InvalidOperationException)
         {
             throw new MyJdProtocolException(_unreadableMessage, MyJdErrorSource.Device);
-        }
-    }
-
-    /// <summary>Growable pooled buffer that clears every array it held when it grows or is disposed.</summary>
-    private sealed class PooledBufferWriter : IBufferWriter<byte>, IDisposable
-    {
-        // Holds the plaintext request, which may carry passwords passed as call arguments.
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private byte[] _buffer = ArrayPool<byte>.Shared.Rent(512);
-        private int _written;
-
-        public ReadOnlySpan<byte> WrittenSpan => _buffer.AsSpan(0, _written);
-
-        public void Advance(int count) => _written += count;
-
-        public Memory<byte> GetMemory(int sizeHint = 0)
-        {
-            Ensure(sizeHint);
-            return _buffer.AsMemory(_written);
-        }
-
-        public Span<byte> GetSpan(int sizeHint = 0)
-        {
-            Ensure(sizeHint);
-            return _buffer.AsSpan(_written);
-        }
-
-        public void Dispose()
-        {
-            CryptographicOperations.ZeroMemory(_buffer);
-            ArrayPool<byte>.Shared.Return(_buffer);
-            _buffer = [];
-        }
-
-        private void Ensure(int sizeHint)
-        {
-            var needed = Math.Max(sizeHint, 1);
-            if (_buffer.Length - _written >= needed)
-            {
-                return;
-            }
-
-            var bigger = ArrayPool<byte>.Shared.Rent(Math.Max(_buffer.Length * 2, _written + needed));
-            _buffer.AsSpan(0, _written).CopyTo(bigger);
-            CryptographicOperations.ZeroMemory(_buffer);
-            ArrayPool<byte>.Shared.Return(_buffer);
-            _buffer = bigger;
         }
     }
 }
