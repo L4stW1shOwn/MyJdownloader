@@ -87,10 +87,19 @@ internal sealed class RelayTransport
         }
     }
 
-    private static byte[] ReadPng(HttpResponseMessage response, byte[] body, byte[] key, MyJdErrorSource source)
+    /// <summary>Checks that the answer is a PNG: media type <c>image/png</c> (case-insensitive) and PNG signature.</summary>
+    /// <param name="response">The response whose content type is checked.</param>
+    /// <param name="body">The body bytes.</param>
+    /// <returns><see langword="true"/> when the answer is a PNG.</returns>
+    internal static bool IsPng(HttpResponseMessage response, ReadOnlySpan<byte> body)
     {
         var mediaType = response.Content.Headers.ContentType?.MediaType;
-        if (!string.Equals(mediaType, "image/png", StringComparison.OrdinalIgnoreCase) || !body.AsSpan().StartsWith(_pngSignature))
+        return string.Equals(mediaType, "image/png", StringComparison.OrdinalIgnoreCase) && body.StartsWith(_pngSignature);
+    }
+
+    private static byte[] ReadPng(HttpResponseMessage response, byte[] body, byte[] key, MyJdErrorSource source)
+    {
+        if (!IsPng(response, body))
         {
             throw new MyJdProtocolException(UnreadableMessageFor(source), source);
         }
@@ -127,7 +136,13 @@ internal sealed class RelayTransport
         return delay > _maxRetryAfter ? _maxRetryAfter : delay;
     }
 
-    private static async Task<byte[]> ReadBodyAsync(HttpContent content, int limit, MyJdErrorSource source, CancellationToken cancellationToken)
+    /// <summary>Reads the body up to <paramref name="limit"/> bytes, failing with a protocol error beyond it.</summary>
+    /// <param name="content">The content to read.</param>
+    /// <param name="limit">The maximum body length in bytes.</param>
+    /// <param name="source">The party the call is addressed to, used to map errors.</param>
+    /// <param name="cancellationToken">A token to cancel the read.</param>
+    /// <returns>The body bytes.</returns>
+    internal static async Task<byte[]> ReadBodyAsync(HttpContent content, int limit, MyJdErrorSource source, CancellationToken cancellationToken)
     {
         if (content.Headers.ContentLength > limit)
         {
