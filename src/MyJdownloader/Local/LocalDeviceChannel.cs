@@ -122,12 +122,13 @@ internal sealed class LocalDeviceChannel : IDeviceChannel, IBinaryDeviceChannel
         {
             using var document = JsonDocument.Parse(body, new JsonDocumentOptions { MaxDepth = MaxResponseDepth, AllowDuplicateProperties = false });
             var root = document.RootElement;
-            if (root.ValueKind != JsonValueKind.Object)
+            // The device always sends the data member, even for an action without return value (an empty string).
+            if (root.ValueKind != JsonValueKind.Object || !root.TryGetProperty("data", out var data))
             {
                 throw new MyJdProtocolException(_unreadableMessage, MyJdErrorSource.Device);
             }
 
-            if (responseType is null || !root.TryGetProperty("data", out var data) || data.ValueKind == JsonValueKind.Null)
+            if (responseType is null || data.ValueKind == JsonValueKind.Null)
             {
                 return default;
             }

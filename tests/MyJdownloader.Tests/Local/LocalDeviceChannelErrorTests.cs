@@ -39,6 +39,8 @@ public sealed class LocalDeviceChannelErrorTests
         yield return "<html><body>JDownloader</body></html>";
         yield return string.Empty;
         yield return "[1]";
+        yield return "{}";
+        yield return /*lang=json,strict*/ """{"status":"ok"}""";
         yield return """{"data":""";
         yield return new StringBuilder().Insert(0, "[", 70).Append(new string(']', 70)).ToString();
     }
