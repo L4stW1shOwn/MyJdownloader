@@ -5,16 +5,34 @@ using System.Net;
 /// <summary>Immutable, validated snapshot of a <see cref="LocalJDownloaderOptions"/>.</summary>
 internal sealed class LocalEndpoint
 {
+    /// <summary>Initializes a new instance of the <see cref="LocalEndpoint"/> class from values already validated by <see cref="Create"/>.</summary>
+    /// <param name="baseAddress">The validated base address of the local API.</param>
+    /// <param name="maxResponseBodyLength">The validated maximum size of a response body, in bytes.</param>
     private LocalEndpoint(Uri baseAddress, int maxResponseBodyLength)
     {
         BaseAddress = baseAddress;
         MaxResponseBodyLength = maxResponseBodyLength;
     }
 
+    /// <summary>Gets the base address of the local API: absolute, <c>http</c> or <c>https</c>, without user info, query or fragment.</summary>
     internal Uri BaseAddress { get; }
 
+    /// <summary>Gets the maximum size of a response body, in bytes (at least 1 024).</summary>
     internal int MaxResponseBodyLength { get; }
 
+    /// <summary>Validates the options and returns their immutable snapshot; later changes to <paramref name="options"/> have no effect on it.</summary>
+    /// <param name="options">The options to validate.</param>
+    /// <returns>The validated endpoint.</returns>
+    /// <remarks>
+    /// Plain <c>http</c> is accepted only for a loopback host unless <see cref="LocalJDownloaderOptions.AllowUnencryptedRemoteHost"/> is set.
+    /// The check uses no name resolution, and no message carries the address.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="options"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">
+    /// The base address is missing, relative, neither <c>http</c> nor <c>https</c>, or has user info, a query or a fragment;
+    /// or it uses <c>http</c> with a host that is not loopback without the opt-in;
+    /// or <see cref="LocalJDownloaderOptions.MaxResponseBodyLength"/> is below 1 024. The parameter name is <c>options</c>.
+    /// </exception>
     internal static LocalEndpoint Create(LocalJDownloaderOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
@@ -48,14 +66,27 @@ internal sealed class LocalEndpoint
         return new LocalEndpoint(address, options.MaxResponseBodyLength);
     }
 
+    /// <summary>Builds the absolute URI of a device action under the base address, keeping a path prefix of the base address.</summary>
+    /// <param name="path">The action path, already validated by <see cref="Transport.DeviceCallGuard.ValidatePath"/> (it starts with a slash).</param>
+    /// <returns>The absolute request URI.</returns>
     internal Uri BuildUri(string path) => new(BaseAddress.AbsoluteUri.TrimEnd('/') + path);
 
+    /// <summary>Tells whether a URI has the scheme, host and port of the base address.</summary>
+    /// <param name="uri">The URI to compare, typically the final request URI of a response; <see langword="null"/> is never the same origin.</param>
+    /// <returns><see langword="true"/> when the scheme, the host (case-insensitive) and the port match.</returns>
+    /// <remarks>An IPv6 scope identifier is not part of the comparison.</remarks>
     internal bool IsSameOrigin(Uri? uri) =>
         uri is { IsAbsoluteUri: true }
         && string.Equals(uri.Scheme, BaseAddress.Scheme, StringComparison.Ordinal)
         && string.Equals(uri.Host, BaseAddress.Host, StringComparison.OrdinalIgnoreCase)
         && uri.Port == BaseAddress.Port;
 
+    /// <summary>Tells, without name resolution, whether the host of an address is a loopback host.</summary>
+    /// <param name="address">The absolute address to inspect.</param>
+    /// <returns>
+    /// <see langword="true"/> for the exact host name <c>localhost</c> (case-insensitive) and for an IPv4 or IPv6 literal that is a loopback address
+    /// (<c>127.0.0.0/8</c>, <c>::1</c> and their IPv4-mapped forms); <see langword="false"/> for any other host, look-alike names included.
+    /// </returns>
     private static bool IsLoopback(Uri address)
     {
         if (address.HostNameType == UriHostNameType.Dns)
