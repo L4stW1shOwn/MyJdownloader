@@ -1,4 +1,7 @@
 #nullable enable
+const Microsoft.Extensions.DependencyInjection.LocalJDownloaderServiceCollectionExtensions.HttpClientName = "MyJdownloader.Local" -> string!
 const Microsoft.Extensions.DependencyInjection.MyJDownloaderServiceCollectionExtensions.HttpClientName = "MyJdownloader" -> string!
+Microsoft.Extensions.DependencyInjection.LocalJDownloaderServiceCollectionExtensions
 Microsoft.Extensions.DependencyInjection.MyJDownloaderServiceCollectionExtensions
+static Microsoft.Extensions.DependencyInjection.LocalJDownloaderServiceCollectionExtensions.AddLocalJDownloader(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<MyJdownloader.Local.LocalJDownloaderOptions!>! configure) -> Microsoft.Extensions.DependencyInjection.IHttpClientBuilder!
 static Microsoft.Extensions.DependencyInjection.MyJDownloaderServiceCollectionExtensions.AddMyJDownloader(this Microsoft.Extensions.DependencyInjection.IServiceCollection! services, System.Action<MyJdownloader.MyJDownloaderOptions!>! configure) -> Microsoft.Extensions.DependencyInjection.IHttpClientBuilder!
