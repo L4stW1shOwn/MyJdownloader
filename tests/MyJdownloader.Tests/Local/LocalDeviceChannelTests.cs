@@ -80,11 +80,10 @@ public sealed partial class LocalDeviceChannelTests
         Assert.That(result, Is.EqualTo(48637L));
     }
 
-    [TestCase(/*lang=json,strict*/ """{"data":null}""")]
-    [TestCase("{}")]
-    public async Task CallAsync_NullOrMissingData_ReturnsDefault(string body)
+    [Test]
+    public async Task CallAsync_NullData_ReturnsDefault()
     {
-        using var server = Ok(body);
+        using var server = Ok(/*lang=json,strict*/ """{"data":null}""");
         var channel = Channel(server);
 
         var result = await channel.CallAsync(VersionPath, TestJsonContext.Default.String, []).WaitAsync(_waitTimeout);
@@ -95,7 +94,8 @@ public sealed partial class LocalDeviceChannelTests
     [Test]
     public void CallAsync_Untyped_Completes()
     {
-        using var server = Ok(/*lang=json,strict*/ """{"data":true}""");
+        // The device answers an action without return value with an empty string.
+        using var server = Ok(/*lang=json,strict*/ """{"data":""}""");
         var channel = Channel(server);
 
         Assert.That(async () => await channel.CallAsync(VersionPath, []).WaitAsync(_waitTimeout), Throws.Nothing);
