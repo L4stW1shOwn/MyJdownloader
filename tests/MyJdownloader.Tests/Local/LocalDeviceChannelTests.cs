@@ -42,6 +42,7 @@ public sealed partial class LocalDeviceChannelTests
             Assert.That(sent.Method, Is.EqualTo(HttpMethod.Post));
             Assert.That(sent.Uri, Is.EqualTo("http://127.0.0.1:3128/downloadsV2/queryPackages"));
             Assert.That(sent.MediaType, Is.EqualTo("application/json"));
+            Assert.That(sent.CharSet, Is.EqualTo("utf-8"));
             Assert.That(sent.Body, Is.EqualTo(/*lang=json,strict*/ """{"params":[{"maxResults":1,"name":true},"a \"q\" \\ é",32,null,true]}"""));
         });
     }
@@ -212,6 +213,21 @@ public sealed partial class LocalDeviceChannelTests
     }
 
     [Test]
+    public async Task CallAsync_CallerCancellationMidFlight_ThrowsOperationCanceled()
+    {
+        var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var handler = new WaitingHandler(started);
+        var channel = Channel(handler);
+        using var cts = new CancellationTokenSource();
+
+        var call = channel.CallAsync(VersionPath, [], cts.Token);
+        await started.Task.WaitAsync(_waitTimeout);
+        await cts.CancelAsync();
+
+        await Assert.ThatAsync(async () => await call.WaitAsync(_waitTimeout), Throws.InstanceOf<OperationCanceledException>());
+    }
+
+    [Test]
     public async Task CallAsync_HttpClientTimeout_ThrowsTimeoutException()
     {
         using var handler = new WaitingHandler();
@@ -226,10 +242,11 @@ public sealed partial class LocalDeviceChannelTests
     [JsonSerializable(typeof(string))]
     private sealed partial class TestJsonContext : JsonSerializerContext;
 
-    private sealed class WaitingHandler : HttpMessageHandler
+    private sealed class WaitingHandler(TaskCompletionSource? started = null) : HttpMessageHandler
     {
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            started?.TrySetResult();
             await Task.Delay(Timeout.Infinite, cancellationToken).ConfigureAwait(false);
             throw new InvalidOperationException("unreachable");
         }

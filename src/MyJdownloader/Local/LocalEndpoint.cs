@@ -24,6 +24,7 @@ internal sealed class LocalEndpoint
             || !address.IsAbsoluteUri
             || (address.Scheme != Uri.UriSchemeHttp && address.Scheme != Uri.UriSchemeHttps)
             || address.UserInfo.Length > 0
+            || address.GetLeftPart(UriPartial.Authority).Contains('@', StringComparison.Ordinal)
             || address.Query.Length > 0
             || address.Fragment.Length > 0)
         {

@@ -165,7 +165,7 @@ internal sealed class LocalDeviceChannel : IDeviceChannel, IBinaryDeviceChannel
         using var buffer = new PooledBufferWriter();
         WriteBody(buffer, args);
         using var content = new ReadOnlyMemoryContent(buffer.WrittenMemory);
-        content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+        content.Headers.ContentType = new MediaTypeHeaderValue("application/json") { CharSet = "utf-8" };
         using var request = new HttpRequestMessage(HttpMethod.Post, _endpoint.BuildUri(path)) { Content = content };
         using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
 

@@ -38,6 +38,7 @@ public sealed class LocalEndpointTests
 
         Assert.That(exception!.ParamName, Is.EqualTo("options"));
         Assert.That(exception.Message, Does.Not.Contain(host));
+        Assert.That(exception.Message, Does.StartWith("BaseAddress uses http with a host that is not a loopback address"));
     }
 
     [Test]
@@ -64,6 +65,7 @@ public sealed class LocalEndpointTests
     [TestCase("/x")]
     [TestCase("ftp://127.0.0.1")]
     [TestCase("http://user:pw@127.0.0.1")]
+    [TestCase("http://@127.0.0.1")]
     [TestCase("http://127.0.0.1/?a=1")]
     [TestCase("http://127.0.0.1/#f")]
     public void Create_InvalidAddress_Throws(string? address)
