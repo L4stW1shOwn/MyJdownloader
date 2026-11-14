@@ -39,12 +39,12 @@ internal sealed class FakeLocalApi : HttpMessageHandler
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         var body = request.Content is null ? string.Empty : await request.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-        _requests.Add(new Sent(request.Method, request.RequestUri!.AbsoluteUri, request.Content?.Headers.ContentType?.MediaType, body));
+        _requests.Add(new Sent(request.Method, request.RequestUri!.AbsoluteUri, request.Content?.Headers.ContentType?.MediaType, body, request.Content?.Headers.ContentType?.CharSet));
         var response = _responder(request);
         response.RequestMessage ??= request;
         return response;
     }
 
     /// <summary>What the fake saw of one request.</summary>
-    internal sealed record Sent(HttpMethod Method, string Uri, string? MediaType, string Body);
+    internal sealed record Sent(HttpMethod Method, string Uri, string? MediaType, string Body, string? CharSet = null);
 }
