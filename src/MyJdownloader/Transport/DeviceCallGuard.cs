@@ -8,6 +8,7 @@ internal static partial class DeviceCallGuard
     /// <summary>The maximum number of arguments of one call.</summary>
     internal const int MaxRequestArgsCount = 1_024;
 
+    /// <summary>The maximum length of an action path, in characters.</summary>
     private const int MaxPathLength = 256;
 
     /// <summary>Checks that the path is a sequence of <c>/segment</c> parts made of letters, digits and underscores.</summary>
@@ -23,6 +24,8 @@ internal static partial class DeviceCallGuard
         }
     }
 
+    /// <summary>Matches an action path: one or more segments of ASCII letters, digits and underscores, each preceded by a slash.</summary>
+    /// <returns>The compiled pattern.</returns>
     [GeneratedRegex(@"\A(?:/[A-Za-z0-9_]+)+\z", RegexOptions.CultureInvariant)]
     private static partial Regex PathPattern();
 }
