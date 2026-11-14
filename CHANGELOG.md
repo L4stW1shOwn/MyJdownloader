@@ -7,6 +7,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 ### Added
 
 - `MyJdownloader.Local.LocalJDownloaderClient` and `LocalJDownloaderOptions`: drive a JDownloader device through its own local API (default `http://127.0.0.1:3128`) instead of the MyJDownloader relay, with no account, session or encryption. `client.Device` exposes the same typed facades and throws the same exceptions as a relay device. The local API has no authentication and no encryption: anyone who can reach the address can drive the device, and cleartext `http` is accepted only for a loopback host unless `LocalJDownloaderOptions.AllowUnencryptedRemoteHost` is set. Configure the handler with `AllowAutoRedirect = false` (ADR-012).
+- `AddLocalJDownloader` in `MyJdownloader.Extensions.DependencyInjection` registers the `LocalJDownloaderClient` singleton over its own named HTTP client (`LocalJDownloaderServiceCollectionExtensions.HttpClientName`) that has no default HTTP loggers and does not follow redirects, whatever handler configuration the application adds afterwards.
 
 ## [0.1.0] - 2026-11-13
 
