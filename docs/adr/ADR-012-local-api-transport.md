@@ -2,6 +2,7 @@
 
 - **Status**: Accepted
 - **Date**: 2026-11-14
+- **Amended**: 2026-11-14 (T-071)
 
 ## Context
 
@@ -109,10 +110,29 @@ Observed in a live capture on 2026-11-14 against JDownloader core revision
   comparing the SHA-256 of the presented certificate with a pinned value).
   Authentication to a reverse proxy goes through the caller's
   `HttpClient.DefaultRequestHeaders` or handler, with no new public surface.
-- **No DI registration in this iteration**:
-  `MyJdownloader.Extensions.DependencyInjection` is unchanged; a named-client
-  registration may follow as a separate item.
-- No logging; no credential, session or secret exists on this path.
+- **Dependency injection**. Original decision: "No DI registration in this
+  iteration: `MyJdownloader.Extensions.DependencyInjection` is unchanged; a
+  named-client registration may follow as a separate item."
+  Amendment (T-071): `AddLocalJDownloader` in
+  `MyJdownloader.Extensions.DependencyInjection` registers the
+  `LocalJDownloaderOptions` binding and a `LocalJDownloaderClient` singleton
+  (`TryAdd`) over a named client, `LocalJDownloaderServiceCollectionExtensions.HttpClientName`
+  (`"MyJdownloader.Local"`), built as ADR-003 prescribes: `AllowAutoRedirect = false`,
+  all HTTP loggers removed, `PooledConnectionLifetime` of two minutes, and no
+  handler rotation. Unlike the relay registration, redirects are disabled
+  again in a `PostConfigure` of the client factory options, so a later handler
+  configuration (returned builder, `ConfigureAll`, a second registration of
+  the name) cannot re-enable them on a `SocketsHttpHandler` or an
+  `HttpClientHandler`; a primary handler of another type is left as it is
+  (T-071 security audit). It was motivated by the T-030 security audit: a client that
+  follows redirects would send the cleartext POST body, which can hold link and
+  archive passwords, to another host when whatever answers on the local port
+  redirects it, before the library rejects the answer. `JDownloaderDevice` is
+  not registered: the relay client also produces such instances, so a
+  registration would be ambiguous when both clients share a container. Use
+  `client.Device` instead.
+- No logging; no account credential or session exists on this path. Request
+  bodies may carry link and archive passwords.
 
 ## Considered alternatives
 

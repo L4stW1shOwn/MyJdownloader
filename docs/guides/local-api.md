@@ -208,7 +208,8 @@ HTTP status only.
 
 - Set `AllowAutoRedirect = false` on the handler. The library does not follow
   redirects: a redirect to another origin is rejected, but only after the request
-  has been sent.
+  has been sent. The DI registration (see [Dependency injection](#dependency-injection))
+  sets this value and enforces it after every handler configuration.
 - Keep one `HttpClient` for the lifetime of the application. The client does not
   dispose it. For a long-lived process you can also set
   `PooledConnectionLifetime` on the handler to pick up DNS changes.
@@ -217,6 +218,65 @@ HTTP status only.
   [Logging and security](logging-and-security.md)).
 - `HttpClient.BaseAddress` is ignored. Every call goes to the address in
   `LocalJDownloaderOptions.BaseAddress`.
+
+## Dependency injection
+
+The `MyJdownloader.Extensions.DependencyInjection` package registers the local
+client as a singleton over a named `HttpClient` that already has the handler
+settings above: redirects disabled, no HTTP loggers, and a pooled connection
+lifetime of two minutes. Use it instead of building the handler yourself:
+
+```csharp
+using Microsoft.Extensions.DependencyInjection;
+using MyJdownloader.Local;
+
+services.AddLocalJDownloader(o =>
+{
+    o.BaseAddress = new Uri("http://127.0.0.1:3128"); // the default
+});
+
+public sealed class LocalDeviceMonitor(LocalJDownloaderClient client)
+{
+    public Task<long> GetVersionAsync(CancellationToken cancellationToken)
+        => client.Device.Jd.GetVersionAsync(cancellationToken);
+}
+```
+
+For a device on another host, configure the returned builder. Redirects are
+disabled again after your configuration, whatever it does to the primary
+handler. This example pins the device certificate (see Option 1 above):
+
+```csharp
+using System.Net.Security;
+using System.Security.Cryptography;
+using Microsoft.Extensions.DependencyInjection;
+using MyJdownloader.Local;
+
+// pinnedSha256: SHA-256 of the device certificate, 64 hexadecimal characters,
+// read from configuration.
+services.AddLocalJDownloader(o => o.BaseAddress = new Uri("https://192.0.2.10:3128"))
+    .UseSocketsHttpHandler((handler, _) =>
+    {
+        handler.SslOptions = new SslClientAuthenticationOptions
+        {
+            // The pin replaces chain validation: a self-signed certificate has no chain to validate.
+            RemoteCertificateValidationCallback = (_, certificate, _, _) =>
+                certificate is not null
+                && string.Equals(
+                    Convert.ToHexString(SHA256.HashData(certificate.GetRawData())),
+                    pinnedSha256,
+                    StringComparison.OrdinalIgnoreCase),
+        };
+    });
+```
+
+To add the credentials of a reverse proxy (Option 3), call
+`.ConfigureHttpClient(http => http.DefaultRequestHeaders.Authorization = ...)`
+on the returned builder, with a value read from your secret store.
+`ConfigurePrimaryHttpMessageHandler` replaces the handler and drops the pooled
+connection lifetime set by the library; redirects stay disabled on a
+`SocketsHttpHandler` or an `HttpClientHandler`. A handler of another type is
+used as it is and must not follow redirects.
 
 ## Limits and timeouts
 
@@ -262,9 +322,6 @@ Java stack trace or a proxy page. Do not log response bodies yourself either.
 - **No device listing.** There is no `GetDevicesAsync` and no `GetDevice(id)`: the
   client drives the one device at the address you configured. `Device.Id` is
   always `local`.
-- **No dependency-injection registration.** `AddMyJDownloader` does not register
-  the local client. Construct it yourself, or register it manually as a singleton
-  over a long-lived `HttpClient` that you own.
 - **No built-in authentication, encryption or certificate option.** Those are
   provided by the network, by `https` with the caller's handler, or by a reverse
   proxy.
@@ -273,6 +330,8 @@ Java stack trace or a proxy page. Do not log response bodies yourself either.
 
 - [Local client](../api/local-client.md): the constructor, the options and the
   validation rules.
+- [Dependency injection](dependency-injection.md) and
+  [DI API](../api/dependency-injection.md): the `AddLocalJDownloader` registration.
 - [Getting started](getting-started.md): the relay client, for a MyJDownloader
   account.
 - [Logging and security](logging-and-security.md): what is sensitive on both paths.

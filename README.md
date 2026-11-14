@@ -86,6 +86,8 @@ var client = new LocalJDownloaderClient(http); // http://127.0.0.1:3128
 long version = await client.Device.Jd.GetVersionAsync();
 ```
 
+With dependency injection, register it with `AddLocalJDownloader` from the companion package; see the [dependency injection guide](https://github.com/L4stW1shOwn/MyJdownloader/blob/main/docs/guides/dependency-injection.md).
+
 ## API coverage
 
 The typed facades cover 158 of the 169 official device actions; the others stay reachable through `IDeviceChannel`.
