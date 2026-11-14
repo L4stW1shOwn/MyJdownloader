@@ -3,6 +3,8 @@
 MyJdownloader is a .NET client for the MyJDownloader API (<https://my.jdownloader.org>).
 It connects to a JDownloader instance through the MyJDownloader relay, lists the
 devices of an account, manages links and downloads, and administers the device.
+It can also drive a device directly through its local API, without an account (see
+[Local API](guides/local-api.md)).
 
 The library is pre-1.0: the API may still change before 1.0. The packages are
 `MyJdownloader` (the core library, AOT compatible) and
@@ -19,6 +21,7 @@ Task-oriented guides, one per use case.
 - [Sessions and authentication](guides/sessions-and-authentication.md): connect with email and password, export and restore the session, automatic renewal, the session-changed event and how to store the session.
 - [Dependency injection](guides/dependency-injection.md): register the client, its options, enrich the named HTTP client, and the configurations to avoid.
 - [Generic device calls](guides/generic-device-calls.md): call any device action through `IDeviceChannel` when no typed facade exists.
+- [Local API](guides/local-api.md): drive a device through its own local API, with no account and no relay. The API has no authentication and no encryption: read the warning first.
 - [Managing downloads](guides/managing-downloads.md): add links, work with the link grabber and the download list, control the downloads, run the download list context menu and clean up.
 - [Device administration](guides/device-administration.md): version and plugins, power actions, internet reconnect, advanced configuration, accounts, captchas, extensions, updates, archive extraction and support logs.
 - [Events](guides/events.md): subscribe to device events and run the long-polling loop you own, with cancellation.
@@ -33,6 +36,7 @@ Reference pages for each public type and facade.
 
 - [API coverage](api-coverage.md): which official device actions have a typed method, per namespace.
 - [Client](api/client.md): `MyJDownloaderClient`, connection, session and device access.
+- [Local client](api/local-client.md): `LocalJDownloaderClient` and `LocalJDownloaderOptions`, the device through its local API, without the relay.
 - [Device channel](api/device-channel.md): `IDeviceChannel`, the generic encrypted device call.
 - [Errors](api/errors.md): the `MyJdException` hierarchy and its members.
 - [Dependency injection](api/dependency-injection.md): `AddMyJDownloader` and the registered services.
