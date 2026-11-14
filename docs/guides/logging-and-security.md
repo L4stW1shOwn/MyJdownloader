@@ -60,6 +60,15 @@ Device-call URL paths contain the session token and the device id. The
   apply the same rules yourself: `AllowAutoRedirect = false`, a
   `PooledConnectionLifetime`, and no HTTP logging.
 
+## The local API
+
+`LocalJDownloaderClient` talks to the device's own local API: there is no account
+and no session, so there is no session token to protect. Its request paths carry
+no token, but the arguments of a call travel in the body of a `POST`, and some of
+them are passwords (account, download and captcha answers). Do not log request
+bodies. The local API itself has no authentication and no encryption: see
+[Local API](local-api.md) for the network rules and the warning.
+
 ## Log the library's behavior safely
 
 Use `ILogger<T>` with message templates, and log identifiers and outcomes, not

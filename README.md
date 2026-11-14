@@ -60,6 +60,24 @@ var json = client.ExportSession()?.ToJson(); // store it protected, see below
 client.RestoreSession(MyJdSession.FromJson(json!));
 ```
 
+### Without an account: the local API
+
+A JDownloader device also serves a local API that the library can call directly,
+with no account and no call to jdownloader.org. Its default address is
+`http://127.0.0.1:3128`. The local API has **no authentication and no encryption**:
+anyone who can reach the port controls the device. Read the
+[local API guide](https://github.com/L4stW1shOwn/MyJdownloader/blob/main/docs/guides/local-api.md)
+before you expose it.
+
+```csharp
+using MyJdownloader.Local;
+
+using var http = new HttpClient(new SocketsHttpHandler { AllowAutoRedirect = false });
+var client = new LocalJDownloaderClient(http); // http://127.0.0.1:3128
+
+long version = await client.Device.Jd.GetVersionAsync();
+```
+
 Without dependency injection, create the client yourself with a long-lived
 `HttpClient`. The [getting started guide](https://github.com/L4stW1shOwn/MyJdownloader/blob/main/docs/guides/getting-started.md)
 shows both setups.
