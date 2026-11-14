@@ -5,6 +5,8 @@ a named `HttpClient` and the `MyJDownloaderClient` singleton with
 `Microsoft.Extensions.DependencyInjection`. This guide covers the registration,
 the options, how to enrich the HTTP pipeline, and the configurations to avoid.
 The design is recorded in [ADR-003](../adr/ADR-003-injected-httpclient-and-named-di-client.md).
+The local API client has its own registration, `AddLocalJDownloader`, described
+at the end of this guide.
 
 ## Register the client
 
@@ -123,3 +125,66 @@ is kept, so it bypasses the same protections. Do not register one yourself.
 The client is thread-safe and is registered as a singleton: every scope receives
 the same instance. Do not create a second `MyJDownloaderClient` for the same
 account, because each instance keeps its own session.
+
+## Register the local API client
+
+`AddLocalJDownloader` registers the `LocalJDownloaderClient` for the local API
+of one JDownloader device, with no MyJDownloader account (see
+[Local API](local-api.md)):
+
+```csharp
+using Microsoft.Extensions.DependencyInjection;
+using MyJdownloader.Local;
+
+services.AddLocalJDownloader(_ => { }); // defaults: http://127.0.0.1:3128
+```
+
+It registers the `LocalJDownloaderOptions` binding, the named `HttpClient`
+`LocalJDownloaderServiceCollectionExtensions.HttpClientName` (the constant value
+is `"MyJdownloader.Local"`), and a `LocalJDownloaderClient` singleton, added with
+`TryAdd`. Inject the client through its constructor and use `client.Device` for
+the typed facades. `JDownloaderDevice` is not registered: the relay client also
+produces such instances, so a registration would be ambiguous when both clients
+are in the container.
+
+The registration disables redirects, and that matters for security. The local
+API has no authentication and no encryption. If the `HttpClient` followed
+redirects, whatever answers on the local port could redirect a cleartext POST
+body, which can hold link and archive passwords, to another host before the
+library rejects the answer. The registration therefore disables redirects again
+after every handler configuration of this client, whatever the registration
+order: a `SocketsHttpHandler` or `HttpClientHandler` primary handler always ends
+with `AllowAutoRedirect = false`, even when you replace it on the returned
+builder. A primary handler of another type is used as it is and must not follow
+redirects.
+
+Do not add HTTP loggers to this client: they log the device address and, at
+trace level, the request headers, which hold the credentials of a reverse proxy
+when you add them. Request bodies carry passwords: never log them from a custom
+handler. Handlers added by `ConfigureHttpClientDefaults` (resilience, logging)
+also apply to this client, and a retry handler would replay device calls, which
+are not idempotent.
+
+`LocalJDownloaderOptions` is the unnamed options instance, so every
+`Configure<LocalJDownloaderOptions>` in the container applies. Do not bind
+`AllowUnencryptedRemoteHost` to configuration you do not trust.
+
+Both registrations can share one container, because their client names, option
+types and client types are distinct:
+
+```csharp
+services.AddMyJDownloader(o => o.AppKey = "MyApp");
+services.AddLocalJDownloader(o => o.BaseAddress = new Uri("http://127.0.0.1:3128"));
+```
+
+Do not register the local client as a typed client, and do not register a
+`LocalJDownloaderClient` yourself before `AddLocalJDownloader`. Both bypass the
+protections above:
+
+```csharp
+// Do not do this for LocalJDownloaderClient.
+services.AddHttpClient<LocalJDownloaderClient>();
+```
+
+For a device on another host (https with a pinned certificate), see
+[Local API](local-api.md#dependency-injection).

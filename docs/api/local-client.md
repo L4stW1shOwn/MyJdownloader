@@ -20,6 +20,7 @@ Client for the local API served by a JDownloader device. The client is thread-sa
 - There is no connect, disconnect, session, session export or reconnection on this client.
 - Calls go to `LocalJDownloaderOptions.BaseAddress` only; `HttpClient.BaseAddress` is ignored.
 - Configure the handler of the `HttpClient` with `AllowAutoRedirect = false`. A redirect to another origin is rejected after the request has been sent.
+- The DI registration `AddLocalJDownloader` applies `AllowAutoRedirect = false` for you, on its own named client (see [Dependency injection](dependency-injection.md)).
 - `HttpClient.Timeout` bounds each call, body included. An expired timeout throws `TimeoutException`.
 - No exception raised by the client carries the path, the URL, the response body or the arguments.
 - Security: the local API has no authentication and no encryption. Anyone who can reach the address can drive the device. Use `https` for a path that leaves the machine (see the guide).
@@ -109,6 +110,7 @@ The sample uses a documentation address (RFC 5737). The client accepts it only o
 
 - [Local API](../guides/local-api.md): enabling the API, Docker, remote usages and the warning about the missing authentication.
 - [Client](client.md): the relay client, `MyJDownloaderClient`.
+- [Dependency injection](dependency-injection.md): `AddLocalJDownloader`, the registration of this client.
 - [Errors](errors.md): the `MyJdException` hierarchy used by both clients.
 - [Device channel](device-channel.md): the generic channel behind the facades.
 - [ADR-012: local API transport](../adr/ADR-012-local-api-transport.md).
