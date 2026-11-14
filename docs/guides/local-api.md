@@ -9,7 +9,9 @@ on another host, and what this path does not provide.
 > **Warning: the local API has no authentication and no encryption.** Anyone who
 > can reach its port controls JDownloader: they can add links, start downloads,
 > restart the device and read its settings. Traffic in plain `http` can be read
-> and altered on the way. Keep the port on loopback, or on a network you trust,
+> and altered on the way. "Anyone" includes every process on the same machine,
+> other containers on the same Docker network, and a web page that makes the
+> browser of a user on that machine send requests to the port. Keep the port on loopback, or on a network you trust,
 > or put it behind `https` and an authenticating reverse proxy.
 
 ## When to use it
@@ -146,8 +148,10 @@ long version = await client.Device.Jd.GetVersionAsync();
 ```
 
 The device generates a new certificate in some cases, and then the pin no longer
-matches: the calls fail with `MyJdProtocolException` until you update the stored
-value. Update it deliberately, after you have checked the new fingerprint.
+matches: the calls fail with `HttpRequestException` (inner
+`AuthenticationException`), raised by the handler and not wrapped by the
+library, until you update the stored value. Compare fingerprints without
+separators: remove the colons that `openssl x509 -fingerprint` prints. Update it deliberately, after you have checked the new fingerprint.
 
 ### Option 2: cleartext on a trusted network
 
@@ -240,8 +244,9 @@ same hierarchy (see [Errors](../api/errors.md)).
 | The same, with `AUTH_FAILED`, `EMAIL_INVALID`, `EMAIL_FORBIDDEN`, `TOKEN_INVALID` or `ERROR_EMAIL_NOT_CONFIRMED` | `MyJdAuthenticationException` |
 | The same, with `OFFLINE` | `MyJdDeviceOfflineException` |
 | The same, with `TOO_MANY_REQUESTS`, `OVERLOAD` or `MAINTENANCE` | `MyJdRateLimitException` |
-| An answer that is not JSON, a non-2xx status without a readable error, a redirect, a `200` body that is not the `{"data": ...}` envelope, or a body over the size limit | `MyJdProtocolException` |
+| An answer that is not JSON, a non-2xx status without a readable error, a redirect, a `200` body that is not a JSON object with a `data` member, or a body over the size limit | `MyJdProtocolException` |
 | No complete answer within `HttpClient.Timeout` | `TimeoutException` |
+| The connection fails (JDownloader stopped, wrong port, TLS or pin failure) | `HttpRequestException`, raised by `HttpClient` and not wrapped; its message may name the host and port |
 | Cancellation through your `CancellationToken` | `OperationCanceledException` |
 
 The library never copies the response body into an exception. A protocol error

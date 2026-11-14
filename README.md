@@ -60,6 +60,14 @@ var json = client.ExportSession()?.ToJson(); // store it protected, see below
 client.RestoreSession(MyJdSession.FromJson(json!));
 ```
 
+Without dependency injection, create the client yourself with a long-lived
+`HttpClient`. The [getting started guide](https://github.com/L4stW1shOwn/MyJdownloader/blob/main/docs/guides/getting-started.md)
+shows both setups.
+
+> **Security:** the exported session holds keys derived from your password. Store it
+> in a protected location and never log it. See the
+> [logging and security guide](https://github.com/L4stW1shOwn/MyJdownloader/blob/main/docs/guides/logging-and-security.md).
+
 ### Without an account: the local API
 
 A JDownloader device also serves a local API that the library can call directly,
@@ -77,14 +85,6 @@ var client = new LocalJDownloaderClient(http); // http://127.0.0.1:3128
 
 long version = await client.Device.Jd.GetVersionAsync();
 ```
-
-Without dependency injection, create the client yourself with a long-lived
-`HttpClient`. The [getting started guide](https://github.com/L4stW1shOwn/MyJdownloader/blob/main/docs/guides/getting-started.md)
-shows both setups.
-
-> **Security:** the exported session holds keys derived from your password. Store it
-> in a protected location and never log it. See the
-> [logging and security guide](https://github.com/L4stW1shOwn/MyJdownloader/blob/main/docs/guides/logging-and-security.md).
 
 ## API coverage
 

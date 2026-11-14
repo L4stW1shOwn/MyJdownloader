@@ -37,6 +37,8 @@ Observed in a live capture on 2026-11-14 against JDownloader core revision
   `BAD_PARAMETERS`. Extra members (`url`, `rid`, `apiVer`) are ignored. An
   empty body or `{"params":[]}` works for parameterless actions.
 - **Success**: HTTP 200, body `{"data": <value>}`. **`rid` is never echoed**.
+  An action without return value answers `{"data":""}`: the `data` member is
+  always present.
 - **Device errors**: HTTP 4xx with a JSON body
   `{"src":"DEVICE","type":"<TYPE>","data":<value or null>}`
   (`404 API_COMMAND_NOT_FOUND`, `400 BAD_PARAMETERS`).
@@ -70,7 +72,7 @@ Observed in a live capture on 2026-11-14 against JDownloader core revision
 - **Internal channel** `LocalDeviceChannel : IDeviceChannel, IBinaryDeviceChannel`,
   reusing the existing argument limits and snapshot rules:
   - **Request**: always `POST <base address><path>`, `Content-Type:
-    application/json`, body `{"params":[...]}` with every argument written as
+    application/json; charset=utf-8`, body `{"params":[...]}` with every argument written as
     its **raw JSON value**. `POST` with a body keeps arguments out of URLs
     (proxy and access logs) and out of URL length limits.
   - **No `rid`, no `apiVer`** are sent, and no `rid` check exists on this
