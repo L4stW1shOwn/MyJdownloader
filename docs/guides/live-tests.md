@@ -72,6 +72,26 @@ Never run them with `--diag`, `--blame-crash`, `--blame-hang` or an HTTP handler
 that logs requests: the memory dumps and logs would contain the password and the
 session keys.
 
+## Local API tests
+
+`tests/MyJdownloader.LiveTests/Local/LocalLiveTests.cs` drives a JDownloader
+instance through its own local HTTP API (no account, no encryption). Set
+`MYJD_LOCAL_URL` to the base address of that API, for example
+`http://127.0.0.1:3128`; without it these tests are ignored. They need no MyJD
+credentials.
+
+```bash
+MYJD_LOCAL_URL='http://127.0.0.1:3128' \
+  dotnet test tests/MyJdownloader.LiveTests --filter "FullyQualifiedName~LocalLive"
+```
+
+The tests are read-only: version, system information, a one-package query, an
+icon and two calls that the device rejects. They add no link, start nothing and
+change no setting. A non-loopback `http` URL is accepted because the tests set
+`AllowUnencryptedRemoteHost`. The local API has no authentication: anyone who
+can reach the port controls the instance, so only point the tests at a device
+on a network you trust.
+
 ## What the tests read
 
 Session export and restore, device ping, version, uptime and core revision,
