@@ -7,3 +7,6 @@ MyJdownloader.Local.LocalJDownloaderOptions.BaseAddress.set -> void
 MyJdownloader.Local.LocalJDownloaderOptions.LocalJDownloaderOptions() -> void
 MyJdownloader.Local.LocalJDownloaderOptions.MaxResponseBodyLength.get -> int
 MyJdownloader.Local.LocalJDownloaderOptions.MaxResponseBodyLength.set -> void
+MyJdownloader.Local.LocalJDownloaderClient
+MyJdownloader.Local.LocalJDownloaderClient.Device.get -> MyJdownloader.JDownloaderDevice!
+MyJdownloader.Local.LocalJDownloaderClient.LocalJDownloaderClient(System.Net.Http.HttpClient! httpClient, MyJdownloader.Local.LocalJDownloaderOptions? options = null) -> void
