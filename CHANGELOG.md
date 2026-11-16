@@ -4,6 +4,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 
 ## [Unreleased]
 
+### Added
+
+- `SetCommentAsync` on `device.LinkGrabber` (`/linkgrabberv2/setComment`) and `device.Downloads` (`/downloadsV2/setComment`): sets the comment of links and packages. `null` clears it, `allPackageLinks` also sets it on every link of the given packages, and the action is applied without confirmation.
+
 ## [0.2.0] - 2026-11-14
 
 ### Added

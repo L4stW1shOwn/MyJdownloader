@@ -125,6 +125,39 @@ public sealed partial class DownloadsApi
         return FacadeResults.RequireAsync(_channel.CallAsync(Base + "setDownloadPassword", FacadeJsonContext.Default.NullableBoolean, args, cancellationToken));
     }
 
+    /// <summary>Sets or clears the comment of links and packages (<c>/downloadsV2/setComment</c>).</summary>
+    /// <param name="linkIds">The identifiers of the links to change.</param>
+    /// <param name="packageIds">The identifiers of the packages to change.</param>
+    /// <param name="comment">The new comment, or <see langword="null"/> to clear it. A blank comment is rejected, so only <see langword="null"/> clears.</param>
+    /// <param name="allPackageLinks"><see langword="true"/> to also set the comment on every link of the given packages.</param>
+    /// <param name="cancellationToken">A token to cancel the call.</param>
+    /// <returns>A task that completes when the device has answered.</returns>
+    /// <remarks>
+    /// <see langword="null"/> clears the comment. With <paramref name="allPackageLinks"/>, the comment is also set on every link of the given packages.
+    /// Applied without confirmation. The comment is stored on the device and readable through the query methods.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="linkIds"/> or <paramref name="packageIds"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="comment"/> is blank, longer than its allowed length (see Argument validation in the error handling guide), or contains control characters or lone surrogates.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">An identifier in <paramref name="linkIds"/> or <paramref name="packageIds"/> is negative.</exception>
+    /// <exception cref="InvalidOperationException">The client is not connected.</exception>
+    /// <exception cref="MyJdException">The relay or the device rejected the request, or the response is invalid.</exception>
+    /// <exception cref="OperationCanceledException">The operation was cancelled.</exception>
+    /// <exception cref="TimeoutException">The request timed out; the action may have been executed.</exception>
+    /// <exception cref="HttpRequestException">A network error occurred; the action may have been executed.</exception>
+    public Task SetCommentAsync(IReadOnlyList<long> linkIds, IReadOnlyList<long> packageIds, string? comment, bool allPackageLinks = false, CancellationToken cancellationToken = default)
+    {
+        var ids = FacadeGuard.IdArgs(linkIds, packageIds);
+        FacadeGuard.ValidateOptionalText(comment, nameof(comment), FacadeGuard.MaxLongTextLength);
+        var args = new[]
+        {
+            ids[0],
+            ids[1],
+            JsonSerializer.SerializeToElement(allPackageLinks, FacadeJsonContext.Default.Boolean),
+            JsonSerializer.SerializeToElement(comment, FacadeJsonContext.Default.String),
+        };
+        return _channel.CallAsync(Base + "setComment", args, cancellationToken);
+    }
+
     /// <summary>Clears the skipped state of links and packages (<c>/downloadsV2/unskip</c>).</summary>
     /// <param name="linkIds">The identifiers of the links to unskip.</param>
     /// <param name="packageIds">The identifiers of the packages to unskip.</param>
