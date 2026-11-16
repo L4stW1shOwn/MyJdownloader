@@ -1,1 +1,3 @@
 #nullable enable
+MyJdownloader.LinkGrabber.LinkGrabberApi.SetCommentAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, string? comment, bool allPackageLinks = false, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!
+MyJdownloader.Downloads.DownloadsApi.SetCommentAsync(System.Collections.Generic.IReadOnlyList<long>! linkIds, System.Collections.Generic.IReadOnlyList<long>! packageIds, string? comment, bool allPackageLinks = false, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken)) -> System.Threading.Tasks.Task!

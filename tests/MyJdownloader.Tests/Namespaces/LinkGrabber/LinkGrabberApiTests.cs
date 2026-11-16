@@ -114,6 +114,7 @@ public sealed class LinkGrabberApiTests
             if (bad is not null)
             {
                 yield return Case($"SetDownloadPasswordAsync_Password_{label}_Throws", a => a.SetDownloadPasswordAsync(_noIds, _noIds, bad));
+                yield return Case($"SetCommentAsync_Comment_{label}_Throws", a => a.SetCommentAsync(_noIds, _noIds, bad));
             }
         }
 
@@ -127,6 +128,9 @@ public sealed class LinkGrabberApiTests
         yield return Case("SetDownloadPasswordAsync_Password_TooLong_Throws", a => a.SetDownloadPasswordAsync(_noIds, _noIds, TextCaps.LongTextOver));
         yield return Case("SetDownloadPasswordAsync_NullLinkIds_Throws", a => a.SetDownloadPasswordAsync(null!, _noIds, "pw"));
         yield return Case("SetDownloadPasswordAsync_NullPackageIds_Throws", a => a.SetDownloadPasswordAsync(_noIds, null!, "pw"));
+        yield return Case("SetCommentAsync_Comment_TooLong_Throws", a => a.SetCommentAsync(_noIds, _noIds, TextCaps.LongTextOver));
+        yield return Case("SetCommentAsync_NullLinkIds_Throws", a => a.SetCommentAsync(null!, _noIds, "note"));
+        yield return Case("SetCommentAsync_NullPackageIds_Throws", a => a.SetCommentAsync(_noIds, null!, "note"));
         yield return Case("GetDownloadUrlsAsync_NullLinkIds_Throws", a => a.GetDownloadUrlsAsync(null!, _noIds, _contentTypes));
         yield return Case("GetDownloadUrlsAsync_NullPackageIds_Throws", a => a.GetDownloadUrlsAsync(_noIds, null!, _contentTypes));
         yield return Case("GetDownloadUrlsAsync_NullTypes_Throws", a => a.GetDownloadUrlsAsync(_noIds, _noIds, null!));
@@ -816,6 +820,45 @@ public sealed class LinkGrabberApiTests
 
         var (_, args) = Sent(channel);
         Assert.That(args[2].GetRawText(), Is.EqualTo("null"));
+    }
+
+    [Test]
+    public async Task SetCommentAsync_Comment_SendsPathAndArgs()
+    {
+        var (channel, api) = Create();
+
+        await api.SetCommentAsync(_ids, _packageIds, "note");
+
+        AssertSent(channel, "setComment", "[1,2]", "[3]", "false", "\"note\"");
+    }
+
+    [Test]
+    public async Task SetCommentAsync_AllPackageLinks_SendsTrue()
+    {
+        var (channel, api) = Create();
+
+        await api.SetCommentAsync(_ids, _packageIds, "note", allPackageLinks: true);
+
+        AssertSent(channel, "setComment", "[1,2]", "[3]", "true", "\"note\"");
+    }
+
+    [Test]
+    public async Task SetCommentAsync_NullComment_SendsJsonNull()
+    {
+        var (channel, api) = Create();
+
+        await api.SetCommentAsync(_ids, _packageIds, null);
+
+        var (_, args) = Sent(channel);
+        Assert.That(args[3].GetRawText(), Is.EqualTo("null"));
+    }
+
+    [Test]
+    public void SetCommentAsync_CommentAtMax_Sends()
+    {
+        var (channel, api) = Create();
+
+        TextCaps.AssertSent(channel, () => api.SetCommentAsync(_ids, _packageIds, TextCaps.LongText));
     }
 
     [Test]
