@@ -4,6 +4,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and th
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-16
+
 ### Added
 
 - `SetCommentAsync` on `device.LinkGrabber` (`/linkgrabberv2/setComment`) and `device.Downloads` (`/downloadsV2/setComment`): sets the comment of links and packages. `null` clears it, `allPackageLinks` also sets it on every link of the given packages, and the action is applied without confirmation.
@@ -69,6 +71,7 @@ First public release.
 - Identifier lists (`linkIds`, `packageIds`, …) reject negative elements with `ArgumentOutOfRangeException`, like single identifiers; the identifier filters of query objects (`PackageUuids`, `JobUuids`, `Uuids`, `DownloadProgressPackageUuids`) follow the same rule (ParamName `query`) (ADR-007).
 - Caller strings validated by the facades and the arguments of a device call have documented maximum lengths (1 024, 32 767 or 65 536 UTF-16 code units by category, 1 048 576 in total and at most 1 024 arguments per call); the `ConnectAsync` password is limited to 65 536 and a `Config`/`Plugins` `SetAsync` value to 1 048 576 characters of JSON text; longer values throw `ArgumentException` before any request (CWE-1284).
 
-[Unreleased]: https://github.com/L4stW1shOwn/MyJdownloader/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/L4stW1shOwn/MyJdownloader/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/L4stW1shOwn/MyJdownloader/releases/tag/v0.3.0
 [0.2.0]: https://github.com/L4stW1shOwn/MyJdownloader/releases/tag/v0.2.0
 [0.1.0]: https://github.com/L4stW1shOwn/MyJdownloader/releases/tag/v0.1.0
